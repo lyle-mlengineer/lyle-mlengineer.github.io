@@ -29,6 +29,27 @@ function linkAction(){
 }
 navLink.forEach(n => n.addEventListener('click', linkAction));
 
+/*==================== SHOW ABOUT ME ====================*/
+const aboutBtn = document.querySelector('.about__button')
+const aboutModal = document.querySelector('.about__modal')
+const aboutClose = document.querySelector('.about__modal-close')
+
+let about = function(){
+    aboutModal.classList.add('about-active')
+}
+
+if(aboutBtn) {
+    aboutBtn.addEventListener('click', () => {
+        aboutModal.classList.add('about-active')
+    })
+} 
+
+if(aboutClose) {
+    aboutClose.addEventListener('click', () => {
+        aboutModal.classList.remove('about-active')
+    })
+}
+
 /*==================== ACCORDION SKILLS ====================*/
 const skillsContent = document.getElementsByClassName('skills__content'),
       skillsHeader = document.querySelectorAll('.skills__header');  
