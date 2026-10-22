@@ -89,6 +89,35 @@ tabs.forEach(tab => {
     })
 })
 
+/*==================== SHOW WORK EXPERIENCE ====================*/
+const qualificationBtns = document.querySelectorAll('.qualification__link');
+const qualificationModalCloseBtns = document.querySelectorAll('.qualification__modal-close');
+
+let closeWork = function(btn){
+    const qualificationModal = btn.parentElement.parentElement;
+    qualificationModal.style.opacity = '0';
+    qualificationModal.style.visibility = 'hidden';
+}
+
+let showWork = function(btn){
+    const qualificationModal = btn.parentElement.querySelector(':scope > .qualification__modal');
+    qualificationModal.style.opacity = '1';
+    qualificationModal.style.visibility = 'visible';
+}
+
+qualificationBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+        showWork(btn)
+    })
+})
+
+qualificationModalCloseBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+        closeWork(btn)
+    })
+})
+
+
 /*==================== SERVICES MODAL ====================*/
 const modalViews = document.querySelectorAll('.services__modal'),
       modalBtns = document.querySelectorAll('.services__button'),
