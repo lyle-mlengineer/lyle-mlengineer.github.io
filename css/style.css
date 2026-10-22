@@ -474,7 +474,8 @@ img {
     margin-bottom: var(--mb-2-5);
 }
 
-.about__button{
+.about__button, 
+.blog__button {
     cursor: pointer;
 }
 
@@ -988,6 +989,11 @@ img {
 .project__img {
     width: 232px;
     justify-self: center;
+}
+
+/*==================== BLOG ====================*/
+.blog__container {
+    gap: 1.5rem;
 }
 
 /*==================== TESTIMONIAL ====================*/
