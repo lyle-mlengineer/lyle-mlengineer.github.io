@@ -2048,6 +2048,142 @@
   color: hsl(138, 38%, 38%);
 }
 
+.auth-card--wide {
+  max-width: 30rem;
+}
+
+.auth-alert {
+  margin-bottom: 1rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid hsla(6, 68%, 58%, 0.35);
+  border-left-width: 3px;
+  border-radius: 0.75rem;
+  background: hsla(6, 68%, 58%, 0.07);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.55;
+  color: hsl(6, 56%, 34%);
+}
+
+.auth-alert a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.auth-alert[hidden],
+.auth-hint[hidden] {
+  display: none;
+}
+
+.auth-hint {
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: hsl(138, 38%, 30%);
+}
+
+.auth-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.auth-row .link-btn {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: hsl(138, 38%, 30%);
+}
+
+.auth-row .link-btn:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.auth-demo-btn {
+  margin-top: 0.6rem;
+}
+
+.check--tight {
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.pw-strength {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.pw-meter {
+  display: flex;
+  flex: 1;
+  gap: 0.25rem;
+}
+
+.pw-meter i {
+  flex: 1;
+  height: 0.28rem;
+  border-radius: 4rem;
+  background: hsla(150, 10%, 8%, 0.12);
+  transition: background-color 0.25s;
+}
+
+.pw-strength[data-score="1"] .pw-meter i.is-on {
+  background: hsl(6, 68%, 58%);
+}
+
+.pw-strength[data-score="2"] .pw-meter i.is-on {
+  background: hsl(36, 86%, 50%);
+}
+
+.pw-strength[data-score="3"] .pw-meter i.is-on {
+  background: hsl(138, 42%, 42%);
+}
+
+.pw-label {
+  flex: none;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+
+.pw-strength[data-score="3"] .pw-label {
+  color: hsl(138, 38%, 30%);
+}
+
+.pw-rules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.9rem;
+  font-size: 0.64rem;
+  color: var(--muted-2);
+}
+
+.pw-rules li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: color 0.2s;
+}
+
+.pw-rules i {
+  font-size: 0.8rem;
+}
+
+.pw-rules li.is-met {
+  color: hsl(138, 34%, 30%);
+}
+
+.choice-stack {
+  display: grid;
+  gap: 0.5rem;
+}
+
 /*=============== WIZARD ===============*/
 .wizard-layout {
   display: grid;

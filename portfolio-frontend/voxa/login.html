@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="description" content="Sign in to your Voxa studio — pick up your episodes, voices and renders where you left off.">
+      <title>Sign in — Voxa</title>
+
+      <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+
+      <!--=============== REMIX ICONS ===============-->
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css">
+
+      <!--=============== CSS ===============-->
+      <link rel="stylesheet" href="css/styles.css">
+      <link rel="stylesheet" href="css/app.css">
+   </head>
+
+   <body class="auth-body">
+      <main class="auth">
+         <!--==================== BRAND PANEL ====================-->
+         <section class="auth__brand" aria-labelledby="login-title">
+            <div class="auth__top">
+               <a href="index.html" class="auth__logo" aria-label="Voxa home">
+                  <span class="nav__mark" aria-hidden="true"><i></i><i></i><i></i></span>
+                  voxa
+               </a>
+
+               <a href="index.html" class="auth__back">Back to site <i class="ri-arrow-right-up-line" aria-hidden="true"></i></a>
+            </div>
+
+            <div class="auth__copy">
+               <p class="eyebrow eyebrow--light">Welcome back</p>
+               <h1 class="auth__title" id="login-title">Pick up where you left off.</h1>
+               <p class="auth__sub">Your drafts, cloned voices and finished renders are all still in the studio — right where you left them.</p>
+
+               <ul class="auth__list">
+                  <li><i class="ri-checkbox-circle-fill" aria-hidden="true"></i> Drafts reopen exactly where you stopped</li>
+                  <li><i class="ri-checkbox-circle-fill" aria-hidden="true"></i> Your cloned voices stay on the shelf</li>
+                  <li><i class="ri-checkbox-circle-fill" aria-hidden="true"></i> Every render, archived in your gallery</li>
+               </ul>
+            </div>
+
+            <div class="auth__art cover cover--wave c-mint" aria-hidden="true">
+               <span class="cover__line"></span>
+               <span class="cover__wave">
+                  <i style="--h: 34%"></i><i style="--h: 62%"></i><i style="--h: 88%"></i><i style="--h: 46%"></i><i style="--h: 72%"></i><i style="--h: 96%"></i>
+               </span>
+            </div>
+
+            <img src="img/waves-img.svg" alt="" class="auth__wave">
+         </section>
+
+         <!--==================== LOGIN PANEL ====================-->
+         <section class="auth__panel" aria-label="Sign in">
+            <div class="auth-card">
+               <h2 class="auth-card__title">Sign in to your studio.</h2>
+               <p class="auth-card__sub">Use the email you registered with, or jump in with a provider.</p>
+
+               <div class="social-row">
+                  <button class="social-btn" type="button" data-social-auth="Google">
+                     <i class="ri-google-fill" aria-hidden="true"></i> Google
+                  </button>
+                  <button class="social-btn" type="button" data-social-auth="Apple">
+                     <i class="ri-apple-fill" aria-hidden="true"></i> Apple
+                  </button>
+               </div>
+
+               <div class="divider">or use email</div>
+
+               <p class="auth-alert" id="login-alert" role="alert" hidden></p>
+
+               <form id="login-form" novalidate>
+                  <div class="field">
+                     <label class="field__label" for="login-email">Email</label>
+                     <input class="input"
+                            id="login-email"
+                            name="email"
+                            type="email"
+                            placeholder="you@studio.fm"
+                            autocomplete="email"
+                            spellcheck="false"
+                            required>
+                     <p class="field__error">Enter a valid email address.</p>
+                     <p class="auth-hint" id="login-hint" hidden></p>
+                  </div>
+
+                  <div class="field">
+                     <label class="field__label" for="login-password">Password</label>
+                     <div class="input-wrap">
+                        <input class="input"
+                               id="login-password"
+                               name="password"
+                               type="password"
+                               placeholder="Your password"
+                               autocomplete="current-password"
+                               required>
+                        <button class="pw-toggle" type="button" data-pw-toggle aria-label="Show password">
+                           <i class="ri-eye-line" aria-hidden="true"></i>
+                        </button>
+                     </div>
+                     <p class="field__error">Enter your password.</p>
+                  </div>
+
+                  <div class="auth-row">
+                     <label class="check check--tight">
+                        <input type="checkbox" id="login-remember">
+                        <span>Keep me signed in</span>
+                     </label>
+
+                     <button class="link-btn" type="button" data-open-modal="reset-modal">
+                        <i class="ri-question-line" aria-hidden="true"></i> Forgot password?
+                     </button>
+                  </div>
+
+                  <button class="btn btn--ink btn--block auth-submit" type="submit">
+                     <i class="ri-lock-unlock-line" aria-hidden="true"></i> Sign in
+                  </button>
+               </form>
+
+               <div class="divider">no account yet</div>
+
+               <a href="register.html" class="btn btn--soft btn--block">
+                  <i class="ri-magic-line" aria-hidden="true"></i> Create a studio
+               </a>
+
+               <button class="btn btn--ghost btn--block auth-demo-btn" type="button" id="demo-studio">
+                  <i class="ri-flashlight-line" aria-hidden="true"></i> Explore the demo studio
+               </button>
+
+               <p class="auth-foot">
+                  <a href="register.html">Create an account</a> · <a href="payments.html">Compare plans</a>
+               </p>
+
+               <div class="auth-demo">
+                  <i class="ri-information-line" aria-hidden="true"></i>
+                  <span>Demo mode — accounts live in this browser only. Nothing is sent anywhere.</span>
+               </div>
+            </div>
+         </section>
+      </main>
+
+      <!--==================== RESET MODAL ====================-->
+      <div class="modal" id="reset-modal" role="dialog" aria-modal="true" aria-labelledby="reset-title" aria-hidden="true">
+         <div class="modal__card">
+            <div class="modal__head">
+               <div>
+                  <h2 class="modal__title" id="reset-title">Reset your password</h2>
+                  <p class="modal__sub">We’ll send a reset link to your inbox. In this demo it just confirms the address.</p>
+               </div>
+               <button class="icon-btn modal__close" type="button" data-close-modal aria-label="Close">
+                  <i class="ri-close-line" aria-hidden="true"></i>
+               </button>
+            </div>
+
+            <form id="reset-form" novalidate>
+               <div class="field">
+                  <label class="field__label" for="reset-email">Email</label>
+                  <input class="input" id="reset-email" type="email" placeholder="you@studio.fm" autocomplete="email" spellcheck="false">
+                  <p class="field__error">Enter a valid email address.</p>
+               </div>
+
+               <div class="modal__actions">
+                  <button class="btn btn--ghost" type="button" data-close-modal>Cancel</button>
+                  <button class="btn btn--ink" type="submit" data-autofocus>Send reset link</button>
+               </div>
+            </form>
+         </div>
+      </div>
+
+      <script src="js/app.js"></script>
+   </body>
+</html>

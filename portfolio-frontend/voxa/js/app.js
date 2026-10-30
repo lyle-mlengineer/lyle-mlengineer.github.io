@@ -70,6 +70,114 @@ const formatClock = seconds => {
    return `${minutes}:${String(rest).padStart(2, '0')}`
 }
 
+/*=============== ACCOUNTS ===============*/
+const ACCOUNTS_KEY = 'voxa-accounts-v1'
+const REMEMBER_KEY = 'voxa-remember'
+const MIN_PASSWORD = 8
+
+// Demo-only digest so raw passwords never sit in localStorage. This is not credential security.
+const demoHash = value => {
+   let hash = 0x811c9dc5
+   for (const char of value) {
+      hash ^= char.charCodeAt(0)
+      hash = Math.imul(hash, 0x01000193)
+   }
+   return (hash >>> 0).toString(36)
+}
+
+const getAccounts = () => {
+   const list = store.get(ACCOUNTS_KEY, [])
+   return Array.isArray(list) ? list.filter(account => account && account.email && account.name) : []
+}
+
+const findAccount = email => {
+   const value = email.trim().toLowerCase()
+   return getAccounts().find(account => account.email.toLowerCase() === value) || null
+}
+
+const saveAccount = account => {
+   const next = [account, ...getAccounts().filter(item => item.email.toLowerCase() !== account.email.toLowerCase())]
+   return store.set(ACCOUNTS_KEY, next.slice(0, 24))
+}
+
+const createAccount = ({ name, email, password, plan }) => saveAccount({
+   name,
+   email,
+   plan,
+   pass: demoHash(password),
+   createdAt: new Date().toISOString()
+})
+
+const isEmail = value => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim())
+
+const clearFieldError = input => {
+   input.closest('.field')?.classList.remove('is-error')
+   input.removeAttribute('aria-invalid')
+}
+
+const markFieldError = (input, message) => {
+   const field = input.closest('.field')
+   if (!field) return
+   field.classList.add('is-error')
+   input.setAttribute('aria-invalid', 'true')
+   const error = field.querySelector('.field__error')
+   if (error && message) error.textContent = message
+}
+
+const showFormAlert = (el, message, link) => {
+   if (!el) return
+   el.textContent = ''
+   if (!message) {
+      el.hidden = true
+      return
+   }
+   el.append(message)
+   if (link) {
+      const anchor = document.createElement('a')
+      anchor.href = link.href
+      anchor.textContent = link.text
+      el.append(' ', anchor)
+   }
+   el.hidden = false
+}
+
+const passwordScore = value => {
+   const rules = {
+      length: value.length >= MIN_PASSWORD,
+      letter: /[a-z]/i.test(value),
+      number: /\d/.test(value)
+   }
+   const score = Object.values(rules).filter(Boolean).length
+   const labels = ['Use 8 or more characters', 'Still too easy', 'Getting closer', 'Strong enough']
+   return { rules, score, label: labels[value ? score : 0] }
+}
+
+const signInAs = (profile, message) => {
+   store.set(USER_KEY, { ...getUser(), ...profile })
+   showToast(message)
+   setTimeout(() => { window.location.href = 'dashboard.html' }, 650)
+}
+
+document.addEventListener('click', event => {
+   const toggle = event.target.closest('[data-pw-toggle]')
+   if (!toggle) return
+   const input = toggle.closest('.input-wrap')?.querySelector('input')
+   if (!input) return
+   const show = input.type === 'password'
+   input.type = show ? 'text' : 'password'
+   toggle.innerHTML = show
+      ? '<i class="ri-eye-off-line" aria-hidden="true"></i>'
+      : '<i class="ri-eye-line" aria-hidden="true"></i>'
+   toggle.setAttribute('aria-label', show ? 'Hide password' : 'Show password')
+})
+
+document.addEventListener('click', event => {
+   const button = event.target.closest('[data-social-auth]')
+   if (!button) return
+   button.disabled = true
+   signInAs({ name: getUser().name, email: getUser().email }, `Signed in with ${button.dataset.socialAuth}.`)
+})
+
 /*=============== CLONED VOICES ===============*/
 const VOICES_KEY = 'voxa-voices-v1'
 const SAMPLE_MIN_SECONDS = 10
@@ -498,36 +606,6 @@ if (authTabs.length && authPanes.length) {
       })
    })
 
-   $$('[data-pw-toggle]').forEach(toggle => {
-      toggle.addEventListener('click', () => {
-         const input = toggle.closest('.input-wrap').querySelector('input')
-         const show = input.type === 'password'
-         input.type = show ? 'text' : 'password'
-         toggle.innerHTML = show
-            ? '<i class="ri-eye-off-line" aria-hidden="true"></i>'
-            : '<i class="ri-eye-line" aria-hidden="true"></i>'
-         toggle.setAttribute('aria-label', show ? 'Hide password' : 'Show password')
-      })
-   })
-
-   const clearFieldError = input => input.closest('.field')?.classList.remove('is-error')
-
-   const markError = (input, message) => {
-      const field = input.closest('.field')
-      if (!field) return
-      field.classList.add('is-error')
-      const error = field.querySelector('.field__error')
-      if (error && message) error.textContent = message
-   }
-
-   const validateEmail = value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-
-   const completeAuth = (profile, message) => {
-      store.set(USER_KEY, { ...getUser(), ...profile })
-      showToast(message)
-      setTimeout(() => { window.location.href = 'dashboard.html' }, 650)
-   }
-
    const signinForm = $('#signin-form')
    const signupForm = $('#signup-form')
 
@@ -541,12 +619,12 @@ if (authTabs.length && authPanes.length) {
          event.preventDefault()
          let valid = true
 
-         if (!validateEmail(email.value.trim())) {
-            markError(email, 'Enter a valid email address.')
+         if (!isEmail(email.value)) {
+            markFieldError(email, 'Enter a valid email address.')
             valid = false
          }
-         if (password.value.length < 8) {
-            markError(password, 'Passwords need at least 8 characters.')
+         if (password.value.length < MIN_PASSWORD) {
+            markFieldError(password, 'Passwords need at least 8 characters.')
             valid = false
          }
          if (!valid) {
@@ -554,18 +632,23 @@ if (authTabs.length && authPanes.length) {
             return
          }
 
+         const account = findAccount(email.value)
          const stored = getUser()
          const address = email.value.trim()
-         const name = stored.email.toLowerCase() === address.toLowerCase()
-            ? stored.name
-            : titleCase(address.split('@')[0])
+         const profile = {
+            name: account ? account.name : stored.email.toLowerCase() === address.toLowerCase()
+               ? stored.name
+               : titleCase(address.split('@')[0]),
+            email: address
+         }
+         if (account?.plan) profile.plan = account.plan
 
          const submit = signinForm.querySelector('button[type="submit"]')
          submit.disabled = true
          submit.textContent = 'Signing in…'
 
          setTimeout(() => {
-            completeAuth({ name, email: address }, `Welcome back, ${firstNameOf(name)}.`)
+            signInAs(profile, `Welcome back, ${firstNameOf(profile.name)}.`)
          }, 600)
       })
    }
@@ -582,15 +665,15 @@ if (authTabs.length && authPanes.length) {
          let valid = true
 
          if (name.value.trim().length < 2) {
-            markError(name, 'Tell us what to call you.')
+            markFieldError(name, 'Tell us what to call you.')
             valid = false
          }
-         if (!validateEmail(email.value.trim())) {
-            markError(email, 'Enter a valid email address.')
+         if (!isEmail(email.value)) {
+            markFieldError(email, 'Enter a valid email address.')
             valid = false
          }
-         if (password.value.length < 8) {
-            markError(password, 'Use at least 8 characters.')
+         if (password.value.length < MIN_PASSWORD) {
+            markFieldError(password, 'Use at least 8 characters.')
             valid = false
          }
          if (!valid) {
@@ -603,24 +686,12 @@ if (authTabs.length && authPanes.length) {
          submit.textContent = 'Creating studio…'
 
          setTimeout(() => {
-            completeAuth(
-               { name: name.value.trim(), email: email.value.trim(), plan: 'Creator' },
-               'Your studio is ready. Let’s make something.'
-            )
+            const profile = { name: name.value.trim(), email: email.value.trim(), plan: 'Creator' }
+            createAccount({ ...profile, password: password.value })
+            signInAs(profile, 'Your studio is ready. Let’s make something.')
          }, 700)
       })
    }
-
-   $$('[data-social-auth]').forEach(button => {
-      button.addEventListener('click', () => {
-         button.disabled = true
-         const provider = button.dataset.socialAuth
-         completeAuth(
-            { name: getUser().name, email: getUser().email },
-            `Signed in with ${provider}.`
-         )
-      })
-   })
 
    $$('[data-forgot]').forEach(link => {
       link.addEventListener('click', event => {
@@ -628,6 +699,208 @@ if (authTabs.length && authPanes.length) {
          const address = $('#signin-email')?.value.trim() || 'your email'
          showToast(`Reset link sent to ${address}.`)
       })
+   })
+}
+
+/*=============== LOGIN PAGE ===============*/
+const loginForm = $('#login-form')
+
+if (loginForm) {
+   const email = $('#login-email')
+   const password = $('#login-password')
+   const remember = $('#login-remember')
+   const formAlert = $('#login-alert')
+   const hint = $('#login-hint')
+   const submit = loginForm.querySelector('button[type="submit"]')
+
+   const seeded = new URLSearchParams(window.location.search).get('email')
+   const remembered = store.get(REMEMBER_KEY, '')
+
+   if (seeded && isEmail(seeded)) {
+      email.value = seeded.trim()
+   } else if (remembered) {
+      email.value = remembered
+      remember.checked = true
+   }
+   if (email.value) password.focus()
+
+   const syncHint = () => {
+      const account = isEmail(email.value) ? findAccount(email.value) : null
+      hint.hidden = !account
+      if (account) hint.textContent = `Found your studio: ${account.name} · ${account.plan} plan`
+   }
+   syncHint()
+
+   ;[email, password].forEach(input => input.addEventListener('input', () => {
+      clearFieldError(input)
+      showFormAlert(formAlert, '')
+   }))
+   email.addEventListener('input', syncHint)
+
+   loginForm.addEventListener('submit', event => {
+      event.preventDefault()
+      let valid = true
+
+      if (!isEmail(email.value)) {
+         markFieldError(email, 'Enter a valid email address.')
+         valid = false
+      }
+      if (!password.value) {
+         markFieldError(password, 'Enter your password.')
+         valid = false
+      }
+      if (!valid) {
+         showFormAlert(formAlert, 'Check the highlighted fields.')
+         return
+      }
+
+      const address = email.value.trim()
+      const account = findAccount(address)
+
+      if (!account && address.toLowerCase() !== DEFAULT_USER.email) {
+         markFieldError(email, 'No studio uses that email yet.')
+         showFormAlert(formAlert, 'We could not find that studio.', {
+            href: `register.html?email=${encodeURIComponent(address)}`,
+            text: 'Create one now'
+         })
+         return
+      }
+
+      if (account && account.pass !== demoHash(password.value)) {
+         markFieldError(password, 'That password does not match this studio.')
+         showFormAlert(formAlert, 'Wrong password. Try again, or reset it.')
+         return
+      }
+
+      store.set(REMEMBER_KEY, remember.checked ? address : '')
+
+      submit.disabled = true
+      submit.innerHTML = '<i class="ri-loader-4-line" aria-hidden="true"></i> Signing in…'
+
+      const profile = account
+         ? { name: account.name, email: account.email, plan: account.plan }
+         : { ...DEFAULT_USER }
+
+      setTimeout(() => signInAs(profile, `Welcome back, ${firstNameOf(profile.name)}.`), 600)
+   })
+
+   $('#demo-studio').addEventListener('click', () => {
+      signInAs({ ...DEFAULT_USER }, 'Demo studio unlocked — everything here is sample data.')
+   })
+
+   const resetModal = $('#reset-modal')
+   const resetForm = $('#reset-form')
+   const resetEmail = $('#reset-email')
+
+   $('[data-open-modal="reset-modal"]').addEventListener('click', () => {
+      if (isEmail(email.value)) resetEmail.value = email.value.trim()
+   })
+
+   resetEmail.addEventListener('input', () => clearFieldError(resetEmail))
+
+   resetForm.addEventListener('submit', event => {
+      event.preventDefault()
+      if (!isEmail(resetEmail.value)) {
+         markFieldError(resetEmail, 'Enter a valid email address.')
+         return
+      }
+      closeModal(resetModal)
+      showToast(`Reset link sent to ${resetEmail.value.trim()}.`)
+   })
+}
+
+/*=============== REGISTER PAGE ===============*/
+const registerForm = $('#register-form')
+
+if (registerForm) {
+   const name = $('#reg-name')
+   const email = $('#reg-email')
+   const password = $('#reg-password')
+   const confirm = $('#reg-confirm')
+   const terms = $('#reg-terms')
+   const formAlert = $('#register-alert')
+   const meter = $('#pw-strength')
+   const bars = $$('.pw-meter i', meter)
+   const label = $('.pw-label', meter)
+   const submit = registerForm.querySelector('button[type="submit"]')
+
+   const seeded = new URLSearchParams(window.location.search).get('email')
+   if (seeded && isEmail(seeded)) email.value = seeded.trim()
+
+   const paintStrength = () => {
+      const { rules, score, label: text } = passwordScore(password.value)
+      bars.forEach((bar, index) => bar.classList.toggle('is-on', index < score))
+      meter.dataset.score = String(score)
+      label.textContent = text
+      $$('.pw-rules li', registerForm).forEach(rule => {
+         const met = rules[rule.dataset.rule]
+         rule.classList.toggle('is-met', met)
+         rule.querySelector('i').className = met
+            ? 'ri-checkbox-circle-fill'
+            : 'ri-checkbox-blank-circle-line'
+      })
+   }
+
+   ;[name, email, password, confirm].forEach(input => input.addEventListener('input', () => {
+      clearFieldError(input)
+      showFormAlert(formAlert, '')
+   }))
+   password.addEventListener('input', paintStrength)
+   paintStrength()
+
+   registerForm.addEventListener('submit', event => {
+      event.preventDefault()
+      let valid = true
+
+      if (name.value.trim().length < 2) {
+         markFieldError(name, 'Tell us what to call you.')
+         valid = false
+      }
+      if (!isEmail(email.value)) {
+         markFieldError(email, 'Enter a valid email address.')
+         valid = false
+      } else if (findAccount(email.value)) {
+         markFieldError(email, 'A studio already uses that email.')
+         showFormAlert(formAlert, 'That email already has a studio.', {
+            href: `login.html?email=${encodeURIComponent(email.value.trim())}`,
+            text: 'Sign in instead'
+         })
+         valid = false
+      }
+      if (password.value.length < MIN_PASSWORD) {
+         markFieldError(password, 'Use at least 8 characters.')
+         valid = false
+      }
+      if (confirm.value !== password.value || !confirm.value) {
+         markFieldError(confirm, 'Both passwords need to match.')
+         valid = false
+      }
+      if (!terms.checked) {
+         showFormAlert(formAlert, 'Tick the terms to finish creating your studio.')
+         valid = false
+      }
+      if (!valid) {
+         showToast('Check the highlighted fields.', 'error')
+         return
+      }
+
+      const plan = registerForm.querySelector('input[name="plan"]:checked').value
+
+      submit.disabled = true
+      submit.innerHTML = '<i class="ri-loader-4-line" aria-hidden="true"></i> Opening your studio…'
+
+      setTimeout(() => {
+         createAccount({
+            name: name.value.trim(),
+            email: email.value.trim(),
+            password: password.value,
+            plan
+         })
+         signInAs(
+            { name: name.value.trim(), email: email.value.trim(), plan },
+            'Your studio is ready. Let’s make something.'
+         )
+      }, 700)
    })
 }
 

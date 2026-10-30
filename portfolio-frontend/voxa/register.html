@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="description" content="Create your Voxa account and open an AI voice studio — script, cast and render your first podcast in minutes.">
+      <title>Create account — Voxa</title>
+
+      <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+
+      <!--=============== REMIX ICONS ===============-->
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css">
+
+      <!--=============== CSS ===============-->
+      <link rel="stylesheet" href="css/styles.css">
+      <link rel="stylesheet" href="css/app.css">
+   </head>
+
+   <body class="auth-body">
+      <main class="auth">
+         <!--==================== BRAND PANEL ====================-->
+         <section class="auth__brand" aria-labelledby="register-title">
+            <div class="auth__top">
+               <a href="index.html" class="auth__logo" aria-label="Voxa home">
+                  <span class="nav__mark" aria-hidden="true"><i></i><i></i><i></i></span>
+                  voxa
+               </a>
+
+               <a href="index.html" class="auth__back">Back to site <i class="ri-arrow-right-up-line" aria-hidden="true"></i></a>
+            </div>
+
+            <div class="auth__copy">
+               <p class="eyebrow eyebrow--light">Create account</p>
+               <h1 class="auth__title" id="register-title">Open a studio in under a minute.</h1>
+               <p class="auth__sub">Give us a name, an email and a password. The first episode is thirty minutes of render time away.</p>
+
+               <ul class="auth__list">
+                  <li><i class="ri-checkbox-circle-fill" aria-hidden="true"></i> Starter plan is free, forever</li>
+                  <li><i class="ri-checkbox-circle-fill" aria-hidden="true"></i> Clone your own voice and keep it on the shelf</li>
+                  <li><i class="ri-checkbox-circle-fill" aria-hidden="true"></i> Switch or cancel plans at any time</li>
+               </ul>
+            </div>
+
+            <div class="auth__art cover cover--rings c-lilac" aria-hidden="true">
+               <span class="cover__rings"></span>
+               <span class="cover__core"></span>
+            </div>
+
+            <img src="img/waves-img.svg" alt="" class="auth__wave">
+         </section>
+
+         <!--==================== REGISTER PANEL ====================-->
+         <section class="auth__panel" aria-label="Create account">
+            <div class="auth-card auth-card--wide">
+               <h2 class="auth-card__title">Create your Voxa account.</h2>
+               <p class="auth-card__sub">Pick a starting plan while you’re here — you can change it later on the billing page.</p>
+
+               <div class="social-row">
+                  <button class="social-btn" type="button" data-social-auth="Google">
+                     <i class="ri-google-fill" aria-hidden="true"></i> Sign up with Google
+                  </button>
+                  <button class="social-btn" type="button" data-social-auth="Apple">
+                     <i class="ri-apple-fill" aria-hidden="true"></i> Sign up with Apple
+                  </button>
+               </div>
+
+               <div class="divider">or use email</div>
+
+               <p class="auth-alert" id="register-alert" role="alert" hidden></p>
+
+               <form id="register-form" novalidate>
+                  <div class="field-grid">
+                     <div class="field">
+                        <label class="field__label" for="reg-name">Your name <small>2+ chars</small></label>
+                        <input class="input"
+                               id="reg-name"
+                               name="name"
+                               type="text"
+                               maxlength="40"
+                               placeholder="Maya Chen"
+                               autocomplete="name"
+                               required>
+                        <p class="field__error">Tell us what to call you.</p>
+                     </div>
+
+                     <div class="field">
+                        <label class="field__label" for="reg-email">Email</label>
+                        <input class="input"
+                               id="reg-email"
+                               name="email"
+                               type="email"
+                               placeholder="you@studio.fm"
+                               autocomplete="email"
+                               spellcheck="false"
+                               required>
+                        <p class="field__error">Enter a valid email address.</p>
+                     </div>
+                  </div>
+
+                  <div class="field">
+                     <label class="field__label" for="reg-password">Password <small>8+ characters</small></label>
+                     <div class="input-wrap">
+                        <input class="input"
+                               id="reg-password"
+                               name="password"
+                               type="password"
+                               placeholder="Make it one you’ll remember"
+                               autocomplete="new-password"
+                               required>
+                        <button class="pw-toggle" type="button" data-pw-toggle aria-label="Show password">
+                           <i class="ri-eye-line" aria-hidden="true"></i>
+                        </button>
+                     </div>
+                     <p class="field__error">Use at least 8 characters.</p>
+
+                     <div class="pw-strength" id="pw-strength" aria-hidden="true">
+                        <div class="pw-meter">
+                           <i></i><i></i><i></i>
+                        </div>
+                        <span class="pw-label">Use 8 or more characters</span>
+                     </div>
+
+                     <ul class="pw-rules" aria-hidden="true">
+                        <li data-rule="length"><i class="ri-checkbox-blank-circle-line"></i> 8+ characters</li>
+                        <li data-rule="letter"><i class="ri-checkbox-blank-circle-line"></i> A letter</li>
+                        <li data-rule="number"><i class="ri-checkbox-blank-circle-line"></i> A number</li>
+                     </ul>
+                  </div>
+
+                  <div class="field">
+                     <label class="field__label" for="reg-confirm">Confirm password</label>
+                     <div class="input-wrap">
+                        <input class="input"
+                               id="reg-confirm"
+                               name="confirm"
+                               type="password"
+                               placeholder="Type it once more"
+                               autocomplete="new-password"
+                               required>
+                        <button class="pw-toggle" type="button" data-pw-toggle aria-label="Show password">
+                           <i class="ri-eye-line" aria-hidden="true"></i>
+                        </button>
+                     </div>
+                     <p class="field__error">Both passwords need to match.</p>
+                  </div>
+
+                  <div class="field">
+                     <span class="field__label">Starting plan</span>
+                     <div class="choice-stack">
+                        <label class="choice">
+                           <input type="radio" name="plan" value="Starter">
+                           <span class="choice__dot" aria-hidden="true"></span>
+                           <span>
+                              <strong>Starter · free</strong>
+                              <small>20 render minutes a month · 1 cloned voice</small>
+                           </span>
+                        </label>
+
+                        <label class="choice">
+                           <input type="radio" name="plan" value="Creator" checked>
+                           <span class="choice__dot" aria-hidden="true"></span>
+                           <span>
+                              <strong>Creator · $24 / month</strong>
+                              <small>60 render minutes a month · 3 cloned voices</small>
+                           </span>
+                        </label>
+
+                        <label class="choice">
+                           <input type="radio" name="plan" value="Studio">
+                           <span class="choice__dot" aria-hidden="true"></span>
+                           <span>
+                              <strong>Studio · $79 / month</strong>
+                              <small>240 render minutes a month · unlimited clones</small>
+                           </span>
+                        </label>
+                     </div>
+                  </div>
+
+                  <label class="check check--tight" style="margin-top: 1.15rem">
+                     <input type="checkbox" id="reg-terms">
+                     <span>I agree to the <a href="#">Terms</a>, the <a href="#">Privacy policy</a> and the <a href="#">Voice ethics policy</a>.</span>
+                  </label>
+
+                  <button class="btn btn--ink btn--block auth-submit" type="submit">
+                     <i class="ri-sparkling-2-line" aria-hidden="true"></i> Create my studio
+                  </button>
+               </form>
+
+               <p class="auth-foot">
+                  Already have an account? <a href="login.html">Sign in</a>
+               </p>
+
+               <div class="auth-demo">
+                  <i class="ri-information-line" aria-hidden="true"></i>
+                  <span>Demo mode — your account is stored in this browser only. Nothing is sent anywhere.</span>
+               </div>
+            </div>
+         </section>
+      </main>
+
+      <script src="js/app.js"></script>
+   </body>
+</html>

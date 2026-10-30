@@ -253,12 +253,16 @@ if (startForm) {
 
       const button = startForm.querySelector('button')
       startForm.classList.add('is-sent')
-      button.textContent = 'Check your inbox'
+      button.textContent = 'Opening your studio'
       button.disabled = true
       startEmail.disabled = true
-      startNote.textContent = 'You are in. Your studio link is on its way.'
+      startNote.textContent = 'You are in. Setting up your account details…'
       startNote.classList.remove('is-error')
       startNote.classList.add('is-success')
+
+      setTimeout(() => {
+         window.location.href = `register.html?email=${encodeURIComponent(startEmail.value.trim())}`
+      }, 900)
    })
 }
 
