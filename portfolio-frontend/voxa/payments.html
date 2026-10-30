@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="description" content="Voxa billing — manage your plan, payment method and invoices.">
+      <title>Billing &amp; plans — Voxa</title>
+
+      <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+
+      <!--=============== REMIX ICONS ===============-->
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css">
+
+      <!--=============== CSS ===============-->
+      <link rel="stylesheet" href="css/styles.css">
+      <link rel="stylesheet" href="css/app.css">
+   </head>
+
+   <body class="app-body">
+      <a href="#main" class="skip-link">Skip to content</a>
+
+      <!--==================== APP HEADER ====================-->
+      <header class="app-header">
+         <div class="container-app app-nav">
+            <a href="index.html" class="app-logo" aria-label="Voxa home">
+               <span class="nav__mark" aria-hidden="true"><i></i><i></i><i></i></span>
+               voxa
+            </a>
+
+            <nav class="app-links" aria-label="Studio">
+               <a href="dashboard.html"><i class="ri-dashboard-3-line" aria-hidden="true"></i> Dashboard</a>
+               <a href="voices.html"><i class="ri-user-voice-line" aria-hidden="true"></i> Voices</a>
+               <a href="gallery.html"><i class="ri-album-line" aria-hidden="true"></i> Gallery</a>
+               <a href="create.html"><i class="ri-mic-line" aria-hidden="true"></i> Create</a>
+               <a href="payments.html" class="is-active"><i class="ri-bank-card-line" aria-hidden="true"></i> Billing</a>
+            </nav>
+
+            <div class="app-actions">
+               <a href="create.html" class="btn btn--ink app-new"><i class="ri-add-line" aria-hidden="true"></i> New podcast</a>
+
+               <div class="user-menu">
+                  <button class="user-chip" type="button" id="account-toggle" aria-expanded="false" aria-controls="account-menu">
+                     <span class="avatar avatar--user" data-user-initials aria-hidden="true">MC</span>
+                     <span class="user-chip__text">
+                        <strong data-user-name>Maya Chen</strong>
+                        <small data-user-plan>Creator plan</small>
+                     </span>
+                     <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+                  </button>
+
+                  <div class="account-menu" id="account-menu">
+                     <div class="account-menu__head">
+                        <strong data-user-name>Maya Chen</strong>
+                        <span data-user-email>maya@studio.fm</span>
+                     </div>
+                     <a href="dashboard.html"><i class="ri-dashboard-3-line" aria-hidden="true"></i> Dashboard</a>
+                     <a href="voices.html"><i class="ri-user-voice-line" aria-hidden="true"></i> My voices</a>
+                     <a href="gallery.html"><i class="ri-album-line" aria-hidden="true"></i> My gallery</a>
+                     <a href="payments.html"><i class="ri-bank-card-line" aria-hidden="true"></i> Billing &amp; plans</a>
+                     <div class="account-menu__sep"></div>
+                     <a href="oauth.html" data-signout><i class="ri-logout-box-r-line" aria-hidden="true"></i> Sign out</a>
+                  </div>
+               </div>
+
+               <button class="app-burger" type="button" id="app-menu-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="app-mobile-nav">
+                  <i class="ri-menu-3-line" aria-hidden="true"></i>
+               </button>
+            </div>
+         </div>
+
+         <nav class="app-mobile-nav" id="app-mobile-nav" aria-label="Studio menu" hidden>
+            <a href="dashboard.html"><i class="ri-dashboard-3-line" aria-hidden="true"></i> Dashboard</a>
+            <a href="voices.html"><i class="ri-user-voice-line" aria-hidden="true"></i> Voices</a>
+            <a href="gallery.html"><i class="ri-album-line" aria-hidden="true"></i> Gallery</a>
+            <a href="create.html"><i class="ri-mic-line" aria-hidden="true"></i> Create</a>
+            <a href="payments.html" class="is-active"><i class="ri-bank-card-line" aria-hidden="true"></i> Billing</a>
+            <a href="oauth.html" data-signout><i class="ri-logout-box-r-line" aria-hidden="true"></i> Sign out</a>
+            <a href="create.html" class="app-mobile-nav__new"><i class="ri-add-line" aria-hidden="true"></i> New podcast</a>
+         </nav>
+      </header>
+
+      <!--==================== MAIN ====================-->
+      <main class="app-main" id="main">
+         <div class="container-app">
+            <header class="page-head">
+               <div>
+                  <p class="app-eyebrow">Account</p>
+                  <h1 class="page-head__title">Billing &amp; plans.</h1>
+                  <p class="page-head__sub">Manage your studio plan, card and receipts. Everything here is a sandbox — no real charges, ever.</p>
+               </div>
+
+               <div class="page-head__actions">
+                  <button class="btn btn--ghost btn--sm" type="button" data-toast="All invoices queued for download.">
+                     <i class="ri-download-2-line" aria-hidden="true"></i> Download all
+                  </button>
+               </div>
+            </header>
+
+            <!--==================== CURRENT PLAN ====================-->
+            <section class="billing-banner" aria-labelledby="billing-plan-title">
+               <div class="billing-banner__body">
+                  <p class="billing-banner__label"><i class="ri-vip-crown-2-line" aria-hidden="true"></i> Current plan</p>
+                  <h2 class="billing-banner__title" id="billing-plan-title"><span data-banner-plan>Creator</span> plan</h2>
+                  <p class="billing-banner__meta">Billed monthly at <strong data-banner-price>$24</strong> · renews Nov 30, 2026 · cancel anytime.</p>
+
+                  <div class="billing-banner__actions">
+                     <a href="#plans" class="btn btn--light btn--sm" data-scroll="#plans"><i class="ri-swap-3-line" aria-hidden="true"></i> Change plan</a>
+                     <a href="#invoices" class="btn btn--ghost btn--sm" data-scroll="#invoices"><i class="ri-file-list-3-line" aria-hidden="true"></i> View invoices</a>
+                  </div>
+               </div>
+
+               <div class="billing-banner__usage">
+                  <div class="billing-banner__usage-head">
+                     <span>Usage this cycle</span>
+                     <strong data-banner-usage>42 of 60 min</strong>
+                  </div>
+                  <div class="meter" data-banner-meter style="--v: 70%"><i></i></div>
+                  <div class="billing-banner__usage-foot">
+                     <span>18 minutes remaining</span>
+                     <span><span data-banner-limit>60 min</span> allowance</span>
+                  </div>
+               </div>
+            </section>
+
+            <!--==================== PLANS ====================-->
+            <div class="section-head" id="plans">
+               <div>
+                  <h2 class="section-head__title">Choose a plan</h2>
+                  <p class="section-head__sub">Switch instantly in this demo. Minutes reset on the first of the month.</p>
+               </div>
+               <span class="chip chip--plain">Monthly billing</span>
+            </div>
+
+            <div class="plans">
+               <article class="plan" data-plan-card="Starter">
+                  <span class="plan__badge" data-current-badge hidden><i class="ri-check-line" aria-hidden="true"></i> Current</span>
+                  <h3 class="plan__name">Starter</h3>
+                  <p class="plan__desc">For trying the studio and shipping a first trailer.</p>
+                  <p class="plan__price">$0 <small>/ forever</small></p>
+                  <ul class="plan__list">
+                     <li><i class="ri-check-line" aria-hidden="true"></i> 20 minutes of renders / month</li>
+                     <li><i class="ri-check-line" aria-hidden="true"></i> 6 stock voices</li>
+                     <li><i class="ri-check-line" aria-hidden="true"></i> Voice cloning (1 voice)</li>
+                     <li><i class="ri-check-line" aria-hidden="true"></i> MP3 192 kbps export</li>
+                     <li><i class="ri-check-line" aria-hidden="true"></i> Publish to the gallery</li>
+                  </ul>
+                  <button class="btn btn--ghost" type="button" data-plan="Starter">Choose Starter</button>
+               </article>
+
+               <article class="plan is-featured is-current" data-plan-card="Creator">
+                  <span class="plan__badge" data-current-badge><i class="ri-check-line" aria-hidden="true"></i> Current</span>
+                  <h3 class="plan__name">Creator</h3>
+                  <p class="plan__desc">The full studio for weekly shows and audiobooks.</p>
+                  <p class="plan__price">$24 <small>/ month</small></p>
+                  <ul class="plan__list">
+                     <li><i class="ri-check-line" aria-hidden="true"></i> 60 minutes of renders / month</li>
+                     <li><i class="ri-check-line" aria-hidden="true"></i> All 40+ studio voices</li>
+                     <li><i class="ri-check-line" aria-hidden="true"></i> MP3 320 &amp; WAV 48 kHz</li>
+                     <li><i class="ri-check-line" aria-hidden="true"></i> Voice cloning (3 voices)</li>
+                     <li><i class="ri-check-line" aria-hidden="true"></i> Custom cover art</li>
+                  </ul>
+                  <button class="btn btn--light" type="button" data-plan="Creator" disabled>Current plan</button>
+               </article>
+
+               <article class="plan" data-plan-card="Studio">
+                  <span class="plan__badge" data-current-badge hidden><i class="ri-check-line" aria-hidden="true"></i> Current</span>
+                  <h3 class="plan__name">Studio</h3>
+                  <p class="plan__desc">For teams producing daily audio at scale.</p>
+                  <p class="plan__price">$79 <small>/ month</small></p>
+                  <ul class="plan__list">
+                     <li><i class="ri-check-line" aria-hidden="true"></i> 240 minutes of renders / month</li>
+                     <li><i class="ri-check-line" aria-hidden="true"></i> Unlimited voice clones</li>
+                     <li><i class="ri-check-line" aria-hidden="true"></i> Priority render queue</li>
+                     <li><i class="ri-check-line" aria-hidden="true"></i> Commercial license</li>
+                     <li><i class="ri-check-line" aria-hidden="true"></i> 3 team seats</li>
+                  </ul>
+                  <button class="btn btn--ghost" type="button" data-plan="Studio">Upgrade to Studio</button>
+               </article>
+            </div>
+
+            <!--==================== BILLING GRID ====================-->
+            <div class="billing-grid">
+               <section class="panel" aria-labelledby="payment-title">
+                  <div class="panel__head">
+                     <div>
+                        <h2 class="panel__title" id="payment-title">Payment method</h2>
+                        <p class="panel__sub">Used for the next renewal on Nov 30.</p>
+                     </div>
+                     <span class="chip chip--plain">Visa</span>
+                  </div>
+
+                  <div class="panel__body">
+                     <div class="pay-method">
+                        <div class="card-visual">
+                           <div class="card-visual__row">
+                              <span class="card-visual__chip" aria-hidden="true"></span>
+                              <span class="card-visual__brand" aria-hidden="true"><span></span><span></span></span>
+                           </div>
+                           <p class="card-visual__num" data-card-number>•••• •••• •••• 4242</p>
+                           <div class="card-visual__foot">
+                              <div>Card holder<strong data-user-name>Maya Chen</strong></div>
+                              <div>Expires<strong data-card-exp>09/28</strong></div>
+                           </div>
+                        </div>
+
+                        <div class="pm-row">
+                           <span>Visa ending <strong>•••• <span data-card-last4>4242</span></strong></span>
+                           <button class="btn btn--ghost btn--sm" type="button" data-open-modal="card-modal">
+                              <i class="ri-edit-line" aria-hidden="true"></i> Update card
+                           </button>
+                        </div>
+                     </div>
+                  </div>
+               </section>
+
+               <section class="panel" aria-labelledby="details-title">
+                  <div class="panel__head">
+                     <div>
+                        <h2 class="panel__title" id="details-title">Billing details</h2>
+                        <p class="panel__sub">Appears on every receipt.</p>
+                     </div>
+                  </div>
+
+                  <div class="panel__body">
+                     <div class="summary__rows" style="border-top: 0; padding-top: 0">
+                        <div class="summary__row"><span>Name</span><strong data-user-name>Maya Chen</strong></div>
+                        <div class="summary__row"><span>Email</span><strong data-user-email>maya@studio.fm</strong></div>
+                        <div class="summary__row"><span>Address</span><strong>14 Studio Lane, London</strong></div>
+                        <div class="summary__row"><span>Country</span><strong>United Kingdom</strong></div>
+                        <div class="summary__row"><span>Tax ID</span><strong>GB 482 110 993</strong></div>
+                     </div>
+
+                     <div class="usage__actions" style="margin-top: 1rem">
+                        <button class="btn btn--ghost btn--sm" type="button" data-toast="Billing details updated.">
+                           <i class="ri-edit-line" aria-hidden="true"></i> Edit details
+                        </button>
+                     </div>
+                  </div>
+               </section>
+            </div>
+
+            <!--==================== INVOICES ====================-->
+            <section class="panel" id="invoices" style="margin-top: 1.15rem" aria-labelledby="invoices-title">
+               <div class="panel__head">
+                  <div>
+                     <h2 class="panel__title" id="invoices-title">Invoices</h2>
+                     <p class="panel__sub">Receipts for the last five billing cycles.</p>
+                  </div>
+                  <button class="panel__link" type="button" data-toast="All invoices queued for download.">
+                     Download all <i class="ri-download-2-line" aria-hidden="true"></i>
+                  </button>
+               </div>
+
+               <div class="table-wrap">
+                  <table class="inv">
+                     <thead>
+                        <tr>
+                           <th scope="col">Invoice</th>
+                           <th scope="col">Date</th>
+                           <th scope="col">Description</th>
+                           <th scope="col">Amount</th>
+                           <th scope="col">Status</th>
+                           <th scope="col"><span class="sr-only">Download</span></th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <tr>
+                           <td class="num">INV-2026-10</td>
+                           <td>Oct 1, 2026</td>
+                           <td>Creator · monthly</td>
+                           <td class="num">$24.00</td>
+                           <td><span class="chip chip--paid">Paid</span></td>
+                           <td class="inv__actions">
+                              <button class="icon-btn" type="button" data-invoice="INV-2026-10" aria-label="Download INV-2026-10">
+                                 <i class="ri-download-2-line" aria-hidden="true"></i>
+                              </button>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="num">INV-2026-09</td>
+                           <td>Sep 1, 2026</td>
+                           <td>Creator · monthly</td>
+                           <td class="num">$24.00</td>
+                           <td><span class="chip chip--paid">Paid</span></td>
+                           <td class="inv__actions">
+                              <button class="icon-btn" type="button" data-invoice="INV-2026-09" aria-label="Download INV-2026-09">
+                                 <i class="ri-download-2-line" aria-hidden="true"></i>
+                              </button>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="num">INV-2026-08</td>
+                           <td>Aug 1, 2026</td>
+                           <td>Creator · monthly</td>
+                           <td class="num">$24.00</td>
+                           <td><span class="chip chip--paid">Paid</span></td>
+                           <td class="inv__actions">
+                              <button class="icon-btn" type="button" data-invoice="INV-2026-08" aria-label="Download INV-2026-08">
+                                 <i class="ri-download-2-line" aria-hidden="true"></i>
+                              </button>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="num">INV-2026-07</td>
+                           <td>Jul 1, 2026</td>
+                           <td>Creator · monthly</td>
+                           <td class="num">$24.00</td>
+                           <td><span class="chip chip--paid">Paid</span></td>
+                           <td class="inv__actions">
+                              <button class="icon-btn" type="button" data-invoice="INV-2026-07" aria-label="Download INV-2026-07">
+                                 <i class="ri-download-2-line" aria-hidden="true"></i>
+                              </button>
+                           </td>
+                        </tr>
+                        <tr>
+                           <td class="num">INV-2026-06</td>
+                           <td>Jun 1, 2026</td>
+                           <td>Starter · monthly</td>
+                           <td class="num">$0.00</td>
+                           <td><span class="chip chip--due">Free</span></td>
+                           <td class="inv__actions">
+                              <button class="icon-btn" type="button" data-invoice="INV-2026-06" aria-label="Download INV-2026-06">
+                                 <i class="ri-download-2-line" aria-hidden="true"></i>
+                              </button>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+
+               <div class="billing-note" style="margin: 0 1.35rem 1.35rem">
+                  <i class="ri-shield-check-line" aria-hidden="true"></i>
+                  <span>Sandbox checkout. Switching plans or updating your card only changes this browser’s demo state — no payment is taken and no card details leave the page.</span>
+               </div>
+            </section>
+         </div>
+      </main>
+
+      <!--==================== APP FOOTER ====================-->
+      <footer class="app-footer">
+         <div class="container-app app-footer__in">
+            <p>© 2026 Voxa Labs, Inc. — demo studio</p>
+            <nav class="app-footer__links" aria-label="Footer">
+               <a href="index.html">Home</a>
+               <a href="dashboard.html">Dashboard</a>
+               <a href="voices.html">Voices</a>
+               <a href="gallery.html">Gallery</a>
+               <a href="create.html">Create</a>
+               <a href="oauth.html" data-signout>Sign out</a>
+            </nav>
+         </div>
+      </footer>
+
+      <!--==================== PLAN MODAL ====================-->
+      <div class="modal" id="plan-modal" role="dialog" aria-modal="true" aria-labelledby="plan-modal-title" aria-hidden="true">
+         <div class="modal__card">
+            <div class="modal__head">
+               <div>
+                  <h2 class="modal__title" id="plan-modal-title">Change plan</h2>
+                  <p class="modal__sub">Your new allowance starts immediately. Switch again whenever you like.</p>
+               </div>
+               <button class="icon-btn modal__close" type="button" data-close-modal aria-label="Close">
+                  <i class="ri-close-line" aria-hidden="true"></i>
+               </button>
+            </div>
+
+            <div class="modal__summary">
+               <div class="modal__summary-row"><span>Plan</span><strong id="plan-modal-name">Studio plan</strong></div>
+               <div class="modal__summary-row"><span>Price</span><strong id="plan-modal-price">$79/month</strong></div>
+               <div class="modal__summary-row"><span>Includes</span><strong id="plan-modal-limit">240 minutes of renders / month</strong></div>
+               <div class="modal__summary-row"><span>Payment</span><strong>Visa •••• 4242</strong></div>
+            </div>
+
+            <p class="form-note">Sandbox checkout — this confirms the switch instantly in your demo studio and never charges a card.</p>
+
+            <div class="modal__actions">
+               <button class="btn btn--ghost btn--sm" type="button" data-close-modal>Cancel</button>
+               <button class="btn btn--ink btn--sm" type="button" id="plan-confirm">Confirm plan</button>
+            </div>
+         </div>
+      </div>
+
+      <!--==================== CARD MODAL ====================-->
+      <div class="modal" id="card-modal" role="dialog" aria-modal="true" aria-labelledby="card-modal-title" aria-hidden="true">
+         <div class="modal__card">
+            <div class="modal__head">
+               <div>
+                  <h2 class="modal__title" id="card-modal-title">Update payment method</h2>
+                  <p class="modal__sub">Use any 16 digits — this is a sandbox, nothing is charged.</p>
+               </div>
+               <button class="icon-btn modal__close" type="button" data-close-modal aria-label="Close">
+                  <i class="ri-close-line" aria-hidden="true"></i>
+               </button>
+            </div>
+
+            <form id="card-form" novalidate>
+               <div class="field">
+                  <label class="field__label" for="card-number">Card number</label>
+                  <input class="input"
+                         id="card-number"
+                         name="card-number"
+                         type="text"
+                         inputmode="numeric"
+                         placeholder="4242 4242 4242 4242"
+                         autocomplete="cc-number"
+                         data-autofocus>
+                  <p class="field__error">Enter the 16 digits on your card.</p>
+               </div>
+
+               <div class="field-grid">
+                  <div class="field">
+                     <label class="field__label" for="card-exp">Expiry</label>
+                     <input class="input"
+                            id="card-exp"
+                            name="card-exp"
+                            type="text"
+                            inputmode="numeric"
+                            placeholder="MM/YY"
+                            autocomplete="cc-exp">
+                     <p class="field__error">Use MM/YY.</p>
+                  </div>
+
+                  <div class="field">
+                     <label class="field__label" for="card-cvc">CVC</label>
+                     <input class="input"
+                            id="card-cvc"
+                            name="card-cvc"
+                            type="text"
+                            inputmode="numeric"
+                            placeholder="123"
+                            autocomplete="cc-csc">
+                     <p class="field__error">3–4 digits.</p>
+                  </div>
+               </div>
+
+               <div class="modal__actions">
+                  <button class="btn btn--ghost btn--sm" type="button" data-close-modal>Cancel</button>
+                  <button class="btn btn--ink btn--sm" type="submit">Save card</button>
+               </div>
+            </form>
+         </div>
+      </div>
+
+      <script src="js/app.js"></script>
+   </body>
+</html>

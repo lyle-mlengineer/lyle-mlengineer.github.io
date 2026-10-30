@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="150" viewBox="0 0 150 150">
+  <defs>
+    <linearGradient id="wave1Gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f2b233" />
+      <stop offset="100%" style="stop-color:#c98a00" />
+    </linearGradient>
+  </defs>
+  <path d="M 10 75 Q 30 20 50 75 T 90 75 T 130 75" stroke="url(#wave1Gradient)" stroke-width="8" fill="none" stroke-linecap="round" />
+  <path d="M 10 85 Q 30 30 50 85 T 90 85 T 130 85" stroke="url(#wave1Gradient)" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.6" />
+  <path d="M 10 65 Q 30 10 50 65 T 90 65 T 130 65" stroke="url(#wave1Gradient)" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.6" />
+</svg>

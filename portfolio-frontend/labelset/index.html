@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Labelset — AI Data Sourcing &amp; Labeling for Audio, Image and Video</title>
+<meta name="description" content="Labelset helps organizations source, create and label audio, image and video data. Sign up, get assigned tasks and get paid — or invite your own team." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header class="header" id="header">
+  <nav class="nav container">
+    <a href="#home" class="nav__logo" aria-label="Labelset home">
+      <svg viewBox="0 0 24 24" class="logo-mark" aria-hidden="true">
+        <path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5v-9Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+        <circle cx="12" cy="12" r="2.6" fill="currentColor"/>
+      </svg>
+      <span>Labelset</span>
+    </a>
+
+    <div class="nav__menu" id="nav-menu">
+      <ul class="nav__list">
+        <li><a href="#home" class="nav__link is-active">Home</a></li>
+        <li><a href="#about" class="nav__link">About Us</a></li>
+        <li><a href="#services" class="nav__link">Services</a></li>
+        <li><a href="#projects" class="nav__link">Projects</a></li>
+        <li><a href="register.html#login" class="nav__link">Log in</a></li>
+      </ul>
+      <a href="register.html" class="button button--primary nav__cta">Get Started</a>
+    </div>
+
+    <div class="nav__toggle" id="nav-toggle" aria-label="Open menu" role="button" tabindex="0">
+      <span></span><span></span><span></span>
+    </div>
+  </nav>
+</header>
+
+<main>
+
+<!-- ============ HERO ============ -->
+<section class="hero section" id="home">
+  <div class="container hero__grid">
+    <div class="hero__content">
+      <h1 class="hero__title reveal">Label The Data That <em>Trains</em> What's Next</h1>
+      <p class="hero__text reveal">
+        We source, create and label high-quality audio, image and video data for
+        teams building AI — with a vetted global workforce and AI-assisted quality control.
+      </p>
+
+      <div class="hero__actions reveal">
+        <a href="#services" class="button button--primary">Our Services</a>
+        <a href="#projects" class="button button--text">
+          View Projects
+          <svg viewBox="0 0 24 24" class="icon" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+      <div class="hero__stats reveal">
+        <div class="stat">
+          <span class="stat__number" data-count="120" data-suffix="K+">0</span>
+          <span class="stat__label">Labelers<br/>worldwide</span>
+        </div>
+        <div class="stat">
+          <span class="stat__number" data-count="4.8" data-suffix="M" data-decimals="1">0</span>
+          <span class="stat__label">Tasks<br/>completed</span>
+        </div>
+        <div class="stat">
+          <span class="stat__number" data-count="98" data-suffix="%">0</span>
+          <span class="stat__label">Average label<br/>accuracy</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero__media reveal">
+      <!-- Main visual: labeled image scene (pure SVG) -->
+      <figure class="hero__scene hero__scene--main" aria-label="Image annotation preview">
+        <svg viewBox="0 0 520 400" role="img">
+          <defs>
+            <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#1b2440"/><stop offset="1" stop-color="#2c3a63"/>
+            </linearGradient>
+          </defs>
+          <rect width="520" height="400" fill="url(#sky)"/>
+          <path d="M0 300 Q90 240 180 290 T380 280 T520 300 V400 H0 Z" fill="#22304f"/>
+          <path d="M0 330 Q120 290 240 325 T520 320 V400 H0 Z" fill="#1a2540"/>
+          <circle cx="430" cy="80" r="34" fill="#f97316" opacity=".9"/>
+          <g stroke="#f97316" stroke-width="3" fill="none">
+            <rect x="120" y="150" width="150" height="120" rx="6"/>
+          </g>
+          <rect x="300" y="200" width="110" height="90" rx="6" fill="none" stroke="#38bdf8" stroke-width="3"/>
+          <path d="M60 340 q60 -70 120 -10 q60 60 130 -20" stroke="#a78bfa" stroke-width="4" fill="none"/>
+          <g font-family="Inter, sans-serif" font-size="15" font-weight="600">
+            <rect x="120" y="126" width="96" height="24" rx="5" fill="#f97316"/>
+            <text x="130" y="143" fill="#0b0f1c">car 0.97</text>
+            <rect x="300" y="176" width="104" height="24" rx="5" fill="#38bdf8"/>
+            <text x="310" y="193" fill="#0b0f1c">person 0.94</text>
+          </g>
+        </svg>
+        <figcaption class="hero__scene-tag">Image labeling</figcaption>
+      </figure>
+
+      <!-- Overlapping visual: audio waveform -->
+      <figure class="hero__scene hero__scene--float" aria-label="Audio transcription preview">
+        <svg viewBox="0 0 320 200" role="img">
+          <rect width="320" height="200" rx="10" fill="#0e1424"/>
+          <g fill="#f97316">
+            <rect x="20" y="86" width="8" height="28" rx="4"/><rect x="38" y="66" width="8" height="68" rx="4"/>
+            <rect x="56" y="78" width="8" height="44" rx="4"/><rect x="74" y="52" width="8" height="96" rx="4"/>
+            <rect x="92" y="72" width="8" height="56" rx="4"/><rect x="110" y="60" width="8" height="80" rx="4"/>
+            <rect x="128" y="84" width="8" height="32" rx="4"/><rect x="146" y="46" width="8" height="108" rx="4"/>
+            <rect x="164" y="70" width="8" height="60" rx="4"/><rect x="182" y="58" width="8" height="84" rx="4"/>
+            <rect x="200" y="80" width="8" height="40" rx="4"/><rect x="218" y="64" width="8" height="72" rx="4"/>
+            <rect x="236" y="88" width="8" height="24" rx="4"/><rect x="254" y="56" width="8" height="88" rx="4"/>
+            <rect x="272" y="76" width="8" height="48" rx="4"/><rect x="290" y="68" width="8" height="64" rx="4"/>
+          </g>
+          <rect x="140" y="20" width="3" height="160" fill="#38bdf8"/>
+          <text x="20" y="188" fill="#7c8db5" font-family="Inter, sans-serif" font-size="12">Speaker 1 · 00:12</text>
+        </svg>
+        <figcaption class="hero__scene-tag">Audio transcription</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ABOUT ============ -->
+<section class="about section" id="about">
+  <div class="container about__grid">
+    <div class="about__media reveal">
+      <figure class="about__card about__card--a" aria-label="Quality review dashboard">
+        <svg viewBox="0 0 300 220" role="img">
+          <rect width="300" height="220" fill="#101828"/>
+          <rect x="18" y="18" width="264" height="26" rx="6" fill="#1d2a44"/>
+          <circle cx="34" cy="31" r="6" fill="#f97316"/>
+          <text x="50" y="36" fill="#94a3b8" font-family="Inter" font-size="12">Consensus review</text>
+          <g fill="none" stroke-width="3">
+            <rect x="18" y="60" width="120" height="86" rx="8" stroke="#f97316"/>
+            <rect x="152" y="60" width="130" height="86" rx="8" stroke="#334155"/>
+          </g>
+          <g font-family="Inter" font-size="11" fill="#94a3b8">
+            <text x="30" y="200">Agreement 96%</text>
+          </g>
+          <path d="M166 132 l18 -22 16 14 20 -30 24 38" stroke="#22c55e" stroke-width="3" fill="none"/>
+          <g transform="translate(30 74)">
+            <path d="M0 50 Q28 8 56 44 T104 30" stroke="#a78bfa" stroke-width="3" fill="none"/>
+          </g>
+        </svg>
+      </figure>
+      <figure class="about__card about__card--b" aria-label="Video frame labeling">
+        <svg viewBox="0 0 260 180" role="img">
+          <rect width="260" height="180" fill="#172033"/>
+          <rect x="14" y="14" width="232" height="120" rx="6" fill="#0b1120"/>
+          <polygon points="60,110 90,60 120,110" fill="#334155"/>
+          <polygon points="110,110 150,44 190,110" fill="#475569"/>
+          <rect x="132" y="52" width="52" height="42" fill="none" stroke="#f97316" stroke-width="3"/>
+          <text x="132" y="46" fill="#f97316" font-family="Inter" font-size="11" font-weight="600">vehicle</text>
+          <circle cx="70" cy="40" r="10" fill="#f97316" opacity=".85"/>
+          <g fill="#38bdf8">
+            <rect x="14" y="146" width="150" height="6" rx="3"/>
+          </g>
+          <text x="176" y="153" fill="#64748b" font-family="Inter" font-size="11">00:41 / 02:10</text>
+        </svg>
+      </figure>
+    </div>
+
+    <div class="about__content">
+      <span class="section__eyebrow">About Us</span>
+      <h2 class="section__title reveal">We Provide The Best Data To Train AI</h2>
+      <p class="reveal">
+        We pair AI-assisted tooling with real people to make every dataset a
+        masterpiece — something unique, verified and unmatched.
+      </p>
+
+      <ul class="about__list reveal">
+        <li><svg viewBox="0 0 24 24" class="check"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.2 14.2-3.4-3.4 1.4-1.4 2 2 4.6-4.6 1.4 1.4-6 6Z" fill="currentColor"/></svg>Professional labelers</li>
+        <li><svg viewBox="0 0 24 24" class="check"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.2 14.2-3.4-3.4 1.4-1.4 2 2 4.6-4.6 1.4 1.4-6 6Z" fill="currentColor"/></svg>Guaranteed quality</li>
+        <li><svg viewBox="0 0 24 24" class="check"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.2 14.2-3.4-3.4 1.4-1.4 2 2 4.6-4.6 1.4 1.4-6 6Z" fill="currentColor"/></svg>Extensive experience</li>
+        <li><svg viewBox="0 0 24 24" class="check"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.2 14.2-3.4-3.4 1.4-1.4 2 2 4.6-4.6 1.4 1.4-6 6Z" fill="currentColor"/></svg>We quote your project</li>
+      </ul>
+
+      <a href="#projects" class="button button--primary reveal">View Projects</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SERVICES ============ -->
+<section class="services section" id="services">
+  <div class="container">
+    <div class="services__head">
+      <div>
+        <span class="section__eyebrow">Our Services</span>
+        <h2 class="section__title reveal">High Quality Labeling Services</h2>
+      </div>
+      <div class="services__head-cta reveal">
+        <p>We provide end-to-end data services for audio, image and video — offering confidence and security for your models.</p>
+        <a href="#contact" class="button button--primary">Contact Now</a>
+      </div>
+    </div>
+
+    <div class="services__viewport" id="services-viewport">
+      <div class="services__track" id="services-track">
+
+        <article class="service-card reveal">
+          <div class="service-card__icon">
+            <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-3.1A7 7 0 0 0 19 11h-2Z" fill="currentColor"/></svg>
+          </div>
+          <h3>Audio Data</h3>
+          <p>Transcription, speaker diarization and intent labeling for voice, call-center and speech datasets.</p>
+          <a class="service-card__link" href="#contact">Learn more →</a>
+        </article>
+
+        <article class="service-card reveal">
+          <div class="service-card__icon">
+            <svg viewBox="0 0 24 24"><path d="M4 5h16v14H4V5Zm2 2v10h12V7H6Zm2 8 3-4 2 2.5L15 10l2.5 5H7.5Z" fill="currentColor"/><circle cx="9.5" cy="9.5" r="1.5" fill="currentColor"/></svg>
+          </div>
+          <h3>Image Data</h3>
+          <p>Bounding boxes, polygons, segmentation and classification with AI pre-labels humans verify.</p>
+          <a class="service-card__link" href="#contact">Learn more →</a>
+        </article>
+
+        <article class="service-card reveal">
+          <div class="service-card__icon">
+            <svg viewBox="0 0 24 24"><path d="M4 5h12v14H4V5Zm14 4 4-3v12l-4-3V9Z" fill="currentColor"/></svg>
+          </div>
+          <h3>Video Data</h3>
+          <p>Frame-by-frame tracking, event tagging and clip classification for autonomous and media AI.</p>
+          <a class="service-card__link" href="#contact">Learn more →</a>
+        </article>
+
+        <article class="service-card reveal">
+          <div class="service-card__icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10V6l-8-4Zm-1.2 13.4-3-3 1.4-1.4 1.6 1.6 4-4 1.4 1.4-5.4 5.4Z" fill="currentColor"/></svg>
+          </div>
+          <h3>Quality &amp; Consensus</h3>
+          <p>Gold-set audits, multi-annotator consensus and reviewer tiers keep accuracy above 98%.</p>
+          <a class="service-card__link" href="#contact">Learn more →</a>
+        </article>
+
+        <article class="service-card reveal">
+          <div class="service-card__icon">
+            <svg viewBox="0 0 24 24"><path d="M16 11a3 3 0 1 0-3-3 3 3 0 0 0 3 3Zm-8 0a3 3 0 1 0-3-3 3 3 0 0 0 3 3Zm0 2c-2.3 0-6 1.2-6 3.5V19h12v-2.5c0-2.3-3.7-3.5-6-3.5Zm8 0c-.4 0-.9 0-1.4.1 1.4 1 2.4 2.2 2.4 3.4V19h6v-2.5c0-2.3-3.7-3.5-7-3.5Z" fill="currentColor"/></svg>
+          </div>
+          <h3>Workforce &amp; Payouts</h3>
+          <p>Labelers sign up, get matched to paid tasks and withdraw earnings. Invite your own team too.</p>
+          <a class="service-card__link" href="#contact">Learn more →</a>
+        </article>
+
+      </div>
+    </div>
+
+    <div class="services__nav">
+      <button class="round-btn" id="svc-prev" aria-label="Previous services">
+        <svg viewBox="0 0 24 24"><path d="M14 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="round-btn" id="svc-next" aria-label="Next services">
+        <svg viewBox="0 0 24 24"><path d="M10 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROJECTS ============ -->
+<section class="projects section" id="projects">
+  <div class="container">
+    <div class="projects__head">
+      <span class="section__eyebrow">Our Projects</span>
+      <h2 class="section__title reveal">Latest Completed Datasets</h2>
+    </div>
+
+    <div class="projects__grid">
+      <article class="project-card reveal">
+        <div class="project-card__media project-card__media--audio">
+          <svg viewBox="0 0 400 260" aria-hidden="true">
+            <rect width="400" height="260" fill="#0e1626"/>
+            <g fill="#f97316">
+              <rect x="30" y="100" width="14" height="60" rx="7"/><rect x="60" y="70" width="14" height="120" rx="7"/>
+              <rect x="90" y="90" width="14" height="80" rx="7"/><rect x="120" y="50" width="14" height="160" rx="7"/>
+              <rect x="150" y="86" width="14" height="88" rx="7"/><rect x="180" y="60" width="14" height="140" rx="7"/>
+              <rect x="210" y="104" width="14" height="52" rx="7"/><rect x="240" y="40" width="14" height="180" rx="7"/>
+              <rect x="270" y="80" width="14" height="100" rx="7"/><rect x="300" y="64" width="14" height="132" rx="7"/>
+              <rect x="330" y="96" width="14" height="68" rx="7"/><rect x="360" y="76" width="14" height="108" rx="7"/>
+            </g>
+          </svg>
+        </div>
+        <div class="project-card__body">
+          <span class="project-card__tag">Audio Data</span>
+          <h3>Multilingual Call Center</h3>
+          <span class="project-card__date">January 15, 2026</span>
+          <p>42,000 transcribed and diarized calls across 6 languages, with intent labels and sentiment scores.</p>
+        </div>
+      </article>
+
+      <article class="project-card reveal">
+        <div class="project-card__media project-card__media--image">
+          <svg viewBox="0 0 400 260" aria-hidden="true">
+            <rect width="400" height="260" fill="#13203a"/>
+            <path d="M0 200 Q100 150 200 195 T400 185 V260 H0 Z" fill="#1d2c4d"/>
+            <circle cx="330" cy="60" r="30" fill="#f97316" opacity=".9"/>
+            <rect x="70" y="90" width="120" height="90" rx="6" fill="none" stroke="#38bdf8" stroke-width="3"/>
+            <rect x="220" y="120" width="90" height="70" rx="6" fill="none" stroke="#a78bfa" stroke-width="3"/>
+            <rect x="70" y="70" width="72" height="20" rx="4" fill="#38bdf8"/>
+            <text x="78" y="85" fill="#0b1120" font-family="Inter" font-size="13" font-weight="600">truck</text>
+            <rect x="220" y="100" width="86" height="20" rx="4" fill="#a78bfa"/>
+            <text x="228" y="115" fill="#0b1120" font-family="Inter" font-size="13" font-weight="600">crosswalk</text>
+          </svg>
+        </div>
+        <div class="project-card__body">
+          <span class="project-card__tag">Image Data</span>
+          <h3>Retail Shelf Vision</h3>
+          <span class="project-card__date">May 21, 2026</span>
+          <p>180,000 product images segmented and classified for out-of-stock detection in 12 store formats.</p>
+        </div>
+      </article>
+
+      <article class="project-card reveal">
+        <div class="project-card__media project-card__media--video">
+          <svg viewBox="0 0 400 260" aria-hidden="true">
+            <rect width="400" height="260" fill="#0d1524"/>
+            <rect x="40" y="40" width="320" height="150" rx="8" fill="#182742"/>
+            <polygon points="180,90 230,115 180,140" fill="#f97316"/>
+            <rect x="40" y="206" width="320" height="8" rx="4" fill="#28395c"/>
+            <rect x="40" y="206" width="150" height="8" rx="4" fill="#f97316"/>
+            <g fill="#7c8db5" font-family="Inter" font-size="13"><text x="40" y="238">01:12</text><text x="330" y="238">03:40</text></g>
+          </svg>
+        </div>
+        <div class="project-card__body">
+          <span class="project-card__tag">Video Data</span>
+          <h3>Street-Side Tracking</h3>
+          <span class="project-card__date">July 03, 2026</span>
+          <p>9,500 driving clips with per-frame object tracking, occlusion handling and event timestamps.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="how section" id="how">
+  <div class="container">
+    <div class="how__head">
+      <span class="section__eyebrow">How It Works</span>
+      <h2 class="section__title reveal">Two Sides, One Platform</h2>
+    </div>
+
+    <div class="how__cols">
+      <div class="how__col reveal">
+        <h3><svg viewBox="0 0 24 24" class="how__icon"><path d="M4 20V8l8-5 8 5v12h-6v-6h-4v6H4Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>For Organizations</h3>
+        <ol>
+          <li><strong>Post a project.</strong> Find public data, upload your own, or ask us to source it.</li>
+          <li><strong>Choose your workforce.</strong> Use our vetted labelers, or invite your employees and assign them tasks.</li>
+          <li><strong>Review &amp; ship.</strong> Track consensus in real time and export to your training pipeline.</li>
+        </ol>
+      </div>
+      <div class="how__col reveal">
+        <h3><svg viewBox="0 0 24 24" class="how__icon"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4 0-8 2-8 5v3h16v-3c0-3-4-5-8-5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>For Labelers</h3>
+        <ol>
+          <li><strong>Sign up &amp; qualify.</strong> Take a short skill test for audio, image or video work.</li>
+          <li><strong>Get assigned tasks.</strong> Matched to your skills, languages and availability.</li>
+          <li><strong>Complete &amp; get paid.</strong> Quality bonuses on top; withdraw anytime.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section class="contact section" id="contact">
+  <div class="container">
+    <div class="contact__head">
+      <span class="section__eyebrow">Contact Us</span>
+      <h2 class="section__title reveal">Write To Us &amp; Build</h2>
+    </div>
+
+    <div class="contact__grid">
+      <figure class="contact__media reveal" aria-label="Data labeling workspace">
+        <svg viewBox="0 0 420 380" role="img">
+          <rect width="420" height="380" fill="#0e1626"/>
+          <rect x="40" y="40" width="340" height="210" rx="10" fill="#182742"/>
+          <rect x="58" y="58" width="304" height="174" rx="6" fill="#0b1120"/>
+          <g fill="#f97316">
+            <rect x="76" y="120" width="10" height="50" rx="5"/><rect x="96" y="100" width="10" height="90" rx="5"/>
+            <rect x="116" y="112" width="10" height="66" rx="5"/><rect x="136" y="88" width="10" height="114" rx="5"/>
+            <rect x="156" y="108" width="10" height="74" rx="5"/><rect x="176" y="96" width="10" height="98" rx="5"/>
+            <rect x="196" y="118" width="10" height="54" rx="5"/>
+          </g>
+          <rect x="224" y="76" width="120" height="80" rx="6" fill="none" stroke="#38bdf8" stroke-width="3"/>
+          <rect x="224" y="56" width="66" height="18" rx="4" fill="#38bdf8"/>
+          <text x="230" y="70" fill="#0b1120" font-family="Inter" font-size="12" font-weight="600">label</text>
+          <rect x="170" y="250" width="80" height="14" rx="4" fill="#1d2c4d"/>
+          <rect x="120" y="264" width="180" height="10" rx="5" fill="#182742"/>
+          <g fill="#22314f"><circle cx="90" cy="320" r="26"/><circle cx="210" cy="320" r="26"/><circle cx="330" cy="320" r="26"/></g>
+          <g fill="#f97316"><circle cx="90" cy="320" r="10"/><circle cx="210" cy="320" r="10"/><circle cx="330" cy="320" r="10"/></g>
+        </svg>
+        <figcaption>One workspace for audio, image &amp; video</figcaption>
+      </figure>
+
+      <div class="contact__cards">
+        <div class="contact-card reveal">
+          <div class="contact-card__icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 14.5 9 2.5 2.5 0 0 1 12 11.5Z" fill="currentColor"/></svg>
+          </div>
+          <h3>We're here</h3>
+          <p>Remote-first<br/>HQ: Austin, TX</p>
+        </div>
+
+        <div class="contact-card reveal">
+          <div class="contact-card__icon">
+            <svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.6 15.6 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.6.9.9 0 0 1 1 1V20a.9.9 0 0 1-1 1A17 17 0 0 1 3 4a.9.9 0 0 1 1-1h3.5a.9.9 0 0 1 1 1 11.4 11.4 0 0 0 .6 3.6 1 1 0 0 1-.25 1Z" fill="currentColor"/></svg>
+          </div>
+          <h3>Talk to us</h3>
+          <p>+1-512-555-0142<br/>Mon–Fri, 9AM–6PM CT</p>
+        </div>
+
+        <div class="contact-card reveal">
+          <div class="contact-card__icon">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16v12H8l-4 4V4Zm4 5h8v2H8V9Zm0 4h5v2H8v-2Z" fill="currentColor"/></svg>
+          </div>
+          <h3>Chat with us</h3>
+          <div class="contact-card__socials">
+            <a href="#" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.4A10 10 0 1 0 12 2Zm5 13.5c-.2.6-1.2 1.2-1.7 1.2-1.6.1-4-1.3-5.6-4-.7-1-1-2-1-2.6 0-.9.8-1.7 1.3-1.7h.6c.3 0 .4.1.5.4l.6 1.6c.1.2 0 .4-.1.5l-.4.5c-.1.2-.1.3 0 .5.4.8 1.7 2.1 2.6 2.4.2.1.4.1.5-.1l.6-.7c.1-.2.3-.2.5-.1l1.6.8c.2.1.3.2.3.4a1.4 1.4 0 0 1-.2.9Z" fill="currentColor"/></svg></a>
+            <a href="#" aria-label="Messenger"><svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.2 2 11.4c0 2.9 1.4 5.5 3.7 7.2V22l3.4-1.9c.9.3 1.9.4 2.9.4 5.5 0 10-4.2 10-9.4S17.5 2 12 2Zm1 12.3-2.5-2.7-5 2.7 5.5-6.1 2.5 2.7 5-2.7-5.5 6.1Z" fill="currentColor"/></svg></a>
+            <a href="#" aria-label="Telegram"><svg viewBox="0 0 24 24"><path d="M21.9 4.6 18.6 20c-.2 1.1-.9 1.3-1.8.8l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.3-4.9 9-8.1c.7-.6-.2-.9-1-.3L6.1 13.3l-4.8-1.5c-1-.3-1-1 .2-1.5l18.7-7.2c.9-.3 1.6.2 1.7 1.5Z" fill="currentColor"/></svg></a>
+          </div>
+        </div>
+      </div>
+
+      <form class="contact__form reveal" id="contact-form" novalidate>
+        <h3>Start a project or join as a labeler</h3>
+        <div class="form__row">
+          <div class="field">
+            <label for="f-name">Name</label>
+            <input id="f-name" name="name" type="text" placeholder="Ada Lovelace" required />
+          </div>
+          <div class="field">
+            <label for="f-email">Email</label>
+            <input id="f-email" name="email" type="email" placeholder="you@company.com" required />
+          </div>
+        </div>
+        <div class="form__row">
+          <div class="field">
+            <label for="f-role">I am a…</label>
+            <select id="f-role" name="role">
+              <option>Organization — I need data labeled</option>
+              <option>Worker — I want to label &amp; earn</option>
+              <option>Employee — invited by my company</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-type">Data focus</label>
+            <select id="f-type" name="type">
+              <option>Audio</option><option>Image</option><option>Video</option><option>Mixed</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-msg">Message</label>
+          <textarea id="f-msg" name="message" rows="4" placeholder="Tell us about your dataset or the work you're looking for…" required></textarea>
+        </div>
+        <button type="submit" class="button button--primary">Send Message</button>
+        <p class="form__status" id="form-status" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="container footer__grid">
+    <div class="footer__brand">
+      <a href="#home" class="nav__logo">
+        <svg viewBox="0 0 24 24" class="logo-mark" aria-hidden="true">
+          <path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5v-9Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="2.6" fill="currentColor"/>
+        </svg>
+        <span>Labelset</span>
+      </a>
+      <p>We build trust in data.<br/>One label at a time.</p>
+      <p>Email: hello@labelset.ai</p>
+    </div>
+
+    <div class="footer__col">
+      <h4>Company</h4>
+      <a href="#about">About Us</a>
+      <a href="#services">Services</a>
+      <a href="#projects">Projects</a>
+      <a href="register.html#login">Log in</a>
+      <a href="register.html">Create account</a>
+    </div>
+
+    <div class="footer__col">
+      <h4>Information</h4>
+      <p>Austin, TX<br/>Remote-first</p>
+      <p>9AM – 6PM CT</p>
+    </div>
+
+    <div class="footer__col">
+      <h4>Social Media</h4>
+      <div class="footer__socials">
+        <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M13 22v-8h3l.5-4H13V7.5c0-1.1.3-1.8 1.9-1.8H17V2.1A26 26 0 0 0 14.4 2C11.9 2 10 3.6 10 6.9V10H7v4h3v8h3Z" fill="currentColor"/></svg></a>
+        <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3.5A5.5 5.5 0 1 1 6.5 13 5.5 5.5 0 0 1 12 5.5Zm0 2A3.5 3.5 0 1 0 15.5 13 3.5 3.5 0 0 0 12 7.5ZM17.2 5a1.2 1.2 0 1 1-1.2 1.2A1.2 1.2 0 0 1 17.2 5Z" fill="currentColor"/></svg></a>
+        <a href="#" aria-label="X"><svg viewBox="0 0 24 24"><path d="M17.8 3h3l-6.6 7.6L22 21h-6.1l-4.8-6.3L5.6 21h-3l7.1-8.1L2 3h6.2l4.3 5.7L17.8 3Zm-1 16.2h1.7L7.4 4.7H5.6l11.2 14.5Z" fill="currentColor"/></svg></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container footer__bottom">
+    <p>© All Rights Reserved — Labelset</p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

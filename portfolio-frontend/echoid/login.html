@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Log in — EchoID</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body class="app-page">
+
+  <header class="app-header">
+    <div class="app-header__inner">
+      <a href="index.html" class="logo">EchoID</a>
+      <a href="register.html" class="btn btn--ghost btn--sm" style="margin-left:auto">Create account</a>
+    </div>
+  </header>
+
+  <main class="auth-wrap">
+    <div class="card auth-card">
+      <h1 class="display auth-card__title">WELCOME BACK</h1>
+      <p class="auth-card__sub">Log in to reach your studio, history and billing.</p>
+
+      <form id="loginForm" novalidate>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" autocomplete="email" placeholder="you@company.com" required />
+          <span class="field__error" data-for="email"></span>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" autocomplete="current-password" placeholder="••••••••" required />
+          <span class="field__error" data-for="password"></span>
+        </div>
+        <button type="submit" class="btn btn--solid">Log in</button>
+      </form>
+
+      <p class="auth-alt">New to EchoID? <a href="register.html">Create an account</a></p>
+      <p class="auth-hint">Demo account — <b>demo@echoid.ai</b> / <b>demo123</b></p>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+  <script src="auth.js"></script>
+</body>
+</html>

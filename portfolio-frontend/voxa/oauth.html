@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="description" content="Sign in to Voxa, the AI voice studio for podcasts, audiobooks and everything in between.">
+      <title>Sign in — Voxa</title>
+
+      <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+
+      <!--=============== REMIX ICONS ===============-->
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css">
+
+      <!--=============== CSS ===============-->
+      <link rel="stylesheet" href="css/styles.css">
+      <link rel="stylesheet" href="css/app.css">
+   </head>
+
+   <body class="auth-body">
+      <main class="auth">
+         <!--==================== BRAND PANEL ====================-->
+         <section class="auth__brand" aria-labelledby="auth-title">
+            <div class="auth__top">
+               <a href="index.html" class="auth__logo" aria-label="Voxa home">
+                  <span class="nav__mark" aria-hidden="true"><i></i><i></i><i></i></span>
+                  voxa
+               </a>
+
+               <a href="index.html" class="auth__back">Back to site <i class="ri-arrow-right-up-line" aria-hidden="true"></i></a>
+            </div>
+
+            <div class="auth__copy">
+               <p class="eyebrow eyebrow--light">AI voice studio</p>
+               <h1 class="auth__title" id="auth-title">Make something worth listening to.</h1>
+               <p class="auth__sub">Turn a script into a finished, mixed podcast in minutes — with voices that actually sound human.</p>
+
+               <ul class="auth__list">
+                  <li><i class="ri-checkbox-circle-fill" aria-hidden="true"></i> Script to episode in one sitting</li>
+                  <li><i class="ri-checkbox-circle-fill" aria-hidden="true"></i> 40+ stock voices and cloned voices</li>
+                  <li><i class="ri-checkbox-circle-fill" aria-hidden="true"></i> Every render archived in your gallery</li>
+               </ul>
+            </div>
+
+            <div class="auth__art cover cover--disc c-sun" aria-hidden="true">
+               <span class="cover__disc"></span>
+               <span class="cover__letter">V</span>
+            </div>
+
+            <img src="img/waves-img.svg" alt="" class="auth__wave">
+         </section>
+
+         <!--==================== AUTH PANEL ====================-->
+         <section class="auth__panel" aria-label="Account access">
+            <div class="auth-card">
+               <h2 class="auth-card__title">Welcome to Voxa.</h2>
+               <p class="auth-card__sub">Sign in to pick up where you left off, or open a fresh studio.</p>
+
+               <div class="auth-tabs" role="tablist" aria-label="Sign in or create an account">
+                  <button class="auth-tab is-active"
+                          type="button"
+                          role="tab"
+                          id="tab-signin"
+                          aria-selected="true"
+                          aria-controls="pane-signin"
+                          data-auth-tab="signin">Sign in</button>
+                  <button class="auth-tab"
+                          type="button"
+                          role="tab"
+                          id="tab-signup"
+                          aria-selected="false"
+                          aria-controls="pane-signup"
+                          data-auth-tab="signup">Create account</button>
+               </div>
+
+               <div class="social-row">
+                  <button class="social-btn" type="button" data-social-auth="Google">
+                     <i class="ri-google-fill" aria-hidden="true"></i> Google
+                  </button>
+                  <button class="social-btn" type="button" data-social-auth="Apple">
+                     <i class="ri-apple-fill" aria-hidden="true"></i> Apple
+                  </button>
+               </div>
+
+               <div class="divider">or use email</div>
+
+               <!-- ---------- Sign in ---------- -->
+               <div class="auth-pane is-active" id="pane-signin" role="tabpanel" aria-labelledby="tab-signin" data-auth-pane="signin">
+                  <form id="signin-form" novalidate>
+                     <div class="field">
+                        <label class="field__label" for="signin-email">Email</label>
+                        <input class="input"
+                               id="signin-email"
+                               name="email"
+                               type="email"
+                               placeholder="you@studio.fm"
+                               autocomplete="email"
+                               required>
+                        <p class="field__error">Enter a valid email address.</p>
+                     </div>
+
+                     <div class="field">
+                        <div class="field__label">
+                           <label for="signin-password">Password</label>
+                           <a href="#" data-forgot>Forgot password?</a>
+                        </div>
+                        <div class="input-wrap">
+                           <input class="input"
+                                  id="signin-password"
+                                  name="password"
+                                  type="password"
+                                  placeholder="At least 8 characters"
+                                  autocomplete="current-password"
+                                  required>
+                           <button class="pw-toggle" type="button" data-pw-toggle aria-label="Show password">
+                              <i class="ri-eye-line" aria-hidden="true"></i>
+                           </button>
+                        </div>
+                        <p class="field__error">Passwords need at least 8 characters.</p>
+                     </div>
+
+                     <button class="btn btn--ink btn--block auth-submit" type="submit">Sign in</button>
+                  </form>
+
+                  <p class="auth-foot">New to Voxa? <a href="#" data-auth-switch="signup">Create an account</a></p>
+               </div>
+
+               <!-- ---------- Create account ---------- -->
+               <div class="auth-pane" id="pane-signup" role="tabpanel" aria-labelledby="tab-signup" data-auth-pane="signup" hidden>
+                  <form id="signup-form" novalidate>
+                     <div class="field">
+                        <label class="field__label" for="signup-name">Your name</label>
+                        <input class="input"
+                               id="signup-name"
+                               name="name"
+                               type="text"
+                               placeholder="Maya Chen"
+                               autocomplete="name"
+                               required>
+                        <p class="field__error">Tell us what to call you.</p>
+                     </div>
+
+                     <div class="field">
+                        <label class="field__label" for="signup-email">Work email</label>
+                        <input class="input"
+                               id="signup-email"
+                               name="email"
+                               type="email"
+                               placeholder="you@studio.fm"
+                               autocomplete="email"
+                               required>
+                        <p class="field__error">Enter a valid email address.</p>
+                     </div>
+
+                     <div class="field">
+                        <label class="field__label" for="signup-password">Password</label>
+                        <div class="input-wrap">
+                           <input class="input"
+                                  id="signup-password"
+                                  name="password"
+                                  type="password"
+                                  placeholder="At least 8 characters"
+                                  autocomplete="new-password"
+                                  required>
+                           <button class="pw-toggle" type="button" data-pw-toggle aria-label="Show password">
+                              <i class="ri-eye-line" aria-hidden="true"></i>
+                           </button>
+                        </div>
+                        <p class="field__error">Use at least 8 characters.</p>
+                     </div>
+
+                     <button class="btn btn--ink btn--block auth-submit" type="submit">Create account</button>
+                  </form>
+
+                  <p class="auth-foot">Already have a studio? <a href="#" data-auth-switch="signin">Sign in</a></p>
+               </div>
+
+               <div class="auth-demo">
+                  <i class="ri-information-line" aria-hidden="true"></i>
+                  <span>Demo mode — any email and a password of 8+ characters will open the studio.</span>
+               </div>
+            </div>
+         </section>
+      </main>
+
+      <script src="js/app.js"></script>
+   </body>
+</html>

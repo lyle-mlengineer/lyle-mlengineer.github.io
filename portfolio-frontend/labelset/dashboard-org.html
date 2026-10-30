@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Organization Dashboard — Labelset</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="app.css" />
+</head>
+<body>
+
+<header class="app-header" id="app-header"></header>
+
+<main class="container page">
+  <div class="page__head">
+    <div>
+      <span class="section__eyebrow">Organization</span>
+      <h1 id="org-title">Dashboard</h1>
+      <p id="org-sub"></p>
+    </div>
+    <div style="display:flex;gap:.8rem;flex-wrap:wrap">
+      <a class="button button--ghost" href="billing.html">Billing</a>
+      <button class="button button--primary" id="quick-upload">+ Upload data</button>
+    </div>
+  </div>
+
+  <div class="tabs" id="org-tabs">
+    <button class="tab is-active" data-tab="overview">Overview</button>
+    <button class="tab" data-tab="data">Data</button>
+    <button class="tab" data-tab="projects">Projects</button>
+    <button class="tab" data-tab="tasks">Tasks <span class="count" id="tab-review-count" hidden></span></button>
+    <button class="tab" data-tab="team">Team</button>
+  </div>
+
+  <section id="org-view"></section>
+</main>
+
+<script src="js/store.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/page-org.js"></script>
+</body>
+</html>

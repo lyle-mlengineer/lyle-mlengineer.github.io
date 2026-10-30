@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="description" content="Your Plus One dashboard — every roll, every face, and the frames you saved. Start a new album, manage your cast, and keep the wall.">
+   <meta name="robots" content="noindex, nofollow">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta name="theme-color" content="#14110d">
+   <meta property="og:title" content="Your Plus One dashboard">
+   <meta property="og:description" content="Rolls, faces, saved frames. The whole archive in one place.">
+
+   <!--=============== FAVICON ===============-->
+   <link rel="shortcut icon" href="img/favicon.svg" type="image/svg+xml">
+
+   <!--=============== FONTS ===============-->
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+   <!--=============== REMIXICONS ===============-->
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css">
+
+   <!--=============== CSS ===============-->
+   <link rel="stylesheet" href="css/style.css">
+   <link rel="stylesheet" href="css/app.css">
+
+   <title>Overview — Plus One</title>
+   <script>document.documentElement.classList.add('js')</script>
+</head>
+<body class="app-page" data-page="dashboard">
+   <!--==================== HEADER ====================-->
+   <header class="header header--solid" id="header">
+      <nav class="nav container">
+         <a href="index.html" class="nav__logo" aria-label="Plus One, home">
+            <svg class="nav__mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+               <circle cx="12" cy="12" r="9.1" stroke="currentColor" stroke-width="1.3"/>
+               <path d="M12 7.9v8.2M7.9 12h8.2" stroke="currentColor" stroke-width="1.3"/>
+            </svg>
+            <span>plus one</span>
+         </a>
+
+         <div class="nav__menu" id="nav-menu">
+            <ul class="nav__list">
+               <li><a href="index.html#how" class="nav__link">How it works</a></li>
+               <li><a href="index.html#album" class="nav__link">The album</a></li>
+               <li><a href="studio.html" class="nav__link">The studio</a></li>
+               <li><a href="pricing.html" class="nav__link">Membership</a></li>
+               <li><a href="dashboard.html" class="nav__link">Dashboard</a></li>
+            </ul>
+
+            <a href="dashboard.html" class="nav__cta" data-account>Log in</a>
+
+            <button class="nav__close" id="nav-close" aria-label="Close menu">
+               <i class="ri-close-large-line"></i>
+            </button>
+         </div>
+
+         <button class="nav__toggle" id="nav-toggle" aria-controls="nav-menu" aria-expanded="false" aria-label="Open menu">
+            <i class="ri-menu-4-line"></i>
+         </button>
+      </nav>
+   </header>
+
+   <main class="dash">
+      <div class="container dash__layout">
+         <!--==================== SIDEBAR ====================-->
+         <aside class="dashside">
+            <nav class="dashnav" aria-label="Dashboard sections">
+               <button type="button" class="dashnav__item is-active" data-view="overview" aria-current="page">
+                  <i class="ri-layout-grid-line" aria-hidden="true"></i> Overview
+               </button>
+               <button type="button" class="dashnav__item" data-view="albums">
+                  <i class="ri-stack-line" aria-hidden="true"></i> Albums
+               </button>
+               <button type="button" class="dashnav__item" data-view="people">
+                  <i class="ri-group-line" aria-hidden="true"></i> People
+               </button>
+               <button type="button" class="dashnav__item" data-view="wall">
+                  <i class="ri-bookmark-3-line" aria-hidden="true"></i> Wall
+               </button>
+            </nav>
+
+            <div class="dashplan">
+               <p class="dashplan__label">Your membership</p>
+               <p class="dashplan__name" id="side-plan-name">Plus One</p>
+               <p class="dashplan__price" id="side-plan-price">$14 / month</p>
+               <div class="dashplan__bar"><span id="side-plan-bar"></span></div>
+               <p class="dashplan__meta" id="side-plan-meta">212 of 300 frames</p>
+               <a href="pricing.html" class="dashplan__link">Manage membership <i class="ri-arrow-right-up-line"></i></a>
+            </div>
+
+            <div class="dashside__user">
+               <span class="dashside__avatar" id="side-avatar">NO</span>
+               <div class="dashside__who">
+                  <p id="side-name">Nia Okafor</p>
+                  <p id="side-email">nia@plusone.studio</p>
+               </div>
+               <button type="button" class="dashside__out" id="sign-out" aria-label="Sign out">
+                  <i class="ri-logout-box-r-line"></i>
+               </button>
+            </div>
+         </aside>
+
+         <!--==================== MAIN ====================-->
+         <div class="dashmain">
+            <div class="dashbar">
+               <p class="dashbar__crumb"><i class="ri-home-4-line" aria-hidden="true"></i> Dashboard <span aria-hidden="true">/</span> <b id="crumb-view">Overview</b></p>
+               <div class="dashbar__actions">
+                  <span class="panel__meta" id="dash-date"></span>
+                  <a href="studio.html#brief" class="btn btn--ink btn--sm">New roll <i class="ri-add-line"></i></a>
+                  <a href="dashboard.html" class="dashbar__avatar" id="top-avatar" aria-label="Your account">NO</a>
+               </div>
+            </div>
+
+            <!--========== OVERVIEW ===========-->
+            <section class="dashview" data-panel="overview" aria-labelledby="greeting">
+               <div class="viewhead">
+                  <p class="eyebrow">The archive · live</p>
+                  <h1 class="dashh1" id="greeting">Good afternoon, <em>Nia.</em></h1>
+                  <p class="lede">Every roll you have ever started, every face it learned, and the frames you could not leave behind.</p>
+               </div>
+
+               <div class="statgrid">
+                  <div class="stat">
+                     <p class="stat__label">Albums</p>
+                     <p class="stat__num" id="stat-albums">4</p>
+                     <p class="stat__note"><i class="ri-arrow-up-line"></i> 2 this month</p>
+                  </div>
+                  <div class="stat">
+                     <p class="stat__label">Frames developed</p>
+                     <p class="stat__num" id="stat-frames">381</p>
+                     <p class="stat__note">across every roll</p>
+                  </div>
+                  <div class="stat">
+                     <p class="stat__label">People in the cast</p>
+                     <p class="stat__num" id="stat-people">6</p>
+                     <p class="stat__note">all consented</p>
+                  </div>
+                  <div class="stat">
+                     <p class="stat__label">On the wall</p>
+                     <p class="stat__num" id="stat-saved">8</p>
+                     <p class="stat__note">frames you kept</p>
+                  </div>
+               </div>
+
+               <div class="dashgrid">
+                  <div class="dashcol">
+                     <div class="panel">
+                        <div class="panel__head">
+                           <div>
+                              <p class="eyebrow">Recent</p>
+                              <h2 class="panel__title">Latest rolls</h2>
+                           </div>
+                           <button type="button" class="panel__link" data-goto="albums">All albums <i class="ri-arrow-right-line"></i></button>
+                        </div>
+                        <div class="recent" id="recent-albums"></div>
+                     </div>
+
+                     <div class="panel">
+                        <div class="panel__head">
+                           <div>
+                              <p class="eyebrow">This week</p>
+                              <h2 class="panel__title">Frames developed</h2>
+                           </div>
+                           <p class="panel__meta">+18% vs last</p>
+                        </div>
+                        <div class="chart" aria-hidden="true">
+                           <div class="chart__col" style="--h: 38%"><span class="chart__bar"></span><span class="chart__day">Mon</span></div>
+                           <div class="chart__col" style="--h: 56%"><span class="chart__bar"></span><span class="chart__day">Tue</span></div>
+                           <div class="chart__col" style="--h: 44%"><span class="chart__bar"></span><span class="chart__day">Wed</span></div>
+                           <div class="chart__col" style="--h: 72%"><span class="chart__bar"></span><span class="chart__day">Thu</span></div>
+                           <div class="chart__col" style="--h: 61%"><span class="chart__bar"></span><span class="chart__day">Fri</span></div>
+                           <div class="chart__col is-now" style="--h: 94%"><span class="chart__bar"></span><span class="chart__day">Sat</span></div>
+                           <div class="chart__col" style="--h: 52%"><span class="chart__bar"></span><span class="chart__day">Sun</span></div>
+                        </div>
+                        <div class="chart__foot">
+                           <span>212 frames this week</span>
+                           <span>4 rolls contributing</span>
+                        </div>
+                     </div>
+
+                     <div class="panel">
+                        <div class="panel__head">
+                           <div>
+                              <p class="eyebrow">Activity</p>
+                              <h2 class="panel__title">What the camera did</h2>
+                           </div>
+                           <span class="panel__meta">Live</span>
+                        </div>
+                        <ul class="activity" id="activity-list"></ul>
+                     </div>
+                  </div>
+
+                  <div class="dashcol">
+                     <div class="planbox">
+                        <div class="planbox__top">
+                           <p class="eyebrow">Membership</p>
+                           <span class="planbox__status" id="box-plan-status">Active</span>
+                        </div>
+                        <p class="planbox__name" id="box-plan-name">Plus One</p>
+                        <p class="planbox__price" id="box-plan-price"><b>$14</b> / month</p>
+                        <div class="planbox__bar"><span id="box-plan-bar"></span></div>
+                        <p class="planbox__meta" id="box-plan-meta">212 of 300 frames</p>
+                        <ul class="planbox__list" id="box-plan-list"></ul>
+                        <a href="pricing.html" class="btn btn--cream">
+                           <span id="box-plan-cta">Manage membership</span>
+                           <i class="ri-arrow-right-line" aria-hidden="true"></i>
+                        </a>
+                     </div>
+
+                     <div class="panel">
+                        <div class="panel__head">
+                           <div>
+                              <p class="eyebrow">Shortcuts</p>
+                              <h2 class="panel__title">Where to go</h2>
+                           </div>
+                        </div>
+                        <ul class="quick">
+                           <li>
+                              <a href="studio.html#brief">
+                                 <i class="ri-camera-lens-line" aria-hidden="true"></i>
+                                 <span><b>Start a new roll</b><small>Faces, venue, activities</small></span>
+                                 <i class="ri-arrow-right-up-line" aria-hidden="true"></i>
+                              </a>
+                           </li>
+                           <li>
+                              <a href="studio.html?occasion=picnic&amp;title=Slow+Sunday+in+the+park&amp;venue=Prospect+Park%2C+Brooklyn#brief">
+                                 <i class="ri-sun-line" aria-hidden="true"></i>
+                                 <span><b>Pick up a sample day</b><small>Picnic · four generations</small></span>
+                                 <i class="ri-arrow-right-up-line" aria-hidden="true"></i>
+                              </a>
+                           </li>
+                           <li>
+                              <a href="pricing.html">
+                                 <i class="ri-vip-crown-line" aria-hidden="true"></i>
+                                 <span><b>Compare memberships</b><small>Monthly or annual</small></span>
+                                 <i class="ri-arrow-right-up-line" aria-hidden="true"></i>
+                              </a>
+                           </li>
+                           <li>
+                              <a href="auth.html">
+                                 <i class="ri-shield-user-line" aria-hidden="true"></i>
+                                 <span><b>Account and sign-in</b><small>Email, password, sessions</small></span>
+                                 <i class="ri-arrow-right-up-line" aria-hidden="true"></i>
+                              </a>
+                           </li>
+                        </ul>
+                     </div>
+                  </div>
+               </div>
+            </section>
+
+            <!--========== ALBUMS ===========-->
+            <section class="dashview" data-panel="albums" aria-labelledby="albums-title" hidden>
+               <div class="viewhead">
+                  <p class="eyebrow">Albums · <span id="albums-meta">4 rolls</span></p>
+                  <h1 class="dashh1" id="albums-title">Every roll,<br><em>still developing.</em></h1>
+                  <p class="lede">Open a roll to start another day like it, or browse the frames the camera already produced.</p>
+               </div>
+
+               <div class="viewtools">
+                  <div class="filters" role="group" aria-label="Filter albums">
+                     <button type="button" data-filter="all" aria-pressed="true">All <span>4</span></button>
+                     <button type="button" data-filter="wedding" aria-pressed="false">Weddings <span>1</span></button>
+                     <button type="button" data-filter="roadtrip" aria-pressed="false">Road trips <span>1</span></button>
+                     <button type="button" data-filter="graduation" aria-pressed="false">Graduations <span>1</span></button>
+                     <button type="button" data-filter="picnic" aria-pressed="false">Picnics <span>1</span></button>
+                  </div>
+                  <label class="search">
+                     <i class="ri-search-line" aria-hidden="true"></i>
+                     <span class="sr-only">Search albums</span>
+                     <input type="search" id="album-search" placeholder="Search albums" autocomplete="off">
+                  </label>
+               </div>
+
+               <div class="albumgrid" id="album-grid"></div>
+               <p class="empty" id="albums-empty" hidden>No rolls match that search. Try another place or occasion — or start a new roll.</p>
+            </section>
+
+            <!--========== PEOPLE ===========-->
+            <section class="dashview" data-panel="people" aria-labelledby="people-title" hidden>
+               <div class="viewhead">
+                  <p class="eyebrow">People · <span id="people-meta">6 faces</span></p>
+                  <h1 class="dashh1" id="people-title">The faces<br><em>in every frame.</em></h1>
+                  <p class="lede">Four to eight photos per person is plenty. Faces are stored privately and only used in your own rolls.</p>
+               </div>
+
+               <div class="viewtools">
+                  <span class="wallbar__count">Trained on your uploads · never shared</span>
+                  <label class="search">
+                     <i class="ri-search-line" aria-hidden="true"></i>
+                     <span class="sr-only">Search people</span>
+                     <input type="search" id="people-search" placeholder="Find a face" autocomplete="off">
+                  </label>
+               </div>
+
+               <div class="peoplegrid" id="people-grid">
+                  <label class="person person--add">
+                     <input type="file" id="person-input" accept="image/*">
+                     <i class="ri-user-add-line" aria-hidden="true"></i>
+                     <span>Add a face</span>
+                     <small>4–8 photos</small>
+                  </label>
+               </div>
+            </section>
+
+            <!--========== WALL ===========-->
+            <section class="dashview" data-panel="wall" aria-labelledby="wall-title" hidden>
+               <div class="viewhead">
+                  <p class="eyebrow">The wall</p>
+                  <h1 class="dashh1" id="wall-title">Frames you<br><em>could not leave.</em></h1>
+                  <p class="lede">Open any frame full-size, or download it with its grade and crop baked in.</p>
+               </div>
+
+               <div class="wallbar">
+                  <span class="wallbar__count" id="wall-count-label">8 frames saved</span>
+                  <span class="wallbar__count">Full-resolution · JPEG</span>
+               </div>
+
+               <div class="savedgrid" id="saved-grid"></div>
+            </section>
+
+            <footer class="dashfoot">
+               <span>Plus One Studio · your archive</span>
+               <nav aria-label="Footer">
+                  <a href="index.html">Home</a>
+                  <a href="studio.html">Studio</a>
+                  <a href="pricing.html">Membership</a>
+                  <a href="auth.html">Account</a>
+               </nav>
+            </footer>
+         </div>
+      </div>
+   </main>
+
+   <!--==================== LIGHTBOX ====================-->
+   <aside class="lightbox" id="lightbox" aria-hidden="true">
+      <div class="lightbox__scrim" data-lightbox-close></div>
+      <div class="lightbox__panel" role="dialog" aria-modal="true" aria-labelledby="lightbox-title">
+         <button type="button" class="lightbox__close" id="lightbox-close" aria-label="Close frame">
+            <i class="ri-close-line"></i>
+         </button>
+         <div class="lightbox__media">
+            <img src="img/event-picnic.jpg" alt="" id="lightbox-img">
+         </div>
+         <div class="lightbox__info">
+            <p class="eyebrow">Saved frame</p>
+            <h2 class="lightbox__title" id="lightbox-title">Frame</h2>
+            <p class="lightbox__meta" id="lightbox-meta"></p>
+            <button type="button" class="btn btn--cream" id="lightbox-download">
+               <span>Download frame</span>
+               <i class="ri-download-2-line" aria-hidden="true"></i>
+            </button>
+         </div>
+      </div>
+   </aside>
+
+   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+   <!--=============== SCRIPTS ===============-->
+   <script src="js/download.js"></script>
+   <script src="js/app.js"></script>
+</body>
+</html>

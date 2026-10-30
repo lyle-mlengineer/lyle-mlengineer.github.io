@@ -156,6 +156,35 @@ var swiper = new Swiper(".portfolio__container", {
     },
 })
 
+/*==================== SHOW PORTFOLIO ====================*/
+const portfolioBtns = document.querySelectorAll('.portfolio__button-open');
+const portfolioModalCloseBtns = document.querySelectorAll('.portfolio__modal-close');
+
+let closePortfolio = function(btn){
+    const portfolioModal = btn.parentElement.parentElement;
+    portfolioModal.style.opacity = '0';
+    portfolioModal.style.visibility = 'hidden';
+}
+
+let showPortfolio = function(btn){
+    const portfolioModal = btn.parentElement.parentElement.querySelector('.portfolio__modal');
+    console.log(portfolioModal);
+    // portfolioModal.style.opacity = '1';
+    // portfolioModal.style.visibility = 'visible';
+}
+
+portfolioBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+        showPortfolio(btn)
+    })
+})
+
+portfolioModalCloseBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+        closePortfolio(btn)
+    })
+})
+
 /*==================== TESTIMONIAL ====================*/
 let swiperTestimonial = new Swiper('.testimonial__container', {
     loop: true,

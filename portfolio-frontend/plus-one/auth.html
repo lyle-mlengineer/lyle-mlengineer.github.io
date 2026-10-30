@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="description" content="Log in to Plus One, or create an account and start your first roll. One event free, no card needed.">
+   <meta name="robots" content="noindex, follow">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta name="theme-color" content="#14110d">
+   <meta property="og:title" content="Log in or create your Plus One account">
+   <meta property="og:description" content="Your camera has been waiting. Pick up where the last roll left off.">
+
+   <!--=============== FAVICON ===============-->
+   <link rel="shortcut icon" href="img/favicon.svg" type="image/svg+xml">
+
+   <!--=============== FONTS ===============-->
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+   <!--=============== REMIXICONS ===============-->
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css">
+
+   <!--=============== CSS ===============-->
+   <link rel="stylesheet" href="css/style.css">
+   <link rel="stylesheet" href="css/app.css">
+
+   <title>Log in — Plus One</title>
+   <script>document.documentElement.classList.add('js')</script>
+</head>
+<body class="app-page" data-page="auth">
+   <main class="auth">
+      <!--==================== VISUAL ====================-->
+      <aside class="auth__visual">
+         <a href="index.html" class="auth__brand auth__brand--light" aria-label="Plus One, home">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+               <circle cx="12" cy="12" r="9.1" stroke="currentColor" stroke-width="1.3"/>
+               <path d="M12 7.9v8.2M7.9 12h8.2" stroke="currentColor" stroke-width="1.3"/>
+            </svg>
+            <span>plus one</span>
+         </a>
+
+         <div class="auth__visual-inner">
+            <p class="auth__eyebrow">Members · Plus One</p>
+            <p class="auth__title">The camera<br><em>keeps your seat.</em></p>
+            <p class="auth__lede">
+               Log back in and every roll is exactly where you left it — the faces it learned,
+               the frames it kept shooting, and the ones you saved for the wall.
+            </p>
+
+            <div class="auth__stack" aria-hidden="true">
+               <figure><img src="img/seed-1.jpg" alt=""></figure>
+               <figure><img src="img/seed-2.jpg" alt=""></figure>
+               <figure><img src="img/seed-3.jpg" alt=""></figure>
+               <span>your cast</span>
+            </div>
+
+            <ul class="auth__points">
+               <li><i class="ri-check-line" aria-hidden="true"></i> One event free, no card needed</li>
+               <li><i class="ri-check-line" aria-hidden="true"></i> Faces stored privately, never shared</li>
+               <li><i class="ri-check-line" aria-hidden="true"></i> Frames arrive all day and after</li>
+            </ul>
+         </div>
+
+         <p class="auth__foot">Plus One Studio · photos of real people, with real permission.</p>
+      </aside>
+
+      <!--==================== PANE ====================-->
+      <section class="auth__pane" aria-labelledby="auth-title">
+         <div class="auth__top">
+            <a href="index.html" class="auth__brand" aria-label="Plus One, home">
+               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9.1" stroke="currentColor" stroke-width="1.3"/>
+                  <path d="M12 7.9v8.2M7.9 12h8.2" stroke="currentColor" stroke-width="1.3"/>
+               </svg>
+               <span>plus one</span>
+            </a>
+            <a href="index.html" class="auth__back"><i class="ri-arrow-left-line" aria-hidden="true"></i> Back to the site</a>
+         </div>
+
+         <div class="auth__card">
+            <!-- signed-in banner -->
+            <div class="auth__banner" id="auth-session" hidden>
+               <i class="ri-checkbox-circle-line" aria-hidden="true"></i>
+               <span>Signed in as <b id="auth-session-name">you</b> on this device.</span>
+               <a href="dashboard.html">Dashboard</a>
+               <button type="button" id="auth-forget">Log out</button>
+            </div>
+
+            <div class="auth__head">
+               <h1 class="auth__cardtitle" id="auth-title">Welcome back.</h1>
+               <p class="auth__cardsub" id="auth-sub">Your camera has been waiting.</p>
+            </div>
+
+            <div class="auth__tabs" role="tablist" aria-label="Log in or create an account">
+               <button type="button" class="auth__tab" id="tab-login" role="tab" aria-selected="true" aria-controls="login-form" tabindex="0">Log in</button>
+               <button type="button" class="auth__tab" id="tab-register" role="tab" aria-selected="false" aria-controls="register-form" tabindex="-1">Create account</button>
+            </div>
+
+            <!--========== LOG IN ===========-->
+            <form class="auth__form" id="login-form" novalidate>
+               <div class="auth__field">
+                  <label class="auth__label" for="login-email">Email</label>
+                  <div class="auth__control">
+                     <input id="login-email" name="email" type="email" placeholder="you@yourdomain.com" autocomplete="email" aria-required="true">
+                  </div>
+                  <p class="auth__error" hidden></p>
+               </div>
+
+               <div class="auth__field">
+                  <label class="auth__label" for="login-password">Password</label>
+                  <div class="auth__control auth__control--eye">
+                     <input id="login-password" name="password" type="password" placeholder="Your password" autocomplete="current-password" aria-required="true">
+                     <button type="button" class="auth__eye" data-eye="login-password" aria-label="Show password">
+                        <i class="ri-eye-line" aria-hidden="true"></i>
+                     </button>
+                  </div>
+                  <p class="auth__error" hidden></p>
+               </div>
+
+               <div class="auth__row">
+                  <label class="auth__check">
+                     <input type="checkbox" id="login-remember" checked> Keep me signed in
+                  </label>
+                  <button type="button" class="auth__link" id="forgot-btn">Forgot password?</button>
+               </div>
+
+               <button type="submit" class="btn btn--ink auth__submit">
+                  <span>Log in</span>
+                  <i class="ri-arrow-right-line" aria-hidden="true"></i>
+               </button>
+            </form>
+
+            <!--========== REGISTER ===========-->
+            <form class="auth__form" id="register-form" novalidate hidden>
+               <div class="auth__field">
+                  <label class="auth__label" for="reg-name">What should we call you?</label>
+                  <div class="auth__control">
+                     <input id="reg-name" name="name" type="text" placeholder="Nia Okafor" autocomplete="name" aria-required="true">
+                  </div>
+                  <p class="auth__error" hidden></p>
+               </div>
+
+               <div class="auth__field">
+                  <label class="auth__label" for="reg-email">Email</label>
+                  <div class="auth__control">
+                     <input id="reg-email" name="email" type="email" placeholder="you@yourdomain.com" autocomplete="email" aria-required="true">
+                  </div>
+                  <p class="auth__error" hidden></p>
+               </div>
+
+               <div class="auth__field">
+                  <label class="auth__label" for="reg-password">Password</label>
+                  <div class="auth__control auth__control--eye">
+                     <input id="reg-password" name="password" type="password" placeholder="At least 8 characters" autocomplete="new-password" aria-required="true">
+                     <button type="button" class="auth__eye" data-eye="reg-password" aria-label="Show password">
+                        <i class="ri-eye-line" aria-hidden="true"></i>
+                     </button>
+                  </div>
+                  <p class="auth__error" hidden></p>
+                  <div class="auth__strength" id="reg-strength" data-score="0">
+                     <div class="auth__strength-bars" aria-hidden="true">
+                        <span></span><span></span><span></span><span></span>
+                     </div>
+                     <p class="auth__strength-label" id="reg-strength-label">At least 8 characters</p>
+                  </div>
+               </div>
+
+               <div class="auth__field">
+                  <label class="auth__check">
+                     <input type="checkbox" id="reg-terms"> I have everyone's consent to upload their faces
+                  </label>
+                  <p class="auth__error" id="reg-terms-error" hidden>Please confirm before starting a roll.</p>
+               </div>
+
+               <button type="submit" class="btn btn--ink auth__submit">
+                  <span>Create account</span>
+                  <i class="ri-arrow-right-line" aria-hidden="true"></i>
+               </button>
+            </form>
+
+            <!--========== RESET ===========-->
+            <form class="auth__reset" id="reset-form" novalidate hidden>
+               <div class="auth__field">
+                  <label class="auth__label" for="reset-email">Email on your account</label>
+                  <div class="auth__control">
+                     <input id="reset-email" name="email" type="email" placeholder="you@yourdomain.com" autocomplete="email" aria-required="true">
+                  </div>
+                  <p class="auth__error" hidden></p>
+               </div>
+
+               <button type="submit" class="btn btn--ink auth__submit">
+                  <span>Send reset link</span>
+                  <i class="ri-arrow-right-line" aria-hidden="true"></i>
+               </button>
+
+               <button type="button" class="auth__link" id="reset-back">Back to log in</button>
+            </form>
+
+            <div class="auth__or">or</div>
+
+            <div class="auth__social" id="auth-social">
+               <button type="button" data-social="google">
+                  <i class="ri-google-fill" aria-hidden="true"></i> Continue with Google
+               </button>
+               <button type="button" data-social="apple">
+                  <i class="ri-apple-fill" aria-hidden="true"></i> Continue with Apple
+               </button>
+            </div>
+
+            <p class="auth__switch" id="auth-switch"></p>
+
+            <p class="auth__hint">
+               Demo site — no account is really created and nothing is emailed.
+               Any valid-looking email and a six-character password will sign you in.
+            </p>
+         </div>
+
+         <p class="auth__fine">
+            By continuing you agree to our <a href="pricing.html">membership terms</a> and the consent rules
+            for everyone in your photos.
+         </p>
+      </section>
+   </main>
+
+   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+   <!--=============== SCRIPTS ===============-->
+   <script src="js/app.js"></script>
+</body>
+</html>

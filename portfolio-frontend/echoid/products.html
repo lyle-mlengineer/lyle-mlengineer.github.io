@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Studio — EchoID</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body class="app-page">
+
+  <header class="app-header">
+    <div class="app-header__inner">
+      <a href="index.html" class="logo">EchoID</a>
+      <nav class="nav">
+        <a href="dashboard.html" class="nav__link">Dashboard</a>
+        <a href="products.html" class="nav__link is-active">Studio</a>
+        <a href="history.html" class="nav__link">History</a>
+        <a href="billing.html" class="nav__link">Billing</a>
+      </nav>
+      <div class="user-chip" id="userChip"></div>
+      <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24"><path d="M3 3h7v7H3V3zm0 11h7v7H3v-7zM14 3h7v7h-7V3zm0 11h7v7h-7v-7z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+    <button class="mobile-menu__close" id="menuClose" aria-label="Close menu">
+      <svg viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+    </button>
+    <nav class="mobile-menu__nav">
+      <a href="dashboard.html" class="mobile-menu__link">Dashboard</a>
+      <a href="products.html" class="mobile-menu__link is-active">Studio</a>
+      <a href="history.html" class="mobile-menu__link">History</a>
+      <a href="billing.html" class="mobile-menu__link">Billing</a>
+      <a href="index.html" class="mobile-menu__link">Home</a>
+    </nav>
+  </div>
+
+  <main class="page container">
+    <div class="page__head">
+      <div>
+        <h1 class="display page__title">ECHOID STUDIO</h1>
+        <p class="page__sub">Transcribe a live conversation or upload a recording — EchoID labels every speaker.</p>
+      </div>
+      <span class="badge badge--done">Demo mode · simulated transcription</span>
+    </div>
+
+    <div class="studio__grid">
+      <!-- ================= SOURCE PANEL ================= -->
+      <aside class="card">
+        <div class="mode-switch" role="tablist">
+          <button id="modeLive" class="is-active" role="tab" aria-selected="true">
+            <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+            Live audio
+          </button>
+          <button id="modeFile" role="tab" aria-selected="false">
+            <svg viewBox="0 0 24 24"><path d="M12 3 2 8l10 5 8-4v7h2V8L12 3zM6 13.18V17l6 3 6-3v-3.82L12 16l-6-2.82z"/></svg>
+            Recording
+          </button>
+        </div>
+
+        <!-- live mode -->
+        <div id="livePanel">
+          <div class="mic-panel">
+            <button class="mic-btn" id="micBtn" aria-label="Start or stop recording">
+              <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+            </button>
+            <div class="mic-timer" id="micTimer">00:00</div>
+            <p class="mic-status" id="micStatus">Tap the mic to start a live session. Your browser will ask for microphone access.</p>
+          </div>
+        </div>
+
+        <!-- file mode -->
+        <div id="filePanel" hidden>
+          <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Upload an audio recording">
+            <svg viewBox="0 0 24 24"><path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+            <p><b>Drop an audio file</b> or click to browse</p>
+            <p style="font-size:0.75rem;margin-top:6px">MP3 · WAV · M4A · OGG · up to 500&nbsp;MB</p>
+            <p class="dropzone__file" id="fileName"></p>
+          </div>
+          <input type="file" id="fileInput" accept="audio/*,video/*" hidden />
+          <button class="btn btn--solid btn--sm" id="transcribeBtn" style="width:100%;justify-content:center;margin-top:16px" disabled>Transcribe</button>
+          <div class="progress" id="progress" style="margin-top:16px" hidden><i></i></div>
+        </div>
+      </aside>
+
+      <!-- ================= STAGE ================= -->
+      <section class="card studio__stage">
+        <div class="stage-head">
+          <div class="stage-title">
+            <label for="titleInput" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Transcript title</label>
+            <input id="titleInput" placeholder="Untitled transcript — give it a title" maxlength="80" />
+          </div>
+          <button class="btn btn--ghost btn--sm" id="saveBtn" disabled>Save to history</button>
+        </div>
+
+        <div class="wave" id="stageWave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+
+        <div class="audio-bar" id="audioBar" hidden>
+          <button class="icon-btn" id="playBtn" aria-label="Play or pause recording">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5z"/></svg>
+          </button>
+          <audio id="player" controls></audio>
+        </div>
+
+        <div id="emptyStage" class="empty-stage">
+          <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4.03v8.05A4.5 4.5 0 0 0 16.5 12z"/></svg>
+          <p>No transcript yet.<br />Start a live session or upload a recording.</p>
+        </div>
+
+        <div class="speaker-legend" id="legend" hidden></div>
+        <div class="seg-list" id="segList" hidden></div>
+
+        <div class="download-row">
+          <button class="btn btn--solid dl-btn" data-dl="json" disabled>
+            <svg viewBox="0 0 24 24"><path d="M12 3 2 8l10 5 8-4v7h2V8L12 3z"/></svg> JSON
+          </button>
+          <button class="btn btn--solid dl-btn" data-dl="txt" disabled>
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg> Text
+          </button>
+          <button class="btn btn--solid dl-btn" data-dl="pdf" disabled>
+            <svg viewBox="0 0 24 24"><path d="M20 2H8a2 2 0 0 0-2 2h12a2 2 0 0 1 2 2v12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm-4 6H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2zM4 12h2v4H4v-4zm8 4h-2v-2h-2v2H6v-2h2v-2h2v2h2v-2h2v4z"/></svg> PDF
+          </button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <div class="container">
+      <span>© 2026 EchoID Labs, Inc.</span>
+      <a href="index.html">Back to home</a>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script src="studio.js"></script>
+</body>
+</html>

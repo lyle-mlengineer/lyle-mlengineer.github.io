@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="description" content="Browse podcasts generated with Voxa — narratives, interviews, comedy, documentaries and sci-fi.">
+      <title>Gallery — Voxa</title>
+
+      <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+
+      <!--=============== REMIX ICONS ===============-->
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css">
+
+      <!--=============== CSS ===============-->
+      <link rel="stylesheet" href="css/styles.css">
+      <link rel="stylesheet" href="css/app.css">
+   </head>
+
+   <body class="app-body">
+      <a href="#main" class="skip-link">Skip to content</a>
+
+      <!--==================== APP HEADER ====================-->
+      <header class="app-header">
+         <div class="container-app app-nav">
+            <a href="index.html" class="app-logo" aria-label="Voxa home">
+               <span class="nav__mark" aria-hidden="true"><i></i><i></i><i></i></span>
+               voxa
+            </a>
+
+            <nav class="app-links" aria-label="Studio">
+               <a href="dashboard.html"><i class="ri-dashboard-3-line" aria-hidden="true"></i> Dashboard</a>
+               <a href="voices.html"><i class="ri-user-voice-line" aria-hidden="true"></i> Voices</a>
+               <a href="gallery.html" class="is-active"><i class="ri-album-line" aria-hidden="true"></i> Gallery</a>
+               <a href="create.html"><i class="ri-mic-line" aria-hidden="true"></i> Create</a>
+               <a href="payments.html"><i class="ri-bank-card-line" aria-hidden="true"></i> Billing</a>
+            </nav>
+
+            <div class="app-actions">
+               <a href="create.html" class="btn btn--ink app-new"><i class="ri-add-line" aria-hidden="true"></i> New podcast</a>
+
+               <div class="user-menu">
+                  <button class="user-chip" type="button" id="account-toggle" aria-expanded="false" aria-controls="account-menu">
+                     <span class="avatar avatar--user" data-user-initials aria-hidden="true">MC</span>
+                     <span class="user-chip__text">
+                        <strong data-user-name>Maya Chen</strong>
+                        <small data-user-plan>Creator plan</small>
+                     </span>
+                     <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+                  </button>
+
+                  <div class="account-menu" id="account-menu">
+                     <div class="account-menu__head">
+                        <strong data-user-name>Maya Chen</strong>
+                        <span data-user-email>maya@studio.fm</span>
+                     </div>
+                     <a href="dashboard.html"><i class="ri-dashboard-3-line" aria-hidden="true"></i> Dashboard</a>
+                     <a href="voices.html"><i class="ri-user-voice-line" aria-hidden="true"></i> My voices</a>
+                     <a href="gallery.html"><i class="ri-album-line" aria-hidden="true"></i> My gallery</a>
+                     <a href="payments.html"><i class="ri-bank-card-line" aria-hidden="true"></i> Billing &amp; plans</a>
+                     <div class="account-menu__sep"></div>
+                     <a href="oauth.html" data-signout><i class="ri-logout-box-r-line" aria-hidden="true"></i> Sign out</a>
+                  </div>
+               </div>
+
+               <button class="app-burger" type="button" id="app-menu-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="app-mobile-nav">
+                  <i class="ri-menu-3-line" aria-hidden="true"></i>
+               </button>
+            </div>
+         </div>
+
+         <nav class="app-mobile-nav" id="app-mobile-nav" aria-label="Studio menu" hidden>
+            <a href="dashboard.html"><i class="ri-dashboard-3-line" aria-hidden="true"></i> Dashboard</a>
+            <a href="voices.html"><i class="ri-user-voice-line" aria-hidden="true"></i> Voices</a>
+            <a href="gallery.html" class="is-active"><i class="ri-album-line" aria-hidden="true"></i> Gallery</a>
+            <a href="create.html"><i class="ri-mic-line" aria-hidden="true"></i> Create</a>
+            <a href="payments.html"><i class="ri-bank-card-line" aria-hidden="true"></i> Billing</a>
+            <a href="oauth.html" data-signout><i class="ri-logout-box-r-line" aria-hidden="true"></i> Sign out</a>
+            <a href="create.html" class="app-mobile-nav__new"><i class="ri-add-line" aria-hidden="true"></i> New podcast</a>
+         </nav>
+      </header>
+
+      <!--==================== MAIN ====================-->
+      <main class="app-main" id="main">
+         <div class="container-app">
+            <header class="page-head">
+               <div>
+                  <p class="app-eyebrow">Community studio</p>
+                  <h1 class="page-head__title">Made with Voxa.</h1>
+                  <p class="page-head__sub">Fresh narratives, strange worlds and one very good record shop. Listen to what studio members have shipped — then remix a template into your own.</p>
+               </div>
+
+               <div class="page-head__actions">
+                  <a href="create.html" class="btn btn--ink btn--sm"><i class="ri-sparkling-2-line" aria-hidden="true"></i> Create yours</a>
+               </div>
+            </header>
+
+            <!--==================== FEATURED ====================-->
+            <article class="feature" data-speakable>
+               <div class="feature__cover cover cover--rings c-sun" aria-hidden="true">
+                  <span class="cover__rings"></span>
+                  <span class="cover__core"></span>
+                  <span class="cover__tag"><i class="ri-headphones-line" aria-hidden="true"></i> Featured</span>
+               </div>
+
+               <div class="feature__body">
+                  <p class="feature__badge"><i class="ri-sparkling-2-fill" aria-hidden="true"></i> Editor’s pick · Narrative</p>
+                  <h2 class="feature__title">The Last Record Shop</h2>
+                  <p class="feature__desc">One rainy night, one closing record store and a conversation that refuses to end. Maya Chen records the last interview at Sato Records before the shutters come down for good.</p>
+
+                  <div class="feature__meta">
+                     <span><i class="ri-user-voice-line" aria-hidden="true"></i> Maya Chen</span>
+                     <span><i class="ri-time-line" aria-hidden="true"></i> 18:24</span>
+                     <span><i class="ri-headphone-line" aria-hidden="true"></i> 12.4k plays</span>
+                     <span><i class="ri-mic-line" aria-hidden="true"></i> 2 voices</span>
+                  </div>
+
+                  <div class="feature__actions">
+                     <button class="btn btn--light js-speak"
+                             type="button"
+                             data-text="The sign says closed, but the door is still open. Everything in this shop has a story, even the dust."
+                             aria-label="Listen to The Last Record Shop">
+                        <i class="ri-play-fill" aria-hidden="true"></i> Listen
+                     </button>
+                     <a href="create.html?remix=1" class="btn btn--ghost">
+                        <i class="ri-shuffle-line" aria-hidden="true"></i> Remix this
+                     </a>
+                  </div>
+               </div>
+            </article>
+
+            <!--==================== TOOLBAR ====================-->
+            <div class="toolbar">
+               <div class="pill-tabs" role="group" aria-label="Filter podcasts by genre">
+                  <button class="pill is-active" type="button" data-gfilter="all">All</button>
+                  <button class="pill" type="button" data-gfilter="narrative">Narrative</button>
+                  <button class="pill" type="button" data-gfilter="interview">Interview</button>
+                  <button class="pill" type="button" data-gfilter="comedy">Comedy</button>
+                  <button class="pill" type="button" data-gfilter="documentary">Documentary</button>
+                  <button class="pill" type="button" data-gfilter="scifi">Sci-Fi</button>
+                  <button class="pill" type="button" data-gfilter="education">Education</button>
+                  <button class="pill" type="button" data-gfilter="renders"><i class="ri-user-star-line" aria-hidden="true"></i> Your renders</button>
+               </div>
+
+               <div class="search">
+                  <i class="ri-search-line" aria-hidden="true"></i>
+                  <input type="search" id="gallery-search" placeholder="Search podcasts or creators" aria-label="Search podcasts or creators">
+                  <button class="icon-btn" type="button" id="gallery-clear" aria-label="Clear search" hidden>
+                     <i class="ri-close-line" aria-hidden="true"></i>
+                  </button>
+               </div>
+            </div>
+
+            <!--==================== ALL PODCASTS ====================-->
+            <div class="section-head">
+               <div>
+                  <h2 class="section-head__title">All podcasts</h2>
+                  <p class="section-head__sub">Every episode here was built in the product you’re looking at.</p>
+               </div>
+               <span class="chip chip--plain" data-gallery-count>10 podcasts</span>
+            </div>
+
+            <div class="pod-grid" id="gallery-grid">
+               <article class="pod-card" data-genre="narrative" data-search="the last record shop maya chen narrative vinyl tokyo" data-speakable>
+                  <div class="cover cover--rings c-sun" aria-hidden="true">
+                     <span class="cover__rings"></span>
+                     <span class="cover__core"></span>
+                     <span class="cover__tag"><i class="ri-headphones-line" aria-hidden="true"></i> Narrative</span>
+                  </div>
+                  <div class="pod-card__body">
+                     <h3 class="pod-card__title">The Last Record Shop</h3>
+                     <p class="pod-card__meta">Maya Chen · Narrative</p>
+                  </div>
+                  <div class="pod-card__foot">
+                     <div>
+                        <span class="pod-card__stat"><i class="ri-headphone-line" aria-hidden="true"></i> 12.4k</span>
+                        <span class="pod-card__stat"><i class="ri-time-line" aria-hidden="true"></i> 18:24</span>
+                     </div>
+                     <button class="play-btn js-speak" type="button" data-text="The sign says closed, but the door is still open. Everything in this shop has a story, even the dust." aria-label="Listen to The Last Record Shop">
+                        <i class="ri-play-fill" aria-hidden="true"></i>
+                     </button>
+                  </div>
+               </article>
+
+               <article class="pod-card" data-genre="scifi" data-search="signal and noise atlas studio scifi radio static" data-speakable>
+                  <div class="cover cover--rings c-lilac" aria-hidden="true">
+                     <span class="cover__rings"></span>
+                     <span class="cover__core"></span>
+                     <span class="cover__tag"><i class="ri-headphones-line" aria-hidden="true"></i> Sci-Fi</span>
+                  </div>
+                  <div class="pod-card__body">
+                     <h3 class="pod-card__title">Signal &amp; Noise</h3>
+                     <p class="pod-card__meta">Atlas Studio · Sci-Fi</p>
+                  </div>
+                  <div class="pod-card__foot">
+                     <div>
+                        <span class="pod-card__stat"><i class="ri-headphone-line" aria-hidden="true"></i> 9.8k</span>
+                        <span class="pod-card__stat"><i class="ri-time-line" aria-hidden="true"></i> 24:10</span>
+                     </div>
+                     <button class="play-btn js-speak" type="button" data-text="Somewhere past the static, a voice is repeating your name. It has been waiting a very long time." aria-label="Listen to Signal and Noise">
+                        <i class="ri-play-fill" aria-hidden="true"></i>
+                     </button>
+                  </div>
+               </article>
+
+               <article class="pod-card" data-genre="interview" data-search="two chairs one question iris bell interview guests" data-speakable>
+                  <div class="cover cover--wave c-mint" aria-hidden="true">
+                     <span class="cover__line"></span>
+                     <span class="cover__wave">
+                        <i style="--h: 34%"></i><i style="--h: 62%"></i><i style="--h: 88%"></i><i style="--h: 46%"></i><i style="--h: 72%"></i><i style="--h: 96%"></i>
+                     </span>
+                     <span class="cover__tag"><i class="ri-headphones-line" aria-hidden="true"></i> Interview</span>
+                  </div>
+                  <div class="pod-card__body">
+                     <h3 class="pod-card__title">Two Chairs, One Question</h3>
+                     <p class="pod-card__meta">Iris Bell · Interview</p>
+                  </div>
+                  <div class="pod-card__foot">
+                     <div>
+                        <span class="pod-card__stat"><i class="ri-headphone-line" aria-hidden="true"></i> 21.2k</span>
+                        <span class="pod-card__stat"><i class="ri-time-line" aria-hidden="true"></i> 31:05</span>
+                     </div>
+                     <button class="play-btn js-speak" type="button" data-text="What would you do with a year that nobody expected you to survive? That is the question we asked every guest." aria-label="Listen to Two Chairs, One Question">
+                        <i class="ri-play-fill" aria-hidden="true"></i>
+                     </button>
+                  </div>
+               </article>
+
+               <article class="pod-card" data-genre="comedy" data-search="laugh track dev patel comedy standup" data-speakable>
+                  <div class="cover cover--disc c-clay" aria-hidden="true">
+                     <span class="cover__disc"></span>
+                     <span class="cover__letter">L</span>
+                     <span class="cover__tag"><i class="ri-headphones-line" aria-hidden="true"></i> Comedy</span>
+                  </div>
+                  <div class="pod-card__body">
+                     <h3 class="pod-card__title">Laugh Track</h3>
+                     <p class="pod-card__meta">Dev Patel · Comedy</p>
+                  </div>
+                  <div class="pod-card__foot">
+                     <div>
+                        <span class="pod-card__stat"><i class="ri-headphone-line" aria-hidden="true"></i> 34.6k</span>
+                        <span class="pod-card__stat"><i class="ri-time-line" aria-hidden="true"></i> 22:47</span>
+                     </div>
+                     <button class="play-btn js-speak" type="button" data-text="Nobody laughs at the first take. That is why we call it a rough cut and not a cry for help." aria-label="Listen to Laugh Track">
+                        <i class="ri-play-fill" aria-hidden="true"></i>
+                     </button>
+                  </div>
+               </article>
+
+               <article class="pod-card" data-genre="documentary" data-search="dust and data voxa originals documentary archive" data-speakable>
+                  <div class="cover cover--grid c-blue" aria-hidden="true">
+                     <span class="cover__grid"></span>
+                     <span class="cover__core"></span>
+                     <span class="cover__tag"><i class="ri-headphones-line" aria-hidden="true"></i> Documentary</span>
+                  </div>
+                  <div class="pod-card__body">
+                     <h3 class="pod-card__title">Dust &amp; Data</h3>
+                     <p class="pod-card__meta">Voxa Originals · Documentary</p>
+                  </div>
+                  <div class="pod-card__foot">
+                     <div>
+                        <span class="pod-card__stat"><i class="ri-headphone-line" aria-hidden="true"></i> 7.1k</span>
+                        <span class="pod-card__stat"><i class="ri-time-line" aria-hidden="true"></i> 27:32</span>
+                     </div>
+                     <button class="play-btn js-speak" type="button" data-text="The archive has been digitised, but nobody agrees on what it remembers." aria-label="Listen to Dust and Data">
+                        <i class="ri-play-fill" aria-hidden="true"></i>
+                     </button>
+                  </div>
+               </article>
+
+               <article class="pod-card" data-genre="narrative" data-search="midnight diner notes sam ortiz narrative food" data-speakable>
+                  <div class="cover cover--disc c-rose" aria-hidden="true">
+                     <span class="cover__disc"></span>
+                     <span class="cover__letter">M</span>
+                     <span class="cover__tag"><i class="ri-headphones-line" aria-hidden="true"></i> Narrative</span>
+                  </div>
+                  <div class="pod-card__body">
+                     <h3 class="pod-card__title">Midnight Diner Notes</h3>
+                     <p class="pod-card__meta">Sam Ortiz · Narrative</p>
+                  </div>
+                  <div class="pod-card__foot">
+                     <div>
+                        <span class="pod-card__stat"><i class="ri-headphone-line" aria-hidden="true"></i> 5.4k</span>
+                        <span class="pod-card__stat"><i class="ri-time-line" aria-hidden="true"></i> 15:12</span>
+                     </div>
+                     <button class="play-btn js-speak" type="button" data-text="At 2 a.m. the diner serves two things: coffee, and somewhere to put your story down for a while." aria-label="Listen to Midnight Diner Notes">
+                        <i class="ri-play-fill" aria-hidden="true"></i>
+                     </button>
+                  </div>
+               </article>
+
+               <article class="pod-card" data-genre="education" data-search="how we listen nova labs education audio" data-speakable>
+                  <div class="cover cover--type c-moss" aria-hidden="true">
+                     <span class="cover__letter">H</span>
+                     <span class="cover__line"></span>
+                     <span class="cover__tag"><i class="ri-headphones-line" aria-hidden="true"></i> Education</span>
+                  </div>
+                  <div class="pod-card__body">
+                     <h3 class="pod-card__title">How We Listen</h3>
+                     <p class="pod-card__meta">Nova Labs · Education</p>
+                  </div>
+                  <div class="pod-card__foot">
+                     <div>
+                        <span class="pod-card__stat"><i class="ri-headphone-line" aria-hidden="true"></i> 3.9k</span>
+                        <span class="pod-card__stat"><i class="ri-time-line" aria-hidden="true"></i> 19:58</span>
+                     </div>
+                     <button class="play-btn js-speak" type="button" data-text="We spend a third of our lives listening. Almost none of us were ever taught how." aria-label="Listen to How We Listen">
+                        <i class="ri-play-fill" aria-hidden="true"></i>
+                     </button>
+                  </div>
+               </article>
+
+               <article class="pod-card" data-genre="scifi" data-search="orbit 7 juno fields scifi space station" data-speakable>
+                  <div class="cover cover--rings c-blue" aria-hidden="true">
+                     <span class="cover__rings"></span>
+                     <span class="cover__core"></span>
+                     <span class="cover__tag"><i class="ri-headphones-line" aria-hidden="true"></i> Sci-Fi</span>
+                  </div>
+                  <div class="pod-card__body">
+                     <h3 class="pod-card__title">Orbit 7</h3>
+                     <p class="pod-card__meta">Juno Fields · Sci-Fi</p>
+                  </div>
+                  <div class="pod-card__foot">
+                     <div>
+                        <span class="pod-card__stat"><i class="ri-headphone-line" aria-hidden="true"></i> 15.8k</span>
+                        <span class="pod-card__stat"><i class="ri-time-line" aria-hidden="true"></i> 28:40</span>
+                     </div>
+                     <button class="play-btn js-speak" type="button" data-text="Orbit seven went silent eleven years ago. Tonight, someone answered the comms." aria-label="Listen to Orbit 7">
+                        <i class="ri-play-fill" aria-hidden="true"></i>
+                     </button>
+                  </div>
+               </article>
+
+               <article class="pod-card" data-genre="documentary" data-search="small town loud the studio documentary music" data-speakable>
+                  <div class="cover cover--grid c-sun" aria-hidden="true">
+                     <span class="cover__grid"></span>
+                     <span class="cover__core"></span>
+                     <span class="cover__tag"><i class="ri-headphones-line" aria-hidden="true"></i> Documentary</span>
+                  </div>
+                  <div class="pod-card__body">
+                     <h3 class="pod-card__title">Small Town Loud</h3>
+                     <p class="pod-card__meta">The Studio · Documentary</p>
+                  </div>
+                  <div class="pod-card__foot">
+                     <div>
+                        <span class="pod-card__stat"><i class="ri-headphone-line" aria-hidden="true"></i> 6.2k</span>
+                        <span class="pod-card__stat"><i class="ri-time-line" aria-hidden="true"></i> 33:18</span>
+                     </div>
+                     <button class="play-btn js-speak" type="button" data-text="Population nine hundred. One practice room. The loudest band for three counties." aria-label="Listen to Small Town Loud">
+                        <i class="ri-play-fill" aria-hidden="true"></i>
+                     </button>
+                  </div>
+               </article>
+
+               <article class="pod-card" data-genre="comedy" data-search="punchline practice dev patel comedy writing" data-speakable>
+                  <div class="cover cover--wave c-clay" aria-hidden="true">
+                     <span class="cover__line"></span>
+                     <span class="cover__wave">
+                        <i style="--h: 72%"></i><i style="--h: 38%"></i><i style="--h: 92%"></i><i style="--h: 56%"></i><i style="--h: 84%"></i><i style="--h: 44%"></i>
+                     </span>
+                     <span class="cover__tag"><i class="ri-headphones-line" aria-hidden="true"></i> Comedy</span>
+                  </div>
+                  <div class="pod-card__body">
+                     <h3 class="pod-card__title">Punchline Practice</h3>
+                     <p class="pod-card__meta">Dev Patel · Comedy</p>
+                  </div>
+                  <div class="pod-card__foot">
+                     <div>
+                        <span class="pod-card__stat"><i class="ri-headphone-line" aria-hidden="true"></i> 11.3k</span>
+                        <span class="pod-card__stat"><i class="ri-time-line" aria-hidden="true"></i> 20:06</span>
+                     </div>
+                     <button class="play-btn js-speak" type="button" data-text="A joke is just a small story that forgot to end politely." aria-label="Listen to Punchline Practice">
+                        <i class="ri-play-fill" aria-hidden="true"></i>
+                     </button>
+                  </div>
+               </article>
+            </div>
+
+            <div class="empty" id="gallery-empty">
+               <i class="ri-search-eye-line" aria-hidden="true"></i>
+               <h3>No podcasts match that yet</h3>
+               <p>Try a different genre, clear the search, or be the first to make it. The studio is one click away.</p>
+               <a href="create.html" class="btn btn--ink btn--sm">Create a podcast</a>
+            </div>
+
+            <!--==================== YOUR RENDERS ====================-->
+            <section aria-labelledby="renders-title">
+               <div class="section-head">
+                  <div>
+                     <h2 class="section-head__title" id="renders-title">Your renders</h2>
+                     <p class="section-head__sub">Episodes generated in this browser appear here automatically.</p>
+                  </div>
+                  <a href="create.html" class="panel__link">Open the studio <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
+               </div>
+
+               <div class="empty" id="your-renders-empty">
+                  <i class="ri-mic-2-line" aria-hidden="true"></i>
+                  <h3>Your shelf is empty</h3>
+                  <p>Generate your first episode and it will land here, ready to replay and share.</p>
+                  <a href="create.html" class="btn btn--ink btn--sm"><i class="ri-sparkling-2-line" aria-hidden="true"></i> Build a podcast</a>
+               </div>
+
+               <div class="pod-grid" id="your-renders"></div>
+            </section>
+
+            <div class="gallery-cta">
+               <div>
+                  <h2>Your turn in the feed.</h2>
+                  <p>Four steps, one render, and your episode joins the gallery.</p>
+               </div>
+               <a href="create.html" class="btn btn--ink btn--sm"><i class="ri-add-line" aria-hidden="true"></i> Start creating</a>
+            </div>
+         </div>
+      </main>
+
+      <!--==================== APP FOOTER ====================-->
+      <footer class="app-footer">
+         <div class="container-app app-footer__in">
+            <p>© 2026 Voxa Labs, Inc. — demo studio</p>
+            <nav class="app-footer__links" aria-label="Footer">
+               <a href="index.html">Home</a>
+               <a href="dashboard.html">Dashboard</a>
+               <a href="voices.html">Voices</a>
+               <a href="create.html">Create</a>
+               <a href="payments.html">Billing</a>
+               <a href="oauth.html" data-signout>Sign out</a>
+            </nav>
+         </div>
+      </footer>
+
+      <script src="js/app.js"></script>
+   </body>
+</html>

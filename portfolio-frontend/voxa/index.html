@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="description" content="Voxa turns any script into a studio-grade podcast or voiceover. 240 lifelike AI voices, voice cloning and 40+ languages, rendered in seconds.">
+      <meta name="robots" content="index, follow">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="theme-color" content="#43925F">
+
+      <meta property="og:type" content="website">
+      <meta property="og:title" content="Voxa — AI podcast & voiceover studio">
+      <meta property="og:description" content="Write it. Hear it. Turn any script into a studio-grade podcast or voiceover with lifelike AI voices.">
+
+      <!--=============== FAVICON ===============-->
+      <link rel="shortcut icon" href="img/favicon.svg" type="image/svg+xml">
+
+      <!--=============== REMIXICONS ===============-->
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css">
+
+      <!--=============== SWIPER CSS ===============-->
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8.4.7/swiper-bundle.min.css">
+
+      <!--=============== CSS ===============-->
+      <link rel="stylesheet" href="css/styles.css">
+
+      <title>Voxa — AI Podcasts & Voiceovers in Your Voice</title>
+   </head>
+   <body>
+      <a href="#main" class="skip-link">Skip to content</a>
+
+      <!--==================== HEADER ====================-->
+      <header class="header" id="header">
+         <nav class="nav container">
+            <a href="#home" class="nav__logo" aria-label="Voxa home">
+               <span class="nav__mark" aria-hidden="true"><i></i><i></i><i></i></span>
+               voxa
+            </a>
+
+            <div class="nav__menu" id="nav-menu">
+               <ul class="nav__list">
+                  <li>
+                     <a href="#home" class="nav__link active-link">Home</a>
+                  </li>
+
+                  <li>
+                     <a href="#voices" class="nav__link">Voices</a>
+                  </li>
+
+                  <li>
+                     <a href="#studio" class="nav__link">Studio</a>
+                  </li>
+
+                  <li>
+                     <a href="gallery.html" class="nav__link">Gallery</a>
+                  </li>
+
+                  <li>
+                     <a href="#contact" class="nav__link">Contact</a>
+                  </li>
+               </ul>
+
+               <!-- Close -->
+               <button class="nav__close" id="nav-close" aria-label="Close menu">
+                  <i class="ri-close-large-line"></i>
+               </button>
+            </div>
+
+            <div class="nav__actions">
+               <button class="nav__demo js-speak"
+                       data-text="Hi, I'm Nova. This is what a studio-grade Voxa voice sounds like."
+                       data-lang="en-US" data-pitch="1.05" data-rate="0.98"
+                       aria-label="Hear a voice demo">
+                  <i class="ri-play-fill" aria-hidden="true"></i>
+                  <span>Hear demo</span>
+               </button>
+
+               <a href="oauth.html" class="nav__cta">Start free</a>
+
+               <!-- Toggle -->
+               <button class="nav__toggle" id="nav-toggle" aria-label="Toggle menu">
+                  <i class="ri-apps-2-line"></i>
+               </button>
+            </div>
+         </nav>
+      </header>
+
+      <!--==================== MAIN ====================-->
+      <main class="main" id="main">
+         <!--==================== HOME ====================-->
+         <section class="home" id="home">
+            <div class="home__bg home__green active-bg"></div>
+            <div class="home__bg home__clay"></div>
+            <div class="home__bg home__blue"></div>
+
+            <div class="home__container container">
+               <div class="home__swiper swiper">
+                  <div class="swiper-wrapper">
+                     <article class="home__card swiper-slide">
+                        <div class="voice-tile c-mint">
+                           <div class="voice-tile__art">
+                              <span class="voice-tile__tag">
+                                 <i class="ri-sparkling-2-fill" aria-hidden="true"></i> Top pick
+                              </span>
+
+                              <div class="voice-tile__disc">
+                                 <span class="voice-tile__label">
+                                    <i></i><i></i><i></i>
+                                 </span>
+                              </div>
+
+                              <span class="voice-tile__len">00:12</span>
+
+                              <button class="voice-tile__play js-speak"
+                                      data-text="In a world of noise, the quietest voice is often the one people remember."
+                                      data-lang="en-US" data-pitch="1.05" data-rate="0.94"
+                                      aria-label="Preview Nova, warm narrator">
+                                 <i class="ri-play-fill" aria-hidden="true"></i>
+                              </button>
+                           </div>
+
+                           <div class="voice-tile__meta">
+                              <div>
+                                 <h3 class="voice-tile__name">Nova</h3>
+                                 <p class="voice-tile__role">Warm narrator</p>
+                              </div>
+                              <span class="voice-tile__lang">EN · US</span>
+                           </div>
+                        </div>
+                     </article>
+
+                     <article class="home__card swiper-slide">
+                        <div class="voice-tile c-clay">
+                           <div class="voice-tile__art">
+                              <span class="voice-tile__tag">
+                                 <i class="ri-mic-2-fill" aria-hidden="true"></i> Podcast
+                              </span>
+
+                              <div class="voice-tile__disc">
+                                 <span class="voice-tile__label">
+                                    <i></i><i></i><i></i>
+                                 </span>
+                              </div>
+
+                              <span class="voice-tile__len">00:18</span>
+
+                              <button class="voice-tile__play js-speak"
+                                      data-text="The ocean keeps most of its secrets. But tonight, we go looking for them."
+                                      data-lang="en-GB" data-pitch="0.75" data-rate="0.92"
+                                      aria-label="Preview Atlas, deep documentary voice">
+                                 <i class="ri-play-fill" aria-hidden="true"></i>
+                              </button>
+                           </div>
+
+                           <div class="voice-tile__meta">
+                              <div>
+                                 <h3 class="voice-tile__name">Atlas</h3>
+                                 <p class="voice-tile__role">Deep documentary</p>
+                              </div>
+                              <span class="voice-tile__lang">EN · UK</span>
+                           </div>
+                        </div>
+                     </article>
+
+                     <article class="home__card swiper-slide">
+                        <div class="voice-tile c-blue">
+                           <div class="voice-tile__art">
+                              <span class="voice-tile__tag">
+                                 <i class="ri-global-line" aria-hidden="true"></i> Bilingual
+                              </span>
+
+                              <div class="voice-tile__disc">
+                                 <span class="voice-tile__label">
+                                    <i></i><i></i><i></i>
+                                 </span>
+                              </div>
+
+                              <span class="voice-tile__len">00:15</span>
+
+                              <button class="voice-tile__play js-speak"
+                                      data-text="Hola, bienvenidos al show. Hoy tenemos una historia increíble para ustedes."
+                                      data-lang="es-MX" data-pitch="1.15" data-rate="1.02"
+                                      aria-label="Preview Juno, bright show host">
+                                 <i class="ri-play-fill" aria-hidden="true"></i>
+                              </button>
+                           </div>
+
+                           <div class="voice-tile__meta">
+                              <div>
+                                 <h3 class="voice-tile__name">Juno</h3>
+                                 <p class="voice-tile__role">Bright show host</p>
+                              </div>
+                              <span class="voice-tile__lang">ES · MX</span>
+                           </div>
+                        </div>
+                     </article>
+                  </div>
+               </div>
+
+               <div class="home__data">
+                  <p class="home__badge">
+                     <span class="home__badge-dot" aria-hidden="true"></span>
+                     AI podcast &amp; voice studio
+                  </p>
+
+                  <h1 class="home__title">Write it. <br> Hear it.</h1>
+                  <p class="home__description">
+                     Turn any script into a studio-grade podcast or voiceover.
+                     240 lifelike voices, 40+ languages, rendered in seconds.
+                  </p>
+
+                  <div class="home__buttons">
+                     <a href="#start" class="home__button">Start free</a>
+                     <button class="home__button home__button-ghost js-speak"
+                             data-text="Hi, I'm Nova. This is what a studio-grade Voxa voice sounds like."
+                             data-lang="en-US" data-pitch="1.05" data-rate="0.98">
+                        <i class="ri-play-fill" aria-hidden="true"></i>
+                        Hear a demo
+                     </button>
+                  </div>
+               </div>
+
+               <img src="img/waves-img.svg" alt="" class="home__wave" aria-hidden="true">
+
+               <div class="home__bottom">
+                  <div class="home__arrows">
+                     <div class="swiper-button-prev">
+                        <i class="ri-arrow-left-s-line"></i>
+                     </div>
+                     <div class="swiper-button-next">
+                        <i class="ri-arrow-right-s-line"></i>
+                     </div>
+                  </div>
+
+                  <div class="home__reviews">
+                     <div class="home__people">
+                        <img src="img/review-1.png" alt="" class="home__person">
+                        <img src="img/review-2.png" alt="" class="home__person">
+                        <img src="img/review-3.png" alt="" class="home__person">
+                     </div>
+
+                     <div>
+                        <h2 class="home__reviews-title">12K creators</h2>
+                        <p class="home__reviews-description">Publishing with Voxa.</p>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </section>
+
+         <!--==================== LOGOS ====================-->
+         <section class="logos" aria-label="Trusted by">
+            <div class="container logos__inner">
+               <p class="logos__label">Trusted by 2,000+ studios, newsrooms and creators</p>
+               <ul class="logos__list">
+                  <li class="logos__item logos__item--display">podwave</li>
+                  <li class="logos__item logos__item--wide">KINETIK</li>
+                  <li class="logos__item logos__item--display">audio/one</li>
+                  <li class="logos__item logos__item--serif">Nightfall</li>
+                  <li class="logos__item logos__item--wide">WAVELENGTH</li>
+               </ul>
+            </div>
+         </section>
+
+         <!--==================== VOICES ====================-->
+         <section class="voices section" id="voices">
+            <div class="container">
+               <div class="section__head">
+                  <div class="section__intro">
+                     <p class="eyebrow">Voice library</p>
+                     <h2 class="section__title">A voice for <br> every story.</h2>
+                     <p class="section__desc">
+                        Preview a few of our 240 voices. Every one is licensed for commercial use,
+                        with emotion and pacing you control.
+                     </p>
+                  </div>
+
+                  <div class="filters" role="group" aria-label="Filter voices">
+                     <button class="filter is-active" data-filter="all">All</button>
+                     <button class="filter" data-filter="narration">Narration</button>
+                     <button class="filter" data-filter="podcast">Podcast</button>
+                     <button class="filter" data-filter="commercial">Commercial</button>
+                     <button class="filter" data-filter="character">Character</button>
+                  </div>
+               </div>
+
+               <div class="voices__grid">
+                  <article class="voice-card" data-cat="narration">
+                     <div class="voice-card__top">
+                        <span class="voice-card__avatar c-mint">N</span>
+                        <span class="voice-card__cat">Narration</span>
+                     </div>
+
+                     <h3 class="voice-card__name">Nova</h3>
+                     <p class="voice-card__desc">Warm, unhurried, every word in its place.</p>
+
+                     <div class="voice-card__controls">
+                        <button class="voice-card__play js-speak"
+                                data-text="In a world of noise, the quietest voice is often the one people remember."
+                                data-lang="en-US" data-pitch="1.05" data-rate="0.94"
+                                aria-label="Preview Nova">
+                           <i class="ri-play-fill" aria-hidden="true"></i>
+                        </button>
+                        <span class="bars" data-bars="30" aria-hidden="true"></span>
+                        <span class="voice-card__len">0:12</span>
+                     </div>
+                  </article>
+
+                  <article class="voice-card" data-cat="podcast">
+                     <div class="voice-card__top">
+                        <span class="voice-card__avatar c-clay">A</span>
+                        <span class="voice-card__cat">Podcast</span>
+                     </div>
+
+                     <h3 class="voice-card__name">Atlas</h3>
+                     <p class="voice-card__desc">Deep and steady. Built for long-form listening.</p>
+
+                     <div class="voice-card__controls">
+                        <button class="voice-card__play js-speak"
+                                data-text="The ocean keeps most of its secrets. But tonight, we go looking for them."
+                                data-lang="en-GB" data-pitch="0.75" data-rate="0.92"
+                                aria-label="Preview Atlas">
+                           <i class="ri-play-fill" aria-hidden="true"></i>
+                        </button>
+                        <span class="bars" data-bars="30" aria-hidden="true"></span>
+                        <span class="voice-card__len">0:18</span>
+                     </div>
+                  </article>
+
+                  <article class="voice-card" data-cat="podcast">
+                     <div class="voice-card__top">
+                        <span class="voice-card__avatar c-blue">J</span>
+                        <span class="voice-card__cat">Podcast</span>
+                     </div>
+
+                     <h3 class="voice-card__name">Juno</h3>
+                     <p class="voice-card__desc">Bright and quick. Keeps every conversation moving.</p>
+
+                     <div class="voice-card__controls">
+                        <button class="voice-card__play js-speak"
+                                data-text="Hola, bienvenidos al show. Hoy tenemos una historia increíble para ustedes."
+                                data-lang="es-MX" data-pitch="1.15" data-rate="1.02"
+                                aria-label="Preview Juno">
+                           <i class="ri-play-fill" aria-hidden="true"></i>
+                        </button>
+                        <span class="bars" data-bars="30" aria-hidden="true"></span>
+                        <span class="voice-card__len">0:15</span>
+                     </div>
+                  </article>
+
+                  <article class="voice-card" data-cat="commercial">
+                     <div class="voice-card__top">
+                        <span class="voice-card__avatar c-clay">M</span>
+                        <span class="voice-card__cat">Commercial</span>
+                     </div>
+
+                     <h3 class="voice-card__name">Milo</h3>
+                     <p class="voice-card__desc">Friendly and upbeat. Made for 15-second spots.</p>
+
+                     <div class="voice-card__controls">
+                        <button class="voice-card__play js-speak"
+                                data-text="New season, new sound. Get thirty percent off your first month with Voxa Studio."
+                                data-lang="en-AU" data-pitch="1.1" data-rate="1.06"
+                                aria-label="Preview Milo">
+                           <i class="ri-play-fill" aria-hidden="true"></i>
+                        </button>
+                        <span class="bars" data-bars="30" aria-hidden="true"></span>
+                        <span class="voice-card__len">0:09</span>
+                     </div>
+                  </article>
+
+                  <article class="voice-card" data-cat="narration">
+                     <div class="voice-card__top">
+                        <span class="voice-card__avatar c-mint">S</span>
+                        <span class="voice-card__cat">Narration</span>
+                     </div>
+
+                     <h3 class="voice-card__name">Sage</h3>
+                     <p class="voice-card__desc">Calm, precise, at home in documentaries.</p>
+
+                     <div class="voice-card__controls">
+                        <button class="voice-card__play js-speak"
+                                data-text="Prenons une minute. Fermez les yeux, et respirez."
+                                data-lang="fr-FR" data-pitch="0.95" data-rate="0.9"
+                                aria-label="Preview Sage">
+                           <i class="ri-play-fill" aria-hidden="true"></i>
+                        </button>
+                        <span class="bars" data-bars="30" aria-hidden="true"></span>
+                        <span class="voice-card__len">0:14</span>
+                     </div>
+                  </article>
+
+                  <article class="voice-card" data-cat="character">
+                     <div class="voice-card__top">
+                        <span class="voice-card__avatar c-blue">P</span>
+                        <span class="voice-card__cat">Character</span>
+                     </div>
+
+                     <h3 class="voice-card__name">Pixel</h3>
+                     <p class="voice-card__desc">Quirky and playful. A little bit alien.</p>
+
+                     <div class="voice-card__controls">
+                        <button class="voice-card__play js-speak"
+                                data-text="Beep boop. I'm Pixel, and I have exactly nine hundred and twelve ideas."
+                                data-lang="en-US" data-pitch="1.45" data-rate="1.12"
+                                aria-label="Preview Pixel">
+                           <i class="ri-play-fill" aria-hidden="true"></i>
+                        </button>
+                        <span class="bars" data-bars="30" aria-hidden="true"></span>
+                        <span class="voice-card__len">0:11</span>
+                     </div>
+                  </article>
+               </div>
+
+               <div class="voices__foot">
+                  <p class="voices__note">Every preview uses your browser's speech engine. In the studio, these voices are neural.</p>
+                  <a href="#start" class="btn btn--ink">Browse all 240 voices <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
+               </div>
+            </div>
+         </section>
+
+         <!--==================== STEPS ====================-->
+         <section class="steps section" id="how">
+            <div class="container">
+               <div class="steps__head">
+                  <p class="eyebrow eyebrow--light">How it works</p>
+                  <h2 class="section__title section__title--light">From script to sound <br> in three steps.</h2>
+                  <p class="steps__desc">
+                     No studio, no booking, no retakes. Just your words, cast and delivered
+                     before the coffee gets cold.
+                  </p>
+               </div>
+
+               <div class="steps__grid">
+                  <article class="step">
+                     <span class="step__num" aria-hidden="true">01</span>
+                     <span class="step__icon"><i class="ri-file-text-line" aria-hidden="true"></i></span>
+                     <h3 class="step__title">Drop in your script</h3>
+                     <p class="step__desc">Paste a doc, drop a PDF, or let Voxa write the first draft from a one-line prompt.</p>
+                  </article>
+
+                  <article class="step">
+                     <span class="step__num" aria-hidden="true">02</span>
+                     <span class="step__icon"><i class="ri-user-voice-line" aria-hidden="true"></i></span>
+                     <h3 class="step__title">Cast the voices</h3>
+                     <p class="step__desc">Pick from 240 voices, set emotion and pacing, and assign a host to each line.</p>
+                  </article>
+
+                  <article class="step">
+                     <span class="step__num" aria-hidden="true">03</span>
+                     <span class="step__icon"><i class="ri-upload-cloud-2-line" aria-hidden="true"></i></span>
+                     <h3 class="step__title">Export anywhere</h3>
+                     <p class="step__desc">Download 48 kHz WAV or MP3, or publish straight to your podcast host.</p>
+                  </article>
+               </div>
+            </div>
+
+            <img src="img/waves-img.svg" alt="" class="steps__wave" aria-hidden="true">
+         </section>
+
+         <!--==================== STUDIO ====================-->
+         <section class="studio section" id="studio">
+            <div class="container studio__grid">
+               <div class="studio__data">
+                  <p class="eyebrow">Voice cloning</p>
+                  <h2 class="section__title">Your voice, <br> cloned in 30s.</h2>
+                  <p class="section__desc">
+                     Upload one minute of audio and Voxa builds a private model of your voice —
+                     pauses, laughs and emphasis included. Keep it to yourself, or license it
+                     in the marketplace.
+                  </p>
+
+                  <ul class="studio__chips">
+                     <li>Emotion control</li>
+                     <li>40+ languages</li>
+                     <li>48 kHz WAV</li>
+                     <li>Private by default</li>
+                  </ul>
+
+                  <a href="voices.html" class="btn btn--ink">Clone my voice <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
+               </div>
+
+               <div class="studio__visual">
+                  <div class="console">
+                     <div class="console__head">
+                        <span class="console__avatar">N</span>
+                        <div class="console__who">
+                           <strong>Nova</strong>
+                           <span>episode-01.wav · en-US</span>
+                        </div>
+                        <span class="console__hd">48 kHz</span>
+                     </div>
+
+                     <div class="console__wave-wrap">
+                        <span class="bars bars--console" data-bars="58" aria-hidden="true"></span>
+                        <span class="console__playhead" aria-hidden="true"></span>
+                     </div>
+
+                     <div class="console__foot">
+                        <span class="console__play"><i class="ri-play-fill" aria-hidden="true"></i></span>
+                        <span class="console__time">00:24 / 03:12</span>
+                        <span class="console__status"><i aria-hidden="true"></i> Rendering</span>
+                     </div>
+                  </div>
+
+                  <span class="studio__float studio__float--speed">
+                     <i class="ri-flashlight-fill" aria-hidden="true"></i> 340 ms render
+                  </span>
+                  <span class="studio__float studio__float--lang">
+                     <i class="ri-global-line" aria-hidden="true"></i> 40+ languages
+                  </span>
+               </div>
+            </div>
+         </section>
+
+         <!--==================== START ====================-->
+         <section class="start section" id="start">
+            <div class="container start__container">
+               <p class="eyebrow eyebrow--light">Get started</p>
+               <h2 class="start__title">Your next episode <br> is one script away.</h2>
+               <p class="start__desc">Join 12,000 creators making podcasts, audiobooks and voiceovers with Voxa.</p>
+
+               <form class="start__form" id="start-form" novalidate>
+                  <label for="start-email" class="sr-only">Work email</label>
+                  <input type="email" id="start-email" name="email" placeholder="you@studio.com" autocomplete="email" required>
+                  <button type="submit">Start free</button>
+               </form>
+
+               <p class="start__note" id="start-note">10 free minutes · No credit card · Cancel anytime</p>
+            </div>
+
+            <img src="img/waves-img.svg" alt="" class="start__wave" aria-hidden="true">
+         </section>
+      </main>
+
+      <!--==================== FOOTER ====================-->
+      <footer class="footer" id="contact">
+         <div class="container footer__top">
+            <div class="footer__brand">
+               <a href="#home" class="footer__logo" aria-label="Voxa home">
+                  <span class="nav__mark" aria-hidden="true"><i></i><i></i><i></i></span>
+                  voxa
+               </a>
+               <p class="footer__blurb">The AI voice studio for podcasts, audiobooks and everything in between.</p>
+
+               <div class="footer__social">
+                  <a href="#" aria-label="Voxa on X"><i class="ri-twitter-x-line" aria-hidden="true"></i></a>
+                  <a href="#" aria-label="Voxa on Instagram"><i class="ri-instagram-line" aria-hidden="true"></i></a>
+                  <a href="#" aria-label="Voxa on YouTube"><i class="ri-youtube-line" aria-hidden="true"></i></a>
+                  <a href="#" aria-label="Voxa on LinkedIn"><i class="ri-linkedin-box-line" aria-hidden="true"></i></a>
+               </div>
+            </div>
+
+            <nav class="footer__col" aria-label="Product">
+               <h3>Product</h3>
+               <ul>
+                  <li><a href="#voices">Voice library</a></li>
+                  <li><a href="voices.html">Voice cloning</a></li>
+                  <li><a href="create.html">Create a podcast</a></li>
+                  <li><a href="gallery.html">Gallery</a></li>
+                  <li><a href="payments.html">Pricing</a></li>
+                  <li><a href="oauth.html">Sign in</a></li>
+               </ul>
+            </nav>
+
+            <nav class="footer__col" aria-label="Company">
+               <h3>Company</h3>
+               <ul>
+                  <li><a href="#">About</a></li>
+                  <li><a href="#">Careers</a></li>
+                  <li><a href="#">Press kit</a></li>
+                  <li><a href="#contact">Contact</a></li>
+               </ul>
+            </nav>
+
+            <nav class="footer__col" aria-label="Resources">
+               <h3>Resources</h3>
+               <ul>
+                  <li><a href="#">Docs</a></li>
+                  <li><a href="#">API reference</a></li>
+                  <li><a href="#">Blog</a></li>
+                  <li><a href="#">Support</a></li>
+               </ul>
+            </nav>
+         </div>
+
+         <div class="container footer__bottom">
+            <p>© <span id="year">2026</span> Voxa Labs, Inc. All rights reserved.</p>
+            <div class="footer__legal">
+               <a href="#">Privacy</a>
+               <a href="#">Terms</a>
+               <a href="#">Voice ethics</a>
+            </div>
+         </div>
+
+         <div class="footer__mark" aria-hidden="true">voxa</div>
+      </footer>
+
+      <!--=============== GSAP ===============-->
+      <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js"></script>
+
+      <!--=============== SWIPER JS ===============-->
+      <script src="https://cdn.jsdelivr.net/npm/swiper@8.4.7/swiper-bundle.min.js"></script>
+
+      <!--=============== MAIN JS ===============-->
+      <script src="js/main.js"></script>
+   </body>
+</html>

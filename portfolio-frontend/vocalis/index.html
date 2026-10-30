@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="description" content="Vocalis designs realistic human voices with AI. Direct emotion, clone a voice in 30 seconds, and ship natural speech in 32 languages.">
+  <meta name="theme-color" content="#14213d">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Vocalis — Human voices, designed by AI">
+  <meta property="og:description" content="Studio voices, cloned voices and 42 ms streaming speech in 32 languages. Start with 10,000 free characters.">
+  <title>Vocalis — Human voices, designed by AI</title>
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2314213d'/%3E%3Cg fill='%23fca311'%3E%3Crect x='14' y='26' width='5' height='12' rx='2.5'/%3E%3Crect x='23' y='18' width='5' height='28' rx='2.5'/%3E%3Crect x='32' y='10' width='5' height='44' rx='2.5'/%3E%3Crect x='41' y='22' width='5' height='20' rx='2.5'/%3E%3Crect x='50' y='28' width='5' height='8' rx='2.5'/%3E%3C/g%3E%3C/svg%3E">
+
+  <!--=============== REMIXICONS ===============-->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+
+  <!--=============== CSS ===============-->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <!--==================== HEADER ====================-->
+  <header class="header" id="header">
+    <nav class="nav container">
+      <a href="#home" class="nav__logo" aria-label="Vocalis home">
+        Voca<span>lis</span>
+      </a>
+
+      <div class="nav__menu" id="nav-menu">
+        <ul class="nav__list">
+          <li class="nav__item"><a href="#studio" class="nav__link" data-section="studio">Studio</a></li>
+          <li class="nav__item"><a href="#voices" class="nav__link" data-section="voices">Voices</a></li>
+          <li class="nav__item"><a href="#pricing" class="nav__link" data-section="pricing">Pricing</a></li>
+          <li class="nav__item"><a href="playground.html" class="nav__link">Playground</a></li>
+          <li class="nav__item"><a href="#faq" class="nav__link" data-section="faq">FAQ</a></li>
+        </ul>
+
+        <div class="nav__actions">
+          <a href="oauth.html" class="nav__signin">Sign in</a>
+          <a href="oauth.html?intent=signup" class="button button--small">Start free</a>
+        </div>
+
+        <button class="nav__close" id="nav-close" type="button" aria-label="Close menu">
+          <i class="ri-close-line"></i>
+        </button>
+
+        <img src="img/nav-img.svg" alt="" class="nav__img" aria-hidden="true">
+      </div>
+
+      <div class="nav__right">
+        <a href="oauth.html" class="nav__signin">Sign in</a>
+        <a href="oauth.html?intent=signup" class="button button--small">Start free</a>
+      </div>
+
+      <button class="nav__toggle" id="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-menu">
+        <i class="ri-function-line"></i>
+      </button>
+    </nav>
+  </header>
+
+  <!--==================== MAIN ====================-->
+  <main class="main">
+    <!--==================== HERO ====================-->
+    <section class="home" id="home">
+      <div class="home__shape-small"></div>
+      <div class="home__shape-big"></div>
+      <img src="img/shape-bg.svg" alt="" class="home__shape-bg" aria-hidden="true">
+
+      <div class="home__container container">
+        <div class="home__data">
+          <a href="#studio" class="home__eyebrow">
+            <span class="home__eyebrow-dot"></span>
+            Voice Studio 2.0 is live
+            <i class="ri-arrow-right-line"></i>
+          </a>
+
+          <h1 class="home__title">
+            Human voices,
+            <span>designed by AI</span>
+          </h1>
+
+          <p class="home__description">
+            Vocalis turns plain script into speech that breathes — real pacing, real emotion, 32 languages.
+            No studio, no castings, no re-records.
+          </p>
+
+          <div class="home__buttons">
+            <a href="oauth.html?intent=signup" class="button">
+              Start free
+              <i class="ri-arrow-right-line"></i>
+            </a>
+            <button class="button button--ghost" id="heroPlay" type="button">
+              <i class="ri-play-fill"></i>
+              <span id="heroPlayLabel">Hear a sample</span>
+            </button>
+          </div>
+
+          <div class="home__trust">
+            <div class="home__avatars" aria-hidden="true">
+              <span class="avatar" style="--avatar: linear-gradient(135deg,#f7bb3c,#d18600);color:#14213d">MC</span>
+              <span class="avatar" style="--avatar: linear-gradient(135deg,#33486f,#14213d)">JR</span>
+              <span class="avatar" style="--avatar: linear-gradient(135deg,#e5e5e5,#bdbdbd);color:#14213d">AL</span>
+              <span class="avatar" style="--avatar: linear-gradient(135deg,#1c1c1c,#000000)">SK</span>
+            </div>
+            <p>Trusted by <strong>12,000+</strong> product teams</p>
+          </div>
+        </div>
+
+        <div class="home__visual">
+          <div class="home__photo">
+            <img
+              src="img/hero-studio.jpg"
+              alt="Studio microphone wreathed in ribbons of golden light"
+              class="home__photo-img"
+              width="928"
+              height="1152"
+              fetchpriority="high"
+            >
+          </div>
+
+          <div class="home__chip">
+            <i class="ri-checkbox-circle-fill"></i>
+            Cloned in 30 seconds
+          </div>
+
+          <div class="voice-card" id="heroCard">
+            <button class="voice-card__play" id="heroCardPlay" type="button" aria-label="Play the Aria voice sample">
+              <i class="ri-play-fill"></i>
+            </button>
+            <div class="voice-card__body">
+              <div class="voice-card__top">
+                <span class="voice-card__name">Aria</span>
+                <span class="voice-card__tag">Warm · EN-US</span>
+              </div>
+              <div class="waveform" data-bars="22" data-heights="30,55,80,45,95,60,35,75,90,50,30,65,85,40,70,95,55,30,60,45,75,35"></div>
+            </div>
+            <span class="voice-card__time">0:12</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!--==================== LOGOS ====================-->
+    <section class="logos" aria-label="Customers">
+      <div class="container">
+        <p class="logos__label">Powering voice at</p>
+        <div class="logos__row">
+          <span class="logos__mark logos__mark--serif">Lumen&nbsp;Audio</span>
+          <span class="logos__mark logos__mark--wide">NARRATE</span>
+          <span class="logos__mark logos__mark--mono">playforge</span>
+          <span class="logos__mark logos__mark--serif">Callisto</span>
+          <span class="logos__mark logos__mark--wide">HEARTH</span>
+        </div>
+      </div>
+    </section>
+
+    <!--==================== FEATURES ====================-->
+    <section class="section section--tint" id="studio">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">The studio</span>
+          <h2 class="section__title">A studio that understands <span>speech</span></h2>
+          <p class="section__description">
+            Every pause, breath and lift is a parameter. Point the model at a performance and it delivers —
+            without a booth, a director or a retake.
+          </p>
+        </div>
+
+        <div class="bento">
+          <article class="card bento__wide reveal">
+            <div class="card__icon"><i class="ri-equalizer-line"></i></div>
+            <h3>Direct the performance, not just the words</h3>
+            <p>Highlight a line, nudge the emphasis, and hear the change before the sentence ends. It behaves like a script read, not a synth.</p>
+
+            <div class="studio-mock" aria-hidden="true">
+              <div class="studio-mock__bar">
+                <span class="studio-mock__chip is-active">Warm</span>
+                <span class="studio-mock__chip">Bright</span>
+                <span class="studio-mock__chip">Calm</span>
+                <span class="studio-mock__spacer"></span>
+                <span class="studio-mock__time">00:12.4</span>
+              </div>
+              <p class="studio-mock__script">
+                “I wasn’t sure anyone would <mark>listen</mark> — but then the letters started arriving.”
+              </p>
+              <div class="studio-mock__wave">
+                <div class="waveform waveform--mock" data-bars="46" data-seed="7"></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="card reveal">
+            <div class="card__icon"><i class="ri-mic-2-line"></i></div>
+            <h3>Clone a voice in 30 seconds</h3>
+            <p>Upload a short, verified sample and get a faithful model — same timbre, same little imperfections.</p>
+            <div class="clone-flow" aria-hidden="true">
+              <span class="clone-flow__step"><i class="ri-upload-2-line"></i> 0:30 sample</span>
+              <i class="ri-arrow-right-line clone-flow__arrow"></i>
+              <span class="clone-flow__step clone-flow__step--done"><i class="ri-checkbox-circle-fill"></i> Voice ready</span>
+            </div>
+          </article>
+
+          <article class="card reveal">
+            <div class="card__icon"><i class="ri-emotion-happy-line"></i></div>
+            <h3>Emotion, pacing &amp; emphasis</h3>
+            <p>Dial in a whisper, a smile, a rising question. Delivery stops sounding generated.</p>
+          </article>
+
+          <article class="card reveal">
+            <div class="card__icon"><i class="ri-translate-2"></i></div>
+            <h3>32 languages, one identity</h3>
+            <p>Keep the voice your audience knows when you localise. Accents travel with it.</p>
+            <div class="chips" aria-hidden="true">
+              <span>EN</span><span>ES</span><span>FR</span><span>JA</span><span>AR</span><span>+27</span>
+            </div>
+          </article>
+
+          <article class="card card--dark reveal">
+            <div class="card__icon"><i class="ri-flashlight-line"></i></div>
+            <h3>42 ms streaming API</h3>
+            <p>Speech that arrives while the sentence is still being written — built for live agents, IVR and games.</p>
+            <code class="card__code">POST /v1/speech</code>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!--==================== HOW IT WORKS ====================-->
+    <section class="section section--how" id="how">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">How it works</span>
+          <h2 class="section__title">From script to <span>standing ovation</span></h2>
+        </div>
+
+        <ol class="steps">
+          <li class="steps__item reveal">
+            <span class="steps__number">01</span>
+            <div class="steps__content">
+              <h3>Write or paste your script</h3>
+              <p>Bring a manuscript, a support macro or a 40-word ad. Or import straight from your CMS.</p>
+            </div>
+          </li>
+          <li class="steps__item reveal">
+            <span class="steps__number">02</span>
+            <div class="steps__content">
+              <h3>Pick a voice and direct it</h3>
+              <p>Choose from 120 catalog voices or clone your own, then set tone, pace and emphasis per line.</p>
+            </div>
+          </li>
+          <li class="steps__item reveal">
+            <span class="steps__number">03</span>
+            <div class="steps__content">
+              <h3>Ship it anywhere</h3>
+              <p>Export broadcast-ready WAV, or stream through the API into your app in 42 milliseconds.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!--==================== LIVE DEMO ====================-->
+    <section class="section section--demo" id="demo">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">Try it now</span>
+          <h2 class="section__title">One line. <span>One listen.</span></h2>
+          <p class="section__description">
+            Type something, choose a voice, and hear it aloud. This demo uses your browser’s speech engine —
+            the Vocalis API sounds a good deal more human.
+          </p>
+        </div>
+
+        <div class="studio reveal">
+          <div class="studio__topbar">
+            <span class="studio__dots"><i></i><i></i><i></i></span>
+            <span class="studio__filename">Untitled take · draft 03</span>
+            <span class="studio__badge"><i class="ri-live-line"></i> Live demo</span>
+          </div>
+
+          <div class="studio__body">
+            <div class="studio__panel">
+              <label class="studio__label" for="script">Script</label>
+              <textarea id="script" class="studio__textarea" maxlength="280" spellcheck="false">Some voices read the words. Others make you look up from the page.</textarea>
+
+              <div class="studio__style-row">
+                <span class="studio__label studio__label--inline">Delivery</span>
+                <div class="style-chips" id="styleChips">
+                  <button class="style-chip is-active" type="button" data-style="warm" data-rate="0.94" data-pitch="0.95">Warm</button>
+                  <button class="style-chip" type="button" data-style="bright" data-rate="1.04" data-pitch="1.15">Bright</button>
+                  <button class="style-chip" type="button" data-style="calm" data-rate="0.85" data-pitch="0.9">Calm</button>
+                  <button class="style-chip" type="button" data-style="news" data-rate="1.1" data-pitch="1">News</button>
+                </div>
+              </div>
+
+              <div class="studio__controls">
+                <div class="field">
+                  <label class="studio__label" for="voiceSelect">Voice</label>
+                  <select id="voiceSelect" class="studio__select"></select>
+                </div>
+                <div class="field">
+                  <label class="studio__label" for="rate">Pace <span id="rateValue">1.0×</span></label>
+                  <input id="rate" class="studio__range" type="range" min="0.7" max="1.4" step="0.05" value="1">
+                </div>
+              </div>
+
+              <div class="studio__actions">
+                <button class="button" id="speakBtn" type="button">
+                  <i class="ri-play-fill" id="speakIcon"></i>
+                  <span id="speakLabel">Generate speech</span>
+                </button>
+                <span class="studio__count"><span id="charCount">69</span>/280</span>
+              </div>
+            </div>
+
+            <div class="studio__preview">
+              <div class="studio__preview-head">
+                <span class="studio__label">Output</span>
+                <span class="studio__status" id="speakStatus">Ready when you are</span>
+              </div>
+
+              <div class="studio__wave">
+                <div class="waveform waveform--demo" id="demoWave" data-bars="40" data-seed="11"></div>
+              </div>
+
+              <div class="studio__preview-foot">
+                <div class="studio__now">
+                  <span class="studio__avatar">A</span>
+                  <div>
+                    <strong id="nowVoice">Aria</strong>
+                    <small id="nowStyle">Warm · conversational</small>
+                  </div>
+                </div>
+                <span class="studio__meta">24-bit · 48 kHz</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!--==================== VOICES ====================-->
+    <section class="section section--dark" id="voices">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">The catalog</span>
+          <h2 class="section__title">120 voices. <span>Zero strangers.</span></h2>
+          <p class="section__description">
+            Each voice is a persona — a tone, a pace, a way of pausing. Preview six of them. Every one is
+            cleared for commercial use.
+          </p>
+        </div>
+
+        <div class="voice-grid">
+          <article class="voice-tile reveal" data-voice-card data-name="Aria" data-lang="en-US" data-pitch="1.05" data-rate="0.95"
+            data-line="Here’s the strange part: the more I practised, the quieter I got.">
+            <div class="voice-tile__head">
+              <span class="voice-tile__avatar" style="--tone:linear-gradient(135deg,#f7bb3c,#d18600);color:#14213d">A</span>
+              <div>
+                <h3>Aria</h3>
+                <p>Warm · conversational</p>
+              </div>
+              <button class="voice-tile__play" type="button" aria-label="Preview Aria">
+                <i class="ri-play-fill"></i>
+              </button>
+            </div>
+            <div class="waveform waveform--tile" data-bars="26" data-seed="3"></div>
+            <div class="voice-tile__foot"><span>EN-US</span><span>Narration</span><span>0:08</span></div>
+          </article>
+
+          <article class="voice-tile reveal" data-voice-card data-name="Atlas" data-lang="en-US" data-pitch="0.7" data-rate="0.9"
+            data-line="Some stories begin with a storm. This one began with a very quiet letter.">
+            <div class="voice-tile__head">
+              <span class="voice-tile__avatar" style="--tone:linear-gradient(135deg,#3a4d73,#101b2f)">A</span>
+              <div>
+                <h3>Atlas</h3>
+                <p>Deep · documentary</p>
+              </div>
+              <button class="voice-tile__play" type="button" aria-label="Preview Atlas">
+                <i class="ri-play-fill"></i>
+              </button>
+            </div>
+            <div class="waveform waveform--tile" data-bars="26" data-seed="5"></div>
+            <div class="voice-tile__foot"><span>EN-US</span><span>Documentary</span><span>0:11</span></div>
+          </article>
+
+          <article class="voice-tile reveal" data-voice-card data-name="June" data-lang="en-GB" data-pitch="1.2" data-rate="1.02"
+            data-line="Good morning! Your three o’clock is running late, so I moved your focus block.">
+            <div class="voice-tile__head">
+              <span class="voice-tile__avatar" style="--tone:linear-gradient(135deg,#f2e3c2,#cdb383);color:#14213d">J</span>
+              <div>
+                <h3>June</h3>
+                <p>Bright · friendly</p>
+              </div>
+              <button class="voice-tile__play" type="button" aria-label="Preview June">
+                <i class="ri-play-fill"></i>
+              </button>
+            </div>
+            <div class="waveform waveform--tile" data-bars="26" data-seed="8"></div>
+            <div class="voice-tile__foot"><span>EN-GB</span><span>Assistant</span><span>0:07</span></div>
+          </article>
+
+          <article class="voice-tile reveal" data-voice-card data-name="Nori" data-lang="en-US" data-pitch="0.95" data-rate="0.92"
+            data-line="I understand — let’s take that one step at a time. You’re not in trouble.">
+            <div class="voice-tile__head">
+              <span class="voice-tile__avatar" style="--tone:linear-gradient(135deg,#65738d,#2a3650)">N</span>
+              <div>
+                <h3>Nori</h3>
+                <p>Calm · reassuring</p>
+              </div>
+              <button class="voice-tile__play" type="button" aria-label="Preview Nori">
+                <i class="ri-play-fill"></i>
+              </button>
+            </div>
+            <div class="waveform waveform--tile" data-bars="26" data-seed="12"></div>
+            <div class="voice-tile__foot"><span>EN-US</span><span>Support</span><span>0:09</span></div>
+          </article>
+
+          <article class="voice-tile reveal" data-voice-card data-name="Kai" data-lang="en-AU" data-pitch="1.12" data-rate="1.12"
+            data-line="Tickets are live, the line-up is unreal, and you’re coming. Let’s go.">
+            <div class="voice-tile__head">
+              <span class="voice-tile__avatar" style="--tone:linear-gradient(135deg,#2b2b2b,#000000)">K</span>
+              <div>
+                <h3>Kai</h3>
+                <p>Energetic · promo</p>
+              </div>
+              <button class="voice-tile__play" type="button" aria-label="Preview Kai">
+                <i class="ri-play-fill"></i>
+              </button>
+            </div>
+            <div class="waveform waveform--tile" data-bars="26" data-seed="15"></div>
+            <div class="voice-tile__foot"><span>EN-AU</span><span>Advertising</span><span>0:06</span></div>
+          </article>
+
+          <article class="voice-tile reveal" data-voice-card data-name="Noor" data-lang="en-IN" data-pitch="1" data-rate="0.88"
+            data-line="Before the city had a name, the river was already telling this story.">
+            <div class="voice-tile__head">
+              <span class="voice-tile__avatar" style="--tone:linear-gradient(135deg,#b47a2c,#7a4c00)">N</span>
+              <div>
+                <h3>Noor</h3>
+                <p>Soft · storytelling</p>
+              </div>
+              <button class="voice-tile__play" type="button" aria-label="Preview Noor">
+                <i class="ri-play-fill"></i>
+              </button>
+            </div>
+            <div class="waveform waveform--tile" data-bars="26" data-seed="19"></div>
+            <div class="voice-tile__foot"><span>EN-IN</span><span>Audiobooks</span><span>0:10</span></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!--==================== USE CASES ====================-->
+    <section class="section section--cases" id="cases">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">Built for</span>
+          <h2 class="section__title">A voice for every <span>surface</span></h2>
+        </div>
+
+        <div class="cases">
+          <article class="case reveal">
+            <span class="case__icon"><i class="ri-book-open-line"></i></span>
+            <h3>Audiobooks &amp; publishing</h3>
+            <p>Chapter-level consistency across 12-hour reads. Fix a typo without re-booking a narrator.</p>
+            <span class="case__tag">Long form</span>
+          </article>
+          <article class="case reveal">
+            <span class="case__icon"><i class="ri-customer-service-2-line"></i></span>
+            <h3>Support &amp; voice agents</h3>
+            <p>Answers in 42 ms with the tone of your best rep — even at 2 a.m. on a holiday.</p>
+            <span class="case__tag">Real time</span>
+          </article>
+          <article class="case reveal">
+            <span class="case__icon"><i class="ri-gamepad-line"></i></span>
+            <h3>Games &amp; characters</h3>
+            <p>Hundreds of distinct characters, new lines shipped in a build. No casting calls.</p>
+            <span class="case__tag">Interactive</span>
+          </article>
+          <article class="case reveal">
+            <span class="case__icon"><i class="ri-play-circle-line"></i></span>
+            <h3>Learning &amp; video</h3>
+            <p>Localise courses and ads without re-recording. Same voice, every language.</p>
+            <span class="case__tag">Localisation</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!--==================== PRICING ====================-->
+    <section class="section" id="pricing">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">Pricing</span>
+          <h2 class="section__title">Simple pricing, <span>human terms</span></h2>
+          <p class="section__description">Characters you don’t use roll over for 60 days. Cancel whenever — the voices you made stay yours.</p>
+
+          <div class="billing" role="group" aria-label="Billing period">
+            <button class="billing__btn is-active" type="button" data-billing="monthly" aria-pressed="true">Monthly</button>
+            <button class="billing__btn" type="button" data-billing="annual" aria-pressed="false">
+              Annual <span class="billing__save">−20%</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="pricing">
+          <article class="plan reveal">
+            <h3 class="plan__name">Starter</h3>
+            <p class="plan__desc">For your first experiments.</p>
+            <p class="plan__price"><span class="plan__amount" data-monthly="0" data-annual="0">$0</span><span class="plan__period">/month</span></p>
+            <p class="plan__billing" data-billing-note>Free forever</p>
+            <a href="oauth.html?intent=signup" class="button button--outline button--full">Start free</a>
+            <ul class="plan__features">
+              <li><i class="ri-check-line"></i>10,000 characters / month</li>
+              <li><i class="ri-check-line"></i>6 catalog voices</li>
+              <li><i class="ri-check-line"></i>MP3 export</li>
+              <li><i class="ri-check-line"></i>1 seat</li>
+            </ul>
+          </article>
+
+          <article class="plan plan--featured reveal">
+            <span class="plan__badge">Most popular</span>
+            <h3 class="plan__name">Studio</h3>
+            <p class="plan__desc">For teams shipping voice weekly.</p>
+            <p class="plan__price"><span class="plan__amount" data-monthly="29" data-annual="23">$29</span><span class="plan__period">/month</span></p>
+            <p class="plan__billing" data-billing-note>Billed monthly</p>
+            <a href="oauth.html?intent=signup" class="button button--full">Start 14-day trial</a>
+            <ul class="plan__features">
+              <li><i class="ri-check-line"></i>500,000 characters / month</li>
+              <li><i class="ri-check-line"></i>All 120 voices</li>
+              <li><i class="ri-check-line"></i>3 voice clones</li>
+              <li><i class="ri-check-line"></i>Emotion &amp; pacing controls</li>
+              <li><i class="ri-check-line"></i>WAV + MP3 export</li>
+            </ul>
+          </article>
+
+          <article class="plan reveal">
+            <h3 class="plan__name">Scale</h3>
+            <p class="plan__desc">For voice as infrastructure.</p>
+            <p class="plan__price"><span class="plan__amount" data-monthly="99" data-annual="79">$99</span><span class="plan__period">/month</span></p>
+            <p class="plan__billing" data-billing-note>Billed monthly</p>
+            <a href="oauth.html?intent=signup" class="button button--outline button--full">Start 14-day trial</a>
+            <ul class="plan__features">
+              <li><i class="ri-check-line"></i>3M characters / month</li>
+              <li><i class="ri-check-line"></i>Unlimited voice clones</li>
+              <li><i class="ri-check-line"></i>Streaming API · 42 ms</li>
+              <li><i class="ri-check-line"></i>SSO &amp; audit logs</li>
+              <li><i class="ri-check-line"></i>Priority support</li>
+            </ul>
+          </article>
+        </div>
+
+        <p class="pricing__note reveal">
+          Need 10M+ characters, on-prem models or a custom voice for a launch?
+          <a href="#contact">Talk to sales <i class="ri-arrow-right-line"></i></a>
+        </p>
+      </div>
+    </section>
+
+    <!--==================== TESTIMONIAL / STATS ====================-->
+    <section class="section section--proof" id="proof">
+      <div class="container">
+        <div class="proof">
+          <figure class="proof__quote reveal">
+            <span class="proof__mark" aria-hidden="true">“</span>
+            <blockquote>
+              We replaced eight voice actors and a recording studio with one afternoon in Vocalis.
+              Listeners couldn’t tell — and our catalogue finally releases at the speed of the manuscript.
+            </blockquote>
+            <figcaption>
+              <span class="avatar avatar--lg" style="--avatar: linear-gradient(135deg,#f7bb3c,#d18600);color:#14213d">MC</span>
+              <span>
+                <strong>Maya Chen</strong>
+                <small>Head of Audio, Narrate</small>
+              </span>
+            </figcaption>
+          </figure>
+
+          <div class="proof__stats reveal">
+            <div class="stat">
+              <strong>12k+</strong>
+              <span>teams building with Vocalis</span>
+            </div>
+            <div class="stat">
+              <strong>1.2B</strong>
+              <span>characters spoken last year</span>
+            </div>
+            <div class="stat">
+              <strong>4.9<span>/5</span></strong>
+              <span>average listener naturalness</span>
+            </div>
+            <div class="stat">
+              <strong>42<span>ms</span></strong>
+              <span>median time to first audio</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!--==================== FAQ ====================-->
+    <section class="section" id="faq">
+      <div class="container container--narrow">
+        <div class="section__head reveal">
+          <span class="eyebrow">Questions</span>
+          <h2 class="section__title">The <span>honest</span> answers</h2>
+        </div>
+
+        <div class="faq reveal">
+          <div class="faq__item">
+            <button class="faq__q" type="button" aria-expanded="false">
+              Do I own the voices I create?
+              <i class="ri-add-line"></i>
+            </button>
+            <div class="faq__a"><div><p>Yes. Every voice you generate — catalog or cloned — comes with a perpetual, worldwide commercial licence. Audiobooks, ads, in-app assistants, broadcast: use it and keep the revenue.</p></div></div>
+          </div>
+
+          <div class="faq__item">
+            <button class="faq__q" type="button" aria-expanded="false">
+              How much audio do I need to clone a voice?
+              <i class="ri-add-line"></i>
+            </button>
+            <div class="faq__a"><div><p>Thirty seconds of clean speech is enough for a working clone. Two to three minutes gives noticeably better fidelity and emotional range. You can add more samples later without starting over.</p></div></div>
+          </div>
+
+          <div class="faq__item">
+            <button class="faq__q" type="button" aria-expanded="false">
+              Can listeners actually tell it’s AI?
+              <i class="ri-add-line"></i>
+            </button>
+            <div class="faq__a"><div><p>In blind tests, 94% of listeners rate our studio voices as human on first listen, and most only spot the tells on a second pass. We also embed inaudible provenance watermarks so the audio stays traceable.</p></div></div>
+          </div>
+
+          <div class="faq__item">
+            <button class="faq__q" type="button" aria-expanded="false">
+              What stops someone cloning me without consent?
+              <i class="ri-add-line"></i>
+            </button>
+            <div class="faq__a"><div><p>Every clone requires a recorded consent statement matched against the sample. Public-figure cloning is blocked by default, and every generated file carries signed provenance metadata that survives re-encoding.</p></div></div>
+          </div>
+
+          <div class="faq__item">
+            <button class="faq__q" type="button" aria-expanded="false">
+              Is the free tier really free?
+              <i class="ri-add-line"></i>
+            </button>
+            <div class="faq__a"><div><p>Yes — 10,000 characters a month, six voices, no card required. It exists so you can publish something real before you talk to us about a plan.</p></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!--==================== CTA ====================-->
+    <section class="cta" id="contact">
+      <div class="container">
+        <div class="cta__panel reveal">
+          <div class="cta__copy">
+            <h2>Voices your users<br>will <span>trust</span>.</h2>
+            <p>Start with 10,000 free characters. No card, no studio, no castings.</p>
+            <div class="cta__actions">
+              <a href="oauth.html?intent=signup" class="button button--light">Start free <i class="ri-arrow-right-line"></i></a>
+              <a href="#demo" class="button button--ghost-light">Book a demo</a>
+            </div>
+          </div>
+
+          <div class="cta__art" aria-hidden="true">
+            <img src="img/microphone.svg" alt="" class="cta__mic">
+            <div class="waveform waveform--cta" data-bars="30" data-seed="23"></div>
+            <img src="img/node.svg" alt="" class="cta__node cta__node--1">
+            <img src="img/node.svg" alt="" class="cta__node cta__node--2">
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!--==================== FOOTER ====================-->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a href="#home" class="nav__logo">Voca<span>lis</span></a>
+          <p>Human voices, designed by AI.<br>Made in Edinburgh and Brooklyn.</p>
+          <div class="footer__social">
+            <a href="#" aria-label="Vocalis on X"><i class="ri-twitter-line"></i></a>
+            <a href="#" aria-label="Vocalis on LinkedIn"><i class="ri-linkedin-line"></i></a>
+            <a href="#" aria-label="Vocalis on GitHub"><i class="ri-github-line"></i></a>
+          </div>
+        </div>
+
+        <div class="footer__col">
+          <h3>Product</h3>
+          <ul>
+            <li><a href="voice-design.html">Voice design</a></li>
+            <li><a href="#voices">Voice catalog</a></li>
+            <li><a href="#demo">Live demo</a></li>
+            <li><a href="playground.html">Playground</a></li>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+          </ul>
+        </div>
+
+        <div class="footer__col">
+          <h3>Developers</h3>
+          <ul>
+            <li><a href="#">API reference</a></li>
+            <li><a href="#">SDKs</a></li>
+            <li><a href="#">Status</a></li>
+            <li><a href="#">Changelog</a></li>
+          </ul>
+        </div>
+
+        <div class="footer__col">
+          <h3>Company</h3>
+          <ul>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Trust &amp; safety</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+
+        <div class="footer__col">
+          <h3>Legal</h3>
+          <ul>
+            <li><a href="#">Voice consent policy</a></li>
+            <li><a href="#">Privacy</a></li>
+            <li><a href="#">Terms</a></li>
+            <li><a href="#">AI disclosure</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <p>© 2026 Vocalis Labs, Inc. All voices cleared for commercial use.</p>
+        <p class="footer__locale"><i class="ri-global-line"></i> English (US)</p>
+      </div>
+    </div>
+  </footer>
+
+  <!--=============== MAIN JS ===============-->
+  <script src="js/main.js"></script>
+</body>
+</html>

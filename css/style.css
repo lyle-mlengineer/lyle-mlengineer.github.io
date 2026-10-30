@@ -7,7 +7,7 @@
 
     /*========== Colors ==========*/
     /* Change favorite color */
-    --hue-color: 119; /*Purple 250 - Green 142 - Blue 230 - Pink 340*/
+    --hue-color: 340; /*Purple 250 - Green 142 - Blue 230 - Pink 340 -Light green 119*/
 
     /* HSL color mode */
     --first-color: hsl(var(--hue-color), 69%, 61%);
@@ -475,7 +475,8 @@ img {
 }
 
 .about__button, 
-.blog__button {
+.blog__button,
+.portfolio__button {
     cursor: pointer;
 }
 
@@ -508,6 +509,11 @@ img {
 
 .about__modal-description {
     margin-bottom: var(--mb-2);
+}
+
+.about__modal {
+    opacity: 0;
+    visibility: hidden;
 }
 
 /* Show about me */

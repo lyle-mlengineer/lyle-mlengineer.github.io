@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Credits &amp; billing — Faceform</title>
+  <meta name="description" content="Top up Faceform credits, change your plan and keep track of invoices. Full commercial rights on every paid plan." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="page">
+    <header class="nav site-nav">
+        <a href="index.html" class="logo">Faceform<span>.</span></a>
+
+        <nav class="nav-links" id="navLinks">
+          <a href="product.html">Studio</a>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="gallery.html">Gallery</a>
+          <a href="dashboard.html#api">API</a>
+          <a href="payments.html" aria-current="page">Credits</a>
+        </nav>
+
+        <div class="app-account">
+          <a href="payments.html" class="credits-pill">
+            <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+              <path d="M12 0c1 7 5 11 12 12-7 1-11 5-12 12-1-7-5-11-12-12C7 11 11 7 12 0z" fill="currentColor" />
+            </svg>
+            <span data-credits>4,812</span> credits
+          </a>
+          <a href="oauth.html?mode=signin" class="avatar-btn" title="Account — sign out" aria-label="Account — sign out">AL</a>
+        </div>
+
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+    </header>
+
+    <div class="hero-card app-card">
+      <section class="app-head">
+        <div>
+          <span class="eyebrow">Billing</span>
+          <h1 class="app-title">Credits &amp; billing</h1>
+          <p class="app-sub">
+            One credit renders one face. Top up whenever you like, or move to a
+            monthly plan — credits never expire and exports stay yours.
+          </p>
+        </div>
+        <div class="app-actions">
+          <a href="dashboard.html" class="btn btn-outline">Back to dashboard</a>
+        </div>
+      </section>
+
+      <section class="balance-banner" aria-label="Current balance">
+        <div>
+          <span class="bb-label">Credits remaining</span>
+          <strong><span data-credits>4,812</span> <span class="bb-unit">credits</span></strong>
+        </div>
+        <p class="bb-plan">
+          <span data-plan-label>Creator plan</span> · renews Nov 30, 2026
+        </p>
+        <div class="bb-actions">
+          <a href="#packs" class="btn btn-primary btn-sm">Buy credits</a>
+          <a href="#plans" class="btn btn-outline btn-sm">Manage plan</a>
+        </div>
+      </section>
+
+      <div class="billing-grid">
+        <div class="billing-main">
+          <section class="panel" id="packs">
+            <div class="panel-head">
+              <div>
+                <h2>Buy credits</h2>
+                <p>One credit = one rendered face. Credits never expire.</p>
+              </div>
+            </div>
+
+            <div class="packs" id="packsList">
+              <button type="button" class="pack" data-pack="p100" aria-pressed="false">
+                <span class="pack-credits">100 credits</span>
+                <span class="pack-price">$9</span>
+                <span class="pack-note">9¢ per face</span>
+              </button>
+              <button type="button" class="pack" data-pack="p500" aria-pressed="true">
+                <span class="pack-tag">Best value</span>
+                <span class="pack-credits">500 credits</span>
+                <span class="pack-price">$39</span>
+                <span class="pack-note">7.8¢ per face</span>
+              </button>
+              <button type="button" class="pack" data-pack="p1200" aria-pressed="false">
+                <span class="pack-credits">1,200 credits</span>
+                <span class="pack-price">$79</span>
+                <span class="pack-note">6.6¢ per face</span>
+              </button>
+              <button type="button" class="pack" data-pack="p3000" aria-pressed="false">
+                <span class="pack-credits">3,000 credits</span>
+                <span class="pack-price">$179</span>
+                <span class="pack-note">6¢ per face</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="panel" id="plans">
+            <div class="panel-head">
+              <div>
+                <h2>Monthly plans</h2>
+                <p>Switch any time — unused credits roll over while you stay subscribed.</p>
+              </div>
+            </div>
+
+            <div class="plan-choices" id="planChoices">
+              <button type="button" class="plan-choice" data-plan="starter" aria-pressed="false">
+                <span class="pc-copy">
+                  <strong>Starter <em class="pc-current" hidden>Current</em></strong>
+                  <span class="pc-meta">20 faces / month · personal projects</span>
+                </span>
+                <span class="pc-price">$0<span>/mo</span></span>
+              </button>
+
+              <button type="button" class="plan-choice" data-plan="creator" aria-pressed="true">
+                <span class="pc-copy">
+                  <strong>Creator <em class="pc-current">Current</em></strong>
+                  <span class="pc-meta">500 faces / month · 4K exports · API access</span>
+                </span>
+                <span class="pc-price">$29<span>/mo</span></span>
+              </button>
+
+              <button type="button" class="plan-choice" data-plan="studio" aria-pressed="false">
+                <span class="pc-copy">
+                  <strong>Studio <em class="pc-current" hidden>Current</em></strong>
+                  <span class="pc-meta">5,000 faces / month · unlimited personas · priority queue</span>
+                </span>
+                <span class="pc-price">$149<span>/mo</span></span>
+              </button>
+            </div>
+          </section>
+
+          <section class="panel" id="invoices">
+            <div class="panel-head">
+              <div>
+                <h2>Invoices</h2>
+                <p>Receipts are also emailed to ada@studio.com.</p>
+              </div>
+            </div>
+
+            <div class="invoice-list" id="invoiceList">
+              <div class="invoice-row">
+                <span><strong>Creator plan</strong><span> · Oct 1, 2026</span></span>
+                <span class="inv-amount">$29.00</span>
+                <span class="inv-status">Paid</span>
+                <button type="button" class="inv-link" data-receipt>Receipt</button>
+              </div>
+              <div class="invoice-row">
+                <span><strong>500 credits</strong><span> · Sep 18, 2026</span></span>
+                <span class="inv-amount">$39.00</span>
+                <span class="inv-status">Paid</span>
+                <button type="button" class="inv-link" data-receipt>Receipt</button>
+              </div>
+              <div class="invoice-row">
+                <span><strong>Creator plan</strong><span> · Sep 1, 2026</span></span>
+                <span class="inv-amount">$29.00</span>
+                <span class="inv-status">Paid</span>
+                <button type="button" class="inv-link" data-receipt>Receipt</button>
+              </div>
+              <div class="invoice-row">
+                <span><strong>Creator plan</strong><span> · Aug 1, 2026</span></span>
+                <span class="inv-amount">$29.00</span>
+                <span class="inv-status">Paid</span>
+                <button type="button" class="inv-link" data-receipt>Receipt</button>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <form class="checkout" id="checkoutForm" novalidate>
+          <div id="checkoutView">
+            <h2>Order summary</h2>
+
+            <div class="summary">
+              <div class="summary-item">
+                <span>
+                  <strong id="summaryTitle">500 credits</strong>
+                  <span id="summaryNote">One-time purchase · never expires</span>
+                </span>
+                <strong id="summaryPrice">$39.00</strong>
+              </div>
+              <div class="summary-row"><span>Subtotal</span><span id="summarySubtotal">$39.00</span></div>
+              <div class="summary-row"><span>Tax (8%)</span><span id="summaryTax">$3.12</span></div>
+              <div class="summary-row total"><span>Total due today</span><span id="summaryTotal">$42.12</span></div>
+            </div>
+
+            <h3 class="pm-title">Payment method</h3>
+
+            <div class="pm-options">
+              <button type="button" class="pm-choice is-active" id="pmSaved" aria-pressed="true">
+                <span class="card-badge" aria-hidden="true">VISA</span>
+                <span class="pm-copy">
+                  <strong>Visa ending 4242</strong>
+                  <span>Expires 08/28</span>
+                </span>
+                <span class="pm-check" aria-hidden="true">✓</span>
+              </button>
+              <button type="button" class="pm-choice" id="pmNew" aria-pressed="false">
+                <span class="card-badge is-ghost" aria-hidden="true">+</span>
+                <span class="pm-copy">
+                  <strong>Use a new card</strong>
+                  <span>Visa, Mastercard, Amex</span>
+                </span>
+                <span class="pm-check" aria-hidden="true">✓</span>
+              </button>
+            </div>
+
+            <div class="new-card-fields is-hidden" id="newCardFields">
+              <div class="field">
+                <label for="cardName">Name on card</label>
+                <input id="cardName" name="cardName" type="text" autocomplete="cc-name" placeholder="Ada Lovelace" />
+              </div>
+              <div class="field">
+                <label for="cardNumber">Card number</label>
+                <input id="cardNumber" name="cardNumber" type="text" inputmode="numeric" autocomplete="cc-number"
+                  maxlength="19" placeholder="4242 4242 4242 4242" />
+              </div>
+              <div class="card-row">
+                <div class="field">
+                  <label for="cardExpiry">Expiry</label>
+                  <input id="cardExpiry" name="cardExpiry" type="text" inputmode="numeric" autocomplete="cc-exp"
+                    maxlength="5" placeholder="MM/YY" />
+                </div>
+                <div class="field">
+                  <label for="cardCvc">CVC</label>
+                  <input id="cardCvc" name="cardCvc" type="text" inputmode="numeric" autocomplete="cc-csc"
+                    maxlength="4" placeholder="123" />
+                </div>
+              </div>
+            </div>
+
+            <label class="checkout-terms">
+              <input type="checkbox" id="terms" />
+              <span>I agree to the <a href="#">terms of sale</a> and <a href="#">licence</a>.</span>
+            </label>
+
+            <button type="submit" class="btn btn-primary pay-btn" id="payBtn">Pay $42.12</button>
+            <p class="checkout-legal">
+              <svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
+                <rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" />
+                <path d="M8 10V8a4 4 0 0 1 8 0v2" fill="none" stroke="currentColor" stroke-width="1.8" />
+              </svg>
+              Secured by Stripe · cancel any time
+            </p>
+          </div>
+
+          <div class="success-box" id="checkoutSuccess" hidden>
+            <div class="success-check" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="24" height="24">
+                <path d="m5 12.5 4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <h3 id="successTitle">Payment complete</h3>
+            <p id="successCopy">500 credits were added to your workspace.</p>
+            <a href="dashboard.html" class="btn btn-primary">Back to dashboard</a>
+            <button type="button" class="btn btn-outline" id="buyAgain">Buy more credits</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+  <script src="payments.js"></script>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Faceform</title>
+  <meta name="description" content="Track faces generated, API calls and token usage, manage API keys and keep an eye on your credits — all from the Faceform dashboard." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="page">
+    <header class="nav site-nav">
+        <a href="index.html" class="logo">Faceform<span>.</span></a>
+
+        <nav class="nav-links" id="navLinks">
+          <a href="product.html">Studio</a>
+          <a href="dashboard.html" aria-current="page">Dashboard</a>
+          <a href="gallery.html">Gallery</a>
+          <a href="dashboard.html#api">API</a>
+          <a href="payments.html">Credits</a>
+        </nav>
+
+        <div class="app-account">
+          <a href="payments.html" class="credits-pill">
+            <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+              <path d="M12 0c1 7 5 11 12 12-7 1-11 5-12 12-1-7-5-11-12-12C7 11 11 7 12 0z" fill="currentColor" />
+            </svg>
+            <span data-credits>4,812</span> credits
+          </a>
+          <a href="oauth.html?mode=signin" class="avatar-btn" title="Account — sign out" aria-label="Account — sign out">AL</a>
+        </div>
+
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+    </header>
+
+    <div class="hero-card app-card">
+      <section class="app-head">
+        <div>
+          <span class="eyebrow">Workspace overview</span>
+          <h1 class="app-title">Good morning, Ada</h1>
+          <p class="app-sub">
+            Here's how your studio is doing this month — faces rendered, tokens
+            spent and credits left in the tank.
+          </p>
+        </div>
+        <div class="app-actions">
+          <a href="gallery.html" class="btn btn-outline">Open gallery</a>
+          <a href="product.html" class="btn btn-primary">New generation</a>
+        </div>
+      </section>
+
+      <section class="kpis" aria-label="Key metrics">
+        <article class="kpi">
+          <span class="kpi-label">Faces generated</span>
+          <strong class="kpi-value">1,284</strong>
+          <p class="kpi-foot"><span class="delta">+18.2%</span><span>vs last month</span></p>
+        </article>
+        <article class="kpi">
+          <span class="kpi-label">API tokens</span>
+          <strong class="kpi-value">2.84M</strong>
+          <p class="kpi-foot"><span class="delta">+6.2%</span><span>vs last month</span></p>
+        </article>
+        <article class="kpi">
+          <span class="kpi-label">Credits left</span>
+          <strong class="kpi-value" data-credits>4,812</strong>
+          <p class="kpi-foot"><span class="delta is-neutral">188 used</span><span>this cycle</span></p>
+        </article>
+        <article class="kpi">
+          <span class="kpi-label">Avg render time</span>
+          <strong class="kpi-value">5.8s</strong>
+          <p class="kpi-foot"><span class="delta">−0.4s</span><span>faster than September</span></p>
+        </article>
+      </section>
+
+      <div class="dash-grid">
+        <section class="panel usage-panel" id="usage">
+          <div class="panel-head">
+            <div>
+              <h2>API &amp; token usage</h2>
+              <p>Requests and tokens across every active key.</p>
+            </div>
+            <div class="segmented segmented-sm" id="usageRange" role="group" aria-label="Usage range">
+              <button type="button" class="seg" data-range="7d" aria-pressed="true">7d</button>
+              <button type="button" class="seg" data-range="30d" aria-pressed="false">30d</button>
+              <button type="button" class="seg" data-range="90d" aria-pressed="false">90d</button>
+            </div>
+          </div>
+
+          <p class="usage-total">
+            <strong id="usageTotal">684K</strong>
+            <span>tokens processed · <span class="delta-inline" id="usageDelta">+4.1%</span> vs previous period</span>
+          </p>
+
+          <div class="chart" id="usageChart" role="img" aria-label="Token usage chart"></div>
+
+          <div class="chart-legend">
+            <span><i class="sw sw-purple"></i>Image tokens</span>
+            <span><i class="sw sw-blue"></i>Prompt &amp; text tokens</span>
+            <span class="chart-note" id="usageRequests">9,140 API calls</span>
+          </div>
+        </section>
+
+        <section class="panel credits-panel" id="credits">
+          <span class="panel-label">Credits remaining</span>
+          <p class="credit-balance">
+            <strong data-credits>4,812</strong>
+            <span>of <span data-credit-total>5,000</span></span>
+          </p>
+          <div class="credit-meter" aria-hidden="true"><span data-credit-meter style="width: 96%"></span></div>
+          <div class="credit-plan">
+            <span data-plan-label>Creator plan</span>
+            <span>Renews Nov 30</span>
+          </div>
+
+          <ul class="credit-activity">
+            <li><span>Oct 28 · 18 faces</span><span>−18</span></li>
+            <li><span>Oct 26 · credit pack</span><span class="is-plus">+500</span></li>
+            <li><span>Oct 24 · 12 faces</span><span>−12</span></li>
+          </ul>
+
+          <div class="credit-actions">
+            <a href="payments.html" class="btn btn-primary">Buy credits</a>
+            <a href="payments.html#invoices" class="btn btn-outline">Invoices</a>
+          </div>
+        </section>
+
+        <section class="panel token-panel">
+          <div class="panel-head">
+            <div>
+              <h2>Token breakdown</h2>
+              <p>Where this month's 2.84M tokens went.</p>
+            </div>
+          </div>
+
+          <div class="breakdown">
+            <div class="bd-row">
+              <div class="bd-top"><span>Image diffusion</span><strong>2.22M · 78%</strong></div>
+              <div class="bd-bar"><span style="width: 78%"></span></div>
+            </div>
+            <div class="bd-row">
+              <div class="bd-top"><span>Prompt &amp; text</span><strong>398K · 14%</strong></div>
+              <div class="bd-bar"><span style="width: 14%"></span></div>
+            </div>
+            <div class="bd-row">
+              <div class="bd-top"><span>Safety &amp; metadata</span><strong>227K · 8%</strong></div>
+              <div class="bd-bar"><span style="width: 8%"></span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel keys-panel" id="api">
+          <div class="panel-head">
+            <div>
+              <h2>API keys</h2>
+              <p>Use these from your own backend.</p>
+            </div>
+          </div>
+
+          <div class="key-list">
+            <div class="key-row">
+              <span class="key-dot" aria-hidden="true"></span>
+              <div class="key-meta">
+                <strong>Production</strong>
+                <code>ff_live_5f2c9b7d4e1a8c21</code>
+              </div>
+              <button type="button" class="btn btn-outline" data-copy="ff_live_5f2c9b7d4e1a8c21">Copy</button>
+            </div>
+            <div class="key-row">
+              <span class="key-dot is-idle" aria-hidden="true"></span>
+              <div class="key-meta">
+                <strong>Sandbox</strong>
+                <code>ff_test_19d4a0b67f3e2c08</code>
+              </div>
+              <button type="button" class="btn btn-outline" data-copy="ff_test_19d4a0b67f3e2c08">Copy</button>
+            </div>
+          </div>
+
+          <p class="key-foot">
+            Last used 2 minutes ago · <a href="#usage">View request logs</a>
+          </p>
+        </section>
+      </div>
+
+      <section class="panel recent-panel">
+        <div class="recent-head">
+          <div>
+            <h2>Recent generations</h2>
+            <p>Your last six faces, rendered from the studio and API.</p>
+          </div>
+          <a href="gallery.html">View all →</a>
+        </div>
+
+        <div class="gen-grid">
+          <article class="gen-item">
+            <div class="gen-card">
+              <img src="images/gallery-01.png" alt="Audrey, editorial headshot against a sage backdrop" loading="lazy" />
+              <span class="gen-tag">4:5</span>
+              <a class="gen-dl" href="images/gallery-01.png" download="faceform-audrey.png" aria-label="Download Audrey">
+                <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                  <path d="M12 4v11m0 0 4-4m-4 4-4-4M5 20h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </a>
+            </div>
+            <p class="gen-meta"><strong>Audrey</strong><span>2h ago</span></p>
+          </article>
+
+          <article class="gen-item">
+            <div class="gen-card">
+              <img src="images/gallery-04.png" alt="Kenji, tech founder headshot against a peach backdrop" loading="lazy" />
+              <span class="gen-tag">1:1</span>
+              <a class="gen-dl" href="images/gallery-04.png" download="faceform-kenji.png" aria-label="Download Kenji">
+                <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                  <path d="M12 4v11m0 0 4-4m-4 4-4-4M5 20h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </a>
+            </div>
+            <p class="gen-meta"><strong>Kenji</strong><span>5h ago</span></p>
+          </article>
+
+          <article class="gen-item">
+            <div class="gen-card">
+              <img src="images/gallery-02.png" alt="Naomi, beauty close-up against a lilac backdrop" loading="lazy" />
+              <span class="gen-tag">4:5</span>
+              <a class="gen-dl" href="images/gallery-02.png" download="faceform-naomi.png" aria-label="Download Naomi">
+                <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                  <path d="M12 4v11m0 0 4-4m-4 4-4-4M5 20h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </a>
+            </div>
+            <p class="gen-meta"><strong>Naomi</strong><span>1d ago</span></p>
+          </article>
+
+          <article class="gen-item">
+            <div class="gen-card">
+              <img src="images/gallery-03.png" alt="Marcus, executive portrait against a powder-blue backdrop" loading="lazy" />
+              <span class="gen-tag">9:16</span>
+              <a class="gen-dl" href="images/gallery-03.png" download="faceform-marcus.png" aria-label="Download Marcus">
+                <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                  <path d="M12 4v11m0 0 4-4m-4 4-4-4M5 20h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </a>
+            </div>
+            <p class="gen-meta"><strong>Marcus</strong><span>1d ago</span></p>
+          </article>
+
+          <article class="gen-item">
+            <div class="gen-card">
+              <img src="images/gallery-05.png" alt="Priya, finance lead portrait against an ivory backdrop" loading="lazy" />
+              <span class="gen-tag">4:5</span>
+              <a class="gen-dl" href="images/gallery-05.png" download="faceform-priya.png" aria-label="Download Priya">
+                <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                  <path d="M12 4v11m0 0 4-4m-4 4-4-4M5 20h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </a>
+            </div>
+            <p class="gen-meta"><strong>Priya</strong><span>2d ago</span></p>
+          </article>
+
+          <article class="gen-item">
+            <div class="gen-card">
+              <img src="images/gallery-06.png" alt="Ellis, travel creator portrait against an olive backdrop" loading="lazy" />
+              <span class="gen-tag">4:5</span>
+              <a class="gen-dl" href="images/gallery-06.png" download="faceform-ellis.png" aria-label="Download Ellis">
+                <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+                  <path d="M12 4v11m0 0 4-4m-4 4-4-4M5 20h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </a>
+            </div>
+            <p class="gen-meta"><strong>Ellis</strong><span>3d ago</span></p>
+          </article>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

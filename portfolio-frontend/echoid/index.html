@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EchoID — Know who said what, in every recording</title>
+  <meta name="description" content="EchoID identifies every speaker and transcribes their words in recorded and streaming audio, in real time." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ================= HEADER ================= -->
+  <header class="header" id="header">
+    <div class="container header__inner">
+      <a href="#home" class="logo">EchoID</a>
+
+      <nav class="nav" id="nav">
+        <a href="#home" class="nav__link is-active">Home</a>
+        <a href="#features" class="nav__link">Features</a>
+        <a href="#why" class="nav__link">Why&nbsp;Us</a>
+        <a href="products.html" class="nav__link">Studio</a>
+        <a href="#plans" class="nav__link">Plans</a>
+        <a href="#contact" class="nav__link">Contact</a>
+      </nav>
+
+      <div class="header__right">
+        <a href="login.html" class="nav__link" style="font-size:0.9rem">Log in</a>
+        <div class="socials">
+          <a href="#" aria-label="LinkedIn" class="social"><svg viewBox="0 0 24 24"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.2 8h4.6v14H.2V8zm7.4 0h4.4v1.9h.07c.61-1.16 2.1-2.38 4.33-2.38 4.63 0 5.48 3.05 5.48 7.02V22h-4.6v-6.6c0-1.57-.03-3.6-2.2-3.6-2.2 0-2.54 1.72-2.54 3.5V22H7.6V8z"/></svg></a>
+          <a href="#" aria-label="X (Twitter)" class="social"><svg viewBox="0 0 24 24"><path d="M18.9 1.5h3.7l-8.1 9.2L24 22.5h-7.5l-5.9-7.6-6.7 7.6H.2l8.6-9.7L0 1.5h7.7l5.3 7 5.9-7zm-1.3 18.8h2L6.6 3.6h-2.2l13.2 16.7z"/></svg></a>
+          <a href="#" aria-label="GitHub" class="social"><svg viewBox="0 0 24 24"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.87-1.54-3.87-1.54-.53-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.75 2.69 1.25 3.34.95.1-.74.4-1.24.72-1.53-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.83 1.18 3.09 0 4.42-2.7 5.39-5.26 5.68.41.35.77 1.04.77 2.1v3.11c0 .31.21.68.8.56A11.52 11.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg></a>
+        </div>
+        <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24"><path d="M3 3h7v7H3V3zm0 11h7v7H3v-7zM14 3h7v7h-7V3zm0 11h7v7h-7v-7z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile full-screen menu -->
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+    <button class="mobile-menu__close" id="menuClose" aria-label="Close menu">
+      <svg viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+    </button>
+    <nav class="mobile-menu__nav">
+      <a href="#home" class="mobile-menu__link is-active">Home</a>
+      <a href="#features" class="mobile-menu__link">Features</a>
+      <a href="#why" class="mobile-menu__link">Why&nbsp;Us</a>
+      <a href="products.html" class="mobile-menu__link">Studio</a>
+      <a href="#plans" class="mobile-menu__link">Plans</a>
+      <a href="#contact" class="mobile-menu__link">Contact</a>
+      <a href="login.html" class="mobile-menu__link">Log in</a>
+    </nav>
+    <div class="mobile-menu__socials socials">
+      <a href="#" aria-label="LinkedIn" class="social"><svg viewBox="0 0 24 24"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.2 8h4.6v14H.2V8zm7.4 0h4.4v1.9h.07c.61-1.16 2.1-2.38 4.33-2.38 4.63 0 5.48 3.05 5.48 7.02V22h-4.6v-6.6c0-1.57-.03-3.6-2.2-3.6-2.2 0-2.54 1.72-2.54 3.5V22H7.6V8z"/></svg></a>
+      <a href="#" aria-label="X (Twitter)" class="social"><svg viewBox="0 0 24 24"><path d="M18.9 1.5h3.7l-8.1 9.2L24 22.5h-7.5l-5.9-7.6-6.7 7.6H.2l8.6-9.7L0 1.5h7.7l5.3 7 5.9-7zm-1.3 18.8h2L6.6 3.6h-2.2l13.2 16.7z"/></svg></a>
+      <a href="#" aria-label="GitHub" class="social"><svg viewBox="0 0 24 24"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.87-1.54-3.87-1.54-.53-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.75 2.69 1.25 3.34.95.1-.74.4-1.24.72-1.53-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.83 1.18 3.09 0 4.42-2.7 5.39-5.26 5.68.41.35.77 1.04.77 2.1v3.11c0 .31.21.68.8.56A11.52 11.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg></a>
+    </div>
+  </div>
+
+  <main>
+    <!-- ================= HERO ================= -->
+    <section class="hero section" id="home">
+      <div class="container hero__inner">
+        <div class="hero__content">
+          <h1 class="display hero__title">HEAR<br />WHO<br />SPOKE</h1>
+          <p class="hero__text">
+            EchoID separates every voice in your audio and writes down exactly what
+            each person said — whether the recording is hours old or still streaming live.
+          </p>
+          <div class="hero__actions">
+            <a href="products.html" class="btn btn--solid">Try Live Demo</a>
+            <a href="register.html" class="btn btn--ghost">Get Started</a>
+          </div>
+        </div>
+
+        <div class="hero__visual" id="demo">
+          <div class="hero__disc"></div>
+          <div class="hero__disc-ring"></div>
+
+          <div class="voice-card">
+            <div class="voice-card__head">
+              <span class="dot dot--rec"></span>
+              <span class="voice-card__label" id="srcLabel">Sample call · recorded</span>
+            </div>
+            <div class="wave" id="wave" aria-hidden="true">
+              <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            </div>
+            <ul class="transcript" id="transcript">
+              <li style="--c:#f7b500"><b>Alex</b><span>Did the Q3 numbers land yet?</span></li>
+              <li style="--c:#7fd1c1"><b>Priya</b><span>Uploading the deck now.</span></li>
+            </ul>
+          </div>
+
+          <span class="float-chip chip-a">🎙 30+ languages</span>
+          <span class="float-chip chip-b">⚡ &lt;250&nbsp;ms latency</span>
+          <span class="float-chip chip-c">98.2% diarization</span>
+
+          <button class="btn btn--solid hero__demo-btn" id="liveBtn">Simulate live audio</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FEATURES ================= -->
+    <section class="section features" id="features">
+      <div class="container">
+        <h2 class="display section__title">DISCOVER WHAT<br />ECHOID DOES</h2>
+        <p class="section__lead">
+          One API for speaker identity and speech-to-text. Point it at a file,
+          a meeting room mic, or a live stream — EchoID handles the rest.
+        </p>
+
+        <div class="features__grid">
+          <article class="feature-card reveal">
+            <div class="feature-card__icon">
+              <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+            </div>
+            <h3 class="feature-card__title">Speaker&nbsp;ID</h3>
+            <p>Every voice gets its own label and face-less profile. EchoID re-recognises
+               the same speakers across recordings, days, and rooms.</p>
+          </article>
+
+          <article class="feature-card feature-card--big reveal">
+            <div class="feature-card__icon">
+              <svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zM6 16h7v-2H6v2zm8-4H6v-2h8v2zm4 4h-2v-2h2v2zm0-4h-4v-2h4v2z"/></svg>
+            </div>
+            <h3 class="feature-card__title">Word-perfect&nbsp;transcripts</h3>
+            <p>Speaker-attributed text with timestamps, punctuation, and confidence
+               scores — exportable as SRT, VTT, JSON, or straight to your database.</p>
+            <span class="feature-card__badge">Most loved</span>
+          </article>
+
+          <article class="feature-card reveal">
+            <div class="feature-card__icon">
+              <svg viewBox="0 0 24 24"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+            </div>
+            <h3 class="feature-card__title">Live&nbsp;streaming</h3>
+            <p>WebSocket feed for calls, broadcasts, and court rooms. Partial results
+               stream back in under a quarter of a second.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= WHY US ================= -->
+    <section class="section why" id="why">
+      <div class="container">
+        <h2 class="display section__title">BUILT FOR ACCURACY<br />AND TRUST</h2>
+
+        <div class="why__grid">
+          <div class="why__visual reveal">
+            <div class="mock-window">
+              <div class="mock-window__bar"><i></i><i></i><i></i></div>
+              <div class="mock-window__body">
+                <div class="mock-line" style="--w:82%;--c:#f7b500"><b>Alex</b><span></span></div>
+                <div class="mock-line" style="--w:64%;--c:#7fd1c1"><b>Priya</b><span></span></div>
+                <div class="mock-line" style="--w:75%;--c:#f2784b"><b>Marc</b><span></span></div>
+                <div class="mock-line" style="--w:58%;--c:#7fd1c1"><b>Priya</b><span></span></div>
+                <div class="mock-line" style="--w:70%;--c:#f7b500"><b>Alex</b><span></span></div>
+                <div class="mock-line" style="--w:50%;--c:#b48ef2"><b>June</b><span></span></div>
+              </div>
+            </div>
+            <span class="why__tag">Automatic speaker clustering</span>
+          </div>
+
+          <ul class="why__list">
+            <li class="reveal">
+              <span class="why__icon"><svg viewBox="0 0 24 24"><path d="m12 2 8 4v6c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10V6l8-4zm-1.2 13.6 5-5-1.4-1.4-3.6 3.6-1.6-1.6-1.4 1.4 3 3z"/></svg></span>
+              <p>Recordings never leave your region. On-prem and private-cloud
+                 deployments keep sensitive audio fully under your control.</p>
+            </li>
+            <li class="reveal">
+              <span class="why__icon"><svg viewBox="0 0 24 24"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></span>
+              <p>Streaming and batch use the same engine, so a live caption and the
+                 final transcript always agree.</p>
+            </li>
+            <li class="reveal">
+              <span class="why__icon"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></span>
+              <p>Handles overlapping talkers, heavy accents, and crosstalk — the
+                 cases that break ordinary transcription.</p>
+            </li>
+            <li class="reveal">
+              <span class="why__icon"><svg viewBox="0 0 24 24"><path d="M3 13h4v8H3v-8zm7-6h4v14h-4V7zm7-4h4v18h-4V3z"/></svg></span>
+              <p>Built for scale: 2 million hours processed every month, with
+                 per-workspace quotas and usage analytics.</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="banner">
+        <div class="banner__track">
+          <span><svg viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> 98.2% diarization accuracy</span>
+          <span><svg viewBox="0 0 24 24"><path d="M12 21.35 10.95 20.3C6 15.6 2.7 12.5 2.7 8.85 2.7 5.9 4.95 3.65 7.9 3.65c1.63 0 3.2.76 4.1 1.95.9-1.19 2.47-1.95 4.1-1.95 2.95 0 5.2 2.25 5.2 5.2 0 3.65-3.3 6.75-8.25 11.45L12 21.35z"/></svg> Loved by 4,000+ teams</span>
+          <span><svg viewBox="0 0 24 24"><path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg> 30+ languages</span>
+          <span><svg viewBox="0 0 24 24"><path d="M18 8h-1V6a5 5 0 0 0-10 0v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2zM9 6a3 3 0 0 1 6 0v2H9V6zm9 14H6V10h12v10z"/></svg> SOC 2 Type II</span>
+          <span><svg viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> 98.2% diarization accuracy</span>
+          <span><svg viewBox="0 0 24 24"><path d="M12 21.35 10.95 20.3C6 15.6 2.7 12.5 2.7 8.85 2.7 5.9 4.95 3.65 7.9 3.65c1.63 0 3.2.76 4.1 1.95.9-1.19 2.47-1.95 4.1-1.95 2.95 0 5.2 2.25 5.2 5.2 0 3.65-3.3 6.75-8.25 11.45L12 21.35z"/></svg> Loved by 4,000+ teams</span>
+          <span><svg viewBox="0 0 24 24"><path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg> 30+ languages</span>
+          <span><svg viewBox="0 0 24 24"><path d="M18 8h-1V6a5 5 0 0 0-10 0v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2zM9 6a3 3 0 0 1 6 0v2H9V6zm9 14H6V10h12v10z"/></svg> SOC 2 Type II</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PLANS ================= -->
+    <section class="section plans" id="plans">
+      <div class="container">
+        <h2 class="display section__title">PLANS THAT<br />SCALE WITH YOU</h2>
+
+        <div class="plans__grid">
+          <article class="plan-card reveal">
+            <div class="plan-card__visual plan-card__visual--solo">
+              <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+            </div>
+            <div class="plan-card__info">
+              <span class="plan-card__tier">Solo</span>
+              <h3 class="plan-card__name">Starter</h3>
+              <div class="plan-card__row">
+                <span class="plan-card__price">$19<span>/mo</span></span>
+                <button class="plan-card__cta" aria-label="Choose Starter plan">
+                  <svg viewBox="0 0 24 24"><path d="M11 7h2v4h4v2h-4v4h-2v-4H7v-2h4V7zm1-5C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                </button>
+              </div>
+              <ul class="plan-card__list">
+                <li>5 hours of audio / month</li>
+                <li>Recorded files only</li>
+                <li>Up to 6 speakers</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="plan-card reveal">
+            <div class="plan-card__visual plan-card__visual--team">
+              <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+            </div>
+            <div class="plan-card__info">
+              <span class="plan-card__tier">Teams</span>
+              <h3 class="plan-card__name">Growth</h3>
+              <div class="plan-card__row">
+                <span class="plan-card__price">$79<span>/mo</span></span>
+                <button class="plan-card__cta" aria-label="Choose Growth plan">
+                  <svg viewBox="0 0 24 24"><path d="M11 7h2v4h4v2h-4v4h-2v-4H7v-2h4V7zm1-5C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                </button>
+              </div>
+              <ul class="plan-card__list">
+                <li>50 hours + live streaming</li>
+                <li>Speaker profiles &amp; search</li>
+                <li>API, webhooks, Zapier</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="plan-card reveal">
+            <div class="plan-card__visual plan-card__visual--ent">
+              <svg viewBox="0 0 24 24"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 14h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg>
+            </div>
+            <div class="plan-card__info">
+              <span class="plan-card__tier">Company</span>
+              <h3 class="plan-card__name">Enterprise</h3>
+              <div class="plan-card__row">
+                <span class="plan-card__price">Custom</span>
+                <button class="plan-card__cta" aria-label="Contact sales for Enterprise">
+                  <svg viewBox="0 0 24 24"><path d="M11 7h2v4h4v2h-4v4h-2v-4H7v-2h4V7zm1-5C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                </button>
+              </div>
+              <ul class="plan-card__list">
+                <li>Unlimited hours, on-prem</li>
+                <li>Custom voice-enrollment</li>
+                <li>99.99% SLA &amp; SSO</li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CONTACT ================= -->
+    <section class="section contact" id="contact">
+      <div class="container">
+        <div class="contact__card reveal">
+          <h2 class="display contact__title">CONTACT US TO<br />HEAR THE DIFFERENCE</h2>
+
+          <div class="contact__grid">
+            <div class="contact__col">
+              <h3 class="display contact__heading">Write to us</h3>
+              <div class="contact__icons">
+                <a href="#" aria-label="WhatsApp" class="contact__icon"><svg viewBox="0 0 24 24"><path d="M17.47 14.38c-.3-.15-1.95-.96-2.25-1.07-.3-.11-.52-.16-.74.16-.22.3-.85 1.07-1.04 1.29-.19.22-.37.24-.67.09-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.37.45-.55.15-.19.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.74-1.78-1.01-2.43-.27-.64-.53-.56-.74-.56h-.63c-.22 0-.57.08-.87.37-.3.3-1.14 1.11-1.14 2.71s1.17 3.15 1.33 3.37c.16.22 2.3 3.51 5.57 4.92.78.34 1.38.54 1.85.69.78.25 1.49.21 2.05.13.63-.09 1.95-.8 2.22-1.57.28-.77.28-1.43.19-1.57-.08-.14-.29-.22-.59-.37zM12.05 21.79h-.01a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.88 9.89-9.88a9.82 9.82 0 0 1 6.98 2.9 9.83 9.83 0 0 1 2.89 6.99c0 5.45-4.43 9.88-9.86 9.88zm8.37-18.25A11.82 11.82 0 0 0 12.05 0C5.5 0 .16 5.34.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 0 0 5.68 1.45c6.55 0 11.89-5.34 11.89-11.89 0-3.18-1.24-6.17-3.5-8.41z"/></svg></a>
+                <a href="#" aria-label="Messenger" class="contact__icon"><svg viewBox="0 0 24 24"><path d="M0 9.6C0 3.9 4.1.6 9.6.6S19.2 3.9 19.2 9.6c0 5.7-4.1 9-9.6 9a10 10 0 0 1-1.3-.1L4.8 20.7l.5-3A8.8 8.8 0 0 1 0 9.6zm7.5-2.8 3 4.7 2-2.4 3.9 2.8-3-4.7-2 2.4-3.9-2.8z"/></svg></a>
+                <a href="mailto:hello@echoid.ai" aria-label="Email" class="contact__icon"><svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg></a>
+              </div>
+            </div>
+
+            <div class="contact__col">
+              <h3 class="display contact__heading">Call us</h3>
+              <p>+00-987-654-321</p>
+              <p>+11-012345</p>
+            </div>
+
+            <div class="contact__col">
+              <h3 class="display contact__heading">Find us here</h3>
+              <p>Sound District, Studio 7<br />San Francisco, CA</p>
+            </div>
+          </div>
+
+          <div class="contact__visual" aria-hidden="true">
+            <div class="contact__orb">
+              <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+            </div>
+            <span class="contact__pulse"></span>
+            <span class="contact__pulse contact__pulse--2"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div class="footer__brand">
+        <a href="#home" class="logo">EchoID</a>
+        <p>Every voice, named. Every word, found.<br />Recorded or live — EchoID listens to all of it.</p>
+      </div>
+      <nav class="footer__links">
+        <a href="#features">Features</a>
+        <a href="#why">Why Us</a>
+        <a href="#plans">Plans</a>
+        <a href="products.html">Studio</a>
+        <a href="login.html">Log in</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="footer__meta">
+        <span>© 2026 EchoID Labs, Inc.</span>
+        <div class="socials">
+          <a href="#" aria-label="LinkedIn" class="social"><svg viewBox="0 0 24 24"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.2 8h4.6v14H.2V8zm7.4 0h4.4v1.9h.07c.61-1.16 2.1-2.38 4.33-2.38 4.63 0 5.48 3.05 5.48 7.02V22h-4.6v-6.6c0-1.57-.03-3.6-2.2-3.6-2.2 0-2.54 1.72-2.54 3.5V22H7.6V8z"/></svg></a>
+          <a href="#" aria-label="X (Twitter)" class="social"><svg viewBox="0 0 24 24"><path d="M18.9 1.5h3.7l-8.1 9.2L24 22.5h-7.5l-5.9-7.6-6.7 7.6H.2l8.6-9.7L0 1.5h7.7l5.3 7 5.9-7zm-1.3 18.8h2L6.6 3.6h-2.2l13.2 16.7z"/></svg></a>
+          <a href="#" aria-label="GitHub" class="social"><svg viewBox="0 0 24 24"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.87-1.54-3.87-1.54-.53-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.75 2.69 1.25 3.34.95.1-.74.4-1.24.72-1.53-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.83 1.18 3.09 0 4.42-2.7 5.39-5.26 5.68.41.35.77 1.04.77 2.1v3.11c0 .31.21.68.8.56A11.52 11.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

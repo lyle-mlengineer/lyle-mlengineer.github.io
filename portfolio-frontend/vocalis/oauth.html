@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="description" content="Sign in or create a Vocalis account to authorize an application.">
+  <meta name="theme-color" content="#14213d">
+  <meta name="robots" content="noindex">
+  <title>Sign in — Vocalis</title>
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2314213d'/%3E%3Cg fill='%23fca311'%3E%3Crect x='14' y='26' width='5' height='12' rx='2.5'/%3E%3Crect x='23' y='18' width='5' height='28' rx='2.5'/%3E%3Crect x='32' y='10' width='5' height='44' rx='2.5'/%3E%3Crect x='41' y='22' width='5' height='20' rx='2.5'/%3E%3Crect x='50' y='28' width='5' height='8' rx='2.5'/%3E%3C/svg%3E">
+
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+
+<body class="auth-body">
+  <main class="auth">
+    <section class="auth__brand">
+      <div class="auth__brand-top">
+        <a href="index.html" class="auth__logo">Voca<span>lis</span></a>
+        <span class="auth__secure"><i class="ri-lock-2-line"></i> Secure sign-in</span>
+      </div>
+
+      <div class="auth__pitch">
+        <p class="auth__eyebrow">One account</p>
+        <h1>One account.<br><span>Every voice.</span></h1>
+        <p>
+          Your designed voices, clones and billing live in one place. Connecting an app never means
+          handing over the keys.
+        </p>
+
+        <div class="auth__wave" aria-hidden="true">
+          <div class="waveform auth-wave" data-bars="40" data-seed="31"></div>
+        </div>
+
+        <ul class="auth__points">
+          <li><i class="ri-shield-check-line"></i> Scope-by-scope approval</li>
+          <li><i class="ri-eye-off-line"></i> No access to raw voice samples</li>
+          <li><i class="ri-history-line"></i> Revoke anytime, instantly</li>
+        </ul>
+      </div>
+
+      <div class="auth__brand-foot">
+        <span><i class="ri-lock-line"></i> SOC 2 Type II · GDPR</span>
+        <span>© 2026 Vocalis Labs</span>
+      </div>
+    </section>
+
+    <section class="auth__pane">
+      <div class="auth__card" id="authCard">
+        <div class="auth__app">
+          <span class="auth__app-icon" id="authIcon" aria-hidden="true">V</span>
+          <div>
+            <p class="auth__kicker" id="authKicker">Vocalis account</p>
+            <h2 id="authHeading">Welcome back</h2>
+          </div>
+        </div>
+        <p class="auth__sub" id="authSub">Sign in to open your voice studio.</p>
+
+        <div class="auth__tabs" role="group" aria-label="Account access">
+          <button class="auth__tab is-active" id="tabSignin" type="button" aria-pressed="true">Sign in</button>
+          <button class="auth__tab" id="tabRegister" type="button" aria-pressed="false">Create account</button>
+        </div>
+
+        <button class="auth__google" id="googleBtn" type="button">
+          <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+            <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.3-.4-3.5z"/>
+            <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
+            <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.3 0-9.7-3.1-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/>
+            <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.5l6.2 5.2C40.8 35.6 44 30.3 44 24c0-1.3-.1-2.3-.4-3.5z"/>
+          </svg>
+          <span id="googleLabel">Continue with Google</span>
+        </button>
+
+        <div class="auth__divider"><span>or use email</span></div>
+
+        <form class="auth__form" id="authForm" novalidate>
+          <div class="auth__field" data-register-only hidden>
+            <label for="authName">Full name</label>
+            <input id="authName" type="text" autocomplete="name" maxlength="80" placeholder="Maya Chen" required>
+          </div>
+
+          <div class="auth__field">
+            <label for="authEmail">Email</label>
+            <input id="authEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@company.com" required>
+          </div>
+
+          <div class="auth__field">
+            <div class="auth__label-row">
+              <label for="authPassword">Password</label>
+              <a class="auth__forgot" href="#" data-signin-only data-toast="Password reset isn’t wired in this demo.">Forgot password?</a>
+            </div>
+            <div class="auth__password">
+              <input id="authPassword" type="password" autocomplete="current-password" minlength="8" placeholder="At least 8 characters" required>
+              <button class="auth__reveal" id="passwordToggle" type="button" aria-label="Show password" aria-pressed="false">
+                <i class="ri-eye-line"></i>
+              </button>
+            </div>
+          </div>
+
+          <label class="auth__terms" data-register-only hidden>
+            <input id="authTerms" type="checkbox">
+            <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</span>
+          </label>
+
+          <p class="auth__error" id="authError" role="alert" hidden></p>
+
+          <button class="button auth__submit" id="authSubmit" type="submit">
+            <span id="authSubmitLabel">Sign in</span>
+            <i class="ri-arrow-right-line" id="authSubmitIcon"></i>
+          </button>
+
+          <p class="auth__demo-note"><i class="ri-shield-keyhole-line"></i> Demo only — credentials stay in this browser.</p>
+        </form>
+
+        <a class="auth__preview" id="consentPreview" href="oauth.html?client=narrate" hidden>Preview the app authorization flow <i class="ri-arrow-right-line"></i></a>
+      </div>
+
+      <div class="auth__card" id="consentCard" hidden>
+        <div class="auth__app">
+          <span class="auth__app-icon" id="clientIcon" aria-hidden="true">N</span>
+          <div>
+            <p class="auth__kicker">Authorize application</p>
+            <h2><span data-client>Narrate Studio</span> wants to access your Vocalis account</h2>
+          </div>
+        </div>
+
+        <div class="auth__account">
+          <span class="avatar avatar--lg" id="accountAvatar" style="--avatar: linear-gradient(135deg,#f7bb3c,#d18600);color:#14213d">MC</span>
+          <div class="auth__account-copy">
+            <small>Signed in as</small>
+            <strong id="accountName">Maya Chen</strong>
+            <span id="accountEmail">maya@narrate.studio</span>
+          </div>
+          <button class="auth__switch" id="switchBtn" type="button">Switch</button>
+        </div>
+
+        <div class="auth__scopes">
+          <p>This will let <strong data-client>Narrate Studio</strong>:</p>
+          <ul>
+            <li>
+              <span class="auth__scope-icon"><i class="ri-mic-line"></i></span>
+              <div>
+                <strong>Read your voice library</strong>
+                <small>Names, styles and settings for 8 voices</small>
+              </div>
+              <i class="ri-check-line auth__check"></i>
+            </li>
+            <li>
+              <span class="auth__scope-icon"><i class="ri-equalizer-line"></i></span>
+              <div>
+                <strong>Generate speech with your voices</strong>
+                <small>Counts against this month’s characters</small>
+              </div>
+              <i class="ri-check-line auth__check"></i>
+            </li>
+            <li>
+              <span class="auth__scope-icon"><i class="ri-bar-chart-line"></i></span>
+              <div>
+                <strong>View usage and billing summary</strong>
+                <small>Read-only — no invoices, no card changes</small>
+              </div>
+              <i class="ri-check-line auth__check"></i>
+            </li>
+          </ul>
+        </div>
+
+        <label class="auth__remember">
+          <input type="checkbox" id="remember" checked>
+          Keep me signed in for 30 days
+        </label>
+
+        <div class="auth__actions">
+          <button class="button" id="allowBtn" type="button">
+            <span id="allowLabel">Allow access</span>
+            <i class="ri-arrow-right-line" id="allowIcon"></i>
+          </button>
+          <button class="button button--ghost" id="denyBtn" type="button">Deny</button>
+        </div>
+
+        <p class="auth__legal">
+          By allowing, you agree to Vocalis’s <a href="#">Terms of Service</a> and
+          <a href="#">Privacy Policy</a>. <span data-client>Narrate Studio</span> can’t see your password
+          or payment details.
+        </p>
+      </div>
+
+      <div class="auth__card auth__denied" id="deniedCard" hidden>
+        <span class="auth__denied-icon"><i class="ri-close-line"></i></span>
+        <h2>Access denied</h2>
+        <p><span data-client>Narrate Studio</span> won’t be connected to your account. Nothing was shared.</p>
+        <div class="auth__actions">
+          <button class="button" id="retryBtn" type="button">Try again</button>
+          <a class="button button--ghost" href="index.html">Back to Vocalis</a>
+        </div>
+      </div>
+
+      <p class="auth__foot">
+        <a href="index.html"><i class="ri-arrow-left-line"></i> Back to vocalis.ai</a>
+        <span>·</span>
+        <a href="#">Help</a>
+        <span>·</span>
+        <a href="#">Privacy</a>
+      </p>
+    </section>
+  </main>
+
+  <div class="toast-host" id="toastHost" role="status" aria-live="polite"></div>
+
+  <script src="js/ui.js"></script>
+  <script src="js/oauth.js"></script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Billing — EchoID</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body class="app-page">
+
+  <header class="app-header">
+    <div class="app-header__inner">
+      <a href="index.html" class="logo">EchoID</a>
+      <nav class="nav">
+        <a href="dashboard.html" class="nav__link">Dashboard</a>
+        <a href="products.html" class="nav__link">Studio</a>
+        <a href="history.html" class="nav__link">History</a>
+        <a href="billing.html" class="nav__link is-active">Billing</a>
+      </nav>
+      <div class="user-chip" id="userChip"></div>
+      <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24"><path d="M3 3h7v7H3V3zm0 11h7v7H3v-7zM14 3h7v7h-7V3zm0 11h7v7h-7v-7z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+    <button class="mobile-menu__close" id="menuClose" aria-label="Close menu">
+      <svg viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+    </button>
+    <nav class="mobile-menu__nav">
+      <a href="dashboard.html" class="mobile-menu__link">Dashboard</a>
+      <a href="products.html" class="mobile-menu__link">Studio</a>
+      <a href="history.html" class="mobile-menu__link">History</a>
+      <a href="billing.html" class="mobile-menu__link is-active">Billing</a>
+      <a href="index.html" class="mobile-menu__link">Home</a>
+    </nav>
+  </div>
+
+  <main class="page container">
+    <div class="page__head">
+      <div>
+        <h1 class="display page__title">BILLING &amp; PAYMENTS</h1>
+        <p class="page__sub">Your plan, payment methods and invoices.</p>
+      </div>
+    </div>
+
+    <div class="billing__grid">
+      <div style="display:flex;flex-direction:column;gap:24px">
+        <section class="card">
+          <h2 class="card__title">Current plan</h2>
+          <div class="plan-now">
+            <div>
+              <p class="plan-now__name" id="planName">—</p>
+              <p class="plan-now__price" id="planPrice"></p>
+            </div>
+            <a href="#plans" class="btn btn--ghost btn--sm">Change plan</a>
+          </div>
+          <div class="usage">
+            <div class="usage__row">
+              <div class="usage__meta"><span>Audio minutes this month</span><span id="usageLabel">—</span></div>
+              <div class="progress"><i id="usageBar"></i></div>
+            </div>
+            <div class="usage__row">
+              <div class="usage__meta"><span>Storage used</span><span id="storageLabel">—</span></div>
+              <div class="progress"><i id="storageBar"></i></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2 class="card__title">Invoices</h2>
+          <div class="table-wrap" style="border:0;background:transparent">
+            <table class="data" style="min-width:480px">
+              <thead><tr><th>Date</th><th>Plan</th><th>Amount</th><th>Status</th><th style="text-align:right">Receipt</th></tr></thead>
+              <tbody id="invoiceRows"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <aside class="card">
+        <h2 class="card__title">Payment methods</h2>
+        <div id="payMethods"></div>
+        <button class="btn btn--ghost btn--sm" id="addCardBtn" style="width:100%;justify-content:center;margin-top:16px">+ Add payment method</button>
+        <p style="font-size:0.74rem;color:var(--muted);margin-top:14px">Demo mode — card details are stored only in this browser and never sent anywhere.</p>
+      </aside>
+    </div>
+
+    <section id="plans" style="margin-top:44px">
+      <h2 class="card__title">Choose a plan</h2>
+      <div class="plan-picker" id="planPicker"></div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <div class="container">
+      <span>© 2026 EchoID Labs, Inc.</span>
+      <a href="index.html">Back to home</a>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script src="billing.js"></script>
+</body>
+</html>

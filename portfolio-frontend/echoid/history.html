@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>History — EchoID</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body class="app-page">
+
+  <header class="app-header">
+    <div class="app-header__inner">
+      <a href="index.html" class="logo">EchoID</a>
+      <nav class="nav">
+        <a href="dashboard.html" class="nav__link">Dashboard</a>
+        <a href="products.html" class="nav__link">Studio</a>
+        <a href="history.html" class="nav__link is-active">History</a>
+        <a href="billing.html" class="nav__link">Billing</a>
+      </nav>
+      <div class="user-chip" id="userChip"></div>
+      <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24"><path d="M3 3h7v7H3V3zm0 11h7v7H3v-7zM14 3h7v7h-7V3zm0 11h7v7h-7v-7z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+    <button class="mobile-menu__close" id="menuClose" aria-label="Close menu">
+      <svg viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+    </button>
+    <nav class="mobile-menu__nav">
+      <a href="dashboard.html" class="mobile-menu__link">Dashboard</a>
+      <a href="products.html" class="mobile-menu__link">Studio</a>
+      <a href="history.html" class="mobile-menu__link is-active">History</a>
+      <a href="billing.html" class="mobile-menu__link">Billing</a>
+      <a href="index.html" class="mobile-menu__link">Home</a>
+    </nav>
+  </div>
+
+  <main class="page container">
+    <div class="page__head">
+      <div>
+        <h1 class="display page__title">TRANSCRIPT HISTORY</h1>
+        <p class="page__sub">Every session you've saved. Open, re-download, or delete.</p>
+      </div>
+      <a href="products.html" class="btn btn--solid btn--sm">New transcription</a>
+    </div>
+
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="Search titles or speakers…" aria-label="Search transcripts" />
+      <select id="filterSource" aria-label="Filter by source">
+        <option value="">All sources</option>
+        <option value="live">Live audio</option>
+        <option value="file">Recordings</option>
+      </select>
+      <select id="sortBy" aria-label="Sort">
+        <option value="new">Newest first</option>
+        <option value="old">Oldest first</option>
+        <option value="dur">Longest first</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr><th>Title</th><th>Source</th><th>Date</th><th>Duration</th><th>Speakers</th><th style="text-align:right">Actions</th></tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <p class="empty-note" id="empty" hidden>Nothing here yet. <a href="products.html" style="color:var(--yellow)">Start in the Studio →</a></p>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <div class="container">
+      <span>© 2026 EchoID Labs, Inc.</span>
+      <a href="index.html">Back to home</a>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script src="history.js"></script>
+</body>
+</html>

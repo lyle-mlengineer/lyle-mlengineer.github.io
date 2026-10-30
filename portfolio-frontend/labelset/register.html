@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Register &amp; Log in — Labelset</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="app.css" />
+</head>
+<body class="auth">
+
+<header class="app-header" id="app-header"></header>
+
+<main class="container auth-grid">
+  <div class="auth-copy">
+    <span class="section__eyebrow" style="color:var(--primary)">Join Labelset</span>
+    <h1>One account for <em>data, work and payouts</em></h1>
+    <p>Organizations source and label datasets. Labelers pick up paid tasks. Everyone gets paid after verification.</p>
+    <ul>
+      <li>Create or join an organization in seconds</li>
+      <li>Invite teammates by email</li>
+      <li>Upload audio, image and video data</li>
+      <li>Earn on verified tasks — withdraw anytime</li>
+    </ul>
+  </div>
+
+  <div class="auth-card">
+    <div class="invite-banner" id="invite-banner" hidden></div>
+
+    <div class="auth-tabs" role="tablist">
+      <button class="is-active" data-pane="login" role="tab">Log in</button>
+      <button data-pane="register" role="tab">Register</button>
+      <button data-pane="join" role="tab">Join org</button>
+    </div>
+
+    <!-- LOGIN -->
+    <form id="pane-login" class="auth-pane">
+      <h2>Welcome back</h2>
+      <div class="field"><label for="l-email">Email</label><input id="l-email" type="email" placeholder="you@example.com" required /></div>
+      <div class="field"><label for="l-pass">Password</label><input id="l-pass" type="password" placeholder="••••••••" required /></div>
+      <button class="button button--primary" type="submit" style="width:100%">Log in</button>
+      <p class="form-status" id="login-status" role="status"></p>
+      <div class="divider">or try a demo account</div>
+      <div class="demo-row">
+        <button type="button" class="button button--ghost button--sm" data-demo="ada@mail.com">Log in as labeler (Ada)</button>
+        <button type="button" class="button button--ghost button--sm" data-demo="sam@acme.ai">Log in as org owner (Sam)</button>
+      </div>
+    </form>
+
+    <!-- REGISTER -->
+    <form id="pane-register" class="auth-pane" hidden>
+      <h2>Create your account</h2>
+      <div class="radio-cards">
+        <div class="radio-card">
+          <input type="radio" name="r-kind" id="r-labeler" value="labeler" checked />
+          <label for="r-labeler"><strong>I'm a labeler</strong>Complete paid tasks on audio, image and video data.</label>
+        </div>
+        <div class="radio-card">
+          <input type="radio" name="r-kind" id="r-org" value="org" />
+          <label for="r-org"><strong>I'm creating an organization</strong>Upload data, run projects, invite your team.</label>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label for="r-name">Full name</label><input id="r-name" type="text" placeholder="Jane Doe" required /></div>
+        <div class="field"><label for="r-email">Email</label><input id="r-email" type="email" placeholder="you@example.com" required /></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label for="r-pass">Password</label><input id="r-pass" type="password" placeholder="At least 8 characters" minlength="8" required /></div>
+        <div class="field" id="org-name-field" hidden><label for="r-orgname">Organization name</label><input id="r-orgname" type="text" placeholder="Acme AI" /></div>
+      </div>
+      <div class="field" id="skills-field">
+        <label>Skills (pick what you'd label)</label>
+        <div class="form-row" style="grid-template-columns:1fr 1fr 1fr">
+          <label class="form-note"><input type="checkbox" class="skill" value="Audio" style="width:auto;margin-right:.4rem" checked /> Audio</label>
+          <label class="form-note"><input type="checkbox" class="skill" value="Image" style="width:auto;margin-right:.4rem" checked /> Image</label>
+          <label class="form-note"><input type="checkbox" class="skill" value="Video" style="width:auto;margin-right:.4rem" /> Video</label>
+        </div>
+      </div>
+      <button class="button button--primary" type="submit" style="width:100%">Create account</button>
+      <p class="form-status" id="register-status" role="status"></p>
+    </form>
+
+    <!-- JOIN -->
+    <form id="pane-join" class="auth-pane" hidden>
+      <h2>Join an organization</h2>
+      <p class="form-note" style="margin-bottom:1.2rem">Use an invite code from your organization, or find the organization and request access.</p>
+      <div class="field"><label for="j-code">Invite code</label><input id="j-code" type="text" placeholder="ACME-X7K2" /></div>
+      <button class="button button--primary" type="submit" style="width:100%">Redeem invite</button>
+      <p class="form-status" id="join-status" role="status"></p>
+      <div class="divider">or request access</div>
+      <div class="field"><label for="j-search">Organization name</label><input id="j-search" type="text" placeholder="Start typing, e.g. Acme" /></div>
+      <div id="j-results"></div>
+    </form>
+  </div>
+</main>
+
+<script src="js/store.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/page-register.js"></script>
+</body>
+</html>

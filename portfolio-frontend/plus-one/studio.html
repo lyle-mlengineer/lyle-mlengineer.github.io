@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="description" content="The Plus One studio. Drop in a few photos, name the venue, the occasion and the activities — get an endless feed of the day, and edit any frame just by commenting.">
+   <meta name="robots" content="index, follow">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta name="theme-color" content="#14110d">
+   <meta property="og:title" content="Plus One Studio — develop your own roll">
+   <meta property="og:description" content="A few faces, one brief, an endless album. Like it, save it, share it, or comment to rework any frame.">
+
+   <!--=============== FAVICON ===============-->
+   <link rel="shortcut icon" href="img/favicon.svg" type="image/svg+xml">
+
+   <!--=============== FONTS ===============-->
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+   <!--=============== REMIXICONS ===============-->
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css">
+
+   <!--=============== CSS ===============-->
+   <link rel="stylesheet" href="css/style.css">
+   <link rel="stylesheet" href="css/studio.css">
+
+   <title>Plus One Studio — one brief, an endless album</title>
+   <script>document.documentElement.classList.add('js')</script>
+</head>
+<body class="studio-page">
+   <!--==================== HEADER ====================-->
+   <header class="header header--solid" id="header">
+      <nav class="nav container">
+         <a href="index.html" class="nav__logo" aria-label="Plus One, home">
+            <svg class="nav__mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+               <circle cx="12" cy="12" r="9.1" stroke="currentColor" stroke-width="1.3"/>
+               <path d="M12 7.9v8.2M7.9 12h8.2" stroke="currentColor" stroke-width="1.3"/>
+            </svg>
+            <span>plus one</span>
+         </a>
+
+         <div class="nav__menu" id="nav-menu">
+            <ul class="nav__list">
+               <li><a href="index.html#how" class="nav__link">How it works</a></li>
+               <li><a href="index.html#album" class="nav__link">The album</a></li>
+               <li><a href="index.html#craft" class="nav__link">Why it holds up</a></li>
+               <li><a href="pricing.html" class="nav__link">Membership</a></li>
+               <li><a href="dashboard.html" class="nav__link">Dashboard</a></li>
+            </ul>
+
+            <a href="#brief" class="nav__cta">The studio <i class="ri-arrow-right-up-line"></i></a>
+
+            <button class="nav__close" id="nav-close" aria-label="Close menu">
+               <i class="ri-close-large-line"></i>
+            </button>
+         </div>
+
+         <button class="nav__toggle" id="nav-toggle" aria-controls="nav-menu" aria-expanded="false" aria-label="Open menu">
+            <i class="ri-menu-4-line"></i>
+         </button>
+      </nav>
+   </header>
+
+   <main>
+      <!--==================== THE BRIEF ====================-->
+      <section class="studio" id="brief">
+         <div class="container studio__grid">
+            <div class="studio__head">
+               <p class="eyebrow eyebrow--light">The studio · 01</p>
+               <h1 class="studio__title">Feed it a day.<br><em>Get the whole roll.</em></h1>
+               <p class="studio__lede">
+                  A handful of faces, the place, the occasion, and everything you actually got up to.
+                  Plus One does the rest — and the roll keeps developing while the day keeps happening.
+               </p>
+
+               <ul class="studio__how">
+                  <li><b>01</b><span>Drop four to eight faces. Phone shots, old shots, bad shots — all fine.</span></li>
+                  <li><b>02</b><span>Name the venue, the occasion and the moments you'd hate to miss.</span></li>
+                  <li><b>03</b><span>The feed fills itself. Comment on any frame to rework it.</span></li>
+               </ul>
+
+               <div class="studio__faces" aria-hidden="true">
+                  <figure><img src="img/seed-1.jpg" alt=""></figure>
+                  <figure><img src="img/seed-2.jpg" alt=""></figure>
+                  <figure><img src="img/seed-3.jpg" alt=""></figure>
+                  <figure><img src="img/seed-4.jpg" alt=""></figure>
+                  <span>sample cast</span>
+               </div>
+            </div>
+
+            <form class="brief" id="brief-form" novalidate>
+               <div class="field">
+                  <div class="field__top">
+                     <span class="field__label">01 — Your people</span>
+                     <span class="field__meta" id="seed-count">0 of 8</span>
+                  </div>
+
+                  <label class="drop" id="drop" for="seed-input">
+                     <input class="drop__input" type="file" id="seed-input" accept="image/*" multiple>
+                     <i class="ri-image-add-line" aria-hidden="true"></i>
+                     <span class="drop__title">Drop a few faces</span>
+                     <span class="drop__hint">JPG or PNG · drag &amp; drop, or click to browse</span>
+                  </label>
+
+                  <ul class="previews" id="previews" aria-label="Uploaded photos" hidden></ul>
+                  <p class="field__hint">No photos handy? Leave it empty — the demo casts four sample faces.</p>
+               </div>
+
+               <div class="field">
+                  <p class="field__label" id="occasion-label">02 — The occasion</p>
+                  <div class="picks" role="radiogroup" aria-labelledby="occasion-label">
+                     <label class="pick"><input type="radio" name="occasion" value="wedding" checked><span>Wedding</span></label>
+                     <label class="pick"><input type="radio" name="occasion" value="roadtrip"><span>Road trip</span></label>
+                     <label class="pick"><input type="radio" name="occasion" value="graduation"><span>Graduation</span></label>
+                     <label class="pick"><input type="radio" name="occasion" value="picnic"><span>Picnic</span></label>
+                  </div>
+               </div>
+
+               <div class="field field--split">
+                  <div class="field__cell">
+                     <label class="field__label" for="event-title">03 — Title</label>
+                     <input class="input" id="event-title" name="title" type="text" placeholder="Slow Sunday at the park" autocomplete="off" required aria-required="true">
+                     <p class="field__error" id="title-error" hidden></p>
+                  </div>
+                  <div class="field__cell">
+                     <label class="field__label" for="venue">04 — Venue</label>
+                     <input class="input" id="venue" name="venue" type="text" placeholder="Prospect Park, Brooklyn" autocomplete="off" required aria-required="true">
+                     <p class="field__error" id="venue-error" hidden></p>
+                  </div>
+               </div>
+
+               <div class="field">
+                  <label class="field__label" for="activity-input">05 — Activities</label>
+                  <div class="tagbox" id="tagbox">
+                     <ul class="tags" id="tags"></ul>
+                     <input id="activity-input" type="text" placeholder="Add an activity…" autocomplete="off">
+                     <button type="button" class="tagbox__add" id="activity-add" aria-label="Add activity">
+                        <i class="ri-add-line"></i>
+                     </button>
+                  </div>
+                  <p class="field__error" id="activity-error" hidden></p>
+                  <div class="suggests" id="suggests"></div>
+               </div>
+
+               <div class="field">
+                  <label class="field__label" for="brief-text">06 — The brief</label>
+                  <textarea class="input input--area" id="brief-text" name="description" rows="3" placeholder="Kai and me, the old wagon, gas-station snacks and hair out the window…"></textarea>
+               </div>
+
+               <div class="brief__foot">
+                  <button type="submit" class="btn btn--cream brief__submit" id="brief-submit">
+                     Develop the roll <i class="ri-arrow-right-line" aria-hidden="true"></i>
+                  </button>
+                  <button type="button" class="brief__sample" id="sample-fill">Try a sample day</button>
+               </div>
+               <p class="brief__note" id="brief-note">One event free · the frames are yours</p>
+            </form>
+         </div>
+      </section>
+
+      <!--==================== THE FEED ====================-->
+      <section class="feed-section" id="feed-section" aria-labelledby="feed-title" hidden>
+         <div class="feed__wrap">
+            <header class="feedhead">
+               <p class="eyebrow">The feed · live</p>
+               <h2 class="feedhead__title" id="feed-title" tabindex="-1">Your day</h2>
+               <p class="feedhead__meta" id="feed-meta"></p>
+               <ul class="feedhead__chips" id="feed-chips" aria-label="Activities in this album"></ul>
+            </header>
+
+            <div class="feedhead__bar">
+               <p class="feedhead__live"><i aria-hidden="true"></i><span id="feed-frames" aria-live="polite">Developing</span></p>
+               <button type="button" class="wallbtn" id="open-wall" aria-haspopup="dialog" aria-controls="wall">
+                  <i class="ri-bookmark-3-line" aria-hidden="true"></i> Wall <b data-save-count>0</b>
+               </button>
+               <a href="#brief" class="feedhead__edit">Edit brief</a>
+            </div>
+
+            <div class="feed" id="feed"></div>
+
+            <div class="feed__more" aria-hidden="true">
+               <span><b></b>Developing the next frames</span>
+            </div>
+         </div>
+      </section>
+   </main>
+
+   <!--==================== WALL (SAVED GALLERY) ====================-->
+   <aside class="wall" id="wall" aria-hidden="true">
+      <div class="wall__scrim" data-wall-close></div>
+      <div class="wall__panel" role="dialog" aria-modal="true" aria-labelledby="wall-title">
+         <header class="wall__head">
+            <div>
+               <p class="eyebrow">Saved frames</p>
+               <h2 class="wall__title" id="wall-title">Your wall <span id="wall-count">0</span></h2>
+            </div>
+            <button type="button" class="wall__close" id="wall-close" aria-label="Close saved frames">
+               <i class="ri-close-line"></i>
+            </button>
+         </header>
+
+         <p class="wall__hint" id="wall-hint">Bookmark a frame and it lands here.</p>
+         <div class="wall__grid" id="wall-grid"></div>
+      </div>
+   </aside>
+
+   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+   <!--=============== DOWNLOAD + STUDIO JS ===============-->
+   <script src="js/download.js"></script>
+   <script src="js/studio.js"></script>
+</body>
+</html>

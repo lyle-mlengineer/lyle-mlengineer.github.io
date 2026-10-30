@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="description" content="Design a voice with Vocalis — direct emotion, pace and pronunciation, then ship studio-quality speech in 32 languages.">
+  <meta name="theme-color" content="#14213d">
+  <title>Voice design — Vocalis</title>
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2314213d'/%3E%3Cg fill='%23fca311'%3E%3Crect x='14' y='26' width='5' height='12' rx='2.5'/%3E%3Crect x='23' y='18' width='5' height='28' rx='2.5'/%3E%3Crect x='32' y='10' width='5' height='44' rx='2.5'/%3E%3Crect x='41' y='22' width='5' height='20' rx='2.5'/%3E%3Crect x='50' y='28' width='5' height='8' rx='2.5'/%3E%3C/svg%3E">
+
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+
+<body>
+  <header class="header" id="header">
+    <nav class="nav container">
+      <a href="index.html" class="nav__logo" aria-label="Vocalis home">Voca<span>lis</span></a>
+
+      <div class="nav__menu" id="nav-menu">
+        <ul class="nav__list">
+          <li class="nav__item"><a href="voice-design.html" class="nav__link active-link">Voice design</a></li>
+          <li class="nav__item"><a href="index.html#voices" class="nav__link">Voice catalog</a></li>
+          <li class="nav__item"><a href="index.html#pricing" class="nav__link">Pricing</a></li>
+          <li class="nav__item"><a href="playground.html" class="nav__link">Playground</a></li>
+        </ul>
+
+        <div class="nav__actions">
+          <a href="oauth.html" class="nav__signin">Sign in</a>
+          <a href="oauth.html?intent=signup" class="button button--small">Start free</a>
+        </div>
+
+        <button class="nav__close" id="nav-close" type="button" aria-label="Close menu">
+          <i class="ri-close-line"></i>
+        </button>
+
+        <img src="img/nav-img.svg" alt="" class="nav__img" aria-hidden="true">
+      </div>
+
+      <div class="nav__right">
+        <a href="oauth.html" class="nav__signin">Sign in</a>
+        <a href="oauth.html?intent=signup" class="button button--small">Start free</a>
+      </div>
+
+      <button class="nav__toggle" id="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-menu">
+        <i class="ri-function-line"></i>
+      </button>
+    </nav>
+  </header>
+
+  <main class="main">
+    <!--==================== HERO ====================-->
+    <section class="page-hero">
+      <div class="container page-hero__grid">
+        <div class="page-hero__copy">
+          <span class="eyebrow">Voice design</span>
+          <h1 class="page-hero__title">Design a voice.<br><span>Direct a performance.</span></h1>
+          <p class="page-hero__desc">
+            Vocalis isn’t a voice pack. It’s a design surface: dial in warmth, pace and pronunciation,
+            then direct every line like you’re sitting next to the actor — because in a way, you are.
+          </p>
+
+          <div class="page-hero__actions">
+            <a href="playground.html" class="button">Open the studio <i class="ri-arrow-right-line"></i></a>
+            <a href="index.html#voices" class="button button--ghost">Explore the catalog</a>
+          </div>
+
+          <div class="home__trust page-hero__trust">
+            <div class="home__avatars" aria-hidden="true">
+              <span class="avatar" style="--avatar: linear-gradient(135deg,#f7bb3c,#d18600);color:#14213d">MC</span>
+              <span class="avatar" style="--avatar: linear-gradient(135deg,#33486f,#14213d)">JR</span>
+              <span class="avatar" style="--avatar: linear-gradient(135deg,#e5e5e5,#bdbdbd);color:#14213d">AL</span>
+              <span class="avatar" style="--avatar: linear-gradient(135deg,#1c1c1c,#000000)">SK</span>
+            </div>
+            <p>Designed by <strong>12,000+</strong> product teams</p>
+          </div>
+        </div>
+
+        <div class="console" id="designConsole">
+          <div class="console__head">
+            <span class="console__tag"><i class="ri-mic-line"></i> Voice draft</span>
+            <span class="console__live"><span class="console__dot"></span> Live preview</span>
+          </div>
+
+          <div class="console__voice">
+            <span class="console__avatar">A</span>
+            <div class="console__voice-copy">
+              <strong>Aria</strong>
+              <small id="consoleDescriptor">Warm · conversational · EN-US</small>
+            </div>
+            <button class="console__play" id="consolePlay" type="button" aria-label="Preview this voice">
+              <i class="ri-play-fill"></i>
+            </button>
+          </div>
+
+          <div class="console__wave" aria-hidden="true">
+            <div class="waveform console-wave" id="consoleWave" data-bars="44" data-seed="7"></div>
+          </div>
+
+          <div class="console__controls">
+            <div class="control">
+              <div class="control__label"><span>Warmth</span><span class="control__value" id="warmthValue">68</span></div>
+              <input class="range range--dark" id="warmth" type="range" min="0" max="100" value="68" aria-label="Warmth">
+            </div>
+            <div class="control">
+              <div class="control__label"><span>Pace</span><span class="control__value" id="paceValue">0.95×</span></div>
+              <input class="range range--dark" id="pace" type="range" min="0.7" max="1.3" step="0.05" value="0.95" aria-label="Pace">
+            </div>
+            <div class="control">
+              <div class="control__label"><span>Brightness</span><span class="control__value" id="brightnessValue">54</span></div>
+              <input class="range range--dark" id="brightness" type="range" min="0" max="100" value="54" aria-label="Brightness">
+            </div>
+          </div>
+
+          <div class="console__chips">
+            <span><i class="ri-global-line"></i> EN-US</span>
+            <span>Narration</span>
+            <span>24-bit</span>
+            <span>42 ms</span>
+          </div>
+
+          <div class="console__foot">
+            <button class="button button--small" id="consoleSave" type="button">
+              <i class="ri-bookmark-line"></i> Save to library
+            </button>
+            <a href="playground.html" class="console__link">Open in playground <i class="ri-arrow-right-line"></i></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!--==================== LOGOS ====================-->
+    <section class="logos" aria-label="Customers">
+      <div class="container">
+        <p class="logos__label">Powering voice at</p>
+        <div class="logos__row">
+          <span class="logos__mark logos__mark--serif">Lumen&nbsp;Audio</span>
+          <span class="logos__mark logos__mark--wide">NARRATE</span>
+          <span class="logos__mark logos__mark--mono">playforge</span>
+          <span class="logos__mark logos__mark--serif">Callisto</span>
+          <span class="logos__mark logos__mark--wide">HEARTH</span>
+        </div>
+      </div>
+    </section>
+
+    <!--==================== DESIGN BRIEF ====================-->
+    <section class="section" id="design-brief">
+      <div class="container brief">
+        <div class="brief__intro reveal">
+          <span class="eyebrow">Design brief</span>
+          <h2 class="section__title">Start with an <span>identity</span></h2>
+          <p class="section__description">
+            Every Vocalis voice begins as a short brief. Name it, set who it is and where it speaks,
+            then describe the performance in a sentence. The dials can come afterwards.
+          </p>
+          <ul class="brief__points">
+            <li><i class="ri-checkbox-circle-fill"></i> Personality stays consistent across chapters</li>
+            <li><i class="ri-checkbox-circle-fill"></i> Language sets pronunciation and pacing defaults</li>
+            <li><i class="ri-checkbox-circle-fill"></i> Drafts are versioned and editable in the playground</li>
+          </ul>
+        </div>
+
+        <form class="brief__card reveal" id="voiceForm" novalidate>
+          <div class="brief__preview">
+            <span class="brief__avatar" id="briefAvatar" aria-hidden="true">A</span>
+            <div class="brief__preview-copy">
+              <strong id="briefName">Aria</strong>
+              <span id="briefMeta">Female · 25–34 · English (US)</span>
+            </div>
+            <span class="brief__status" id="briefStatus"><span></span> Draft</span>
+          </div>
+
+          <p class="brief__desc" id="briefDesc">Add a short description to give the draft its character.</p>
+
+          <div class="brief__fields">
+            <label class="brief__field">
+              <span>Voice name</span>
+              <input id="voiceName" type="text" maxlength="40" value="Aria" placeholder="Aria" autocomplete="off" required>
+            </label>
+
+            <fieldset class="brief__field">
+              <legend>Gender</legend>
+              <div class="brief__choices">
+                <label class="choice"><input type="radio" name="voiceGender" value="Female" checked><span>Female</span></label>
+                <label class="choice"><input type="radio" name="voiceGender" value="Male"><span>Male</span></label>
+                <label class="choice"><input type="radio" name="voiceGender" value="Non-binary"><span>Non-binary</span></label>
+                <label class="choice"><input type="radio" name="voiceGender" value="Neutral"><span>Neutral</span></label>
+              </div>
+            </fieldset>
+
+            <div class="brief__row">
+              <label class="brief__field">
+                <span>Age range</span>
+                <select class="select" id="voiceAge">
+                  <option>18–24</option>
+                  <option selected>25–34</option>
+                  <option>35–44</option>
+                  <option>45–54</option>
+                  <option>55–64</option>
+                  <option>65+</option>
+                </select>
+              </label>
+              <label class="brief__field">
+                <span>Language</span>
+                <select class="select" id="voiceLanguage">
+                  <option selected>English (US)</option>
+                  <option>English (UK)</option>
+                  <option>Spanish (ES)</option>
+                  <option>French (FR)</option>
+                  <option>German (DE)</option>
+                  <option>Portuguese (BR)</option>
+                  <option>Italian (IT)</option>
+                  <option>Japanese (JA)</option>
+                  <option>Korean (KO)</option>
+                  <option>Mandarin (ZH)</option>
+                  <option>Arabic (SA)</option>
+                  <option>Hindi (IN)</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="brief__field">
+              <span class="brief__label-row">Short description <small id="voiceDescCount">0 / 160</small></span>
+              <textarea class="textarea" id="voiceDescription" rows="3" maxlength="160" placeholder="Warm, low-key and a little amused — like a late-night radio host." required></textarea>
+            </label>
+
+            <p class="brief__error" id="voiceError" role="alert" hidden></p>
+
+            <div class="brief__actions">
+              <button class="button" id="createVoice" type="submit">
+                <i class="ri-add-line" id="createVoiceIcon"></i>
+                <span id="createVoiceLabel">Create voice draft</span>
+              </button>
+              <button class="button button--ghost" id="resetVoice" type="button">Reset</button>
+            </div>
+            <p class="brief__note"><i class="ri-information-line"></i> Demo only — your draft stays in this browser session.</p>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!--==================== CAPABILITIES ====================-->
+    <section class="section section--tint">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">What you can direct</span>
+          <h2 class="section__title">Every dial a <span>director</span> would ask for</h2>
+          <p class="section__description">
+            The parts of a performance that usually need a booth, a second take and a long email — exposed as
+            simple controls you can version, save and reuse.
+          </p>
+        </div>
+
+        <div class="bento">
+          <article class="card bento__wide reveal">
+            <span class="card__icon"><i class="ri-equalizer-line"></i></span>
+            <h3>Design once, direct every line</h3>
+            <p>
+              A voice is a saved design — tone, pace, breath and pronunciation. Then each line gets its own
+              direction, so a whisper in chapter two doesn’t cost you chapter one.
+            </p>
+            <div class="token-row" aria-hidden="true">
+              <span>warmth 0.68</span>
+              <span>pace 0.95</span>
+              <span>breath 0.42</span>
+              <span>brightness 0.54</span>
+            </div>
+          </article>
+
+          <article class="card card--dark reveal">
+            <span class="card__icon"><i class="ri-fingerprint-line"></i></span>
+            <h3>Ships with provenance</h3>
+            <p>Every render is watermarked, consent-checked and cleared for commercial use.</p>
+            <code class="card__code">x-vocalis-voice: aria-d04</code>
+          </article>
+
+          <article class="card reveal">
+            <span class="card__icon"><i class="ri-heart-3-line"></i></span>
+            <h3>Emotion, not adjectives</h3>
+            <p>Warmth, tension, delight and deadpan are measurable dials — not a prompt you keep re-rolling.</p>
+          </article>
+
+          <article class="card reveal">
+            <span class="card__icon"><i class="ri-rhythm-line"></i></span>
+            <h3>Pace, breath and pause</h3>
+            <p>Set breath length, sentence lift and the silence before a reveal. The model performs the punctuation.</p>
+          </article>
+
+          <article class="card reveal">
+            <span class="card__icon"><i class="ri-translate-2"></i></span>
+            <h3>Pronunciation control</h3>
+            <p>Names, acronyms and product terms get their own lexicon — consistent across every voice you own.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!--==================== STEPS ====================-->
+    <section class="section">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">How it works</span>
+          <h2 class="section__title">From brief to <span>broadcast</span></h2>
+        </div>
+
+        <ol class="steps">
+          <li class="steps__item reveal">
+            <span class="steps__number">01</span>
+            <div class="steps__content">
+              <h3>Describe the voice</h3>
+              <p>Pick a starting point — warm, dry, authoritative, bright — or clone a consented sample. Name it, version it, keep it.</p>
+            </div>
+          </li>
+          <li class="steps__item reveal">
+            <span class="steps__number">02</span>
+            <div class="steps__content">
+              <h3>Direct the read</h3>
+              <p>Highlight a line, nudge the emphasis, slow the final clause. Hear the change before the sentence ends.</p>
+            </div>
+          </li>
+          <li class="steps__item reveal">
+            <span class="steps__number">03</span>
+            <div class="steps__content">
+              <h3>Ship it anywhere</h3>
+              <p>Export broadcast-ready WAV, or stream through the API into your app in 42 milliseconds.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!--==================== FEATURE SPLIT ====================-->
+    <section class="section section--tint">
+      <div class="container feature">
+        <div class="feature__media reveal">
+          <img src="img/hero-studio.jpg" alt="Studio microphone lit by golden light" width="928" height="1152" loading="lazy">
+          <span class="feature__chip"><i class="ri-timer-flash-line"></i> 42 ms to first audio</span>
+        </div>
+
+        <div class="feature__copy reveal">
+          <span class="eyebrow">No booth required</span>
+          <h2 class="section__title">The calm of a studio. <span>The speed of a keystroke.</span></h2>
+          <p class="section__description">
+            A recording session used to mean a room, a director, a narrator and a calendar. Now it means a
+            saved voice design and a script you can edit at 2 a.m.
+          </p>
+          <ul class="checklist">
+            <li><i class="ri-check-line"></i> Chapter-level consistency across 12-hour reads</li>
+            <li><i class="ri-check-line"></i> Re-render one line without re-booking anyone</li>
+            <li><i class="ri-check-line"></i> 32 languages from the same design</li>
+          </ul>
+          <a href="playground.html" class="button">Try it in the playground <i class="ri-arrow-right-line"></i></a>
+        </div>
+      </div>
+    </section>
+
+    <!--==================== PROOF ====================-->
+    <section class="section section--dark">
+      <div class="container design-proof">
+        <div class="design-proof__copy reveal">
+          <span class="eyebrow">Measured, not promised</span>
+          <h2 class="section__title">A voice that <span>survives the edit</span></h2>
+          <p class="section__description">
+            Listeners forgive a synthetic voice once. They don’t forgive it drifting between chapters. Our
+            design system holds the persona steady across sessions, exports and languages.
+          </p>
+          <a href="oauth.html?intent=signup" class="button button--light">Start designing free <i class="ri-arrow-right-line"></i></a>
+        </div>
+
+        <div class="design-proof__stats reveal">
+          <div class="design-stat">
+            <strong>94<span>%</span></strong>
+            <span>rated human on first listen</span>
+          </div>
+          <div class="design-stat">
+            <strong>32</strong>
+            <span>languages, one design</span>
+          </div>
+          <div class="design-stat">
+            <strong>42<span>ms</span></strong>
+            <span>median time to first audio</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!--==================== CTA ====================-->
+    <section class="cta">
+      <div class="container">
+        <div class="cta__panel reveal">
+          <div class="cta__copy">
+            <h2>Write it. Design it.<br><span>Ship it.</span></h2>
+            <p>Open the studio with 10,000 free characters. No card, no booth, no castings.</p>
+            <div class="cta__actions">
+              <a href="oauth.html?intent=signup" class="button button--light">Start free <i class="ri-arrow-right-line"></i></a>
+              <a href="playground.html" class="button button--ghost-light">Try the playground</a>
+            </div>
+          </div>
+
+          <div class="cta__art" aria-hidden="true">
+            <img src="img/microphone.svg" alt="" class="cta__mic">
+            <div class="waveform waveform--cta" data-bars="30" data-seed="29"></div>
+            <img src="img/node.svg" alt="" class="cta__node cta__node--1">
+            <img src="img/node.svg" alt="" class="cta__node cta__node--2">
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <a href="index.html" class="nav__logo">Voca<span>lis</span></a>
+          <p>Human voices, designed by AI.<br>Made in Edinburgh and Brooklyn.</p>
+          <div class="footer__social">
+            <a href="#" aria-label="Vocalis on X"><i class="ri-twitter-line"></i></a>
+            <a href="#" aria-label="Vocalis on LinkedIn"><i class="ri-linkedin-line"></i></a>
+            <a href="#" aria-label="Vocalis on GitHub"><i class="ri-github-line"></i></a>
+          </div>
+        </div>
+
+        <div class="footer__col">
+          <h3>Product</h3>
+          <ul>
+            <li><a href="voice-design.html">Voice design</a></li>
+            <li><a href="index.html#voices">Voice catalog</a></li>
+            <li><a href="playground.html">Playground</a></li>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="index.html#pricing">Pricing</a></li>
+          </ul>
+        </div>
+
+        <div class="footer__col">
+          <h3>Developers</h3>
+          <ul>
+            <li><a href="#">API reference</a></li>
+            <li><a href="#">SDKs</a></li>
+            <li><a href="#">Status</a></li>
+            <li><a href="#">Changelog</a></li>
+          </ul>
+        </div>
+
+        <div class="footer__col">
+          <h3>Company</h3>
+          <ul>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Trust &amp; safety</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+          </ul>
+        </div>
+
+        <div class="footer__col">
+          <h3>Legal</h3>
+          <ul>
+            <li><a href="#">Voice consent policy</a></li>
+            <li><a href="#">Privacy</a></li>
+            <li><a href="#">Terms</a></li>
+            <li><a href="#">AI disclosure</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <p>© 2026 Vocalis Labs, Inc. All voices cleared for commercial use.</p>
+        <p class="footer__locale"><i class="ri-global-line"></i> English (US)</p>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast-host" id="toastHost" role="status" aria-live="polite"></div>
+
+  <script src="js/ui.js"></script>
+  <script src="js/design.js"></script>
+</body>
+</html>

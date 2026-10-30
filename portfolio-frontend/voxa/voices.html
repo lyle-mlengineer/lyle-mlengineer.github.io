@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="description" content="Clone your voice in Voxa — record or upload a sample, give it a name, and use it in every podcast you cast.">
+      <title>Voice cloning — Voxa</title>
+
+      <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+
+      <!--=============== REMIX ICONS ===============-->
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css">
+
+      <!--=============== CSS ===============-->
+      <link rel="stylesheet" href="css/styles.css">
+      <link rel="stylesheet" href="css/app.css">
+   </head>
+
+   <body class="app-body">
+      <a href="#main" class="skip-link">Skip to content</a>
+
+      <!--==================== APP HEADER ====================-->
+      <header class="app-header">
+         <div class="container-app app-nav">
+            <a href="index.html" class="app-logo" aria-label="Voxa home">
+               <span class="nav__mark" aria-hidden="true"><i></i><i></i><i></i></span>
+               voxa
+            </a>
+
+            <nav class="app-links" aria-label="Studio">
+               <a href="dashboard.html"><i class="ri-dashboard-3-line" aria-hidden="true"></i> Dashboard</a>
+               <a href="voices.html" class="is-active"><i class="ri-user-voice-line" aria-hidden="true"></i> Voices</a>
+               <a href="gallery.html"><i class="ri-album-line" aria-hidden="true"></i> Gallery</a>
+               <a href="create.html"><i class="ri-mic-line" aria-hidden="true"></i> Create</a>
+               <a href="payments.html"><i class="ri-bank-card-line" aria-hidden="true"></i> Billing</a>
+            </nav>
+
+            <div class="app-actions">
+               <a href="create.html" class="btn btn--ink app-new"><i class="ri-add-line" aria-hidden="true"></i> New podcast</a>
+
+               <div class="user-menu">
+                  <button class="user-chip" type="button" id="account-toggle" aria-expanded="false" aria-controls="account-menu">
+                     <span class="avatar avatar--user" data-user-initials aria-hidden="true">MC</span>
+                     <span class="user-chip__text">
+                        <strong data-user-name>Maya Chen</strong>
+                        <small data-user-plan>Creator plan</small>
+                     </span>
+                     <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+                  </button>
+
+                  <div class="account-menu" id="account-menu">
+                     <div class="account-menu__head">
+                        <strong data-user-name>Maya Chen</strong>
+                        <span data-user-email>maya@studio.fm</span>
+                     </div>
+                     <a href="dashboard.html"><i class="ri-dashboard-3-line" aria-hidden="true"></i> Dashboard</a>
+                     <a href="voices.html"><i class="ri-user-voice-line" aria-hidden="true"></i> My voices</a>
+                     <a href="gallery.html"><i class="ri-album-line" aria-hidden="true"></i> My gallery</a>
+                     <a href="payments.html"><i class="ri-bank-card-line" aria-hidden="true"></i> Billing &amp; plans</a>
+                     <div class="account-menu__sep"></div>
+                     <a href="oauth.html" data-signout><i class="ri-logout-box-r-line" aria-hidden="true"></i> Sign out</a>
+                  </div>
+               </div>
+
+               <button class="app-burger" type="button" id="app-menu-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="app-mobile-nav">
+                  <i class="ri-menu-3-line" aria-hidden="true"></i>
+               </button>
+            </div>
+         </div>
+
+         <nav class="app-mobile-nav" id="app-mobile-nav" aria-label="Studio menu" hidden>
+            <a href="dashboard.html"><i class="ri-dashboard-3-line" aria-hidden="true"></i> Dashboard</a>
+            <a href="voices.html" class="is-active"><i class="ri-user-voice-line" aria-hidden="true"></i> Voices</a>
+            <a href="gallery.html"><i class="ri-album-line" aria-hidden="true"></i> Gallery</a>
+            <a href="create.html"><i class="ri-mic-line" aria-hidden="true"></i> Create</a>
+            <a href="payments.html"><i class="ri-bank-card-line" aria-hidden="true"></i> Billing</a>
+            <a href="oauth.html" data-signout><i class="ri-logout-box-r-line" aria-hidden="true"></i> Sign out</a>
+            <a href="create.html" class="app-mobile-nav__new"><i class="ri-add-line" aria-hidden="true"></i> New podcast</a>
+         </nav>
+      </header>
+
+      <!--==================== MAIN ====================-->
+      <main class="app-main" id="main">
+         <div class="container-app">
+            <header class="page-head">
+               <div>
+                  <p class="app-eyebrow">Voice cloning</p>
+                  <h1 class="page-head__title">Your voice, on the shelf.</h1>
+                  <p class="page-head__sub">Record or upload a short sample, give the voice a name, and it joins your cast list in every episode you build. Samples stay in this browser.</p>
+               </div>
+
+               <div class="page-head__actions">
+                  <a href="dashboard.html" class="btn btn--ghost btn--sm"><i class="ri-arrow-left-line" aria-hidden="true"></i> Back to studio</a>
+                  <a href="#clone-grid" class="btn btn--soft btn--sm" data-scroll-target="#clone-grid"><i class="ri-album-line" aria-hidden="true"></i> My voices</a>
+               </div>
+            </header>
+
+            <div class="wizard-layout">
+               <!--==================== CLONE WIZARD ====================-->
+               <div class="wizard-main" id="clone-wizard">
+                  <!-- Step 1: capture -->
+                  <section class="panel" aria-labelledby="capture-title">
+                     <div class="panel__head">
+                        <div>
+                           <h2 class="panel__title" id="capture-title"><span class="num-chip" aria-hidden="true">1</span> Capture a sample</h2>
+                           <p class="panel__sub">Ten to thirty seconds is enough. Speak normally, in a quiet room, one voice only.</p>
+                        </div>
+                        <span class="pane__badge" id="sample-badge"><i class="ri-mic-line" aria-hidden="true"></i> No sample yet</span>
+                     </div>
+
+                     <div class="panel__body">
+                        <div class="capture-tabs" role="tablist" aria-label="Sample source">
+                           <button class="capture-tab is-active" type="button" role="tab" id="tab-record"
+                                   aria-selected="true" aria-controls="pane-record" data-capture-tab="record">
+                              <i class="ri-mic-line" aria-hidden="true"></i> Record
+                           </button>
+                           <button class="capture-tab" type="button" role="tab" id="tab-upload"
+                                   aria-selected="false" aria-controls="pane-upload" data-capture-tab="upload">
+                              <i class="ri-upload-2-line" aria-hidden="true"></i> Upload
+                           </button>
+                        </div>
+
+                        <!-- Record pane -->
+                        <div class="capture-pane is-active" id="pane-record" data-capture-pane="record" role="tabpanel" aria-labelledby="tab-record">
+                           <div class="prompt-card">
+                              <p class="prompt-card__label"><i class="ri-bookmark-3-line" aria-hidden="true"></i> Read this aloud</p>
+                              <p class="prompt-card__text" id="record-script">The morning market opens late, and the coffee is already gone.</p>
+                              <button class="prompt-card__swap" type="button" id="script-swap">
+                                 <i class="ri-refresh-line" aria-hidden="true"></i> New script
+                              </button>
+                           </div>
+
+                           <div class="rec">
+                              <button class="rec__btn" type="button" id="rec-toggle" aria-label="Start recording">
+                                 <i class="ri-mic-fill" aria-hidden="true"></i>
+                              </button>
+                              <div class="rec__side">
+                                 <div class="rec__meter" id="rec-meter" aria-hidden="true"></div>
+                                 <div class="rec__foot">
+                                    <span class="rec__time" id="rec-time">0:00</span>
+                                    <span class="rec__status" id="rec-status">Tap the mic and start reading. Minimum 10 seconds.</span>
+                                 </div>
+                              </div>
+                           </div>
+
+                           <p class="field__error" id="mic-error"></p>
+
+                           <div class="sample" id="record-sample" hidden></div>
+                        </div>
+
+                        <!-- Upload pane -->
+                        <div class="capture-pane" id="pane-upload" data-capture-pane="upload" role="tabpanel" aria-labelledby="tab-upload" hidden>
+                           <label class="drop" id="drop-zone">
+                              <input class="sr-only" type="file" id="upload-input"
+                                     accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac">
+                              <i class="ri-cloud-line" aria-hidden="true"></i>
+                              <strong>Drop an audio file here</strong>
+                              <span>or click to browse · MP3, WAV, M4A, OGG, FLAC · 10 s to 3 min · max 25 MB</span>
+                           </label>
+
+                           <p class="field__error" id="upload-error"></p>
+
+                           <div class="sample" id="upload-sample" hidden></div>
+                        </div>
+
+                        <p class="form-note">Longer, noisier or multi-speaker samples make weaker clones. A single clean sentence beats a minute of chatter.</p>
+                     </div>
+                  </section>
+
+                  <!-- Step 2: identify -->
+                  <section class="panel" aria-labelledby="name-title">
+                     <div class="panel__head">
+                        <div>
+                           <h2 class="panel__title" id="name-title"><span class="num-chip" aria-hidden="true">2</span> Name the voice</h2>
+                           <p class="panel__sub">This is how it appears in the cast list, so pick something you will recognise in a month.</p>
+                        </div>
+                        <span class="pane__badge"><i class="ri-price-tag-3-line" aria-hidden="true"></i> Private</span>
+                     </div>
+
+                     <div class="panel__body">
+                        <div class="field">
+                           <label class="field__label" for="voice-name">Voice name <small>2–40 chars</small></label>
+                           <input class="input" id="voice-name" type="text" maxlength="40" autocomplete="off" placeholder="e.g. Maya — kitchen table">
+                           <p class="field__hint">Names are unique in your library. You can rename a voice at any time.</p>
+                           <p class="field__error">Give this voice a name (2+ characters, not already used).</p>
+                        </div>
+
+                        <div class="field-grid">
+                           <div class="field">
+                              <label class="field__label" for="voice-language">Language</label>
+                              <div class="select-wrap">
+                                 <select class="select" id="voice-language">
+                                    <option value="English (US)">English (US)</option>
+                                    <option value="English (UK)">English (UK)</option>
+                                    <option value="English (AU)">English (AU)</option>
+                                    <option value="Spanish">Spanish</option>
+                                    <option value="French">French</option>
+                                    <option value="German">German</option>
+                                    <option value="Portuguese">Portuguese</option>
+                                    <option value="Japanese">Japanese</option>
+                                 </select>
+                                 <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+                              </div>
+                           </div>
+
+                           <div class="field">
+                              <label class="field__label" for="voice-category">Best for</label>
+                              <div class="select-wrap">
+                                 <select class="select" id="voice-category">
+                                    <option value="Narration">Narration</option>
+                                    <option value="Podcast">Podcast</option>
+                                    <option value="Commercial">Commercial</option>
+                                    <option value="Character">Character</option>
+                                 </select>
+                                 <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+                              </div>
+                           </div>
+                        </div>
+
+                        <div class="field">
+                           <span class="field__label">Who can use it</span>
+                           <div class="format-grid">
+                              <label class="choice">
+                                 <input type="radio" name="visibility" value="private" checked>
+                                 <span class="choice__dot" aria-hidden="true"></span>
+                                 <span>
+                                    <strong>Just me</strong>
+                                    <small>Only your studio can cast this voice.</small>
+                                 </span>
+                              </label>
+
+                              <label class="choice">
+                                 <input type="radio" name="visibility" value="market">
+                                 <span class="choice__dot" aria-hidden="true"></span>
+                                 <span>
+                                    <strong>Marketplace</strong>
+                                    <small>List it for other creators. Demo only — nothing leaves this browser.</small>
+                                 </span>
+                              </label>
+                           </div>
+                        </div>
+
+                        <label class="check" style="margin-top: 1.15rem">
+                           <input type="checkbox" id="clone-consent">
+                           <span>I own this voice, or I have explicit permission to clone it. <a href="#">Voice ethics policy</a></span>
+                        </label>
+
+                        <div class="pane__foot">
+                           <p class="pane__foot-note" id="clone-requirement">Add a sample first.</p>
+                           <div class="pane__foot-right">
+                              <button class="btn btn--generate btn--sm" type="button" id="clone-start" disabled>
+                                 <i class="ri-sparkling-2-line" aria-hidden="true"></i> Start cloning
+                              </button>
+                           </div>
+                        </div>
+                     </div>
+                  </section>
+               </div>
+
+               <!--==================== SIDE ====================-->
+               <aside class="summary summary--clone" aria-label="Voice cloning notes">
+                  <h2 class="summary__title">Good sample, good clone</h2>
+                  <ul class="tips">
+                     <li><i class="ri-check-line" aria-hidden="true"></i> 10–30 seconds of steady speech</li>
+                     <li><i class="ri-check-line" aria-hidden="true"></i> Room tone beats studio silence</li>
+                     <li><i class="ri-close-line" aria-hidden="true"></i> No music, no second speaker</li>
+                     <li><i class="ri-close-line" aria-hidden="true"></i> No shouty or whispered takes</li>
+                  </ul>
+
+                  <div class="summary__rows">
+                     <div class="summary__row"><span>Voice slots</span><strong data-voice-slots>— / —</strong></div>
+                     <div class="summary__row"><span>Plan</span><strong data-user-plan>Creator plan</strong></div>
+                     <div class="summary__row"><span>Sample store</span><strong>This browser</strong></div>
+                  </div>
+                  <div class="meter" data-voice-meter style="--v: 0%"><i></i></div>
+                  <p class="summary__meta" data-voice-slots-note>Every cloned voice takes one slot on your plan.</p>
+
+                  <div class="summary__cta">
+                     <a href="payments.html" class="btn btn--soft btn--sm">More slots</a>
+                     <a href="create.html" class="btn btn--ghost btn--sm">Cast in a podcast</a>
+                  </div>
+
+                  <p class="summary__hint">Stock voices — Nova, Atlas, Juno and the rest — are always available. Cloned voices join them in the cast step.</p>
+               </aside>
+            </div>
+
+            <!--==================== LIBRARY ====================-->
+            <section class="library" aria-labelledby="library-title">
+               <div class="panel__head library__head">
+                  <div>
+                     <h2 class="panel__title" id="library-title">Your cloned voices</h2>
+                     <p class="panel__sub">Named, saved and ready to cast. Play one to hear the sample it was built from.</p>
+                  </div>
+                  <span class="chip chip--plain" data-voice-count>0 voices</span>
+               </div>
+
+               <div class="clone-grid" id="clone-grid"></div>
+
+               <div class="clone-empty" id="clone-empty">
+                  <i class="ri-user-voice-line" aria-hidden="true"></i>
+                  <h3>No cloned voices yet</h3>
+                  <p>Record or upload a sample above and name it. Your first voice takes about thirty seconds.</p>
+                  <button class="btn btn--ink btn--sm" type="button" data-scroll-target="#clone-wizard">
+                     <i class="ri-mic-line" aria-hidden="true"></i> Capture a sample
+                  </button>
+               </div>
+            </section>
+         </div>
+      </main>
+
+      <!--==================== APP FOOTER ====================-->
+      <footer class="app-footer">
+         <div class="container-app app-footer__in">
+            <p>© 2026 Voxa Labs, Inc. — demo studio</p>
+            <nav class="app-footer__links" aria-label="Footer">
+               <a href="index.html">Home</a>
+               <a href="dashboard.html">Dashboard</a>
+               <a href="voices.html">Voices</a>
+               <a href="gallery.html">Gallery</a>
+               <a href="payments.html">Billing</a>
+               <a href="oauth.html" data-signout>Sign out</a>
+            </nav>
+         </div>
+      </footer>
+
+      <!--==================== TRAINING MODAL ====================-->
+      <div class="modal" id="clone-modal" role="dialog" aria-modal="true" aria-labelledby="clone-modal-title" aria-hidden="true">
+         <div class="modal__card render-card">
+            <div class="modal__head">
+               <div>
+                  <h2 class="modal__title" id="clone-modal-title">Building your voice</h2>
+                  <p class="modal__sub">Four quick passes. This demo takes a few seconds.</p>
+               </div>
+               <button class="icon-btn modal__close" type="button" data-close-modal aria-label="Close">
+                  <i class="ri-close-line" aria-hidden="true"></i>
+               </button>
+            </div>
+
+            <div id="clone-loading">
+               <div class="render-stages">
+                  <div class="render-stage" data-clone-stage><i class="ri-loader-4-line" aria-hidden="true"></i> Checking the sample</div>
+                  <div class="render-stage" data-clone-stage><i class="ri-loader-4-line" aria-hidden="true"></i> Removing background noise</div>
+                  <div class="render-stage" data-clone-stage><i class="ri-loader-4-line" aria-hidden="true"></i> Modelling pitch and pacing</div>
+                  <div class="render-stage" data-clone-stage><i class="ri-loader-4-line" aria-hidden="true"></i> Naming it in your library</div>
+               </div>
+               <div class="render-bar"><i id="clone-bar"></i></div>
+               <p class="form-note">Keep this tab open. The finished voice appears in your library and in the cast list.</p>
+            </div>
+
+            <div class="render-success" id="clone-success">
+               <div class="cover cover--wave c-mint" id="clone-success-cover" aria-hidden="true"></div>
+               <h3 class="render-success__title" id="clone-success-name">New voice</h3>
+               <p class="render-success__meta" id="clone-success-meta">Recorded · 0:18</p>
+
+               <div class="render-success__actions">
+                  <a class="btn btn--ink" href="create.html"><i class="ri-mic-line" aria-hidden="true"></i> Use in a podcast</a>
+                  <button class="btn btn--ghost" type="button" id="clone-another">
+                     <i class="ri-add-line" aria-hidden="true"></i> Clone another
+                  </button>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <!--==================== RENAME MODAL ====================-->
+      <div class="modal" id="voice-edit-modal" role="dialog" aria-modal="true" aria-labelledby="voice-edit-title" aria-hidden="true">
+         <div class="modal__card">
+            <div class="modal__head">
+               <div>
+                  <h2 class="modal__title" id="voice-edit-title">Rename voice</h2>
+                  <p class="modal__sub">Update the name and how it is filed. The sample stays the same.</p>
+               </div>
+               <button class="icon-btn modal__close" type="button" data-close-modal aria-label="Close">
+                  <i class="ri-close-line" aria-hidden="true"></i>
+               </button>
+            </div>
+
+            <div class="field">
+               <label class="field__label" for="edit-name">Voice name <small>2–40 chars</small></label>
+               <input class="input" id="edit-name" type="text" maxlength="40" autocomplete="off">
+               <p class="field__error">Give this voice a name (2+ characters, not already used).</p>
+            </div>
+
+            <div class="field-grid">
+               <div class="field">
+                  <label class="field__label" for="edit-language">Language</label>
+                  <div class="select-wrap">
+                     <select class="select" id="edit-language">
+                        <option value="English (US)">English (US)</option>
+                        <option value="English (UK)">English (UK)</option>
+                        <option value="English (AU)">English (AU)</option>
+                        <option value="Spanish">Spanish</option>
+                        <option value="French">French</option>
+                        <option value="German">German</option>
+                        <option value="Portuguese">Portuguese</option>
+                        <option value="Japanese">Japanese</option>
+                     </select>
+                     <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+                  </div>
+               </div>
+
+               <div class="field">
+                  <label class="field__label" for="edit-category">Best for</label>
+                  <div class="select-wrap">
+                     <select class="select" id="edit-category">
+                        <option value="Narration">Narration</option>
+                        <option value="Podcast">Podcast</option>
+                        <option value="Commercial">Commercial</option>
+                        <option value="Character">Character</option>
+                     </select>
+                     <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+                  </div>
+               </div>
+            </div>
+
+            <div class="modal__actions">
+               <button class="btn btn--ghost btn--sm" type="button" data-close-modal>Cancel</button>
+               <button class="btn btn--ink btn--sm" type="button" id="voice-edit-save">Save changes</button>
+            </div>
+         </div>
+      </div>
+
+      <!--==================== DELETE MODAL ====================-->
+      <div class="modal" id="voice-delete-modal" role="dialog" aria-modal="true" aria-labelledby="voice-delete-title" aria-hidden="true">
+         <div class="modal__card">
+            <div class="modal__head">
+               <div>
+                  <h2 class="modal__title" id="voice-delete-title">Delete this voice?</h2>
+                  <p class="modal__sub">The model and its sample are removed from this browser. Episodes already rendered keep their audio.</p>
+               </div>
+               <button class="icon-btn modal__close" type="button" data-close-modal aria-label="Close">
+                  <i class="ri-close-line" aria-hidden="true"></i>
+               </button>
+            </div>
+
+            <div class="modal__summary">
+               <div class="modal__summary-row"><span>Voice</span><strong data-delete-name>—</strong></div>
+               <div class="modal__summary-row"><span>Sample</span><strong data-delete-sample>—</strong></div>
+               <div class="modal__summary-row"><span>Created</span><strong data-delete-created>—</strong></div>
+            </div>
+
+            <div class="modal__actions">
+               <button class="btn btn--ghost btn--sm" type="button" data-close-modal>Keep it</button>
+               <button class="btn btn--danger btn--sm" type="button" id="voice-delete-confirm">
+                  <i class="ri-delete-bin-line" aria-hidden="true"></i> Delete voice
+               </button>
+            </div>
+         </div>
+      </div>
+
+      <script src="js/app.js"></script>
+   </body>
+</html>

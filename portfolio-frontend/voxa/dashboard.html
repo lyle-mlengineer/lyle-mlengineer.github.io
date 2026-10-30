@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="description" content="Your Voxa studio dashboard — episodes, renders, plan usage and voice casts.">
+      <title>Dashboard — Voxa</title>
+
+      <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+
+      <!--=============== REMIX ICONS ===============-->
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css">
+
+      <!--=============== CSS ===============-->
+      <link rel="stylesheet" href="css/styles.css">
+      <link rel="stylesheet" href="css/app.css">
+   </head>
+
+   <body class="app-body">
+      <a href="#main" class="skip-link">Skip to content</a>
+
+      <!--==================== APP HEADER ====================-->
+      <header class="app-header">
+         <div class="container-app app-nav">
+            <a href="index.html" class="app-logo" aria-label="Voxa home">
+               <span class="nav__mark" aria-hidden="true"><i></i><i></i><i></i></span>
+               voxa
+            </a>
+
+            <nav class="app-links" aria-label="Studio">
+               <a href="dashboard.html" class="is-active"><i class="ri-dashboard-3-line" aria-hidden="true"></i> Dashboard</a>
+               <a href="voices.html"><i class="ri-user-voice-line" aria-hidden="true"></i> Voices</a>
+               <a href="gallery.html"><i class="ri-album-line" aria-hidden="true"></i> Gallery</a>
+               <a href="create.html"><i class="ri-mic-line" aria-hidden="true"></i> Create</a>
+               <a href="payments.html"><i class="ri-bank-card-line" aria-hidden="true"></i> Billing</a>
+            </nav>
+
+            <div class="app-actions">
+               <a href="create.html" class="btn btn--ink app-new"><i class="ri-add-line" aria-hidden="true"></i> New podcast</a>
+
+               <div class="user-menu">
+                  <button class="user-chip" type="button" id="account-toggle" aria-expanded="false" aria-controls="account-menu">
+                     <span class="avatar avatar--user" data-user-initials aria-hidden="true">MC</span>
+                     <span class="user-chip__text">
+                        <strong data-user-name>Maya Chen</strong>
+                        <small data-user-plan>Creator plan</small>
+                     </span>
+                     <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+                  </button>
+
+                  <div class="account-menu" id="account-menu">
+                     <div class="account-menu__head">
+                        <strong data-user-name>Maya Chen</strong>
+                        <span data-user-email>maya@studio.fm</span>
+                     </div>
+                     <a href="dashboard.html"><i class="ri-dashboard-3-line" aria-hidden="true"></i> Dashboard</a>
+                     <a href="voices.html"><i class="ri-user-voice-line" aria-hidden="true"></i> My voices</a>
+                     <a href="gallery.html"><i class="ri-album-line" aria-hidden="true"></i> My gallery</a>
+                     <a href="payments.html"><i class="ri-bank-card-line" aria-hidden="true"></i> Billing &amp; plans</a>
+                     <div class="account-menu__sep"></div>
+                     <a href="oauth.html" data-signout><i class="ri-logout-box-r-line" aria-hidden="true"></i> Sign out</a>
+                  </div>
+               </div>
+
+               <button class="app-burger" type="button" id="app-menu-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="app-mobile-nav">
+                  <i class="ri-menu-3-line" aria-hidden="true"></i>
+               </button>
+            </div>
+         </div>
+
+         <nav class="app-mobile-nav" id="app-mobile-nav" aria-label="Studio menu" hidden>
+            <a href="dashboard.html" class="is-active"><i class="ri-dashboard-3-line" aria-hidden="true"></i> Dashboard</a>
+            <a href="voices.html"><i class="ri-user-voice-line" aria-hidden="true"></i> Voices</a>
+            <a href="gallery.html"><i class="ri-album-line" aria-hidden="true"></i> Gallery</a>
+            <a href="create.html"><i class="ri-mic-line" aria-hidden="true"></i> Create</a>
+            <a href="payments.html"><i class="ri-bank-card-line" aria-hidden="true"></i> Billing</a>
+            <a href="oauth.html" data-signout><i class="ri-logout-box-r-line" aria-hidden="true"></i> Sign out</a>
+            <a href="create.html" class="app-mobile-nav__new"><i class="ri-add-line" aria-hidden="true"></i> New podcast</a>
+         </nav>
+      </header>
+
+      <!--==================== MAIN ====================-->
+      <main class="app-main" id="main">
+         <div class="container-app">
+            <header class="page-head">
+               <div>
+                  <p class="app-eyebrow">Studio overview</p>
+                  <h1 class="page-head__title">Welcome back, <span data-user-first>Maya</span>.</h1>
+                  <p class="page-head__sub">Here’s what’s moving in your studio this week. Two renders are queued and one draft is waiting for a second pass.</p>
+               </div>
+
+               <div class="page-head__actions">
+                  <a href="gallery.html" class="btn btn--ghost btn--sm"><i class="ri-album-line" aria-hidden="true"></i> Gallery</a>
+                  <a href="create.html" class="btn btn--ink btn--sm"><i class="ri-sparkling-2-line" aria-hidden="true"></i> New podcast</a>
+               </div>
+            </header>
+
+            <!--==================== STATS ====================-->
+            <section class="stats" aria-label="Studio statistics">
+               <article class="stat">
+                  <div class="stat__top">
+                     <span class="stat__icon stat__icon--green"><i class="ri-mic-2-line" aria-hidden="true"></i></span>
+                     <span class="stat__label">Episodes</span>
+                  </div>
+                  <p class="stat__value" data-stat-episodes>12</p>
+                  <p class="stat__meta">3 published this month · 1 draft</p>
+               </article>
+
+               <article class="stat">
+                  <div class="stat__top">
+                     <span class="stat__icon stat__icon--clay"><i class="ri-timer-flash-line" aria-hidden="true"></i></span>
+                     <span class="stat__label">Rendered</span>
+                  </div>
+                  <p class="stat__value">42<span class="stat__meta"> min</span></p>
+                  <div class="meter" style="--v: 70%"><i></i></div>
+                  <p class="stat__meta">70% of your 60 minute Creator allowance</p>
+               </article>
+
+               <article class="stat">
+                  <div class="stat__top">
+                     <span class="stat__icon stat__icon--blue"><i class="ri-user-voice-line" aria-hidden="true"></i></span>
+                     <span class="stat__label">Voices cast</span>
+                  </div>
+                  <p class="stat__value" data-stat-voices>6</p>
+                  <p class="stat__meta" data-stat-voices-meta>3 cloned · 3 stock voices</p>
+               </article>
+
+               <article class="stat">
+                  <div class="stat__top">
+                     <span class="stat__icon stat__icon--sun"><i class="ri-flashlight-line" aria-hidden="true"></i></span>
+                     <span class="stat__label">Avg. render</span>
+                  </div>
+                  <p class="stat__value">2m 14s</p>
+                  <p class="stat__meta">18 seconds faster than September</p>
+               </article>
+            </section>
+
+            <!--==================== DASHBOARD GRID ====================-->
+            <div class="dash-grid">
+               <div class="dash-grid__main">
+                  <!-- Recent episodes -->
+                  <section class="panel" aria-labelledby="recent-title">
+                     <div class="panel__head">
+                        <div>
+                           <h2 class="panel__title" id="recent-title">Recent episodes</h2>
+                           <p class="panel__sub">Everything you have rendered, newest first.</p>
+                        </div>
+                        <a href="gallery.html" class="panel__link">View gallery <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
+                     </div>
+
+                     <div class="ep-list" id="dash-episodes">
+                        <article class="ep">
+                           <div class="cover cover--rings c-sun ep__cover" aria-hidden="true">
+                              <span class="cover__rings"></span>
+                              <span class="cover__core"></span>
+                           </div>
+                           <div class="ep__body">
+                              <h3 class="ep__title">Midnight Diner Notes</h3>
+                              <p class="ep__meta">
+                                 <span><i class="ri-album-line" aria-hidden="true"></i> Narrative · 22:40</span>
+                                 <span><i class="ri-time-line" aria-hidden="true"></i> Today</span>
+                              </p>
+                           </div>
+                           <div class="ep__right">
+                              <span class="chip chip--ready">Ready</span>
+                              <button class="play-btn js-speak"
+                                      type="button"
+                                      data-text="The diner never closes, and neither does the argument at table nine."
+                                      aria-label="Play Midnight Diner Notes">
+                                 <i class="ri-play-fill" aria-hidden="true"></i>
+                              </button>
+                           </div>
+                        </article>
+
+                        <article class="ep">
+                           <div class="cover cover--rings c-lilac ep__cover" aria-hidden="true">
+                              <span class="cover__rings"></span>
+                              <span class="cover__core"></span>
+                           </div>
+                           <div class="ep__body">
+                              <h3 class="ep__title">Signal &amp; Noise</h3>
+                              <p class="ep__meta">
+                                 <span><i class="ri-album-line" aria-hidden="true"></i> Sci-Fi · 24:10</span>
+                                 <span><i class="ri-time-line" aria-hidden="true"></i> Oct 27</span>
+                              </p>
+                           </div>
+                           <div class="ep__right">
+                              <span class="chip chip--ready">Ready</span>
+                              <button class="play-btn js-speak"
+                                      type="button"
+                                      data-text="Somewhere past the static, a voice is repeating your name. It has been waiting a very long time."
+                                      aria-label="Play Signal and Noise">
+                                 <i class="ri-play-fill" aria-hidden="true"></i>
+                              </button>
+                           </div>
+                        </article>
+
+                        <article class="ep">
+                           <div class="cover cover--wave c-mint ep__cover" aria-hidden="true">
+                              <span class="cover__line"></span>
+                              <span class="cover__wave">
+                                 <i style="--h: 34%"></i><i style="--h: 62%"></i><i style="--h: 88%"></i><i style="--h: 46%"></i><i style="--h: 72%"></i><i style="--h: 96%"></i>
+                              </span>
+                           </div>
+                           <div class="ep__body">
+                              <h3 class="ep__title">Two Chairs, One Question</h3>
+                              <p class="ep__meta">
+                                 <span><i class="ri-album-line" aria-hidden="true"></i> Interview · 31:05</span>
+                                 <span><i class="ri-time-line" aria-hidden="true"></i> Oct 26</span>
+                              </p>
+                           </div>
+                           <div class="ep__right">
+                              <span class="chip chip--ready">Ready</span>
+                              <button class="play-btn js-speak"
+                                      type="button"
+                                      data-text="What would you do with a year that nobody expected you to survive? That is the question we asked every guest."
+                                      aria-label="Play Two Chairs, One Question">
+                                 <i class="ri-play-fill" aria-hidden="true"></i>
+                              </button>
+                           </div>
+                        </article>
+
+                        <article class="ep">
+                           <div class="cover cover--disc c-clay ep__cover" aria-hidden="true">
+                              <span class="cover__disc"></span>
+                              <span class="cover__letter">L</span>
+                           </div>
+                           <div class="ep__body">
+                              <h3 class="ep__title">Laugh Track (rough cut)</h3>
+                              <p class="ep__meta">
+                                 <span><i class="ri-album-line" aria-hidden="true"></i> Comedy · 22:47</span>
+                                 <span><i class="ri-time-line" aria-hidden="true"></i> Draft · edited Oct 25</span>
+                              </p>
+                           </div>
+                           <div class="ep__right">
+                              <span class="chip chip--draft">Draft</span>
+                              <button class="play-btn js-speak"
+                                      type="button"
+                                      data-text="Nobody laughs at the first take. That is why we call it a rough cut and not a cry for help."
+                                      aria-label="Play Laugh Track draft">
+                                 <i class="ri-play-fill" aria-hidden="true"></i>
+                              </button>
+                           </div>
+                        </article>
+
+                        <article class="ep">
+                           <div class="cover cover--grid c-blue ep__cover" aria-hidden="true">
+                              <span class="cover__grid"></span>
+                              <span class="cover__core"></span>
+                           </div>
+                           <div class="ep__body">
+                              <h3 class="ep__title">Dust &amp; Data</h3>
+                              <p class="ep__meta">
+                                 <span><i class="ri-album-line" aria-hidden="true"></i> Documentary · 27:32</span>
+                                 <span><i class="ri-time-line" aria-hidden="true"></i> Rendering now</span>
+                              </p>
+                           </div>
+                           <div class="ep__right">
+                              <span class="chip chip--render">Processing</span>
+                              <button class="play-btn js-speak"
+                                      type="button"
+                                      data-text="The archive has been digitised, but nobody agrees on what it remembers."
+                                      aria-label="Preview Dust and Data">
+                                 <i class="ri-play-fill" aria-hidden="true"></i>
+                              </button>
+                           </div>
+                        </article>
+                     </div>
+                  </section>
+
+                  <!-- Weekly chart -->
+                  <section class="panel" aria-labelledby="chart-title">
+                     <div class="panel__head">
+                        <div>
+                           <h2 class="panel__title" id="chart-title">Renders this week</h2>
+                           <p class="panel__sub">Monday to Sunday, in minutes of finished audio.</p>
+                        </div>
+                        <span class="chip chip--plain"><i class="ri-arrow-up-line" aria-hidden="true"></i> 14% vs last week</span>
+                     </div>
+
+                     <div class="panel__body">
+                        <div class="chart" role="img" aria-label="Bar chart of renders per day: Monday 46%, Tuesday 58%, Wednesday 74%, Thursday 92%, Friday 68%, Saturday 34%, Sunday 22%">
+                           <div class="chart__col"><span class="chart__bar" style="--v: 46%"></span><span class="chart__label">Mon</span></div>
+                           <div class="chart__col"><span class="chart__bar" style="--v: 58%"></span><span class="chart__label">Tue</span></div>
+                           <div class="chart__col"><span class="chart__bar is-now" style="--v: 74%"></span><span class="chart__label">Wed</span></div>
+                           <div class="chart__col"><span class="chart__bar" style="--v: 92%"></span><span class="chart__label">Thu</span></div>
+                           <div class="chart__col"><span class="chart__bar" style="--v: 68%"></span><span class="chart__label">Fri</span></div>
+                           <div class="chart__col"><span class="chart__bar" style="--v: 34%"></span><span class="chart__label">Sat</span></div>
+                           <div class="chart__col"><span class="chart__bar" style="--v: 22%"></span><span class="chart__label">Sun</span></div>
+                        </div>
+
+                        <div class="chart__foot">
+                           <span>18 renders · 42 min of audio finished</span>
+                           <span class="chart__legend chart__legend--now">Today</span>
+                        </div>
+                     </div>
+                  </section>
+               </div>
+
+               <!-- Side column -->
+               <aside class="dash-grid__side">
+                  <!-- Plan -->
+                  <section class="panel" aria-labelledby="plan-title">
+                     <div class="panel__head">
+                        <h2 class="panel__title" id="plan-title">Your plan</h2>
+                        <a href="payments.html" class="panel__link">Manage <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
+                     </div>
+
+                     <div class="panel__body">
+                        <div class="usage">
+                           <div class="usage__top">
+                              <p class="usage__plan"><i class="ri-vip-crown-2-line" aria-hidden="true"></i> <span data-user-plan>Creator plan</span></p>
+                              <span class="usage__price">$24 / mo</span>
+                           </div>
+
+                           <div class="usage__numbers">
+                              <p class="usage__big">42 <small>/ 60 min</small></p>
+                              <span class="chip chip--ready">Active</span>
+                           </div>
+                           <div class="meter" style="--v: 70%"><i></i></div>
+
+                           <p class="usage__note">Renews Nov 30, 2026 · 18 minutes left this cycle. Overage is billed at $0.60 per minute.</p>
+
+                           <div class="usage__actions">
+                              <a href="payments.html" class="btn btn--soft btn--sm">Upgrade plan</a>
+                              <a href="payments.html#invoices" class="btn btn--ghost btn--sm">Invoices</a>
+                           </div>
+                        </div>
+                     </div>
+                  </section>
+
+                  <!-- Mini gallery -->
+                  <section class="panel" aria-labelledby="fresh-title">
+                     <div class="panel__head">
+                        <h2 class="panel__title" id="fresh-title">Fresh from the studio</h2>
+                        <a href="gallery.html" class="panel__link">All <i class="ri-arrow-right-line" aria-hidden="true"></i></a>
+                     </div>
+
+                     <div class="panel__body">
+                        <div class="mini-grid" id="dash-mini-grid">
+                           <a href="gallery.html" class="mini">
+                              <div class="cover cover--rings c-sun" aria-hidden="true">
+                                 <span class="cover__rings"></span>
+                                 <span class="cover__core"></span>
+                              </div>
+                              <span class="mini__title">Midnight Diner Notes</span>
+                              <span class="mini__meta">Maya Chen · 22:40</span>
+                           </a>
+
+                           <a href="gallery.html" class="mini">
+                              <div class="cover cover--wave c-mint" aria-hidden="true">
+                                 <span class="cover__line"></span>
+                                 <span class="cover__wave">
+                                    <i style="--h: 38%"></i><i style="--h: 74%"></i><i style="--h: 96%"></i><i style="--h: 52%"></i><i style="--h: 66%"></i><i style="--h: 84%"></i>
+                                 </span>
+                              </div>
+                              <span class="mini__title">Two Chairs, One Question</span>
+                              <span class="mini__meta">Iris Bell · 31:05</span>
+                           </a>
+
+                           <a href="gallery.html" class="mini">
+                              <div class="cover cover--rings c-lilac" aria-hidden="true">
+                                 <span class="cover__rings"></span>
+                                 <span class="cover__core"></span>
+                              </div>
+                              <span class="mini__title">Signal &amp; Noise</span>
+                              <span class="mini__meta">Atlas Studio · 24:10</span>
+                           </a>
+
+                           <a href="gallery.html" class="mini">
+                              <div class="cover cover--disc c-clay" aria-hidden="true">
+                                 <span class="cover__disc"></span>
+                                 <span class="cover__letter">L</span>
+                              </div>
+                              <span class="mini__title">Laugh Track</span>
+                              <span class="mini__meta">Dev Patel · 22:47</span>
+                           </a>
+                        </div>
+                     </div>
+                  </section>
+               </aside>
+            </div>
+         </div>
+      </main>
+
+      <!--==================== APP FOOTER ====================-->
+      <footer class="app-footer">
+         <div class="container-app app-footer__in">
+            <p>© 2026 Voxa Labs, Inc. — demo studio</p>
+            <nav class="app-footer__links" aria-label="Footer">
+               <a href="index.html">Home</a>
+               <a href="voices.html">Voices</a>
+               <a href="gallery.html">Gallery</a>
+               <a href="create.html">Create</a>
+               <a href="payments.html">Billing</a>
+               <a href="oauth.html" data-signout>Sign out</a>
+            </nav>
+         </div>
+      </footer>
+
+      <script src="js/app.js"></script>
+   </body>
+</html>

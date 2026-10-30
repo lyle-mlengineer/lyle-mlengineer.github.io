@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="description" content="Build an AI podcast with Voxa — story, dialogue, cast and render in four steps.">
+      <title>Create — Voxa</title>
+
+      <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+
+      <!--=============== REMIX ICONS ===============-->
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css">
+
+      <!--=============== CSS ===============-->
+      <link rel="stylesheet" href="css/styles.css">
+      <link rel="stylesheet" href="css/app.css">
+   </head>
+
+   <body class="app-body">
+      <a href="#main" class="skip-link">Skip to content</a>
+
+      <!--==================== APP HEADER ====================-->
+      <header class="app-header">
+         <div class="container-app app-nav">
+            <a href="index.html" class="app-logo" aria-label="Voxa home">
+               <span class="nav__mark" aria-hidden="true"><i></i><i></i><i></i></span>
+               voxa
+            </a>
+
+            <nav class="app-links" aria-label="Studio">
+               <a href="dashboard.html"><i class="ri-dashboard-3-line" aria-hidden="true"></i> Dashboard</a>
+               <a href="voices.html"><i class="ri-user-voice-line" aria-hidden="true"></i> Voices</a>
+               <a href="gallery.html"><i class="ri-album-line" aria-hidden="true"></i> Gallery</a>
+               <a href="create.html" class="is-active"><i class="ri-mic-line" aria-hidden="true"></i> Create</a>
+               <a href="payments.html"><i class="ri-bank-card-line" aria-hidden="true"></i> Billing</a>
+            </nav>
+
+            <div class="app-actions">
+               <a href="create.html" class="btn btn--ink app-new"><i class="ri-add-line" aria-hidden="true"></i> New podcast</a>
+
+               <div class="user-menu">
+                  <button class="user-chip" type="button" id="account-toggle" aria-expanded="false" aria-controls="account-menu">
+                     <span class="avatar avatar--user" data-user-initials aria-hidden="true">MC</span>
+                     <span class="user-chip__text">
+                        <strong data-user-name>Maya Chen</strong>
+                        <small data-user-plan>Creator plan</small>
+                     </span>
+                     <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+                  </button>
+
+                  <div class="account-menu" id="account-menu">
+                     <div class="account-menu__head">
+                        <strong data-user-name>Maya Chen</strong>
+                        <span data-user-email>maya@studio.fm</span>
+                     </div>
+                     <a href="dashboard.html"><i class="ri-dashboard-3-line" aria-hidden="true"></i> Dashboard</a>
+                     <a href="voices.html"><i class="ri-user-voice-line" aria-hidden="true"></i> My voices</a>
+                     <a href="gallery.html"><i class="ri-album-line" aria-hidden="true"></i> My gallery</a>
+                     <a href="payments.html"><i class="ri-bank-card-line" aria-hidden="true"></i> Billing &amp; plans</a>
+                     <div class="account-menu__sep"></div>
+                     <a href="oauth.html" data-signout><i class="ri-logout-box-r-line" aria-hidden="true"></i> Sign out</a>
+                  </div>
+               </div>
+
+               <button class="app-burger" type="button" id="app-menu-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="app-mobile-nav">
+                  <i class="ri-menu-3-line" aria-hidden="true"></i>
+               </button>
+            </div>
+         </div>
+
+         <nav class="app-mobile-nav" id="app-mobile-nav" aria-label="Studio menu" hidden>
+            <a href="dashboard.html"><i class="ri-dashboard-3-line" aria-hidden="true"></i> Dashboard</a>
+            <a href="voices.html"><i class="ri-user-voice-line" aria-hidden="true"></i> Voices</a>
+            <a href="gallery.html"><i class="ri-album-line" aria-hidden="true"></i> Gallery</a>
+            <a href="create.html" class="is-active"><i class="ri-mic-line" aria-hidden="true"></i> Create</a>
+            <a href="payments.html"><i class="ri-bank-card-line" aria-hidden="true"></i> Billing</a>
+            <a href="oauth.html" data-signout><i class="ri-logout-box-r-line" aria-hidden="true"></i> Sign out</a>
+            <a href="create.html" class="app-mobile-nav__new"><i class="ri-add-line" aria-hidden="true"></i> New podcast</a>
+         </nav>
+      </header>
+
+      <!--==================== MAIN ====================-->
+      <main class="app-main" id="main">
+         <div class="container-app">
+            <header class="page-head">
+               <div>
+                  <p class="app-eyebrow">Studio</p>
+                  <h1 class="page-head__title">Build a podcast.</h1>
+                  <p class="page-head__sub">Write the scene, shape the dialogue, cast the voices. Four steps and one render stand between you and a finished episode.</p>
+               </div>
+
+               <div class="page-head__actions">
+                  <a href="dashboard.html" class="btn btn--ghost btn--sm"><i class="ri-arrow-left-line" aria-hidden="true"></i> Back to studio</a>
+                  <button class="btn btn--soft btn--sm" type="button" id="save-draft"><i class="ri-save-3-line" aria-hidden="true"></i> Save draft</button>
+               </div>
+            </header>
+
+            <div class="wizard-layout">
+               <!--==================== WIZARD MAIN ====================-->
+               <div class="wizard-main" id="wizard">
+                  <nav class="stepper" aria-label="Creation steps">
+                     <button class="wstep is-active" type="button" data-step="1" aria-current="step">
+                        <span class="wstep__num">1</span><span>Story</span>
+                     </button>
+                     <span class="wstep__line" aria-hidden="true"></span>
+                     <button class="wstep" type="button" data-step="2">
+                        <span class="wstep__num">2</span><span>Dialogue</span>
+                     </button>
+                     <span class="wstep__line" aria-hidden="true"></span>
+                     <button class="wstep" type="button" data-step="3">
+                        <span class="wstep__num">3</span><span>Cast</span>
+                     </button>
+                     <span class="wstep__line" aria-hidden="true"></span>
+                     <button class="wstep" type="button" data-step="4">
+                        <span class="wstep__num">4</span><span>Review</span>
+                     </button>
+                  </nav>
+
+                  <div class="wizard-card">
+                     <!--=============== STEP 1: STORY ===============-->
+                     <section class="step-pane is-active" data-step-pane="1" aria-label="Step 1: Story">
+                        <div class="pane__head">
+                           <div>
+                              <h2 class="pane__title">Set the scene</h2>
+                              <p class="pane__sub">Give the studio the essentials. Voxa uses these details for pacing, cover art and the episode blurb.</p>
+                           </div>
+                           <span class="pane__badge"><i class="ri-asterisk" aria-hidden="true"></i> Required</span>
+                        </div>
+
+                        <div class="field">
+                           <label class="field__label" for="pod-title">Episode title <small>3–70 chars</small></label>
+                           <input class="input" id="pod-title" type="text" maxlength="70" placeholder="e.g. The Last Record Shop" autocomplete="off">
+                           <p class="field__hint">Short and evocative works best — this becomes the gallery headline.</p>
+                           <p class="field__error">Give your episode a title (3+ characters).</p>
+                        </div>
+
+                        <div class="field-grid">
+                           <div class="field">
+                              <label class="field__label" for="pod-genre">Genre</label>
+                              <div class="select-wrap">
+                                 <select class="select" id="pod-genre">
+                                    <option value="narrative">Narrative</option>
+                                    <option value="interview">Interview</option>
+                                    <option value="comedy">Comedy</option>
+                                    <option value="documentary">Documentary</option>
+                                    <option value="scifi">Sci-Fi</option>
+                                    <option value="education">Education</option>
+                                 </select>
+                                 <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+                              </div>
+                           </div>
+
+                           <div class="field">
+                              <label class="field__label" for="pod-language">Language</label>
+                              <div class="select-wrap">
+                                 <select class="select" id="pod-language">
+                                    <option value="English (US)">English (US)</option>
+                                    <option value="English (UK)">English (UK)</option>
+                                    <option value="Spanish">Spanish</option>
+                                    <option value="French">French</option>
+                                    <option value="German">German</option>
+                                    <option value="Portuguese">Portuguese</option>
+                                 </select>
+                                 <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+                              </div>
+                           </div>
+                        </div>
+
+                        <div class="field">
+                           <label class="field__label" for="pod-scene">Scene description <small>15+ chars</small></label>
+                           <textarea class="textarea" id="pod-scene" rows="3" placeholder="Where are we? Time, place, weather, mood."></textarea>
+                           <p class="field__hint">Sets the atmosphere for pacing and the ambient bed.</p>
+                           <p class="field__error">Set the scene in at least 15 characters.</p>
+                        </div>
+
+                        <div class="field">
+                           <label class="field__label" for="pod-scenario">Scenario description <small>30+ chars</small></label>
+                           <textarea class="textarea" id="pod-scenario" rows="4" placeholder="What happens in this episode? Who wants what, and what gets in the way?"></textarea>
+                           <p class="field__error">Describe what happens in at least 30 characters.</p>
+                        </div>
+
+                        <div class="pane__foot">
+                           <button class="btn btn--ghost btn--sm" type="button" id="load-example">
+                              <i class="ri-magic-line" aria-hidden="true"></i> Use an example
+                           </button>
+                           <div class="pane__foot-right">
+                              <button class="btn btn--ink btn--sm" type="button" data-next>
+                                 Next: dialogue <i class="ri-arrow-right-line" aria-hidden="true"></i>
+                              </button>
+                           </div>
+                        </div>
+                     </section>
+
+                     <!--=============== STEP 2: DIALOGUE ===============-->
+                     <section class="step-pane" data-step-pane="2" aria-label="Step 2: Dialogue">
+                        <div class="pane__head">
+                           <div>
+                              <h2 class="pane__title">Shape the dialogue</h2>
+                              <p class="pane__sub">Each line is one chat bubble. Pick a speaker, write what they say, then tune how they say it.</p>
+                           </div>
+                           <span class="pane__badge"><i class="ri-chat-3-line" aria-hidden="true"></i> Chat style</span>
+                        </div>
+
+                        <div class="script" id="script-lines"></div>
+
+                        <div class="script-empty" id="script-empty">
+                           <i class="ri-chat-new-line" aria-hidden="true"></i>
+                           <h3>No lines yet</h3>
+                           <p>Add the first line and the conversation can start. You can always reorder or delete lines later.</p>
+                           <button class="btn btn--ink btn--sm" type="button" id="empty-add"><i class="ri-add-line" aria-hidden="true"></i> Add first line</button>
+                        </div>
+
+                        <button class="add-line" type="button" id="add-line">
+                           <i class="ri-add-circle-line" aria-hidden="true"></i> Add dialogue line
+                        </button>
+
+                        <div class="script-meta">
+                           <span><i class="ri-chat-3-line" aria-hidden="true"></i> <span id="script-meta-lines">0 lines</span></span>
+                           <span><i class="ri-file-text-line" aria-hidden="true"></i> <span id="script-meta-words">0 words</span></span>
+                           <span><i class="ri-timer-line" aria-hidden="true"></i> <span id="script-meta-runtime">No runtime yet</span></span>
+                        </div>
+
+                        <div class="pane__foot">
+                           <button class="btn btn--ghost btn--sm" type="button" data-back>
+                              <i class="ri-arrow-left-line" aria-hidden="true"></i> Back
+                           </button>
+                           <div class="pane__foot-right">
+                              <button class="btn btn--ink btn--sm" type="button" data-next>
+                                 Next: cast <i class="ri-arrow-right-line" aria-hidden="true"></i>
+                              </button>
+                           </div>
+                        </div>
+                     </section>
+
+                     <!--=============== STEP 3: CAST ===============-->
+                     <section class="step-pane" data-step-pane="3" aria-label="Step 3: Cast and mix">
+                        <div class="pane__head">
+                           <div>
+                              <h2 class="pane__title">Cast the voices</h2>
+                              <p class="pane__sub">Every speaker in your script gets a voice. Preview each one, then choose the bed and output format.</p>
+                           </div>
+                           <span class="pane__badge"><i class="ri-user-voice-line" aria-hidden="true"></i> Voices</span>
+                        </div>
+
+                        <div class="cast-list" id="cast-list"></div>
+
+                        <p class="cast-note">Want your own voice in this list? <a href="voices.html">Clone a voice</a> and it appears here.</p>
+
+                        <div class="field" style="margin-top: 1.25rem">
+                           <label class="field__label" for="music-bed">Music bed</label>
+                           <div class="select-wrap">
+                              <select class="select" id="music-bed">
+                                 <option value="warm">Warm strings</option>
+                                 <option value="none">No music bed</option>
+                                 <option value="cinematic">Cinematic drift</option>
+                                 <option value="lofi">Lo-fi keys</option>
+                                 <option value="tension">Low tension</option>
+                              </select>
+                              <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+                           </div>
+                           <p class="field__hint">Mixed 18 dB under the dialogue with a gentle fade at the end.</p>
+                        </div>
+
+                        <div class="field" style="margin-top: 1.25rem">
+                           <span class="field__label">Output format</span>
+                           <div class="format-grid">
+                              <label class="choice">
+                                 <input type="radio" name="format" value="mp3" checked>
+                                 <span class="choice__dot" aria-hidden="true"></span>
+                                 <span>
+                                    <strong>MP3 · 320 kbps</strong>
+                                    <small>Small file, great for feeds. Renders in seconds.</small>
+                                 </span>
+                              </label>
+
+                              <label class="choice">
+                                 <input type="radio" name="format" value="wav">
+                                 <span class="choice__dot" aria-hidden="true"></span>
+                                 <span>
+                                    <strong>WAV · 48 kHz</strong>
+                                    <small>Studio master for editing and broadcast.</small>
+                                 </span>
+                              </label>
+                           </div>
+                        </div>
+
+                        <div class="pane__foot">
+                           <button class="btn btn--ghost btn--sm" type="button" data-back>
+                              <i class="ri-arrow-left-line" aria-hidden="true"></i> Back
+                           </button>
+                           <div class="pane__foot-right">
+                              <button class="btn btn--ink btn--sm" type="button" data-next>
+                                 Next: review <i class="ri-arrow-right-line" aria-hidden="true"></i>
+                              </button>
+                           </div>
+                        </div>
+                     </section>
+
+                     <!--=============== STEP 4: REVIEW ===============-->
+                     <section class="step-pane" data-step-pane="4" aria-label="Step 4: Review and render">
+                        <div class="pane__head">
+                           <div>
+                              <h2 class="pane__title">Review &amp; render</h2>
+                              <p class="pane__sub">One last look. The render takes a few moments in this demo and saves straight to your gallery.</p>
+                           </div>
+                           <span class="pane__badge"><i class="ri-check-double-line" aria-hidden="true"></i> Almost there</span>
+                        </div>
+
+                        <div class="review-block">
+                           <h3>Episode</h3>
+                           <p style="margin-bottom: 0.7rem"><strong id="review-title">Untitled podcast</strong></p>
+                           <div class="review-facts">
+                              <div><span>Genre</span><strong id="review-genre">Narrative</strong></div>
+                              <div><span>Language</span><strong id="review-language">English (US)</strong></div>
+                              <div><span>Lines</span><strong id="review-lines">0</strong></div>
+                              <div><span>Cast</span><strong id="review-cast">0</strong></div>
+                              <div><span>Estimated runtime</span><strong id="review-runtime">—</strong></div>
+                              <div><span>Music</span><strong id="review-music">Warm strings</strong></div>
+                              <div><span>Format</span><strong id="review-format">MP3 · 320 kbps</strong></div>
+                           </div>
+                        </div>
+
+                        <div class="review-block">
+                           <h3>Scene</h3>
+                           <p id="review-scene">No scene description yet.</p>
+                        </div>
+
+                        <div class="review-block">
+                           <h3>Scenario</h3>
+                           <p id="review-scenario">No scenario description yet.</p>
+                        </div>
+
+                        <div class="review-block">
+                           <h3>Script preview</h3>
+                           <div class="script-preview" id="review-script"></div>
+                        </div>
+
+                        <label class="check review-check">
+                           <input type="checkbox" id="rights">
+                           <span>I have the rights to publish this episode, including any cloned voices used in it. <a href="#">Voice ethics policy</a></span>
+                        </label>
+
+                        <div class="pane__foot">
+                           <button class="btn btn--ghost btn--sm" type="button" data-back>
+                              <i class="ri-arrow-left-line" aria-hidden="true"></i> Back
+                           </button>
+                           <div class="pane__foot-right">
+                              <button class="btn btn--generate btn--sm" type="button" id="generate-btn">
+                                 <i class="ri-sparkling-2-line" aria-hidden="true"></i> Generate episode
+                              </button>
+                           </div>
+                        </div>
+                     </section>
+                  </div>
+               </div>
+
+               <!--==================== SUMMARY ====================-->
+               <aside class="summary" aria-label="Episode summary">
+                  <div class="cover cover--bars c-sun" id="summary-cover" aria-hidden="true"></div>
+
+                  <div>
+                     <h2 class="summary__title" id="summary-title">Untitled podcast</h2>
+                     <p class="summary__meta" id="summary-meta">Narrative · English (US)</p>
+                  </div>
+
+                  <div class="summary__rows">
+                     <div class="summary__row"><span>Lines</span><strong id="summary-lines">0 lines</strong></div>
+                     <div class="summary__row"><span>Cast</span><strong id="summary-cast">1 voice</strong></div>
+                     <div class="summary__row"><span>Runtime</span><strong id="summary-runtime">—</strong></div>
+                     <div class="summary__row"><span>Format</span><strong id="summary-format">MP3 · 320 kbps</strong></div>
+                  </div>
+
+                  <p class="summary__save" id="save-status">
+                     <i class="ri-cloud-line" aria-hidden="true"></i><span>Autosaves as you type</span>
+                  </p>
+
+                  <ul class="summary__steps">
+                     <li data-summary-step><i class="ri-circle-line" aria-hidden="true"></i> Story details</li>
+                     <li data-summary-step><i class="ri-circle-line" aria-hidden="true"></i> Dialogue written</li>
+                     <li data-summary-step><i class="ri-circle-line" aria-hidden="true"></i> Voices cast</li>
+                     <li data-summary-step><i class="ri-circle-line" aria-hidden="true"></i> Rights confirmed</li>
+                  </ul>
+
+                  <p class="summary__hint">Drafts stay in this browser. Finished renders appear in your gallery and on the dashboard.</p>
+               </aside>
+            </div>
+         </div>
+      </main>
+
+      <!--==================== APP FOOTER ====================-->
+      <footer class="app-footer">
+         <div class="container-app app-footer__in">
+            <p>© 2026 Voxa Labs, Inc. — demo studio</p>
+            <nav class="app-footer__links" aria-label="Footer">
+               <a href="index.html">Home</a>
+               <a href="dashboard.html">Dashboard</a>
+               <a href="voices.html">Voices</a>
+               <a href="gallery.html">Gallery</a>
+               <a href="payments.html">Billing</a>
+               <a href="oauth.html" data-signout>Sign out</a>
+            </nav>
+         </div>
+      </footer>
+
+      <!--==================== RENDER MODAL ====================-->
+      <div class="modal" id="render-modal" role="dialog" aria-modal="true" aria-labelledby="render-title" aria-hidden="true">
+         <div class="modal__card render-card">
+            <div class="modal__head">
+               <div>
+                  <h2 class="modal__title" id="render-title">Rendering your episode</h2>
+                  <p class="modal__sub">Four quick passes. This demo takes a few seconds.</p>
+               </div>
+               <button class="icon-btn modal__close" type="button" data-close-modal aria-label="Close">
+                  <i class="ri-close-line" aria-hidden="true"></i>
+               </button>
+            </div>
+
+            <div id="render-loading">
+               <div class="render-stages">
+                  <div class="render-stage" data-render-stage><i class="ri-loader-4-line" aria-hidden="true"></i> Normalising script</div>
+                  <div class="render-stage" data-render-stage><i class="ri-loader-4-line" aria-hidden="true"></i> Casting voices</div>
+                  <div class="render-stage" data-render-stage><i class="ri-loader-4-line" aria-hidden="true"></i> Mixing music bed</div>
+                  <div class="render-stage" data-render-stage><i class="ri-loader-4-line" aria-hidden="true"></i> Mastering audio</div>
+               </div>
+               <div class="render-bar"><i id="render-bar"></i></div>
+               <p class="form-note">Keep this tab open. You can replay the result straight from the gallery.</p>
+            </div>
+
+            <div class="render-success" id="render-success">
+               <div class="cover cover--bars c-sun" id="render-success-cover" aria-hidden="true"></div>
+               <h3 class="render-success__title" id="render-success-title">Your episode</h3>
+               <p class="render-success__meta" id="render-success-meta">Narrative · 0:00 · 2 voices</p>
+
+               <div class="render-success__actions">
+                  <button class="btn btn--ink" type="button" id="listen-render">
+                     <i class="ri-play-fill" aria-hidden="true"></i> Listen to preview
+                  </button>
+                  <a class="btn btn--soft" href="gallery.html"><i class="ri-album-line" aria-hidden="true"></i> Open gallery</a>
+                  <button class="btn btn--ghost" type="button" id="render-again">
+                     <i class="ri-add-line" aria-hidden="true"></i> Create another
+                  </button>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <script src="js/app.js"></script>
+   </body>
+</html>

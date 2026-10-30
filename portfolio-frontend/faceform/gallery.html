@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your gallery — Faceform</title>
+  <meta name="description" content="Every face you've generated with Faceform, in one place. Search, favourite, download or delete your synthetic portraits." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="page">
+    <header class="nav site-nav">
+        <a href="index.html" class="logo">Faceform<span>.</span></a>
+
+        <nav class="nav-links" id="navLinks">
+          <a href="product.html">Studio</a>
+          <a href="dashboard.html">Dashboard</a>
+          <a href="gallery.html" aria-current="page">Gallery</a>
+          <a href="dashboard.html#api">API</a>
+          <a href="payments.html">Credits</a>
+        </nav>
+
+        <div class="app-account">
+          <a href="payments.html" class="credits-pill">
+            <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+              <path d="M12 0c1 7 5 11 12 12-7 1-11 5-12 12-1-7-5-11-12-12C7 11 11 7 12 0z" fill="currentColor" />
+            </svg>
+            <span data-credits>4,812</span> credits
+          </a>
+          <a href="oauth.html?mode=signin" class="avatar-btn" title="Account — sign out" aria-label="Account — sign out">AL</a>
+        </div>
+
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+    </header>
+
+    <div class="hero-card app-card">
+      <section class="app-head">
+        <div>
+          <span class="eyebrow">Your library</span>
+          <h1 class="app-title">Your gallery</h1>
+          <p class="app-sub">
+            Every face you've generated, kept for 30 days. Search a prompt,
+            favourite the keepers, then download them at full resolution.
+          </p>
+        </div>
+        <div class="app-actions">
+          <a href="product.html" class="btn btn-primary">Generate a face</a>
+        </div>
+      </section>
+
+      <section class="gallery-toolbar" aria-label="Filter your gallery">
+        <label class="search-field">
+          <span class="sr-only">Search generations</span>
+          <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.8" />
+            <path d="m16.5 16.5 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+          <input type="search" id="gallerySearch" placeholder="Search by name or prompt…" autocomplete="off" />
+        </label>
+
+        <div class="filter-chips" id="galleryFilters" role="group" aria-label="Filter">
+          <button type="button" class="chip is-active" data-filter="all">All</button>
+          <button type="button" class="chip" data-filter="favourites">Favourites</button>
+          <button type="button" class="chip" data-filter="week">This week</button>
+          <button type="button" class="chip" data-filter="4:5">4:5</button>
+          <button type="button" class="chip" data-filter="1:1">1:1</button>
+          <button type="button" class="chip" data-filter="9:16">9:16</button>
+        </div>
+
+        <div class="select-wrap">
+          <label class="sr-only" for="gallerySort">Sort generations</label>
+          <select id="gallerySort">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+          </select>
+          <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+            <path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+      </section>
+
+      <div class="gallery-meta-row">
+        <p id="galleryCount" role="status" aria-live="polite">9 generations</p>
+        <p class="gallery-hint">Stored for 30 days · full commercial rights</p>
+      </div>
+
+      <div class="user-gallery" id="userGallery"></div>
+    </div>
+  </main>
+
+  <dialog class="lightbox" id="lightbox">
+    <button type="button" class="lb-close" id="lbClose" aria-label="Close preview">×</button>
+    <div class="lb-body">
+      <div class="lb-img">
+        <img id="lbImg" src="images/gallery-01.png" alt="" />
+      </div>
+      <div class="lb-side">
+        <span class="eyebrow">Generation</span>
+        <h2 id="lbName">Audrey</h2>
+        <p class="lb-prompt" id="lbPrompt"></p>
+
+        <dl class="lb-details">
+          <div><dt>Framing</dt><dd id="lbRatio">4:5</dd></div>
+          <div><dt>Resolution</dt><dd id="lbSize">1080 × 1350</dd></div>
+          <div><dt>Seed</dt><dd id="lbSeed">8841203</dd></div>
+          <div><dt>Created</dt><dd id="lbDate">Oct 30, 2026</dd></div>
+          <div><dt>Model</dt><dd>faceform-v3</dd></div>
+          <div><dt>Licence</dt><dd>Commercial</dd></div>
+        </dl>
+
+        <div class="lb-actions">
+          <a class="btn btn-primary" id="lbDownload" download>Download PNG</a>
+          <button type="button" class="btn btn-outline" id="lbFav" aria-pressed="false">Favourite</button>
+          <button type="button" class="btn btn-danger" id="lbDelete">Delete</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="app.js"></script>
+  <script src="gallery.js"></script>
+</body>
+</html>

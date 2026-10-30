@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="description" content="Plus One is the personal photographer that never misses the day. Give it a few photos of your people, a brief about the event and the activities you'd hate to miss — it keeps producing the album all day long.">
+   <meta name="robots" content="index, follow">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta name="theme-color" content="#14110d">
+   <meta property="og:title" content="Plus One — the photographer who's always invited">
+   <meta property="og:description" content="Seed photos in. A whole day out. Weddings, road trips, graduations and picnics, photographed as they happen.">
+
+   <!--=============== FAVICON ===============-->
+   <link rel="shortcut icon" href="img/favicon.svg" type="image/svg+xml">
+
+   <!--=============== FONTS ===============-->
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+   <!--=============== REMIXICONS ===============-->
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css">
+
+   <!--=============== SWIPER CSS ===============-->
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css">
+
+   <!--=============== CSS ===============-->
+   <link rel="stylesheet" href="css/style.css">
+
+   <title>Plus One — the photographer who's always invited</title>
+   <script>document.documentElement.classList.add('js')</script>
+</head>
+<body>
+   <!--==================== HEADER ====================-->
+   <header class="header" id="header">
+      <nav class="nav container">
+         <a href="#top" class="nav__logo" aria-label="Plus One, home">
+            <svg class="nav__mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+               <circle cx="12" cy="12" r="9.1" stroke="currentColor" stroke-width="1.3"/>
+               <path d="M12 7.9v8.2M7.9 12h8.2" stroke="currentColor" stroke-width="1.3"/>
+            </svg>
+            <span>plus one</span>
+         </a>
+
+         <div class="nav__menu" id="nav-menu">
+            <ul class="nav__list">
+               <li><a href="#how" class="nav__link">How it works</a></li>
+               <li><a href="#album" class="nav__link">The album</a></li>
+               <li><a href="#craft" class="nav__link">Why it holds up</a></li>
+               <li><a href="pricing.html" class="nav__link">Membership</a></li>
+               <li><a href="studio.html" class="nav__link">The studio</a></li>
+               <li><a href="auth.html" class="nav__link">Log in</a></li>
+            </ul>
+
+            <a href="studio.html" class="nav__cta">Start free <i class="ri-arrow-right-up-line"></i></a>
+
+            <button class="nav__close" id="nav-close" aria-label="Close menu">
+               <i class="ri-close-large-line"></i>
+            </button>
+         </div>
+
+         <button class="nav__toggle" id="nav-toggle" aria-controls="nav-menu" aria-expanded="false" aria-label="Open menu">
+            <i class="ri-menu-4-line"></i>
+         </button>
+      </nav>
+   </header>
+
+   <!--==================== MAIN ====================-->
+   <main class="main" id="top">
+      <!--==================== HOME ====================-->
+      <section class="home" aria-label="Occasions plus one shoots">
+         <div class="home__swiper swiper">
+
+            <div class="swiper-wrapper">
+
+               <!--========== SLIDE 1 · ROAD TRIP ==========-->
+               <article class="home__slide home__slide--road swiper-slide">
+                  <div class="home__wrap">
+                     <div class="home__scene">
+                        <figure class="home__photo">
+                           <img src="img/event-roadtrip.jpg" alt="Two friends laughing on the tailgate of a station wagon on a desert highway at sunset">
+                           <figcaption class="home__stamp">07:20 pm · Escalante, UT</figcaption>
+                           <span class="home__live"><i></i>just added</span>
+                        </figure>
+
+                        <figure class="home__snap home__snap--a">
+                           <img src="img/rt-gas.jpg" alt="Friends buying snacks at a gas station at dusk">
+                        </figure>
+
+                        <figure class="home__snap home__snap--b">
+                           <img src="img/rt-window.jpg" alt="A woman with her hair out of the car window on a desert road">
+                        </figure>
+                     </div>
+
+                     <div class="home__brief">
+                        <p class="home__kicker">Road trip <span>Route 12, Utah</span></p>
+                        <h1 class="home__title">road trip</h1>
+
+                        <p class="home__desc">
+                           Kai and me, the old wagon, gas-station snacks and hair out the window.
+                           Packing up at dawn, the flat tire we fixed ourselves, the lookout at golden hour.
+                        </p>
+
+                        <ul class="home__guests" aria-label="People in this album">
+                           <li><img src="img/seed-1.jpg" alt=""></li>
+                           <li><img src="img/seed-2.jpg" alt=""></li>
+                           <li><img src="img/seed-3.jpg" alt=""></li>
+                           <li><img src="img/seed-4.jpg" alt=""></li>
+                           <li class="home__guests-more">+3</li>
+                           <li class="home__guests-label">7 people in the album</li>
+                        </ul>
+
+                        <div class="home__actions">
+                           <a href="studio.html" class="btn btn--cream">Start your album</a>
+                           <span class="home__stat">63 frames<br>9 activities</span>
+                        </div>
+                     </div>
+                  </div>
+               </article>
+
+               <!--========== SLIDE 2 · WEDDING ==========-->
+               <article class="home__slide home__slide--wedding swiper-slide">
+                  <div class="home__wrap">
+                     <div class="home__scene">
+                        <figure class="home__photo">
+                           <img src="img/event-wedding.jpg" alt="A bride and groom dancing under string lights at an outdoor wedding">
+                           <figcaption class="home__stamp">08:36 pm · Golden Hour Farm</figcaption>
+                           <span class="home__live"><i></i>just added</span>
+                        </figure>
+
+                        <figure class="home__snap home__snap--a">
+                           <img src="img/wed-confetti.jpg" alt="Newlyweds walking through a shower of confetti">
+                        </figure>
+
+                        <figure class="home__snap home__snap--b">
+                           <img src="img/wed-toast.jpg" alt="Wedding guests raising glasses at the reception table">
+                        </figure>
+                     </div>
+
+                     <div class="home__brief">
+                        <p class="home__kicker">Wedding <span>Hudson Valley</span></p>
+                        <h1 class="home__title">the wedding</h1>
+
+                        <p class="home__desc">
+                           Priya and Tom in the greenhouse at four, nine of us in the party.
+                           The ceremony, the confetti on the lawn, the first dance and Grandpa's speech that went long.
+                        </p>
+
+                        <ul class="home__guests" aria-label="People in this album">
+                           <li><img src="img/seed-1.jpg" alt=""></li>
+                           <li><img src="img/seed-2.jpg" alt=""></li>
+                           <li><img src="img/seed-3.jpg" alt=""></li>
+                           <li><img src="img/seed-4.jpg" alt=""></li>
+                           <li class="home__guests-more">+5</li>
+                           <li class="home__guests-label">9 people in the album</li>
+                        </ul>
+
+                        <div class="home__actions">
+                           <a href="studio.html" class="btn btn--cream">Start your album</a>
+                           <span class="home__stat">148 frames<br>12 activities</span>
+                        </div>
+                     </div>
+                  </div>
+               </article>
+
+               <!--========== SLIDE 3 · GRADUATION ==========-->
+               <article class="home__slide home__slide--grad swiper-slide">
+                  <div class="home__wrap">
+                     <div class="home__scene">
+                        <figure class="home__photo">
+                           <img src="img/event-graduation.jpg" alt="A graduate hugging her mother on campus while caps fly through the air">
+                           <figcaption class="home__stamp">02:11 pm · Chapel Hill</figcaption>
+                           <span class="home__live"><i></i>just added</span>
+                        </figure>
+
+                        <figure class="home__snap home__snap--a">
+                           <img src="img/grad-cap.jpg" alt="A graduate throwing her cap into the sky">
+                        </figure>
+
+                        <figure class="home__snap home__snap--b">
+                           <img src="img/grad-family.jpg" alt="A family hugging the graduate with bouquets">
+                        </figure>
+                     </div>
+
+                     <div class="home__brief">
+                        <p class="home__kicker">Graduation <span>Chapel Hill, NC</span></p>
+                        <h1 class="home__title">graduation</h1>
+
+                        <p class="home__desc">
+                           Maya's weekend, Mom and Dad up from Atlanta. The walk across the quad,
+                           the cap toss, the hug after — and the quiet ten minutes nobody thought to photograph.
+                        </p>
+
+                        <ul class="home__guests" aria-label="People in this album">
+                           <li><img src="img/seed-1.jpg" alt=""></li>
+                           <li><img src="img/seed-2.jpg" alt=""></li>
+                           <li><img src="img/seed-3.jpg" alt=""></li>
+                           <li><img src="img/seed-4.jpg" alt=""></li>
+                           <li class="home__guests-more">+2</li>
+                           <li class="home__guests-label">6 people in the album</li>
+                        </ul>
+
+                        <div class="home__actions">
+                           <a href="studio.html" class="btn btn--cream">Start your album</a>
+                           <span class="home__stat">96 frames<br>7 activities</span>
+                        </div>
+                     </div>
+                  </div>
+               </article>
+
+               <!--========== SLIDE 4 · PICNIC ==========-->
+               <article class="home__slide home__slide--picnic swiper-slide">
+                  <div class="home__wrap">
+                     <div class="home__scene">
+                        <figure class="home__photo">
+                           <img src="img/event-picnic.jpg" alt="A family laughing on a picnic blanket in a park on a summer afternoon">
+                           <figcaption class="home__stamp">03:05 pm · Prospect Park</figcaption>
+                           <span class="home__live"><i></i>just added</span>
+                        </figure>
+
+                        <figure class="home__snap home__snap--a">
+                           <img src="img/pic-frisbee.jpg" alt="A girl leaping to catch a frisbee in a park">
+                        </figure>
+
+                        <figure class="home__snap home__snap--b">
+                           <img src="img/pic-lemonade.jpg" alt="A grandmother pouring lemonade on a picnic blanket">
+                        </figure>
+                     </div>
+
+                     <div class="home__brief">
+                        <p class="home__kicker">Picnic <span>Prospect Park, Brooklyn</span></p>
+                        <h1 class="home__title">the picnic</h1>
+
+                        <p class="home__desc">
+                           The whole family under the big oak, lemonade in mason jars, the kids' frisbee
+                           and Grandma's strawberry bowl. A Sunday that usually leaves no evidence.
+                        </p>
+
+                        <ul class="home__guests" aria-label="People in this album">
+                           <li><img src="img/seed-1.jpg" alt=""></li>
+                           <li><img src="img/seed-2.jpg" alt=""></li>
+                           <li><img src="img/seed-3.jpg" alt=""></li>
+                           <li><img src="img/seed-4.jpg" alt=""></li>
+                           <li class="home__guests-more">+7</li>
+                           <li class="home__guests-label">11 people in the album</li>
+                        </ul>
+
+                        <div class="home__actions">
+                           <a href="studio.html" class="btn btn--cream">Start your album</a>
+                           <span class="home__stat">74 frames<br>6 activities</span>
+                        </div>
+                     </div>
+                  </div>
+               </article>
+
+            </div>
+         </div>
+
+         <!--==================== HUD ====================-->
+         <div class="home__hud container">
+            <span class="home__index"><b id="slide-current">01</b><span>/ 04</span></span>
+
+            <p class="home__hint">Never asked anyone to hold the camera</p>
+
+            <div class="home__arrows">
+               <button class="home__arrow swiper-button-prev" aria-label="Previous occasion">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+               </button>
+               <button class="home__arrow swiper-button-next" aria-label="Next occasion">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+               </button>
+            </div>
+         </div>
+      </section>
+
+      <!--==================== MARQUEE ====================-->
+      <div class="marquee" aria-hidden="true">
+         <div class="marquee__track">
+            <span>Weddings</span><i>✦</i><span>Road trips</span><i>✦</i><span>Graduations</span><i>✦</i>
+            <span>Picnics</span><i>✦</i><span>Reunions</span><i>✦</i><span>Birthdays</span><i>✦</i>
+            <span>First apartments</span><i>✦</i><span>Bonfires</span><i>✦</i><span>Family dinners</span><i>✦</i>
+            <span>Weddings</span><i>✦</i><span>Road trips</span><i>✦</i><span>Graduations</span><i>✦</i>
+            <span>Picnics</span><i>✦</i><span>Reunions</span><i>✦</i><span>Birthdays</span><i>✦</i>
+            <span>First apartments</span><i>✦</i><span>Bonfires</span><i>✦</i><span>Family dinners</span><i>✦</i>
+         </div>
+      </div>
+
+      <!--==================== HOW IT WORKS ====================-->
+      <section class="how section" id="how">
+         <div class="container how__grid">
+            <div class="how__intro" data-reveal>
+               <p class="eyebrow">01 — How it works</p>
+               <h2 class="h2">Three things in.<br><em>A whole day out.</em></h2>
+               <p class="lede">
+                  Plus One isn't a filter and it isn't a photo editor. You hand it the people,
+                  the place and the plan — it keeps producing the frames nobody had a free hand to take.
+               </p>
+               <a href="#album" class="link-arrow">See an album <i class="ri-arrow-right-line"></i></a>
+            </div>
+
+            <ol class="steps">
+               <li class="step" data-reveal>
+                  <div class="step__head">
+                     <span class="step__num">01</span>
+                     <h3>Drop the faces</h3>
+                  </div>
+                  <p class="step__text">
+                     Four to eight photos per person. Phone shots, old shots, bad shots —
+                     it needs to learn a face, not a pose.
+                  </p>
+                  <div class="step__art step__faces" aria-hidden="true">
+                     <img src="img/seed-1.jpg" alt="">
+                     <img src="img/seed-2.jpg" alt="">
+                     <img src="img/seed-3.jpg" alt="">
+                     <img src="img/seed-4.jpg" alt="">
+                     <span class="step__art-note">4 of 8 uploaded</span>
+                  </div>
+               </li>
+
+               <li class="step" data-reveal>
+                  <div class="step__head">
+                     <span class="step__num">02</span>
+                     <h3>Write the brief</h3>
+                  </div>
+                  <p class="step__text">
+                     The venue, the date, who's coming, and the activities you'd hate to miss.
+                     Plain language is enough.
+                  </p>
+                  <div class="step__art step__brief" aria-hidden="true">
+                     <p class="step__brief-label">The brief</p>
+                     <p class="step__brief-text">
+                        “Priya and Tom's wedding, Saturday — the greenhouse at Golden Hour Farm, 4pm.
+                        Ceremony, confetti, first dance, Grandpa's speech.”
+                     </p>
+                     <div class="step__chips">
+                        <span>ceremony</span><span>confetti</span><span>first dance</span><span>speech</span>
+                     </div>
+                  </div>
+               </li>
+
+               <li class="step" data-reveal>
+                  <div class="step__head">
+                     <span class="step__num">03</span>
+                     <h3>Let it keep shooting</h3>
+                  </div>
+                  <p class="step__text">
+                     Frames arrive as the day unfolds and keep arriving after you've put the phone down.
+                     Keep what's good, discard the rest.
+                  </p>
+                  <div class="step__art step__live" aria-hidden="true">
+                     <img src="img/wed-confetti.jpg" alt="">
+                     <span class="step__live-badge">new</span>
+                     <span class="step__live-meta"><i></i>128 frames · still shooting</span>
+                  </div>
+               </li>
+            </ol>
+         </div>
+      </section>
+
+      <!--==================== IMAGE BAND ====================-->
+      <section class="band" aria-label="Nobody posed">
+         <img class="band__img" src="img/event-picnic.jpg" alt="A family at a picnic in a park, mid-laugh">
+         <div class="band__inner container" data-reveal>
+            <p class="band__quote">Nobody posed.<br><em>Everybody's in it.</em></p>
+            <p class="band__meta">Prospect Park · 74 frames · one Sunday</p>
+         </div>
+      </section>
+
+      <!--==================== ALBUM ====================-->
+      <section class="album section" id="album">
+         <div class="container">
+            <header class="album__head" data-reveal>
+               <p class="eyebrow eyebrow--light">02 — The album</p>
+               <h2 class="h2 h2--light">It fills itself,<br><em>all day long.</em></h2>
+               <p class="lede lede--light">
+                  Pick an event. Every frame is generated from the brief, the guest list,
+                  and the light at that address on that date.
+               </p>
+            </header>
+
+            <div class="album__tabs" role="tablist" aria-label="Example albums" data-reveal>
+               <button class="tab is-active" id="tab-wedding" role="tab" aria-selected="true" aria-controls="album-panel" data-event="wedding">Wedding</button>
+               <button class="tab" id="tab-roadtrip" role="tab" aria-selected="false" aria-controls="album-panel" data-event="roadtrip">Road trip</button>
+               <button class="tab" id="tab-graduation" role="tab" aria-selected="false" aria-controls="album-panel" data-event="graduation">Graduation</button>
+               <button class="tab" id="tab-picnic" role="tab" aria-selected="false" aria-controls="album-panel" data-event="picnic">Picnic</button>
+            </div>
+
+            <div class="album__panel" id="album-panel" role="tabpanel" aria-labelledby="tab-wedding" data-reveal>
+               <div class="album__meta">
+                  <div class="album__venue-block">
+                     <p class="album__label">Venue</p>
+                     <p class="album__venue" id="album-venue">Golden Hour Farm, Hudson Valley</p>
+                     <p class="album__date" id="album-date">Saturday 14 June · golden hour 8:14 pm</p>
+                  </div>
+
+                  <dl class="album__stats">
+                     <div><dt>People</dt><dd id="album-people">9</dd></div>
+                     <div><dt>Activities</dt><dd id="album-activities">12</dd></div>
+                     <div><dt>Frames</dt><dd id="album-frames">148</dd></div>
+                  </dl>
+
+                  <div class="album__shots-block">
+                     <p class="album__label">On the shot list</p>
+                     <ul class="album__list" id="album-list"></ul>
+                  </div>
+               </div>
+
+               <div class="album__grid" id="album-grid">
+                  <figure class="album__shot album__shot--main">
+                     <img id="shot-1" src="img/event-wedding.jpg" alt="A bride and groom dancing under string lights">
+                     <span class="album__new">new</span>
+                     <figcaption id="cap-1">First dance · 8:36 pm</figcaption>
+                  </figure>
+                  <figure class="album__shot">
+                     <img id="shot-2" src="img/wed-confetti.jpg" alt="Newlyweds walking through confetti">
+                     <figcaption id="cap-2">Confetti · 4:52 pm</figcaption>
+                  </figure>
+                  <figure class="album__shot">
+                     <img id="shot-3" src="img/wed-toast.jpg" alt="A toast at the wedding table">
+                     <figcaption id="cap-3">The toast · 8:58 pm</figcaption>
+                  </figure>
+               </div>
+            </div>
+         </div>
+      </section>
+
+      <!--==================== CRAFT ====================-->
+      <section class="craft section" id="craft">
+         <div class="container">
+            <header class="craft__head" data-reveal>
+               <p class="eyebrow">03 — Why it holds up</p>
+               <h2 class="h2">It has to look like a real day.<br><em>Mostly it has to look like yours.</em></h2>
+            </header>
+
+            <div class="craft__grid">
+               <article class="craft__item" data-reveal>
+                  <span class="craft__num">01</span>
+                  <h3>Faces hold.</h3>
+                  <p>
+                     The freckles, the gap in your front teeth, the way you stand when you're tired.
+                     Identity is locked from your seed photos and checked in every frame before it reaches you.
+                  </p>
+               </article>
+
+               <article class="craft__item" data-reveal>
+                  <span class="craft__num">02</span>
+                  <h3>Places hold.</h3>
+                  <p>
+                     The venue is a real place, not a guess. Architecture, weather and the light at 7pm
+                     in that room, in that month — all read from the address and the date.
+                  </p>
+               </article>
+
+               <article class="craft__item" data-reveal>
+                  <span class="craft__num">03</span>
+                  <h3>People hold.</h3>
+                  <p>
+                     Add your friends and family once. They show up in the right photos,
+                     in the right clothes, next to the right people — for every event after that.
+                  </p>
+               </article>
+            </div>
+         </div>
+      </section>
+
+      <!--==================== VOICES ====================-->
+      <section class="voices section" aria-label="What members say">
+         <div class="container voices__inner">
+            <blockquote class="voices__quote" data-reveal>
+               “I have four years of family weddings where I'm actually <em>in</em> the photo.
+               My mother now has a folder called ‘the good ones’.”
+            </blockquote>
+            <p class="voices__by" data-reveal>Nia Okafor · 31 · Philadelphia</p>
+
+            <dl class="voices__stats" data-reveal>
+               <div><dt>1.8M</dt><dd>frames generated</dd></div>
+               <div><dt>4.9</dt><dd>average album rating</dd></div>
+               <div><dt>38</dt><dd>countries, 1 camera</dd></div>
+            </dl>
+         </div>
+      </section>
+
+      <!--==================== PRICING ====================-->
+      <section class="pricing section" id="pricing">
+         <div class="container">
+            <header class="pricing__head" data-reveal>
+               <p class="eyebrow">04 — Membership</p>
+               <h2 class="h2">One event free.<br><em>Then keep the camera.</em></h2>
+            </header>
+
+            <div class="pricing__grid">
+               <article class="plan" data-reveal>
+                  <div class="plan__top">
+                     <h3>Guest</h3>
+                     <p class="plan__price"><span>$0</span></p>
+                     <p class="plan__note">One event, once.</p>
+                  </div>
+                  <ul class="plan__list">
+                     <li>1 event album</li>
+                     <li>Up to 3 people</li>
+                     <li>20 frames</li>
+                     <li>720px exports</li>
+                  </ul>
+                  <a href="studio.html" class="btn btn--ghost">Start free</a>
+               </article>
+
+               <article class="plan plan--featured" data-reveal>
+                  <span class="plan__tag">Most invited</span>
+                  <div class="plan__top">
+                     <h3>Plus One</h3>
+                     <p class="plan__price"><span>$14</span>/month</p>
+                     <p class="plan__note">For the person always behind the camera.</p>
+                  </div>
+                  <ul class="plan__list">
+                     <li>Unlimited events</li>
+                     <li>Up to 8 people</li>
+                     <li>300 frames per event</li>
+                     <li>Full-resolution downloads</li>
+                     <li>Private albums, retrain any time</li>
+                  </ul>
+                  <a href="pricing.html?plan=plusone" class="btn btn--cream">Get Plus One</a>
+               </article>
+
+               <article class="plan" data-reveal>
+                  <div class="plan__top">
+                     <h3>The Whole Table</h3>
+                     <p class="plan__price"><span>$29</span>/month</p>
+                     <p class="plan__note">For families keeping the archive.</p>
+                  </div>
+                  <ul class="plan__list">
+                     <li>Everything in Plus One</li>
+                     <li>Up to 25 people</li>
+                     <li>1,000 frames per event</li>
+                     <li>Print-ready files</li>
+                     <li>Two seats, one shared album</li>
+                  </ul>
+                  <a href="pricing.html?plan=whole" class="btn btn--ghost">Talk to us</a>
+               </article>
+            </div>
+
+            <a href="pricing.html" class="link-arrow">Compare plans and check out <i class="ri-arrow-right-line"></i></a>
+         </div>
+      </section>
+
+      <!--==================== FAQ ====================-->
+      <section class="faq section" id="faq">
+         <div class="container faq__grid">
+            <header class="faq__head" data-reveal>
+               <p class="eyebrow">05 — Fine print</p>
+               <h2 class="h2">Reasonable <em>questions.</em></h2>
+            </header>
+
+            <div class="faq__items" data-reveal>
+               <details class="faq__item" open>
+                  <summary>Whose face can I add? <span class="faq__icon"></span></summary>
+                  <div class="faq__body"><p>
+                     Only people who have said yes. Every person you add confirms their own invite,
+                     and can pull their face out of any album at any time.
+                  </p></div>
+               </details>
+
+               <details class="faq__item">
+                  <summary>What if it gets someone wrong? <span class="faq__icon"></span></summary>
+                  <div class="faq__body"><p>
+                     Flag the frame. It retrains on your correction before the next event,
+                     and a discarded frame is never used to generate anything again.
+                  </p></div>
+               </details>
+
+               <details class="faq__item">
+                  <summary>Where do the photos live? <span class="faq__icon"></span></summary>
+                  <div class="faq__body"><p>
+                     In a private album only your guest list can open. Nothing is used to train shared models,
+                     and you can export or delete everything in one click.
+                  </p></div>
+               </details>
+
+               <details class="faq__item">
+                  <summary>What about venues it has never seen? <span class="faq__icon"></span></summary>
+                  <div class="faq__body"><p>
+                     It works from the address, the date, the time and the weather. If the light is wrong,
+                     you'll see it straight away — that's the tell we work hardest to remove.
+                  </p></div>
+               </details>
+            </div>
+         </div>
+      </section>
+
+      <!--==================== START ====================-->
+      <section class="start" id="start">
+         <div class="container start__inner" data-reveal>
+            <p class="eyebrow eyebrow--light">06 — Start</p>
+            <h2 class="start__title">Your next Saturday<br><em>is already happening.</em></h2>
+            <p class="start__text">
+               Give it one event. If the album doesn't feel like your day, don't pay for it.
+            </p>
+
+            <form class="start__form" id="start-form" novalidate>
+               <label class="sr-only" for="start-email">Email address</label>
+               <input type="email" id="start-email" name="email" placeholder="you@somewhere.com" autocomplete="email" required>
+               <button type="submit">Start free</button>
+            </form>
+            <p class="start__note" id="start-note">One event free · no card · the photos are yours</p>
+         </div>
+      </section>
+   </main>
+
+   <!--==================== FOOTER ====================-->
+   <footer class="footer">
+      <div class="container footer__grid">
+         <div class="footer__brand">
+            <a href="#top" class="footer__logo">
+               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9.1" stroke="currentColor" stroke-width="1.3"/>
+                  <path d="M12 7.9v8.2M7.9 12h8.2" stroke="currentColor" stroke-width="1.3"/>
+               </svg>
+               <span>plus one</span>
+            </a>
+            <p>The photographer who's always invited.</p>
+         </div>
+
+         <nav class="footer__col" aria-label="Product">
+            <p class="footer__title">Product</p>
+            <a href="studio.html">The studio</a>
+            <a href="#how">How it works</a>
+            <a href="#album">The album</a>
+            <a href="pricing.html">Membership</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="auth.html">Log in</a>
+         </nav>
+
+         <nav class="footer__col" aria-label="Occasions">
+            <p class="footer__title">Occasions</p>
+            <a href="#album">Weddings</a>
+            <a href="#album">Road trips</a>
+            <a href="#album">Graduations</a>
+            <a href="#album">Picnics</a>
+         </nav>
+
+         <nav class="footer__col" aria-label="Company">
+            <p class="footer__title">Company</p>
+            <a href="#craft">About</a>
+            <a href="#faq">Privacy</a>
+            <a href="#faq">Consent</a>
+            <a href="#start">Contact</a>
+         </nav>
+      </div>
+
+      <div class="container footer__bottom">
+         <span>© 2026 Plus One Studio</span>
+         <span>Photos of real people, with real permission.</span>
+      </div>
+
+      <div class="footer__word" aria-hidden="true">plus one</div>
+   </footer>
+
+   <!--=============== GSAP ===============-->
+   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js"></script>
+
+   <!--=============== SWIPER JS ===============-->
+   <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
+
+   <!--=============== MAIN JS ===============-->
+   <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in — Faceform</title>
+  <meta name="description" content="Sign in to Faceform or create a free account to start generating photoreal faces." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="auth-page">
+    <div class="auth-card">
+      <aside class="auth-aside">
+        <a href="index.html" class="logo">Faceform<span>.</span></a>
+
+        <div class="auth-copy">
+          <span class="eyebrow">Faceform studio</span>
+          <h1>Faces nobody has to sit for.</h1>
+          <p>
+            Describe a person, pick a backdrop, and get a studio-grade portrait in
+            six seconds. Your workspace keeps every generation, key and credit in
+            one place.
+          </p>
+        </div>
+
+        <div class="auth-collage" aria-hidden="true">
+          <img src="images/sample-ava.png" alt="" />
+          <img src="images/gallery-04.png" alt="" />
+          <img src="images/sample-nora.png" alt="" />
+        </div>
+
+        <ul class="auth-points">
+          <li>Unlimited variations of every face</li>
+          <li>Full commercial rights on paid plans</li>
+          <li>API access and 4K exports</li>
+        </ul>
+      </aside>
+
+      <section class="auth-panel">
+        <a href="index.html" class="logo auth-mobile-logo">Faceform<span>.</span></a>
+
+        <div class="auth-tabs" role="tablist" aria-label="Account access">
+          <button type="button" class="auth-tab" role="tab" data-mode="signin" aria-selected="true">Sign in</button>
+          <button type="button" class="auth-tab" role="tab" data-mode="signup" aria-selected="false">Create account</button>
+        </div>
+
+        <h2 id="authTitle">Welcome back</h2>
+        <p class="auth-sub" id="authSub">Sign in to your workspace to keep generating.</p>
+
+        <div class="social-row">
+          <button type="button" class="social-btn" data-provider="Google">
+            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+              <path d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.4a4.6 4.6 0 0 1-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.3z" fill="#4285F4" />
+              <path d="M12 22c2.7 0 5-.9 6.6-2.4l-3.2-2.5c-.9.6-2 1-3.4 1-2.6 0-4.8-1.8-5.6-4.1H3.1v2.6A10 10 0 0 0 12 22z" fill="#34A853" />
+              <path d="M6.4 14a6 6 0 0 1 0-3.8V7.6H3.1a10 10 0 0 0 0 9l3.3-2.6z" fill="#FBBC05" />
+              <path d="M12 6c1.5 0 2.8.5 3.8 1.5l2.9-2.9A10 10 0 0 0 3.1 7.6l3.3 2.6C7.2 7.8 9.4 6 12 6z" fill="#EA4335" />
+            </svg>
+            Google
+          </button>
+          <button type="button" class="social-btn" data-provider="Apple">
+            <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+              <path d="M16.7 12.8c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.7-1.8-3.3-1.8-1.4-.1-2.7.8-3.4.8-.7 0-1.8-.8-3-.8-1.5 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7 2-1.1 2.8-2.2c.9-1.3 1.3-2.5 1.3-2.6-.1 0-2.7-1-2.7-3.8zM14.6 5.6c.6-.7 1-1.7.9-2.6-.9 0-1.9.6-2.5 1.3-.5.6-1 1.6-.9 2.5 1 .1 2-.5 2.5-1.2z" fill="currentColor" />
+            </svg>
+            Apple
+          </button>
+        </div>
+
+        <div class="auth-divider"><span>or continue with email</span></div>
+
+        <form class="auth-form" id="authForm" novalidate>
+          <div class="field is-hidden" id="nameField">
+            <label for="authName">Full name</label>
+            <input id="authName" name="name" type="text" autocomplete="name" placeholder="Ada Lovelace" />
+          </div>
+
+          <div class="field">
+            <label for="authEmail">Email</label>
+            <input id="authEmail" name="email" type="email" autocomplete="email"
+              placeholder="you@studio.com" required />
+          </div>
+
+          <div class="field">
+            <label for="authPassword">Password</label>
+            <div class="pw-wrap">
+              <input id="authPassword" name="password" type="password" autocomplete="current-password"
+                placeholder="At least 8 characters" minlength="8" required />
+              <button type="button" class="pw-toggle" id="pwToggle" aria-label="Show password">Show</button>
+            </div>
+          </div>
+
+          <div class="auth-row">
+            <label class="remember">
+              <input type="checkbox" checked />
+              <span>Keep me signed in</span>
+            </label>
+            <a href="#" class="auth-link" id="forgotLink">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn btn-primary auth-submit" id="authSubmit">Sign in</button>
+          <p class="auth-status" id="authStatus" role="status" aria-live="polite"></p>
+        </form>
+
+        <p class="auth-legal">
+          By continuing you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.
+          Faceform never clones real people without written permission.
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+  <script src="oauth.js"></script>
+</body>
+</html>

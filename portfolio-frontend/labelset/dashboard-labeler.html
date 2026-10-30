@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Tasks — Labelset</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="app.css" />
+</head>
+<body>
+
+<header class="app-header" id="app-header"></header>
+
+<main class="container page">
+  <div class="page__head">
+    <div>
+      <span class="section__eyebrow">Labeler workspace</span>
+      <h1 id="labeler-title">My Tasks</h1>
+      <p id="labeler-sub"></p>
+    </div>
+    <div style="display:flex;gap:.8rem;flex-wrap:wrap">
+      <a class="button button--ghost" href="billing.html">Earnings &amp; payouts</a>
+    </div>
+  </div>
+
+  <div class="grid grid--stats" id="labeler-stats" style="margin-bottom:1.8rem"></div>
+
+  <div class="tabs" id="labeler-tabs">
+    <button class="tab is-active" data-tab="assigned">My assigned <span class="count" id="cnt-assigned" hidden></span></button>
+    <button class="tab" data-tab="submitted">In review <span class="count" id="cnt-submitted" hidden></span></button>
+    <button class="tab" data-tab="available">Task market <span class="count" id="cnt-available" hidden></span></button>
+    <button class="tab" data-tab="history">History</button>
+  </div>
+
+  <section class="card" id="labeler-view"></section>
+</main>
+
+<script src="js/store.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/page-labeler.js"></script>
+</body>
+</html>

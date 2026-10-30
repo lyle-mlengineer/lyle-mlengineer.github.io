@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="description" content="Your Vocalis workspace — designed voices, usage, plan and payments.">
+  <meta name="theme-color" content="#14213d">
+  <meta name="robots" content="noindex">
+  <title>Dashboard — Vocalis</title>
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2314213d'/%3E%3Cg fill='%23fca311'%3E%3Crect x='14' y='26' width='5' height='12' rx='2.5'/%3E%3Crect x='23' y='18' width='5' height='28' rx='2.5'/%3E%3Crect x='32' y='10' width='5' height='44' rx='2.5'/%3E%3Crect x='41' y='22' width='5' height='20' rx='2.5'/%3E%3Crect x='50' y='28' width='5' height='8' rx='2.5'/%3E%3C/svg%3E">
+
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+
+<body class="app-body">
+  <div class="app" id="app">
+    <aside class="app__sidebar" id="sidebar" aria-label="Workspace">
+      <div class="app__brand">
+        <a href="dashboard.html" class="app__logo">Voca<span>lis</span></a>
+        <button class="app__sidebar-close" id="sidebarClose" type="button" aria-label="Close menu">
+          <i class="ri-close-line"></i>
+        </button>
+      </div>
+
+      <nav class="app__nav">
+        <a href="dashboard.html" class="app__link is-active"><i class="ri-dashboard-line"></i> Overview</a>
+        <a href="#voices" class="app__link" data-gallery-jump><i class="ri-mic-line"></i> Voice gallery <span class="app__count">8</span></a>
+        <a href="playground.html" class="app__link"><i class="ri-equalizer-line"></i> Playground</a>
+        <a href="voice-design.html" class="app__link"><i class="ri-magic-line"></i> Voice design</a>
+        <a href="#billing" class="app__link"><i class="ri-bank-card-line"></i> Billing</a>
+        <a href="#" class="app__link" data-toast="Settings live in the full product — this is a demo."><i class="ri-settings-3-line"></i> Settings</a>
+      </nav>
+
+      <div class="app__plan">
+        <p class="app__plan-kicker">Studio plan</p>
+        <p class="app__plan-cost"><strong>$29</strong><span>/mo</span></p>
+        <div class="meter meter--dark">
+          <div class="meter__top"><span>Characters</span><span>64%</span></div>
+          <div class="meter__track"><i style="width:64%"></i></div>
+        </div>
+        <button class="button button--small button--full" data-toast="Plan comparison is coming soon — you’re on Studio.">Upgrade plan</button>
+      </div>
+
+      <div class="app__user">
+        <span class="avatar" aria-hidden="true" style="--avatar: linear-gradient(135deg,#f7bb3c,#d18600);color:#14213d">MC</span>
+        <div class="app__user-copy">
+          <strong>Maya Chen</strong>
+          <span>maya@narrate.studio</span>
+        </div>
+        <a href="index.html" class="app__user-link" aria-label="Back to vocalis.ai"><i class="ri-external-link-line"></i></a>
+      </div>
+    </aside>
+
+    <div class="app__scrim" id="sidebarScrim" hidden></div>
+
+    <div class="app__content">
+      <header class="app__topbar">
+        <button class="app__menu" id="sidebarToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="sidebar">
+          <i class="ri-menu-2-line"></i>
+        </button>
+
+        <label class="app__search">
+          <i class="ri-search-line"></i>
+          <input id="gallerySearch" type="search" placeholder="Search voices, invoices…" autocomplete="off">
+        </label>
+
+        <div class="app__top-actions">
+          <a href="#billing" class="app__credits"><i class="ri-flashlight-fill"></i> 8,240 credits</a>
+          <button class="app__icon-btn" type="button" aria-label="Notifications" data-toast="No new notifications.">
+            <i class="ri-notification-3-line"></i>
+            <span class="app__dot"></span>
+          </button>
+          <button class="app__avatar" type="button" aria-label="Account menu" data-toast="Signed in as maya@narrate.studio">MC</button>
+        </div>
+      </header>
+
+      <main class="app__main">
+        <div class="app__head">
+          <div>
+            <p class="app__kicker">Friday, 30 October</p>
+            <h1>Good morning, Maya</h1>
+            <p>You’ve used 64% of this month’s characters. The November invoice lands in two days.</p>
+          </div>
+          <div class="app__head-actions">
+            <a href="voice-design.html" class="button button--outline">Design a voice</a>
+            <a href="playground.html" class="button">Open playground <i class="ri-arrow-right-line"></i></a>
+          </div>
+        </div>
+
+        <section class="metrics" aria-label="Account summary">
+          <article class="metric reveal">
+            <div class="metric__top"><span class="metric__icon"><i class="ri-file-text-line"></i></span><span class="metric__delta">+18%</span></div>
+            <p class="metric__value">642,180</p>
+            <p class="metric__label">characters this cycle</p>
+            <div class="meter"><div class="meter__track"><i style="width:64%"></i></div></div>
+          </article>
+
+          <article class="metric reveal">
+            <div class="metric__top"><span class="metric__icon"><i class="ri-mic-line"></i></span><span class="metric__note">3 cloned</span></div>
+            <p class="metric__value">8</p>
+            <p class="metric__label">voices in your library</p>
+            <a href="#voices" class="metric__link" data-gallery-jump>Open gallery <i class="ri-arrow-right-line"></i></a>
+          </article>
+
+          <article class="metric reveal">
+            <div class="metric__top"><span class="metric__icon"><i class="ri-timer-flash-line"></i></span><span class="metric__note">7-day avg</span></div>
+            <p class="metric__value">42<span>ms</span></p>
+            <p class="metric__label">median time to first audio</p>
+            <p class="metric__foot"><span class="status status--live">All systems normal</span></p>
+          </article>
+
+          <article class="metric reveal">
+            <div class="metric__top"><span class="metric__icon"><i class="ri-bank-card-line"></i></span><span class="metric__note">Visa 4242</span></div>
+            <p class="metric__value">$29<span>.00</span></p>
+            <p class="metric__label">due 1 November</p>
+            <a href="#billing" class="metric__link">Manage billing <i class="ri-arrow-right-line"></i></a>
+          </article>
+        </section>
+
+        <div class="dash-grid">
+          <section class="panel usage reveal" aria-labelledby="usageTitle">
+            <div class="panel__head">
+              <div>
+                <h2 id="usageTitle">Usage this cycle</h2>
+                <p>Characters generated, 17–30 October</p>
+              </div>
+              <div class="usage__total"><strong>642,180</strong><span>of 1,000,000</span></div>
+            </div>
+
+            <div class="chart" aria-hidden="true">
+              <span class="chart__bar" style="--h:42" title="17 Oct · 41,200"></span>
+              <span class="chart__bar" style="--h:58" title="18 Oct · 56,800"></span>
+              <span class="chart__bar" style="--h:36" title="19 Oct · 35,300"></span>
+              <span class="chart__bar" style="--h:64" title="20 Oct · 62,700"></span>
+              <span class="chart__bar" style="--h:71" title="21 Oct · 69,500"></span>
+              <span class="chart__bar" style="--h:48" title="22 Oct · 47,000"></span>
+              <span class="chart__bar" style="--h:29" title="23 Oct · 28,400"></span>
+              <span class="chart__bar" style="--h:54" title="24 Oct · 52,900"></span>
+              <span class="chart__bar chart__bar--peak" style="--h:88" title="25 Oct · 86,100"></span>
+              <span class="chart__bar" style="--h:63" title="26 Oct · 61,600"></span>
+              <span class="chart__bar" style="--h:57" title="27 Oct · 55,900"></span>
+              <span class="chart__bar" style="--h:74" title="28 Oct · 72,300"></span>
+              <span class="chart__bar" style="--h:66" title="29 Oct · 64,500"></span>
+              <span class="chart__bar is-today" style="--h:49" title="30 Oct · 47,800"></span>
+            </div>
+            <div class="chart__axis"><span>17 Oct</span><span>22 Oct</span><span>26 Oct</span><span>Today</span></div>
+
+            <div class="usage__legend">
+              <span><i class="legend-dot"></i> Narration 58%</span>
+              <span><i class="legend-dot legend-dot--navy"></i> Support 26%</span>
+              <span><i class="legend-dot legend-dot--gray"></i> Ads 16%</span>
+            </div>
+          </section>
+
+          <aside class="panel plan-summary reveal" aria-labelledby="planTitle">
+            <div class="panel__head panel__head--tight">
+              <div>
+                <h2 id="planTitle">Studio</h2>
+                <p>For teams shipping voice weekly.</p>
+              </div>
+              <span class="badge badge--gold">Current</span>
+            </div>
+
+            <p class="plan-summary__price"><strong>$29</strong><span>/month</span></p>
+            <p class="plan-summary__renew">Renews 1 Nov 2026 · Visa ending 4242</p>
+
+            <div class="meter">
+              <div class="meter__top"><span>Characters</span><span>642,180 / 1M</span></div>
+              <div class="meter__track"><i style="width:64%"></i></div>
+            </div>
+
+            <ul class="plan-summary__list">
+              <li><i class="ri-check-line"></i> 1,000,000 characters / month</li>
+              <li><i class="ri-check-line"></i> 120 catalog voices + 10 clones</li>
+              <li><i class="ri-check-line"></i> Commercial licence &amp; WAV exports</li>
+            </ul>
+
+            <div class="plan-summary__actions">
+              <button class="button button--small" data-toast="Plan change flow is not wired in this demo.">Upgrade plan</button>
+              <a href="#billing" class="button button--ghost button--small">Billing history</a>
+            </div>
+          </aside>
+        </div>
+
+        <section class="panel panel--gallery reveal" id="voices" aria-labelledby="galleryTitle">
+          <div class="panel__head panel__head--wrap">
+            <div>
+              <h2 id="galleryTitle">Your voice gallery</h2>
+              <p>Designed and cloned voices, ready for any script.</p>
+            </div>
+            <div class="gallery__tools">
+              <div class="filters" role="group" aria-label="Filter voices">
+                <button class="filter is-active" type="button" data-filter="all" aria-pressed="true">All <span>8</span></button>
+                <button class="filter" type="button" data-filter="designed" aria-pressed="false">Designed <span>5</span></button>
+                <button class="filter" type="button" data-filter="cloned" aria-pressed="false">Cloned <span>3</span></button>
+              </div>
+              <a href="voice-design.html" class="button button--small"><i class="ri-add-line"></i> New voice</a>
+            </div>
+          </div>
+
+          <div class="gallery" id="voiceGallery">
+            <article class="voice-item" data-type="designed" data-name="Aria" data-lang="en-US" data-pitch="1.05" data-rate="0.95"
+              data-line="Hi — I’m Aria. Warm, unhurried, and ready for your next chapter.">
+              <div class="voice-item__top">
+                <span class="voice-item__avatar" style="--tone:linear-gradient(135deg,#f7bb3c,#d18600);color:#14213d">A</span>
+                <span class="voice-item__badge">Designed</span>
+              </div>
+              <h3>Aria</h3>
+              <p>Warm · conversational</p>
+              <div class="voice-item__tags"><span>EN-US</span><span>Narration</span></div>
+              <div class="waveform waveform--tile" data-bars="20" data-seed="3" aria-hidden="true"></div>
+              <div class="voice-item__foot">
+                <button class="voice-item__play" type="button" aria-label="Play Aria">
+                  <i class="ri-play-fill"></i>
+                </button>
+                <a href="playground.html?voice=aria" class="voice-item__use">Test <i class="ri-arrow-right-up-line"></i></a>
+              </div>
+            </article>
+
+            <article class="voice-item" data-type="designed" data-name="Atlas" data-lang="en-US" data-pitch="0.7" data-rate="0.9"
+              data-line="Some stories begin with a storm. This one began with a very quiet letter.">
+              <div class="voice-item__top">
+                <span class="voice-item__avatar" style="--tone:linear-gradient(135deg,#3a4d73,#101b2f)">A</span>
+                <span class="voice-item__badge">Designed</span>
+              </div>
+              <h3>Atlas</h3>
+              <p>Deep · documentary</p>
+              <div class="voice-item__tags"><span>EN-US</span><span>Documentary</span></div>
+              <div class="waveform waveform--tile" data-bars="20" data-seed="5" aria-hidden="true"></div>
+              <div class="voice-item__foot">
+                <button class="voice-item__play" type="button" aria-label="Play Atlas">
+                  <i class="ri-play-fill"></i>
+                </button>
+                <a href="playground.html?voice=atlas" class="voice-item__use">Test <i class="ri-arrow-right-up-line"></i></a>
+              </div>
+            </article>
+
+            <article class="voice-item" data-type="designed" data-name="June" data-lang="en-GB" data-pitch="1.2" data-rate="1.02"
+              data-line="Good morning! Your three o’clock is running late, so I moved your focus block.">
+              <div class="voice-item__top">
+                <span class="voice-item__avatar" style="--tone:linear-gradient(135deg,#f2e3c2,#cdb383);color:#14213d">J</span>
+                <span class="voice-item__badge">Designed</span>
+              </div>
+              <h3>June</h3>
+              <p>Bright · friendly</p>
+              <div class="voice-item__tags"><span>EN-GB</span><span>Assistant</span></div>
+              <div class="waveform waveform--tile" data-bars="20" data-seed="8" aria-hidden="true"></div>
+              <div class="voice-item__foot">
+                <button class="voice-item__play" type="button" aria-label="Play June">
+                  <i class="ri-play-fill"></i>
+                </button>
+                <a href="playground.html?voice=june" class="voice-item__use">Test <i class="ri-arrow-right-up-line"></i></a>
+              </div>
+            </article>
+
+            <article class="voice-item" data-type="cloned" data-name="Nori" data-lang="en-US" data-pitch="0.95" data-rate="0.92"
+              data-line="I understand — let’s take that one step at a time. You’re not in trouble.">
+              <div class="voice-item__top">
+                <span class="voice-item__avatar" style="--tone:linear-gradient(135deg,#65738d,#2a3650)">N</span>
+                <span class="voice-item__badge voice-item__badge--clone">Cloned</span>
+              </div>
+              <h3>Nori</h3>
+              <p>Calm · reassuring</p>
+              <div class="voice-item__tags"><span>EN-US</span><span>Support</span></div>
+              <div class="waveform waveform--tile" data-bars="20" data-seed="12" aria-hidden="true"></div>
+              <div class="voice-item__foot">
+                <button class="voice-item__play" type="button" aria-label="Play Nori">
+                  <i class="ri-play-fill"></i>
+                </button>
+                <a href="playground.html?voice=nori" class="voice-item__use">Test <i class="ri-arrow-right-up-line"></i></a>
+              </div>
+            </article>
+
+            <article class="voice-item" data-type="designed" data-name="Kai" data-lang="en-AU" data-pitch="1.12" data-rate="1.12"
+              data-line="Tickets are live, the line-up is unreal, and you’re coming. Let’s go.">
+              <div class="voice-item__top">
+                <span class="voice-item__avatar" style="--tone:linear-gradient(135deg,#2b2b2b,#000000)">K</span>
+                <span class="voice-item__badge">Designed</span>
+              </div>
+              <h3>Kai</h3>
+              <p>Energetic · promo</p>
+              <div class="voice-item__tags"><span>EN-AU</span><span>Advertising</span></div>
+              <div class="waveform waveform--tile" data-bars="20" data-seed="15" aria-hidden="true"></div>
+              <div class="voice-item__foot">
+                <button class="voice-item__play" type="button" aria-label="Play Kai">
+                  <i class="ri-play-fill"></i>
+                </button>
+                <a href="playground.html?voice=kai" class="voice-item__use">Test <i class="ri-arrow-right-up-line"></i></a>
+              </div>
+            </article>
+
+            <article class="voice-item" data-type="cloned" data-name="Noor" data-lang="en-IN" data-pitch="1" data-rate="0.88"
+              data-line="Before the city had a name, the river was already telling this story.">
+              <div class="voice-item__top">
+                <span class="voice-item__avatar" style="--tone:linear-gradient(135deg,#b47a2c,#7a4c00)">N</span>
+                <span class="voice-item__badge voice-item__badge--clone">Cloned</span>
+              </div>
+              <h3>Noor</h3>
+              <p>Soft · storytelling</p>
+              <div class="voice-item__tags"><span>EN-IN</span><span>Audiobooks</span></div>
+              <div class="waveform waveform--tile" data-bars="20" data-seed="19" aria-hidden="true"></div>
+              <div class="voice-item__foot">
+                <button class="voice-item__play" type="button" aria-label="Play Noor">
+                  <i class="ri-play-fill"></i>
+                </button>
+                <a href="playground.html?voice=noor" class="voice-item__use">Test <i class="ri-arrow-right-up-line"></i></a>
+              </div>
+            </article>
+
+            <article class="voice-item" data-type="designed" data-name="Sable" data-lang="en-US" data-pitch="0.85" data-rate="0.98"
+              data-line="I read the terms so you don’t have to. It’s four pages of people saying no.">
+              <div class="voice-item__top">
+                <span class="voice-item__avatar" style="--tone:linear-gradient(135deg,#c9a227,#6d5200);color:#14213d">S</span>
+                <span class="voice-item__badge">Designed</span>
+              </div>
+              <h3>Sable</h3>
+              <p>Dry · deadpan</p>
+              <div class="voice-item__tags"><span>EN-US</span><span>Comedy</span></div>
+              <div class="waveform waveform--tile" data-bars="20" data-seed="23" aria-hidden="true"></div>
+              <div class="voice-item__foot">
+                <button class="voice-item__play" type="button" aria-label="Play Sable">
+                  <i class="ri-play-fill"></i>
+                </button>
+                <a href="playground.html?voice=sable" class="voice-item__use">Test <i class="ri-arrow-right-up-line"></i></a>
+              </div>
+            </article>
+
+            <article class="voice-item" data-type="cloned" data-name="Wren" data-lang="en-US" data-pitch="1.1" data-rate="1"
+              data-line="Lesson one: the fastest way to learn a thing is to explain it badly, then fix it.">
+              <div class="voice-item__top">
+                <span class="voice-item__avatar" style="--tone:linear-gradient(135deg,#d8d2c4,#a79e8a);color:#14213d">W</span>
+                <span class="voice-item__badge voice-item__badge--clone">Cloned</span>
+              </div>
+              <h3>Wren</h3>
+              <p>Crisp · explainer</p>
+              <div class="voice-item__tags"><span>EN-US</span><span>E-learning</span></div>
+              <div class="waveform waveform--tile" data-bars="20" data-seed="27" aria-hidden="true"></div>
+              <div class="voice-item__foot">
+                <button class="voice-item__play" type="button" aria-label="Play Wren">
+                  <i class="ri-play-fill"></i>
+                </button>
+                <a href="playground.html?voice=wren" class="voice-item__use">Test <i class="ri-arrow-right-up-line"></i></a>
+              </div>
+            </article>
+          </div>
+
+          <p class="gallery__empty" id="galleryEmpty" hidden>No voices match that search. Try a different name.</p>
+        </section>
+
+        <section class="panel reveal" id="billing" aria-labelledby="billingTitle">
+          <div class="panel__head panel__head--wrap">
+            <div>
+              <h2 id="billingTitle">Billing &amp; payments</h2>
+              <p>Payment methods, invoices and plan changes.</p>
+            </div>
+            <span class="badge badge--live"><i class="ri-shield-check-line"></i> Auto-pay on</span>
+          </div>
+
+          <div class="billing-grid">
+            <div class="billing-card">
+              <div class="billing-card__top">
+                <h3>Payment method</h3>
+                <span class="card-brand">VISA</span>
+              </div>
+              <p class="billing-card__strong">Visa ending 4242</p>
+              <p class="billing-card__muted">Expires 04/28 · default</p>
+              <button class="button button--outline button--small" data-toast="Card form is not wired in this demo.">Replace card</button>
+            </div>
+
+            <div class="billing-card">
+              <div class="billing-card__top">
+                <h3>Billing contact</h3>
+                <i class="ri-mail-line"></i>
+              </div>
+              <p class="billing-card__strong">finance@narrate.studio</p>
+              <p class="billing-card__muted">VAT GB 384 2910 44</p>
+              <button class="button button--outline button--small" data-toast="Billing details editor is not wired in this demo.">Edit details</button>
+            </div>
+
+            <div class="billing-card billing-card--next">
+              <div class="billing-card__top">
+                <h3>Next invoice</h3>
+                <span class="badge badge--gold">Due</span>
+              </div>
+              <p class="billing-next"><strong>$29.00</strong><span>1 Nov 2026</span></p>
+              <div class="meter">
+                <div class="meter__track"><i style="width:64%"></i></div>
+                <div class="meter__top"><span>642,180 / 1,000,000 characters</span><span>64%</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="invoice-table">
+              <caption class="visually-hidden">Invoice history</caption>
+              <thead>
+                <tr><th scope="col">Invoice</th><th scope="col">Date</th><th scope="col">Amount</th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Download</span></th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>INV-1042</td>
+                  <td>1 Oct 2026</td>
+                  <td>$29.00</td>
+                  <td><span class="status status--paid">Paid</span></td>
+                  <td><button class="icon-btn" type="button" aria-label="Download INV-1042" data-toast="INV-1042.pdf — download simulated."><i class="ri-download-2-line"></i></button></td>
+                </tr>
+                <tr>
+                  <td>INV-0987</td>
+                  <td>1 Sep 2026</td>
+                  <td>$29.00</td>
+                  <td><span class="status status--paid">Paid</span></td>
+                  <td><button class="icon-btn" type="button" aria-label="Download INV-0987" data-toast="INV-0987.pdf — download simulated."><i class="ri-download-2-line"></i></button></td>
+                </tr>
+                <tr>
+                  <td>INV-0931</td>
+                  <td>1 Aug 2026</td>
+                  <td>$29.00</td>
+                  <td><span class="status status--paid">Paid</span></td>
+                  <td><button class="icon-btn" type="button" aria-label="Download INV-0931" data-toast="INV-0931.pdf — download simulated."><i class="ri-download-2-line"></i></button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="billing-note"><i class="ri-information-line"></i> Invoices are also emailed to the billing contact on the first of each month.</p>
+        </section>
+
+        <p class="app__foot">Vocalis Studio · demo workspace · <a href="index.html">Back to vocalis.ai</a></p>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast-host" id="toastHost" role="status" aria-live="polite"></div>
+
+  <script src="js/ui.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
