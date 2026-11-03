@@ -33,6 +33,7 @@ navLink.forEach(n => n.addEventListener('click', linkAction));
 const aboutBtn = document.querySelector('.about__button')
 const aboutModal = document.querySelector('.about__modal')
 const aboutClose = document.querySelector('.about__modal-close')
+const aboutModalLinks = document.querySelectorAll('.about__modal-link')
 
 let about = function(){
     aboutModal.classList.add('about-active')
@@ -48,6 +49,73 @@ if(aboutClose) {
     aboutClose.addEventListener('click', () => {
         aboutModal.classList.remove('about-active')
     })
+}
+
+if(aboutModalLinks.length) {
+    aboutModalLinks.forEach((link) => {
+        link.addEventListener('click', () => {
+            aboutModal.classList.remove('about-active')
+        })
+    })
+}
+
+/*==================== CV DOWNLOAD DROPDOWN ====================*/
+const cvDownload = document.querySelector('.cv-download'),
+      cvDownloadToggle = document.getElementById('cv-download-toggle'),
+      cvDownloadItems = document.querySelectorAll('.cv-download__item');
+
+if(cvDownload && cvDownloadToggle){
+    const closeCvMenu = () => {
+        cvDownload.classList.remove('cv-download--open');
+        cvDownloadToggle.setAttribute('aria-expanded', 'false');
+    }
+
+    const openCvMenu = () => {
+        cvDownload.classList.remove('cv-download--up');
+        cvDownload.classList.add('cv-download--open');
+        cvDownloadToggle.setAttribute('aria-expanded', 'true');
+
+        const menuBox = document.getElementById('cv-download-menu').getBoundingClientRect();
+        if(menuBox.bottom > window.innerHeight - 16){
+            cvDownload.classList.add('cv-download--up');
+        }
+    }
+
+    cvDownloadToggle.addEventListener('click', () => {
+        cvDownload.classList.contains('cv-download--open') ? closeCvMenu() : openCvMenu();
+    })
+
+    cvDownloadToggle.addEventListener('keydown', (e) => {
+        if(e.key === 'ArrowDown'){
+            e.preventDefault();
+            openCvMenu();
+            cvDownloadItems[0].focus();
+        }
+    })
+
+    cvDownloadItems.forEach((item, index) => {
+        item.addEventListener('click', closeCvMenu);
+
+        item.addEventListener('keydown', (e) => {
+            if(e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+
+            e.preventDefault();
+            const step = e.key === 'ArrowDown' ? 1 : -1;
+            const next = (index + step + cvDownloadItems.length) % cvDownloadItems.length;
+            cvDownloadItems[next].focus();
+        })
+    })
+
+    document.addEventListener('click', (e) => {
+        if(!cvDownload.contains(e.target)) closeCvMenu();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape'){
+            closeCvMenu();
+            cvDownloadToggle.focus();
+        }
+    });
 }
 
 /*==================== ACCORDION SKILLS ====================*/
@@ -94,13 +162,13 @@ const qualificationBtns = document.querySelectorAll('.qualification__link');
 const qualificationModalCloseBtns = document.querySelectorAll('.qualification__modal-close');
 
 let closeWork = function(btn){
-    const qualificationModal = btn.parentElement.parentElement;
+    const qualificationModal = btn.closest('.qualification__modal');
     qualificationModal.style.opacity = '0';
     qualificationModal.style.visibility = 'hidden';
 }
 
 let showWork = function(btn){
-    const qualificationModal = btn.parentElement.querySelector(':scope > .qualification__modal');
+    const qualificationModal = btn.closest('.qualification__data').querySelector('.qualification__modal');
     qualificationModal.style.opacity = '1';
     qualificationModal.style.visibility = 'visible';
 }
@@ -114,6 +182,12 @@ qualificationBtns.forEach((btn) => {
 qualificationModalCloseBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
         closeWork(btn)
+    })
+})
+
+document.querySelectorAll('.qualification__contact-link').forEach((link) => {
+    link.addEventListener('click', () => {
+        closeWork(link)
     })
 })
 
@@ -141,6 +215,12 @@ modalCloses.forEach((modalClose) => {
     })
 })
 
+document.querySelectorAll('.services__contact-link').forEach((link) => {
+    link.addEventListener('click', () => {
+        link.closest('.services__modal').classList.remove('active-modal')
+    })
+})
+
 /*==================== PORTFOLIO SWIPER  ====================*/
 var swiper = new Swiper(".portfolio__container", {
     cssMode: true,
@@ -161,21 +241,57 @@ const portfolioBtns = document.querySelectorAll('.portfolio__button-open');
 const portfolioModalCloseBtns = document.querySelectorAll('.portfolio__modal-close');
 
 let closePortfolio = function(btn){
-    const portfolioModal = btn.parentElement.parentElement;
-    portfolioModal.style.opacity = '0';
-    portfolioModal.style.visibility = 'hidden';
+    const portfolioModal = btn.closest('.portfolio__modal');
+    portfolioModal.classList.remove('modal-active')
+}
+
+const portfolioCarousels = new WeakMap()
+
+let initPortfolioCarousel = function(modal){
+    const carousel = modal.querySelector('.detail-carousel')
+    if (!carousel) return
+
+    if (portfolioCarousels.has(carousel)) {
+        portfolioCarousels.get(carousel).update()
+        return
+    }
+
+    const instance = new Swiper(carousel, {
+        loop: carousel.querySelectorAll('.swiper-slide').length > 1,
+        watchOverflow: true,
+        grabCursor: true,
+        spaceBetween: 8,
+        pagination: {
+            el: carousel.querySelector('.detail-carousel__dots'),
+            clickable: true,
+        },
+        navigation: {
+            nextEl: carousel.querySelector('.detail-carousel__next'),
+            prevEl: carousel.querySelector('.detail-carousel__prev'),
+        },
+    })
+
+    portfolioCarousels.set(carousel, instance)
 }
 
 let showPortfolio = function(btn){
-    const portfolioModal = btn.parentElement.parentElement.querySelector('.portfolio__modal');
-    console.log(portfolioModal);
-    // portfolioModal.style.opacity = '1';
-    // portfolioModal.style.visibility = 'visible';
+    const portfolioModal = document.getElementById(btn.dataset.portfolioTarget)
+    if (!portfolioModal) return
+
+    portfolioModal.classList.add('modal-active')
+    initPortfolioCarousel(portfolioModal)
 }
 
 portfolioBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
         showPortfolio(btn)
+    })
+
+    btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            showPortfolio(btn)
+        }
     })
 })
 
@@ -185,21 +301,22 @@ portfolioModalCloseBtns.forEach((btn) => {
     })
 })
 
+document.querySelectorAll('.portfolio__contact-link').forEach((link) => {
+    link.addEventListener('click', () => {
+        closePortfolio(link)
+    })
+})
+
 /*==================== TESTIMONIAL ====================*/
 let swiperTestimonial = new Swiper('.testimonial__container', {
     loop: true,
     grabCursor: true,
-    spaceBetween: 48,
+    spaceBetween: 24,
 
     pagination: {
         el: '.swiper-pagination',
         clickable: true,
         dynamicBullets: true,
-    },
-    breakpoints:{
-        568: {
-            slidesPerView: 2,
-        }
     }
     }
 )
