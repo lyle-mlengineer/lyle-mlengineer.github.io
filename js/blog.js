@@ -36,7 +36,7 @@ function blogRelatedHtml(current, all) {
     const related = all
         .filter(a => a.slug !== current.slug)
         .sort((x, y) => {
-            const shared = list => list.filter(t => current.tags.includes(t)).length;
+            const shared = a => a.tags.filter(t => current.tags.includes(t)).length;
             return shared(y) - shared(x);
         })
         .slice(0, 3);
@@ -106,11 +106,14 @@ async function initBlog(allArticles) {
     /* Cards on the home page */
     const homeGrid = document.querySelector("[data-blog-home]");
     if (homeGrid) {
-        homeGrid.innerHTML = articles.slice(0, 3).map(a =>
-            `<div class="blog__content swiper-slide">${blogCardHtml(a)}</div>`).join("");
+        const featured = articles.slice(0, 3);
 
-        if (window.Swiper) {
-            new Swiper(".blog__container", {
+        homeGrid.innerHTML = featured.length
+            ? featured.map(a => `<div class="blog__content swiper-slide">${blogCardHtml(a)}</div>`).join("")
+            : `<div class="blog__content swiper-slide"><p class="blog__empty">New articles are on the way.</p></div>`;
+
+        if (window.Swiper && featured.length) {
+            const blogSwiper = new Swiper(".blog__container", {
                 cssMode: true,
                 grabCursor: true,
                 watchOverflow: true,
@@ -123,6 +126,12 @@ async function initBlog(allArticles) {
                     clickable: true,
                 },
             });
+
+            /* The slides are injected moments before init, so Swiper's first metric
+               pass can measure an empty track and lock the arrows. Re-measure once
+               the browser has laid the cards out. */
+            requestAnimationFrame(() => blogSwiper.update());
+            window.addEventListener('load', () => blogSwiper.update());
         }
     }
 
@@ -135,7 +144,7 @@ async function initBlog(allArticles) {
                 : articles;
             list.innerHTML = shown.map(a =>
                 `<article class="blog__card">${blogCardHtml(a)}</article>`).join("") ||
-                `<p class="blog__empty">No articles with that tag yet.</p>`;
+                `<p class="blog__empty">${articles.length ? "No articles with that tag yet." : "New articles are on the way."}</p>`;
             document.querySelector("[data-blog-count]") &&
                 (document.querySelector("[data-blog-count]").textContent =
                     `${shown.length} of ${articles.length} articles`);

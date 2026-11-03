@@ -1,6 +1,7 @@
 /*==================== BLOG CONTENT ====================*/
-/* Single source of truth for the blog. Edit by hand, or generate this file with
-   write.html (local-only writer) and commit the result. */
+/* Article data for the site. Managed by write.html (local-only admin) through the
+   GitHub Contents API, or edited by hand and committed. This file is public: never
+   put a token, key or unpublished draft in it. */
 
 const BLOG_ARTICLES = [
     {
@@ -12,6 +13,9 @@ const BLOG_ARTICLES = [
         tags: ["ASR", "Swahili", "Training"],
         image: "img/blog1.jpg",
         imageAlt: "TODO: replace with a real figure for this article",
+        status: "published",
+        publishAt: "",
+        notes: "",
         body: [
             "<p><strong>TODO:</strong> opening paragraph. State the problem this article solves and what a reader can expect to reproduce.</p>",
 
@@ -42,6 +46,9 @@ const BLOG_ARTICLES = [
         tags: ["TTS", "Speech synthesis", "PyTorch"],
         image: "img/blog2.jpg",
         imageAlt: "TODO: replace with a real figure for this article",
+        status: "published",
+        publishAt: "",
+        notes: "",
         body: [
             "<p><strong>TODO:</strong> opening paragraph. Name the gap between a demo voice and a shippable multilingual voice.</p>",
 
@@ -72,6 +79,9 @@ const BLOG_ARTICLES = [
         tags: ["Datasets", "Labelling", "Ethics"],
         image: "img/blog3.jpg",
         imageAlt: "TODO: replace with a real figure for this article",
+        status: "published",
+        publishAt: "",
+        notes: "",
         body: [
             "<p><strong>TODO:</strong> opening paragraph. Frame consent and provenance as engineering constraints, not paperwork.</p>",
 
@@ -93,21 +103,25 @@ const BLOG_ARTICLES = [
     }
 ];
 
-/*==================== CONTENT SOURCE ====================*/
-/* Set BLOG_CMS_ENABLED to true and implement fetchRemoteArticles() to serve live
-   content from Supabase, Airtable or any JSON endpoint instead of the array above.
-   Everything else in the blog reads through loadArticles() and stays unchanged. */
+/*==================== PUBLICATION STATE ====================*/
+/* status is one of: draft, review, published, scheduled.
+   Only published entries, and scheduled entries whose publishAt date has arrived,
+   are handed to the site. Drafts and reviews never appear in this file, so they
+   stay in the writer's browser instead of a public repository. */
 
-const BLOG_CMS_ENABLED = false;
+function isArticleLive(article, today) {
+    if (article.status === "published") return true;
+    if (article.status === "scheduled") return !!article.publishAt && article.publishAt <= today;
+    return false;
+}
 
-async function fetchRemoteArticles() {
-    // TODO: replace with the real call once credentials exist, e.g.
-    //   const res = await fetch(`${BLOG_CMS_URL}/articles?_fields=slug,title,...`, {headers: {...}})
-    //   return (await res.json()).map(normaliseCmsRow)
-    throw new Error("No CMS configured. Set BLOG_CMS_ENABLED to false, or implement fetchRemoteArticles().");
+function liveArticles(articles, today) {
+    const day = today ?? new Date().toISOString().slice(0, 10);
+    return articles
+        .filter(a => isArticleLive(a, day))
+        .sort((a, b) => b.date.localeCompare(a.date));
 }
 
 async function loadArticles() {
-    if (BLOG_CMS_ENABLED) return fetchRemoteArticles();
-    return [...BLOG_ARTICLES].sort((a, b) => b.date.localeCompare(a.date));
+    return liveArticles(BLOG_ARTICLES);
 }

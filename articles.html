@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!--==================== SEO ====================-->
+        <title>Articles on Speech AI and Machine Learning | Lyle Okoth</title>
+        <meta name="description" content="Writing from Lyle Okoth, machine learning engineer: speech synthesis, ASR and diarization for Kenyan and African languages, model training and production serving.">
+        <meta name="author" content="Lyle Okoth">
+        <meta name="robots" content="index, follow, max-image-preview:large">
+        <link rel="canonical" href="https://lyle-mlengineer.github.io/articles.html">
+        <meta name="theme-color" content="#e05785">
+
+        <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+        <link rel="icon" type="image/png" sizes="48x48" href="img/favicon.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+
+        <meta property="og:type" content="website">
+        <meta property="og:site_name" content="Lyle Okoth - Machine Learning Engineer">
+        <meta property="og:title" content="Articles on Speech AI and Machine Learning">
+        <meta property="og:description" content="Writing on speech synthesis, ASR, diarization and production machine learning for African languages.">
+        <meta property="og:url" content="https://lyle-mlengineer.github.io/articles.html">
+        <meta property="og:image" content="https://lyle-mlengineer.github.io/img/og-image.png">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Articles on Speech AI and Machine Learning">
+        <meta name="twitter:description" content="Writing on speech synthesis, ASR, diarization and production machine learning for African languages.">
+        <meta name="twitter:image" content="https://lyle-mlengineer.github.io/img/og-image.png">
+
+        <!--==================== FONTS ====================-->
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap">
+
+        <!--==================== UNICONS ====================-->
+        <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.2.0/css/line.css">
+
+        <!--==================== SWIPER CSS ====================-->
+        <link rel="stylesheet" href="css/swiper-bundle.min.css">
+
+        <!--==================== CSS ====================-->
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body>
+        <!--==================== HEADER ====================-->
+        <header class="header" id="header">
+            <nav class="nav container">
+                <a href="index.html" class="nav__logo">
+                    Lyle
+                </a>
+
+                <div class="nav__menu" id="nav-menu">
+                    <ul class="nav__list grid">
+                        <li class="nav__item">
+                            <a href="index.html#home" class="nav__link">
+                                <i class="uil uil-estate nav__icon"></i>
+                                Home
+                            </a>
+                        </li>
+                        <li class="nav__item">
+                            <a href="index.html#about" class="nav__link">
+                                <i class="uil uil-user nav__icon"></i>
+                                About
+                            </a>
+                        </li>
+                        <li class="nav__item">
+                            <a href="index.html#skills" class="nav__link">
+                                <i class="uil uil-file-alt nav__icon"></i>
+                                Skills
+                            </a>
+                        </li>
+                        <li class="nav__item">
+                            <a href="index.html#services" class="nav__link">
+                                <i class="uil uil-briefcase nav__icon"></i>
+                                Services
+                            </a>
+                        </li>
+                        <li class="nav__item">
+                            <a href="index.html#portfolio" class="nav__link">
+                                <i class="uil uil-scenery nav__icon"></i>
+                                Portfolio
+                            </a>
+                        </li>
+                        <li class="nav__item">
+                            <a href="index.html#blog" class="nav__link active-link">
+                                <i class="uil uil-medium-m nav__icon"></i>
+                                Blog
+                            </a>
+                        </li>
+                        <li class="nav__item">
+                            <a href="index.html#contact" class="nav__link">
+                                <i class="uil uil-message nav__icon"></i>
+                                Contact
+                            </a>
+                        </li>
+                    </ul>
+
+                    <i class="uil uil-times nav__close" id="nav-close"></i>
+
+                </div>
+
+                <div class="nav__btns">
+                    <!-- Theme change button -->
+                    <i class="uil uil-moon change-theme" id="theme-button"></i>
+
+                    <div class="nav__toggle" id="nav-toggle">
+                        <i class="uil uil-apps"></i>
+                    </div>
+                </div>
+
+            </nav>
+        </header>
+
+        <!--==================== MAIN ====================-->
+        <main class="main">
+            <section class="blog section">
+                <h2 class="section__title">Articles</h2>
+                <span class="section__subtitle">Speech AI, data and everything between the notebook and production</span>
+
+                <div class="container" id="blog-list">
+                    <span class="bloglist__count" data-blog-count></span>
+
+                    <ul class="bloglist__filters" data-blog-filters></ul>
+
+                    <div class="bloglist__grid grid" data-blog-list></div>
+
+                    <div class="bloglist__footer">
+                        <a href="index.html#contact" class="button button--flex button--small">
+                            Work with me
+                            <i class="uil uil-message button__icon"></i>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!--==================== BLOG ARTICLE MODAL ====================-->
+            <div class="modal detail-modal blog-modal" id="blog-modal">
+                <div class="modal-content">
+                    <div class="detail-header">
+                        <h4 class="modal-title"></h4>
+                        <span class="detail-meta"></span>
+                        <i class="uil uil-times modal-close blog-modal-close"></i>
+                    </div>
+
+                    <div class="blog-article">
+                        <!-- Article body renders here from js/blog.js -->
+                    </div>
+
+                    <div class="detail-footer">
+                        <a href="articles.html" class="button button--flex button--small button--link blog-modal-all">
+                            <i class="uil uil-list-ui-alt modal-icon"></i>
+                            <span>All articles</span>
+                        </a>
+                    </div>
+
+                    <input type="hidden" id="blog-modal-slug">
+                </div>
+            </div>
+        </main>
+
+        <!--==================== FOOTER ====================-->
+        <footer class="footer">
+            <div class="footer__bg">
+                <div class="footer__container container grid">
+                    <div>
+                        <h1 class="footer__title">Lyle</h1>
+                        <span class="footer__subtitle">Machine Learning Engineer</span>
+                    </div>
+
+                    <ul class="footer__links">
+                        <li>
+                            <a href="index.html#services" class="footer__link">Services</a>
+                        </li>
+                        <li>
+                            <a href="index.html#portfolio" class="footer__link">Portfolio</a>
+                        </li>
+                        <li>
+                            <a href="index.html#contact" class="footer__link">Contact me</a>
+                        </li>
+                    </ul>
+
+                    <div class="footer__socials">
+                        <a href="https://www.linkedin.com/in/lyle-okoth/" target="_blank" class="footer__social">
+                                <i class="uil uil-linkedin-alt"></i>
+                            </a>
+                            <a href="https://github.com/lyle-mlengineer" target="_blank" class="footer__social">
+                                <i class="uil uil-github-alt"></i>
+                            </a>
+                            <a href="https://x.com/LyleOkoth" target="_blank" class="footer__social">
+                                <i class="uil uil-twitter-alt"></i>
+                            </a>
+                            <a href="https://medium.com/@lyle-okoth" target="_blank" class="footer__social">
+                                <i class="uil uil-medium-m"></i>
+                            </a>
+                            <a href="https://www.instagram.com/lyle_okoth/" target="_blank" class="footer__social">
+                                <i class="uil uil-instagram"></i>
+                            </a>
+
+                    </div>
+                </div>
+
+                <p class="footer__copy">
+                    &#169; lyleokoth. All right reserved
+                </p>
+        </footer>
+
+        <!--==================== SCROLL TOP ====================-->
+        <a href="#" class="scrollup" id="scroll-up">
+            <i class="uil uil-arrow-up scrollup__icon"></i>
+        </a>
+
+        <!--==================== SWIPER JS ====================-->
+        <script src="js/swiper-bundle.min.js"></script>
+
+        <!--==================== MAIN JS ====================-->
+        <script src="js/articles.js"></script>
+        <script src="js/blog.js"></script>
+        <script src="js/main.js"></script>
+    </body>
+</html>

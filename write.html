@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+
+    <title>Article CMS (local)</title>
+
+    <!-- Site stylesheet so the preview matches the real article modal -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap">
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        body {
+            padding: var(--mb-2) 0 var(--mb-3);
+        }
+
+        .writer {
+            max-width: 900px;
+        }
+
+        .writer__bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            column-gap: var(--mb-1);
+            margin-bottom: var(--mb-1-5);
+            padding-bottom: var(--mb-1);
+            border-bottom: 1px solid var(--scroll-bar-color);
+        }
+
+        .writer__badge {
+            font-size: var(--smaller-font-size);
+            color: var(--title-color);
+            background-color: var(--container-color);
+            border: 1px solid var(--scroll-bar-color);
+            border-radius: 1rem;
+            padding: .25rem .75rem;
+        }
+
+        .writer__panel {
+            background-color: var(--container-color);
+            border: 1px solid var(--scroll-bar-color);
+            border-radius: .5rem;
+            padding: var(--mb-1-5);
+            margin-bottom: var(--mb-1-5);
+        }
+
+        .writer__grid {
+            display: grid;
+            gap: var(--mb-1);
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .writer__grid .wide {
+            grid-column: 1 / -1;
+        }
+
+        .writer label {
+            display: block;
+            font-size: var(--smaller-font-size);
+            font-weight: var(--font-semi-bold);
+            color: var(--title-color);
+            margin-bottom: .35rem;
+        }
+
+        .writer input[type="text"],
+        .writer input[type="password"],
+        .writer input[type="date"],
+        .writer select,
+        .writer textarea {
+            width: 100%;
+            font-family: var(--body-font);
+            font-size: var(--small-font-size);
+            color: var(--title-color);
+            background-color: var(--input-color);
+            border: 1px solid var(--scroll-bar-color);
+            border-radius: .5rem;
+            padding: .6rem .75rem;
+            outline: none;
+        }
+
+        .writer textarea {
+            min-height: 240px;
+            line-height: 1.6;
+        }
+
+        .writer textarea.mono {
+            font-family: ui-monospace, 'DejaVu Sans Mono', Menlo, Consolas, monospace;
+            font-size: var(--smaller-font-size);
+        }
+
+        .writer__hint {
+            font-size: var(--smaller-font-size);
+            color: var(--text-color-light);
+            margin-top: .35rem;
+        }
+
+        .writer__note {
+            font-size: var(--small-font-size);
+            color: var(--text-color-light);
+            margin-bottom: var(--mb-1);
+        }
+
+        .writer__actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .6rem;
+            margin-top: var(--mb-1);
+        }
+
+        .writer__status {
+            font-size: var(--small-font-size);
+            color: var(--first-color);
+            margin-top: var(--mb-1);
+            min-height: 1.2rem;
+        }
+
+        .writer__hidden {
+            display: none;
+        }
+
+        /* Library table */
+        .writer__existing {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--smaller-font-size);
+        }
+
+        .writer__existing th,
+        .writer__existing td {
+            text-align: left;
+            padding: .4rem .5rem;
+            border-bottom: 1px solid var(--scroll-bar-color);
+            vertical-align: top;
+        }
+
+        .writer__existing th {
+            color: var(--title-color);
+            text-transform: uppercase;
+            letter-spacing: .04rem;
+        }
+
+        .writer__link {
+            color: var(--first-color);
+            background: none;
+            border: none;
+            font-family: var(--body-font);
+            font-size: inherit;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .writer__tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .4rem;
+            margin-bottom: var(--mb-1);
+        }
+
+        .writer__tab {
+            font-family: var(--body-font);
+            font-size: var(--smaller-font-size);
+            color: var(--title-color);
+            background-color: var(--input-color);
+            border: 1px solid var(--scroll-bar-color);
+            border-radius: 1rem;
+            padding: .3rem .8rem;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .writer__tab-active {
+            color: #fff;
+            background-color: var(--first-color);
+            border-color: var(--first-color);
+        }
+
+        .writer__state {
+            font-size: var(--smaller-font-size);
+            border-radius: .75rem;
+            padding: .1rem .5rem;
+            white-space: nowrap;
+        }
+
+        .writer__state-draft { background-color: var(--input-color); color: var(--text-color-light); }
+        .writer__state-review { background-color: rgba(255, 190, 60, .25); color: var(--title-color); }
+        .writer__state-published { background-color: rgba(60, 200, 120, .25); color: var(--title-color); }
+        .writer__state-scheduled { background-color: rgba(90, 140, 250, .22); color: var(--title-color); }
+
+        .writer__row-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem;
+        }
+
+        .writer__dirty {
+            color: var(--first-color);
+            font-weight: var(--font-semi-bold);
+        }
+
+        /* Publish checks */
+        .writer__checks {
+            font-size: var(--smaller-font-size);
+            margin-top: var(--mb-1);
+        }
+
+        .writer__checks li {
+            list-style: none;
+            color: var(--text-color-light);
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .writer__checks li::before {
+            position: absolute;
+            left: 0;
+        }
+
+        .writer__checks-pass::before { content: '\2713'; color: #3cba78; }
+        .writer__checks-fail::before { content: '\2717'; color: #e05785; }
+
+        .writer__preview {
+            background-color: var(--input-color);
+            border: 1px solid var(--scroll-bar-color);
+            border-radius: .5rem;
+            padding: var(--mb-1-5);
+        }
+
+        .writer__preview .blog__figure {
+            margin: 0 0 var(--mb-1-5);
+            border-radius: .35rem;
+            overflow: hidden;
+        }
+
+        .writer__log {
+            font-size: var(--smaller-font-size);
+            font-family: ui-monospace, 'DejaVu Sans Mono', Menlo, Consolas, monospace;
+            color: var(--text-color-light);
+            max-height: 11rem;
+            overflow-y: auto;
+        }
+
+        .writer__log li {
+            list-style: none;
+            margin-bottom: .25rem;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <main class="writer container">
+        <div class="writer__bar">
+            <h2 class="section__title" style="text-align:left;margin:0">Article CMS</h2>
+            <span class="writer__badge">local only &middot; writes to GitHub</span>
+        </div>
+
+        <!--==================== GATE ====================-->
+        <div class="writer__panel" id="gate">
+            <p class="writer__note">
+                This page is kept out of the repository (see <code>.gitignore</code>) and is not linked from the
+                public site. The passphrase below is a convenience lock only: a static page cannot keep a secret,
+                so the real protection is that this file is never deployed.
+            </p>
+            <label for="pass">Passphrase</label>
+            <input type="password" id="pass" autocomplete="off" placeholder="edit WRITE_PASSPHRASE in this file">
+            <div class="writer__actions">
+                <button class="button button--small" type="button" id="gate-open">Unlock</button>
+            </div>
+        </div>
+
+        <div id="app" class="writer__hidden">
+            <!--==================== CONNECTION ====================-->
+            <div class="writer__panel">
+                <h3 class="detail-heading">Connection</h3>
+                <div class="writer__grid">
+                    <div class="wide">
+                        <label for="c-token">GitHub token (fine-grained, Contents: read and write, this repo only)</label>
+                        <input type="password" id="c-token" autocomplete="off" placeholder="github_pat_...">
+                        <p class="writer__hint">
+                            Held in this browser's localStorage and sent only to api.github.com. Never written into
+                            any file. Clear it with "Forget token" when you share the machine.
+                        </p>
+                    </div>
+                    <div>
+                        <label for="c-owner">Owner</label>
+                        <input type="text" id="c-owner" placeholder="lyle-mlengineer">
+                    </div>
+                    <div>
+                        <label for="c-repo">Repository</label>
+                        <input type="text" id="c-repo" placeholder="lyle-mlengineer.github.io">
+                    </div>
+                    <div>
+                        <label for="c-path">Article data path</label>
+                        <input type="text" id="c-path" placeholder="js/articles.js">
+                    </div>
+                    <div>
+                        <label for="c-branch">Branch</label>
+                        <input type="text" id="c-branch" placeholder="main">
+                    </div>
+                </div>
+                <div class="writer__actions">
+                    <button class="button button--small" type="button" id="btn-load">Load from GitHub</button>
+                    <button class="button button--small button--link" type="button" id="btn-check">Test connection</button>
+                    <button class="button button--small button--link" type="button" id="btn-forget">Forget token</button>
+                </div>
+                <p class="writer__status" id="conn-status"></p>
+            </div>
+
+            <!--==================== LIBRARY ====================-->
+            <div class="writer__panel">
+                <h3 class="detail-heading">Library <span id="lib-summary"></span></h3>
+                <div class="writer__tabs" id="lib-tabs"></div>
+                <table class="writer__existing">
+                    <thead>
+                        <tr><th>Title</th><th>Slug</th><th>Date</th><th>State</th><th>Tags</th><th></th></tr>
+                    </thead>
+                    <tbody id="existing-rows"></tbody>
+                </table>
+                <div class="writer__actions">
+                    <button class="button button--small" type="button" id="btn-commit">Commit &amp; publish</button>
+                    <button class="button button--small button--link" type="button" id="btn-new">New blank article</button>
+                </div>
+                <p class="writer__hint">
+                    Commit writes published and scheduled entries to <code id="hint-path">js/articles.js</code>.
+                    Drafts and reviews stay in this browser: the repository is public, so anything committed is
+                    readable by everyone.
+                </p>
+            </div>
+
+            <!--==================== EDITOR ====================-->
+            <div class="writer__panel">
+                <h3 class="detail-heading">Editor <span id="editing-label"></span></h3>
+                <div class="writer__grid">
+                    <div class="wide">
+                        <label for="f-title">Title</label>
+                        <input type="text" id="f-title" placeholder="Building a Swahili ASR Baseline From Scratch">
+                    </div>
+
+                    <div>
+                        <label for="f-slug">Slug</label>
+                        <input type="text" id="f-slug" placeholder="swahili-asr-baseline">
+                        <p class="writer__hint">Auto-generated from the title. Used as the deep link and the merge key.</p>
+                    </div>
+
+                    <div>
+                        <label for="f-status">State</label>
+                        <select id="f-status">
+                            <option value="draft">Draft</option>
+                            <option value="review">In review</option>
+                            <option value="published">Published</option>
+                            <option value="scheduled">Scheduled</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="f-date">Display date</label>
+                        <input type="date" id="f-date">
+                    </div>
+
+                    <div>
+                        <label for="f-publish-at">Go live on</label>
+                        <input type="date" id="f-publish-at">
+                        <p class="writer__hint">Scheduled entries reach the site on this date without another commit.</p>
+                    </div>
+
+                    <div>
+                        <label for="f-read">Read time</label>
+                        <input type="text" id="f-read" placeholder="8 min read">
+                    </div>
+
+                    <div>
+                        <label for="f-tags">Tags</label>
+                        <input type="text" id="f-tags" placeholder="ASR, Swahili, Training">
+                        <p class="writer__hint">Existing: <span id="existing-tags"></span></p>
+                    </div>
+
+                    <div>
+                        <label for="f-image">Cover image</label>
+                        <input type="text" id="f-image" placeholder="img/blog1.jpg">
+                        <p class="writer__hint">Path relative to the site root, or upload a new one.</p>
+                    </div>
+
+                    <div>
+                        <label for="f-cover-file">Upload cover</label>
+                        <input type="file" id="f-cover-file" accept="image/*">
+                    </div>
+
+                    <div>
+                        <label for="f-alt">Cover alt text</label>
+                        <input type="text" id="f-alt" placeholder="Waveform of a Swahili speech clip">
+                    </div>
+
+                    <div class="wide">
+                        <label for="f-excerpt">Excerpt (leads the card and the article)</label>
+                        <textarea id="f-excerpt" class="mono" style="min-height:88px" placeholder="One or two sentences a reader sees before opening the article."></textarea>
+                    </div>
+
+                    <div class="wide">
+                        <label for="f-notes">Review notes</label>
+                        <textarea id="f-notes" class="mono" style="min-height:70px" placeholder="What still needs fixing before this goes out."></textarea>
+                    </div>
+
+                    <div class="wide">
+                        <label for="f-body">Body HTML</label>
+                        <textarea id="f-body" class="mono" placeholder="&lt;h3&gt;Section&lt;/h3&gt;&#10;&lt;p&gt;...&lt;/p&gt;"></textarea>
+                        <p class="writer__hint">Inserted into the modal unescaped. Supported: h3, p, ul, ol, li, a, blockquote, pre &gt; code, strong, em.</p>
+                    </div>
+                </div>
+
+                <ul class="writer__checks" id="checks"></ul>
+
+                <div class="writer__actions">
+                    <button class="button button--small" type="button" id="btn-save">Save</button>
+                    <button class="button button--small" type="button" id="btn-preview">Refresh preview</button>
+                    <button class="button button--small button--link" type="button" id="btn-copy">Copy articles.js</button>
+                    <button class="button button--small button--link" type="button" id="btn-download">Download articles.js</button>
+                    <button class="button button--small button--link" type="button" id="btn-delete">Delete</button>
+                </div>
+                <textarea id="out" class="mono writer__hidden" readonly style="min-height:200px;margin-top:var(--mb-1)"></textarea>
+                <p class="writer__status" id="status"></p>
+            </div>
+
+            <!--==================== PREVIEW ====================-->
+            <div class="writer__panel">
+                <h3 class="detail-heading">Preview</h3>
+                <div class="writer__preview">
+                    <div class="blog-article" id="preview">
+                        <p class="writer__hint">Fill the form and press Refresh preview.</p>
+                    </div>
+                </div>
+                <p class="writer__hint" style="margin-top:var(--mb-1)">
+                    Live article pages: <a href="index.html#blog" target="_blank" class="writer__link">index.html#blog</a>
+                    &middot; <a href="articles.html" target="_blank" class="writer__link">articles.html</a>
+                </p>
+            </div>
+
+            <!--==================== LOG ====================-->
+            <div class="writer__panel">
+                <h3 class="detail-heading">Activity</h3>
+                <ul class="writer__log" id="log"></ul>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/articles.js"></script>
+    <script>
+    /*==================== COSMETIC GATE ====================*/
+    /* Change this to your own phrase. It is not an access control: anyone who can load
+       this file can read it. The protection is that this file is not deployed. */
+    const WRITE_PASSPHRASE = "changeme";
+
+    const LS = {
+        token: "cms.token",
+        config: "cms.config",
+        workspace: "cms.workspace.v1",
+    };
+
+    const DEFAULTS = {
+        owner: "lyle-mlengineer",
+        repo: "lyle-mlengineer.github.io",
+        path: "js/articles.js",
+        branch: "main",
+    };
+
+    const STATUSES = {
+        draft: "Draft",
+        review: "In review",
+        published: "Published",
+        scheduled: "Scheduled",
+    };
+
+    /*==================== STATE ====================*/
+    const $ = id => document.getElementById(id);
+    const gate = $("gate");
+    const app = $("app");
+    const status = $("status");
+    const connStatus = $("conn-status");
+
+    let articles = [];           // the whole working set, drafts included
+    let dirty = new Set();       // slugs changed locally since the last commit
+    let editing = null;          // slug currently open in the editor
+    let tab = "all";
+
+    function config() {
+        return {
+            token: $("c-token").value.trim(),
+            owner: $("c-owner").value.trim(),
+            repo: $("c-repo").value.trim(),
+            path: $("c-path").value.trim(),
+            branch: $("c-branch").value.trim(),
+        };
+    }
+
+    function today() {
+        return new Date().toISOString().slice(0, 10);
+    }
+
+    const esc = value => String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+
+    function log(message) {
+        const li = document.createElement("li");
+        li.textContent = new Date().toLocaleTimeString("en-GB") + "  " + message;
+        $("log").prepend(li);
+    }
+
+    /*==================== LOCAL STORE ====================*/
+    function saveWorkspace() {
+        localStorage.setItem(LS.workspace, JSON.stringify({
+            savedAt: new Date().toISOString(),
+            dirty: [...dirty],
+            articles,
+        }));
+    }
+
+    function readWorkspace() {
+        try {
+            const raw = JSON.parse(localStorage.getItem(LS.workspace));
+            if (raw && Array.isArray(raw.articles)) {
+                articles = raw.articles;
+                dirty = new Set(raw.dirty || []);
+                return true;
+            }
+        } catch (e) {
+            log("Workspace could not be read: " + e.message);
+        }
+        return false;
+    }
+
+    function seedFromLocalFile() {
+        articles = (typeof BLOG_ARTICLES === "undefined" ? [] : BLOG_ARTICLES).map(a => ({ ...a }));
+        saveWorkspace();
+    }
+
+    /*==================== GITHUB CONTENTS API ====================*/
+    function b64FromText(text) {
+        const bytes = new TextEncoder().encode(text);
+        let bin = "";
+        bytes.forEach(b => bin += String.fromCharCode(b));
+        return btoa(bin);
+    }
+
+    function textFromB64(b64) {
+        const bin = atob(b64.replace(/\s/g, ""));
+        return new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0)));
+    }
+
+    async function api(url, options = {}) {
+        const cfg = config();
+        if (!cfg.token) throw new Error("Add your GitHub token first.");
+        if (!cfg.owner || !cfg.repo) throw new Error("Owner and repository are required.");
+
+        const res = await fetch(url, {
+            ...options,
+            headers: {
+                Accept: "application/vnd.github+json",
+                Authorization: `Bearer ${cfg.token}`,
+                "X-GitHub-Api-Version": "2022-11-28",
+                ...(options.headers || {}),
+            },
+        });
+
+        const body = res.status === 204 ? null : await res.json().catch(() => null);
+        if (!res.ok) {
+            const detail = body && body.message ? body.message : res.statusText;
+            throw new Error(`GitHub ${res.status}: ${detail}`);
+        }
+        return body;
+    }
+
+    const repoApi = (path, options) => api(`https://api.github.com/repos/${config().owner}/${config().repo}/${path}`, options);
+
+    async function readRemote() {
+        const cfg = config();
+        const ref = cfg.branch ? `?ref=${encodeURIComponent(cfg.branch)}` : "";
+        const data = await repoApi(`contents/${cfg.path}${ref}`);
+        return { text: textFromB64(data.content), sha: data.sha };
+    }
+
+    async function putFile(relPath, base64, message) {
+        const cfg = config();
+        const ref = cfg.branch ? `?ref=${encodeURIComponent(cfg.branch)}` : "";
+        let sha = null;
+        try {
+            sha = (await repoApi(`contents/${relPath}${ref}`)).sha;
+        } catch (e) {
+            if (!/404/.test(e.message)) throw e;
+        }
+
+        return repoApi(`contents/${relPath}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                message,
+                content: base64,
+                ...(sha ? { sha } : {}),
+                ...(cfg.branch ? { branch: cfg.branch } : {}),
+                committer: { name: "Article CMS", email: "cms@local" },
+            }),
+        });
+    }
+
+    /*==================== MERGE ====================*/
+    // The fetched file is evaluated, not parsed; it comes from your own repo over TLS.
+    function parseArticleFile(text) {
+        const evaluate = new Function(`${text}\nreturn typeof BLOG_ARTICLES === "undefined" ? [] : BLOG_ARTICLES;`);
+        const raw = evaluate();
+        if (!Array.isArray(raw)) return [];
+        return raw.map(a => ({ ...a, status: a.status || "published" }));
+    }
+
+    function mergeRemote(remote) {
+        const local = new Map(articles.map(a => [a.slug, a]));
+        const remoteSlugs = new Set(remote.map(a => a.slug));
+
+        const fromGitHub = remote.map(a => {
+            const mine = local.get(a.slug);
+            return mine && dirty.has(a.slug) ? mine : a;   // unsaved edits win
+        });
+        const localOnly = [...local.values()].filter(a => !remoteSlugs.has(a.slug));
+
+        articles = fromGitHub.concat(localOnly);
+    }
+
+    /*==================== FILE BUILD ====================*/
+    const FIELD_ORDER = ["slug", "title", "excerpt", "date", "readTime", "tags", "image", "imageAlt", "status", "publishAt", "notes", "body"];
+
+    function serialise(article) {
+        const ordered = {};
+        FIELD_ORDER.forEach(k => ordered[k] = article[k] ?? (k === "tags" ? [] : ""));
+        return JSON.stringify(ordered, null, 4).replace(/^/gm, "    ").trimEnd();
+    }
+
+    function fileArticles() {
+        return articles
+            .filter(a => a.status === "published" || a.status === "scheduled")
+            .sort((a, b) => b.date.localeCompare(a.date));
+    }
+
+    function buildFile() {
+        const list = fileArticles().map(serialise).join(",\n");
+        const header = `/*==================== BLOG CONTENT ====================*/
+/* Article data for the site. Managed by write.html (local-only admin) through the
+   GitHub Contents API, or edited by hand and committed. This file is public: never
+   put a token, key or unpublished draft in it. */
+
+const BLOG_ARTICLES = [`;
+
+        const footer = `];
+
+/*==================== PUBLICATION STATE ====================*/
+/* status is one of: draft, review, published, scheduled.
+   Only published entries, and scheduled entries whose publishAt date has arrived,
+   are handed to the site. Drafts and reviews never appear in this file, so they
+   stay in the writer's browser instead of a public repository. */
+
+function isArticleLive(article, today) {
+    if (article.status === "published") return true;
+    if (article.status === "scheduled") return !!article.publishAt && article.publishAt <= today;
+    return false;
+}
+
+function liveArticles(articles, today) {
+    const day = today ?? new Date().toISOString().slice(0, 10);
+    return articles
+        .filter(a => isArticleLive(a, day))
+        .sort((a, b) => b.date.localeCompare(a.date));
+}
+
+async function loadArticles() {
+    return liveArticles(BLOG_ARTICLES);
+}
+`;
+        return header + "\n" + list + "\n" + footer;
+    }
+
+    /*==================== FORM ====================*/
+    const fields = {
+        title: $("f-title"),
+        slug: $("f-slug"),
+        status: $("f-status"),
+        date: $("f-date"),
+        publishAt: $("f-publish-at"),
+        read: $("f-read"),
+        tags: $("f-tags"),
+        image: $("f-image"),
+        alt: $("f-alt"),
+        notes: $("f-notes"),
+        excerpt: $("f-excerpt"),
+        body: $("f-body"),
+    };
+
+    function slugify(text) {
+        return text.toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "")
+            .slice(0, 60);
+    }
+
+    Object.entries(fields).forEach(([key, el]) => {
+        el.addEventListener(key === "status" ? "change" : "input", () => {
+            if (key === "title" && !fields.slug.dataset.touched) fields.slug.value = slugify(fields.title.value);
+            if (key === "slug") fields.slug.dataset.touched = "1";
+            renderChecks();
+            preview();
+            if (key === "status" && editing) save(true);
+        });
+    });
+
+    function collect() {
+        const status = fields.status.value;
+        const publishAt = fields.publishAt.value;
+        return {
+            slug: fields.slug.value.trim() || slugify(fields.title.value),
+            title: fields.title.value.trim(),
+            excerpt: fields.excerpt.value.trim(),
+            date: status === "scheduled" && publishAt ? publishAt : fields.date.value,
+            readTime: fields.read.value.trim(),
+            tags: fields.tags.value.split(",").map(t => t.trim()).filter(Boolean),
+            image: fields.image.value.trim(),
+            imageAlt: fields.alt.value.trim(),
+            status: status,
+            publishAt: publishAt,
+            notes: fields.notes.value.trim(),
+            body: fields.body.value.trim(),
+        };
+    }
+
+    /* Every rule an entry must satisfy before it can go live. */
+    const CHECKS = [
+        ["title", a => !!a.title],
+        ["slug", a => !!a.slug],
+        ["excerpt", a => !!a.excerpt],
+        ["read time", a => !!a.readTime],
+        ["at least one tag", a => a.tags.length > 0],
+        ["cover image", a => !!a.image],
+        ["cover alt text", a => !!a.imageAlt],
+        ["body", a => !!a.body],
+        ["body free of TODO markers", a => !/TODO/i.test(a.body)],
+        ["a display date", a => (a.status === "scheduled" ? !!a.publishAt : !!a.date)],
+    ];
+
+    function blockers(a) {
+        return CHECKS.filter(([, passes]) => !passes(a)).map(([label]) => label);
+    }
+
+    function renderChecks() {
+        const a = collect();
+        $("checks").innerHTML = CHECKS
+            .map(([label, passes]) => `<li class="writer__checks-${passes(a) ? "pass" : "fail"}">${label}</li>`)
+            .join("");
+
+        $("editing-label").textContent = a.slug ? `— ${a.slug}${dirty.has(a.slug) ? " *" : ""}` : "";
+    }
+
+    function loadIntoForm(a) {
+        editing = a.slug;
+        fields.slug.dataset.touched = "1";
+        fields.title.value = a.title;
+        fields.slug.value = a.slug;
+        fields.status.value = a.status || "draft";
+        fields.date.value = a.date;
+        fields.publishAt.value = a.publishAt || "";
+        fields.read.value = a.readTime;
+        fields.image.value = a.image;
+        fields.alt.value = a.imageAlt;
+        fields.tags.value = a.tags.join(", ");
+        fields.notes.value = a.notes || "";
+        fields.excerpt.value = a.excerpt;
+        fields.body.value = a.body;
+        renderChecks();
+        preview();
+    }
+
+    /*==================== SAVE / TRANSITIONS ====================*/
+    function upsert(article) {
+        const at = articles.findIndex(a => a.slug === article.slug);
+        if (at > -1) articles[at] = article;
+        else articles.push(article);
+        dirty.add(article.slug);
+        editing = article.slug;
+        saveWorkspace();
+        renderLibrary();
+    }
+
+    function save(silent) {
+        const a = collect();
+        if (!a.slug) { status.textContent = "Give it a title or a slug before saving."; return null; }
+        upsert(a);
+        if (!silent) status.textContent = `Saved "${a.slug}" to this browser${a.status === "draft" || a.status === "review" ? " (not committed)" : ""}.`;
+        return a;
+    }
+
+    $("btn-save").addEventListener("click", () => save());
+
+    function transition(slug, next, message) {
+        /* A row action should act on what the editor currently shows, not on the
+           last explicit save, so pull the open article in first. */
+        if (editing === slug) save(true);
+
+        const a = articles.find(x => x.slug === slug);
+        if (!a) return;
+
+        if (next === "published") {
+            const blocked = blockers(a);
+            if (blocked.length) { status.textContent = `Cannot publish "${slug}": ${blocked.join(", ")}.`; return; }
+            a.date = a.publishAt || a.date || today();
+            a.status = "published";
+            a.publishAt = "";
+        } else if (next === "scheduled") {
+            if (!a.publishAt) { status.textContent = `Set a go-live date for "${slug}" first.`; return; }
+            a.status = "scheduled";
+            a.date = a.publishAt;
+        } else if (next === "review") {
+            if (!a.title || !a.body) { status.textContent = `"${slug}" needs a title and a body before review.`; return; }
+            a.status = "review";
+        } else {
+            a.status = next;
+        }
+
+        upsert(a);
+        if (editing === slug) loadIntoForm(a);
+        log(message);
+    }
+
+    /*==================== LIBRARY ====================*/
+    function counts() {
+        const by = s => articles.filter(a => a.status === s).length;
+        return {
+            all: articles.length,
+            draft: by("draft"),
+            review: by("review"),
+            published: by("published"),
+            scheduled: by("scheduled"),
+        };
+    }
+
+    function renderTabs() {
+        const c = counts();
+        const tabs = [["all", "All"], ["draft", "Drafts"], ["review", "In review"], ["published", "Published"], ["scheduled", "Scheduled"]];
+        $("lib-tabs").innerHTML = tabs
+            .map(([key, label]) => `<button type="button" class="writer__tab${tab === key ? " writer__tab-active" : ""}" data-tab="${key}">${label} ${c[key]}</button>`)
+            .join("");
+        $("lib-summary").textContent = `— ${c.all} entries, ${dirty.size} unsaved`;
+    }
+
+    function rowActions(a) {
+        const slug = esc(a.slug);
+        const link = (attr, label) => `<button type="button" class="writer__link" data-${attr}>${label}</button>`;
+        const acts = [link(`edit="${slug}"`, "edit")];
+        if (a.status === "draft") acts.push(link(`do="review:${slug}"`, "to review"));
+        if (a.status !== "published") acts.push(link(`do="publish:${slug}"`, "publish"));
+        if (a.status !== "scheduled") acts.push(link(`do="schedule:${slug}"`, "schedule"));
+        if (a.status === "scheduled" && a.publishAt && a.publishAt <= today()) acts.push(link(`do="due:${slug}"`, "date passed — mark live"));
+        if (a.status === "published") acts.push(link(`do="draft:${slug}"`, "unpublish"));
+        if (dirty.has(a.slug)) acts.push(`<span class="writer__dirty">unsaved</span>`);
+        return acts.join("");
+    }
+
+    function renderLibrary() {
+        renderTabs();
+        $("existing-tags").textContent = [...new Set(articles.flatMap(a => a.tags))].sort().join(", ") || "none yet";
+        $("hint-path").textContent = config().path || DEFAULTS.path;
+
+        const shown = articles
+            .filter(a => tab === "all" || a.status === tab)
+            .sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+
+        $("existing-rows").innerHTML = shown.map(a => `
+            <tr>
+                <td>${esc(a.title) || "(untitled)"}${a.notes ? `<br><span class="writer__hint">${esc(a.notes)}</span>` : ""}</td>
+                <td>${esc(a.slug)}</td>
+                <td>${esc(a.status === "scheduled" && a.publishAt ? a.publishAt : a.date)}</td>
+                <td><span class="writer__state writer__state-${esc(a.status)}">${esc(STATUSES[a.status] || a.status)}</span></td>
+                <td>${esc(a.tags.join(", "))}</td>
+                <td><div class="writer__row-actions">${rowActions(a)}</div></td>
+            </tr>`).join("") || `<tr><td colspan="6" class="writer__hint">Nothing in this state yet.</td></tr>`;
+    }
+
+    $("lib-tabs").addEventListener("click", e => {
+        const btn = e.target.closest("[data-tab]");
+        if (!btn) return;
+        tab = btn.dataset.tab;
+        renderLibrary();
+    });
+
+    $("existing-rows").addEventListener("click", e => {
+        const edit = e.target.closest("[data-edit]");
+        if (edit) {
+            loadIntoForm(articles.find(a => a.slug === edit.dataset.edit));
+            status.textContent = `Editing "${edit.dataset.edit}".`;
+            return;
+        }
+        const action = e.target.closest("[data-do]");
+        if (!action) return;
+        const [verb, slug] = action.dataset.do.split(":");
+        const map = { publish: "published", schedule: "scheduled", review: "review", draft: "draft", due: "published" };
+        transition(slug, map[verb], `${slug} → ${STATUSES[map[verb]]}`);
+    });
+
+    /*==================== COMMIT ====================*/
+    async function commit() {
+        const text = buildFile();
+        try {
+            const result = await putFile(config().path, b64FromText(text), `cms: publish ${fileArticles().length} articles`);
+            fileArticles().forEach(a => dirty.delete(a.slug));
+            saveWorkspace();
+            renderLibrary();
+            log(`Committed ${result.content.path} → ${result.commit.html_url}`);
+            status.textContent = `Pushed. ${fileArticles().length} published/scheduled entries are on GitHub.`;
+        } catch (e) {
+            status.textContent = "Commit failed: " + e.message;
+            log("Commit failed: " + e.message);
+        }
+    }
+
+    $("btn-commit").addEventListener("click", async () => {
+        save(true);
+        const live = fileArticles();
+        if (!live.length) { status.textContent = "Nothing to commit: no published or scheduled entries."; return; }
+        const held = articles.filter(a => a.status === "draft" || a.status === "review");
+        if (!confirm(`Commit ${live.length} article(s) to ${config().owner}/${config().repo}:${config().path}?` +
+            (held.length ? `\n\n${held.length} draft/review entr${held.length === 1 ? "y" : "ies"} stay in this browser.` : ""))) return;
+        await commit();
+    });
+
+    /*==================== LOAD / CHECK ====================*/
+    $("btn-load").addEventListener("click", async () => {
+        try {
+            const { text, sha } = await readRemote();
+            const remote = parseArticleFile(text);
+            mergeRemote(remote);
+            saveWorkspace();
+            renderLibrary();
+            log(`Loaded ${remote.length} live entries from ${config().path} (blob ${sha.slice(0, 7)}).`);
+            connStatus.textContent = `Loaded. ${remote.length} entries on GitHub, ${dirty.size} unsaved locally.`;
+        } catch (e) {
+            connStatus.textContent = "Load failed: " + e.message;
+            log("Load failed: " + e.message);
+        }
+    });
+
+    $("btn-check").addEventListener("click", async () => {
+        try {
+            const cfg = config();
+            const repo = await api(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}`);
+            if (!cfg.branch) $("c-branch").value = repo.default_branch;
+
+            // A fine-grained token does not always expose /user; the repo read above is the real test.
+            let who = "token holder";
+            try {
+                who = (await api("https://api.github.com/user")).login ?? "token holder";
+            } catch (e) {
+                log("Identity probe skipped: " + e.message);
+            }
+
+            connStatus.textContent = `OK: ${repo.full_name} (default ${repo.default_branch}) as ${who}.`;
+            log("Connection tested.");
+        } catch (e) {
+            connStatus.textContent = "Check failed: " + e.message;
+            log("Check failed: " + e.message);
+        }
+    });
+
+    $("btn-forget").addEventListener("click", () => {
+        $("c-token").value = "";
+        localStorage.removeItem(LS.token);
+        connStatus.textContent = "Token cleared from this browser.";
+    });
+
+    /*==================== COVER UPLOAD ====================*/
+    $("f-cover-file").addEventListener("change", async e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const name = "img/" + file.name.replace(/\s+/g, "-");
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        let bin = "";
+        bytes.forEach(b => bin += String.fromCharCode(b));
+
+        try {
+            const result = await putFile(name, btoa(bin), `cms: add cover ${file.name}`);
+            fields.image.value = name;
+            renderChecks();
+            preview();
+            log(`Uploaded ${name} → ${result.commit.html_url}`);
+            status.textContent = `Cover uploaded to ${name}.`;
+        } catch (err) {
+            status.textContent = "Upload failed: " + err.message;
+        }
+    });
+
+    /*==================== PREVIEW ====================*/
+    const tagsHtml = tags => `<ul class="chips">${tags.map(t => `<li>${esc(t)}</li>`).join("")}</ul>`;
+
+    function preview() {
+        const a = collect();
+
+        $("preview").innerHTML = `
+            <h3 class="modal-title" style="margin-bottom:var(--mb-0-5)">${esc(a.title) || "Untitled"}</h3>
+            <span class="detail-meta">${a.date ? new Date(a.date + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "no date"} &middot; ${esc(a.readTime)}</span>
+            <figure class="blog__figure" style="margin-top:var(--mb-1)">
+                ${a.image ? `<img src="${esc(a.image)}" alt="${esc(a.imageAlt)}" class="blog__figure-img">` : ""}
+            </figure>
+            <p class="blog__lead">${esc(a.excerpt)}</p>
+            <div class="blog__prose">${a.body}</div>
+            <div class="blog__tags">${tagsHtml(a.tags)}</div>`;
+    }
+
+    $("btn-preview").addEventListener("click", preview);
+
+    /*==================== EXPORT FALLBACK ====================*/
+    function exportText() {
+        save(true);
+        if (!fileArticles().length) {
+            status.textContent = "Nothing published or scheduled, so the file would be empty.";
+            return null;
+        }
+        return buildFile();
+    }
+
+    $("btn-copy").addEventListener("click", async () => {
+        const text = exportText();
+        if (!text) return;
+        $("out").value = text;
+        $("out").classList.remove("writer__hidden");
+        try {
+            await navigator.clipboard.writeText(text);
+            status.textContent = "Copied. Paste into js/articles.js, then commit.";
+        } catch {
+            status.textContent = "Clipboard blocked. Select the text below and copy manually.";
+        }
+    });
+
+    $("btn-download").addEventListener("click", () => {
+        const text = exportText();
+        if (!text) return;
+        const blob = new Blob([text], { type: "text/javascript" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "articles.js";
+        link.click();
+        URL.revokeObjectURL(link.href);
+        status.textContent = "Downloaded. Move it to js/articles.js, then commit.";
+    });
+
+    /*==================== NEW / DELETE ====================*/
+    $("btn-new").addEventListener("click", () => {
+        editing = null;
+        Object.values(fields).forEach(f => f.value = "");
+        fields.slug.dataset.touched = "";
+        fields.status.value = "draft";
+        fields.date.value = today();
+        $("out").classList.add("writer__hidden");
+        renderChecks();
+        preview();
+        status.textContent = "New draft. Save it to keep it in this browser.";
+    });
+
+    $("btn-delete").addEventListener("click", () => {
+        const slug = collect().slug;
+        if (!slug || !articles.some(a => a.slug === slug)) { status.textContent = "Nothing to delete."; return; }
+        if (!confirm(`Delete "${slug}" from this browser? Entries already committed to GitHub stay in the file until you commit without them.`)) return;
+        articles = articles.filter(a => a.slug !== slug);
+        dirty.delete(slug);
+        saveWorkspace();
+        $("btn-new").click();
+        renderLibrary();
+        log(`Deleted ${slug} from the workspace.`);
+    });
+
+    /*==================== BOOT ====================*/
+    function restoreConfig() {
+        const saved = JSON.parse(localStorage.getItem(LS.config) || "null") || DEFAULTS;
+        $("c-owner").value = saved.owner;
+        $("c-repo").value = saved.repo;
+        $("c-path").value = saved.path;
+        $("c-branch").value = saved.branch;
+        $("c-token").value = localStorage.getItem(LS.token) || "";
+    }
+
+    function persistConfig() {
+        const cfg = config();
+        localStorage.setItem(LS.config, JSON.stringify({ owner: cfg.owner, repo: cfg.repo, path: cfg.path, branch: cfg.branch }));
+        if (cfg.token) localStorage.setItem(LS.token, cfg.token);
+    }
+
+    ["c-token", "c-owner", "c-repo", "c-path", "c-branch"].forEach(id => $(id).addEventListener("change", persistConfig));
+
+    function unlock() {
+        gate.classList.add("writer__hidden");
+        app.classList.remove("writer__hidden");
+        restoreConfig();
+        if (!readWorkspace()) seedFromLocalFile();
+        renderLibrary();
+        $("btn-new").click();
+        connStatus.textContent = localStorage.getItem(LS.token)
+            ? "Token found in this browser. Load from GitHub to pull the live file."
+            : "No token yet: the library is seeded from the local js/articles.js.";
+    }
+
+    $("gate-open").addEventListener("click", () => {
+        if ($("pass").value !== WRITE_PASSPHRASE) {
+            $("pass").value = "";
+            $("pass").placeholder = "wrong passphrase";
+            return;
+        }
+        sessionStorage.setItem("writer-unlocked", "1");
+        unlock();
+    });
+
+    /* Runs last on purpose: unlock() reads bindings declared above. */
+    if (sessionStorage.getItem("writer-unlocked") === "1") unlock();
+    </script>
+</body>
+</html>

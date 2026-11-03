@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Product mockups under portfolio-frontend/ are design drafts, not indexable pages.
+Disallow: /portfolio-frontend/
+
+# Local article editor; kept off the deployed site anyway.
+Disallow: /write.html
+
+Sitemap: https://lyle-mlengineer.github.io/sitemap.xml

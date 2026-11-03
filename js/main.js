@@ -221,20 +221,47 @@ document.querySelectorAll('.services__contact-link').forEach((link) => {
     })
 })
 
-/*==================== PORTFOLIO SWIPER  ====================*/
-var swiper = new Swiper(".portfolio__container", {
-    cssMode: true,
-    loop: true,
+/*==================== HERO PHOTO CAROUSEL ====================*/
+const homeBlob = document.getElementById('home-blob-carousel');
 
-    navigation: {
-      nextEl: ".swiper-button-next",
-      prevEl: ".swiper-button-prev",
-    },
-    pagination: {
-      el: ".swiper-pagination",
-      clickable: true,
-    },
-})
+if (homeBlob) {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    new Swiper(homeBlob, {
+        loop: true,
+        speed: 600,
+        grabCursor: true,
+        autoplay: prefersReducedMotion ? false : {
+            delay: 4000,
+            disableOnInteraction: false,
+        },
+        pagination: {
+            el: '.home__blob-pagination',
+            clickable: true,
+        },
+        a11y: {
+            prevSlideMessage: 'Previous photo',
+            nextSlideMessage: 'Next photo',
+        },
+    })
+}
+
+/*==================== PORTFOLIO SWIPER  ====================*/
+if (document.querySelector('.portfolio__container')) {
+    var swiper = new Swiper(".portfolio__container", {
+        cssMode: true,
+        loop: true,
+
+        navigation: {
+          nextEl: ".swiper-button-next",
+          prevEl: ".swiper-button-prev",
+        },
+        pagination: {
+          el: ".swiper-pagination",
+          clickable: true,
+        },
+    })
+}
 
 /*==================== SHOW PORTFOLIO ====================*/
 const portfolioBtns = document.querySelectorAll('.portfolio__button-open');

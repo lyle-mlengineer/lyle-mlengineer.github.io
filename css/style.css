@@ -1,5 +1,5 @@
 /*==================== GOOGLE FONTS ====================*/
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
+/* Poppins is loaded with <link rel="stylesheet"> in the page head (faster discovery than @import). */
 
 /*==================== VARIABLES CSS ====================*/
 :root {
@@ -109,6 +109,9 @@ body.dark-theme {
 
 html {
   scroll-behavior: smooth;
+  /* Swiper tracks use overflow: initial so arrows and pagination can sit outside
+     them; that also lets the slides spill sideways, so keep the page from drifting. */
+  overflow-x: hidden;
 }
 
 body {
@@ -373,11 +376,52 @@ img {
 
 .home__blob {
   width: 200px;
-  fill: var(--first-color);
+  height: 187px;
+  background-color: var(--first-color);
+  -webkit-mask-image: url(../img/home-blob-mask.svg);
+          mask-image: url(../img/home-blob-mask.svg);
+  -webkit-mask-size: 100% 100%;
+          mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+          mask-position: center;
+}
+
+.home__blob-slide {
+  height: 100%;
 }
 
 .home__blob-img {
-    width: 170px;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* These portraits put the crown ~5% from the top of the frame; top-aligning the
+     crop keeps the head inside the blob's rounded top instead of clipping it. */
+  object-position: 50% 0%;
+}
+
+.home__blob-pagination {
+  position: static;
+  width: auto;
+  margin-top: .75rem;
+  line-height: 1;
+  text-align: center;
+}
+
+.home__blob-pagination .swiper-pagination-bullet {
+  width: 7px;
+  height: 7px;
+  margin: 0 3px;
+  background-color: var(--first-color);
+  opacity: .35;
+  transition: opacity .3s ease, transform .3s ease;
+}
+
+.home__blob-pagination .swiper-pagination-bullet-active {
+  opacity: 1;
+  transform: scale(1.2);
 }
 
 .home__data {
@@ -1359,15 +1403,31 @@ img {
 .blog__open {
     margin-top: auto;
     align-self: flex-start;
+    cursor: pointer;
 }
 
 .blog__open:hover .button__icon {
     transform: translateX(.25rem);
 }
 
+/* The two "All articles" controls cover their whole row, not just the label: the
+   stretched pseudo-element inherits the anchor's cursor, so the pointer confirms
+   the wider target. */
 .blog__more {
     display: flex;
     justify-content: center;
+}
+
+.blog__more,
+.blog-modal .detail-footer {
+    position: relative;
+}
+
+.blog__more > .button::after,
+.blog-modal-all::after {
+    content: "";
+    position: absolute;
+    inset: 0;
 }
 
 .swiper-container .swiper-pagination-blog {
@@ -1901,6 +1961,7 @@ img {
 
     .home__blob {
         width: 180px;
+        height: 168px;
     }
 
     .skills__title {
@@ -2042,6 +2103,7 @@ img {
 
     .home__blob {
         width: 270px;
+        height: 252px;
     }
 
     /* .home__scroll {
@@ -2148,6 +2210,7 @@ img {
 
     .home__blob {
         width: 320px;
+        height: 299px;
     }
 
     .home__social {
