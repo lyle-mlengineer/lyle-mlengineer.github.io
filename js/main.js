@@ -29,26 +29,36 @@ function linkAction(){
 }
 navLink.forEach(n => n.addEventListener('click', linkAction));
 
+/*==================== MODAL OVERLAYS (shared helpers) ====================*/
+function openOverlay(modal){
+    closeOverlays()
+    modal.classList.add('modal-active')
+    document.body.classList.add('no-scroll')
+}
+
+function closeOverlays(){
+    document.querySelectorAll('.modal-active').forEach((modal) => {
+        modal.classList.remove('modal-active')
+    })
+    document.body.classList.remove('no-scroll')
+}
+
 /*==================== SHOW ABOUT ME ====================*/
 const aboutBtn = document.querySelector('.about__button')
 const aboutModal = document.querySelector('.about__modal')
-const aboutClose = document.querySelector('.about__modal-close')
 
-let about = function(){
-    aboutModal.classList.add('about-active')
-}
-
-if(aboutBtn) {
+if(aboutBtn && aboutModal) {
     aboutBtn.addEventListener('click', () => {
-        aboutModal.classList.add('about-active')
-    })
-} 
-
-if(aboutClose) {
-    aboutClose.addEventListener('click', () => {
-        aboutModal.classList.remove('about-active')
+        openOverlay(aboutModal)
     })
 }
+
+/* Clicking a modal's closing button or CTA must dismiss the overlay */
+document.querySelectorAll('.about__modal .modal-close, .about__modal .modal-cta').forEach((btn) => {
+    btn.addEventListener('click', () => {
+        closeOverlays()
+    })
+})
 
 /*==================== ACCORDION SKILLS ====================*/
 const skillsContent = document.getElementsByClassName('skills__content'),
@@ -63,11 +73,26 @@ function toggleSkills(){
     if(itemClass === 'skills__content skills__close'){
         this.parentNode.className = 'skills__content skills__open';
     }
+    syncSkillsAria();
+}
+
+function syncSkillsAria(){
+    Array.prototype.forEach.call(skillsContent, (card) => {
+        const header = card.querySelector('.skills__header')
+        if(header) header.setAttribute('aria-expanded', card.classList.contains('skills__open'))
+    })
 }
 
 skillsHeader.forEach((el) => {
     el.addEventListener('click', toggleSkills);
+    el.addEventListener('keydown', (e) => {
+        if(e.key !== 'Enter' && e.key !== ' ') return;
+        e.preventDefault();
+        toggleSkills.call(el);
+    })
 });
+
+syncSkillsAria();
 
 /*==================== QUALIFICATION TABS ====================*/
 const tabs = document.querySelectorAll('[data-target]'),
@@ -89,115 +114,134 @@ tabs.forEach(tab => {
     })
 })
 
-/*==================== SHOW WORK EXPERIENCE ====================*/
-const qualificationBtns = document.querySelectorAll('.qualification__link');
-const qualificationModalCloseBtns = document.querySelectorAll('.qualification__modal-close');
+/*==================== SHOW QUALIFICATION DETAIL ====================*/
+const qualificationModals = document.querySelectorAll('.qualification__modal')
 
-let closeWork = function(btn){
-    const qualificationModal = btn.parentElement.parentElement;
-    qualificationModal.style.opacity = '0';
-    qualificationModal.style.visibility = 'hidden';
+function modalFor(trigger){
+    const entry = trigger.closest('.qualification__data')
+    return entry ? entry.querySelector('.qualification__modal') : null
 }
 
-let showWork = function(btn){
-    const qualificationModal = btn.parentElement.querySelector(':scope > .qualification__modal');
-    qualificationModal.style.opacity = '1';
-    qualificationModal.style.visibility = 'visible';
-}
-
-qualificationBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
-        showWork(btn)
+document.querySelectorAll('.qualification__link, .qualification__details').forEach((trigger) => {
+    trigger.addEventListener('click', () => {
+        const modal = modalFor(trigger)
+        if(modal) openOverlay(modal)
     })
 })
 
-qualificationModalCloseBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
-        closeWork(btn)
+qualificationModals.forEach((modal) => {
+    /* Backdrop click closes */
+    modal.addEventListener('click', (e) => {
+        if(e.target === modal) closeOverlays()
     })
-})
 
-
-/*==================== SERVICES MODAL ====================*/
-const modalViews = document.querySelectorAll('.services__modal'),
-      modalBtns = document.querySelectorAll('.services__button'),
-      modalCloses = document.querySelectorAll('.services__modal-close')
-
-let modal = function(modalClick){
-    modalViews[modalClick].classList.add('active-modal')
-}
-
-modalBtns.forEach((modalBtn, i) => {
-    modalBtn.addEventListener('click', () => {
-        modal(i)
-    })
-})
-
-modalCloses.forEach((modalClose) => {
-    modalClose.addEventListener('click', () => {
-        modalViews.forEach((modalView) => {
-            modalView.classList.remove('active-modal')
+    modal.querySelectorAll('.modal-close, .modal-cta').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            closeOverlays()
         })
     })
 })
 
-/*==================== PORTFOLIO SWIPER  ====================*/
-var swiper = new Swiper(".portfolio__container", {
-    cssMode: true,
-    loop: true,
-
-    navigation: {
-      nextEl: ".swiper-button-next",
-      prevEl: ".swiper-button-prev",
-    },
-    pagination: {
-      el: ".swiper-pagination",
-      clickable: true,
-    },
+document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape') closeOverlays()
 })
 
-/*==================== SHOW PORTFOLIO ====================*/
-const portfolioBtns = document.querySelectorAll('.portfolio__button-open');
-const portfolioModalCloseBtns = document.querySelectorAll('.portfolio__modal-close');
 
-let closePortfolio = function(btn){
-    const portfolioModal = btn.parentElement.parentElement;
-    portfolioModal.style.opacity = '0';
-    portfolioModal.style.visibility = 'hidden';
-}
+/*==================== SERVICES MODAL ====================*/
+const serviceViews = document.querySelectorAll('.services__modal')
 
-let showPortfolio = function(btn){
-    const portfolioModal = btn.parentElement.parentElement.querySelector('.portfolio__modal');
-    console.log(portfolioModal);
-    // portfolioModal.style.opacity = '1';
-    // portfolioModal.style.visibility = 'visible';
-}
-
-portfolioBtns.forEach((btn) => {
+document.querySelectorAll('.services__button').forEach((btn) => {
     btn.addEventListener('click', () => {
-        showPortfolio(btn)
+        const modal = btn.closest('.services__content').querySelector('.services__modal')
+        if(modal) openOverlay(modal)
     })
 })
 
-portfolioModalCloseBtns.forEach((btn) => {
+serviceViews.forEach((modal) => {
+    modal.addEventListener('click', (e) => {
+        if(e.target === modal) closeOverlays()
+    })
+
+    modal.querySelectorAll('.modal-close, .modal-cta').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            closeOverlays()
+        })
+    })
+})
+
+/*==================== HERO IMAGE CAROUSEL ====================*/
+let swiperHero = new Swiper(".hero-swiper", {
+    loop: true,
+    grabCursor: true,
+    autoplay: {
+        delay: 3500,
+        disableOnInteraction: false,
+    },
+    pagination: {
+        el: ".hero-swiper-pagination",
+        clickable: true,
+    },
+})
+
+/*==================== PORTFOLIO SWIPER  ====================*/
+document.querySelectorAll(".portfolio__container").forEach((container) => {
+    new Swiper(container, {
+        cssMode: true,
+        loop: true,
+
+        navigation: {
+            nextEl: container.querySelector(".swiper-button-next"),
+            prevEl: container.querySelector(".swiper-button-prev"),
+        },
+        pagination: {
+            el: container.querySelector(".swiper-pagination"),
+            clickable: true,
+        },
+    })
+})
+
+/*==================== SHOW PORTFOLIO ====================*/
+const projectViews = document.querySelectorAll('.portfolio__modal, .blog__modal')
+
+document.querySelectorAll('.portfolio__button-open').forEach((btn) => {
     btn.addEventListener('click', () => {
-        closePortfolio(btn)
+        const modal = document.getElementById('pf-' + btn.dataset.project)
+        if(modal) openOverlay(modal)
+    })
+})
+
+/*==================== SHOW BLOG POST ====================*/
+document.querySelectorAll('.blog__read').forEach((btn) => {
+    btn.addEventListener('click', () => {
+        const modal = document.getElementById('bl-' + btn.dataset.post)
+        if(modal) openOverlay(modal)
+    })
+})
+
+projectViews.forEach((modal) => {
+    modal.addEventListener('click', (e) => {
+        if(e.target === modal) closeOverlays()
+    })
+
+    modal.querySelectorAll('.modal-close, .modal-cta').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            closeOverlays()
+        })
     })
 })
 
 /*==================== TESTIMONIAL ====================*/
 let swiperTestimonial = new Swiper('.testimonial__container', {
-    loop: true,
     grabCursor: true,
-    spaceBetween: 48,
+    spaceBetween: 24,
 
     pagination: {
-        el: '.swiper-pagination',
+        el: '.swiper-pagination-testimonial',
         clickable: true,
         dynamicBullets: true,
     },
     breakpoints:{
-        568: {
+        768: {
             slidesPerView: 2,
         }
     }
@@ -270,3 +314,42 @@ themeButton.addEventListener('click', () => {
     localStorage.setItem('selected-theme', getCurrentTheme())
     localStorage.setItem('selected-icon', getCurrentIcon())
 })
+/*==================== CV DOWNLOAD DROPDOWN ====================*/
+const cvDropdown = document.getElementById('cv-dropdown')
+
+if (cvDropdown) {
+    const cvToggle = cvDropdown.querySelector('.cv-dropdown__toggle')
+    const cvMenu = cvDropdown.querySelector('.cv-dropdown__menu')
+
+    const closeCvMenu = () => {
+        cvMenu.hidden = true
+        cvToggle.setAttribute('aria-expanded', 'false')
+        cvDropdown.classList.remove('is-open')
+    }
+
+    cvToggle.addEventListener('click', (e) => {
+        e.stopPropagation()
+        if (!cvMenu.hidden) {
+            closeCvMenu()
+            return
+        }
+        cvMenu.hidden = false
+        cvToggle.setAttribute('aria-expanded', 'true')
+        cvDropdown.classList.add('is-open')
+    })
+
+    document.addEventListener('click', (e) => {
+        if (!cvMenu.hidden && !cvDropdown.contains(e.target)) closeCvMenu()
+    })
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !cvMenu.hidden) {
+            closeCvMenu()
+            cvToggle.focus()
+        }
+    })
+
+    cvMenu.querySelectorAll('.cv-dropdown__item').forEach((item) => {
+        item.addEventListener('click', closeCvMenu)
+    })
+}
