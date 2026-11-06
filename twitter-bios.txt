@@ -1,0 +1,20 @@
+Twitter bio options — Lyle Okoth
+================================
+
+RECOMMENDED (158 chars)
+-----------------------
+Machine Learning Engineer @ SautiFlow Labs. I build speech AI for African languages — ASR, translation, TTS. Research-grade models, production latency. Nairobi 🇰
+
+ALTERNATIVES
+------------
+ML Engineer specialising in speech & audio AI. Shipping multilingual ASR, speech-to-speech translation and TTS that survives production. Nairobi → the world.
+
+Speech AI engineer. I turn Swahili, Sheng and other African languages into working products: transcription, translation, synthetic voices. Writes about shipping ML.
+
+Machine Learning Engineer | Speech & Audio AI | ASR · Translation · TTS for low-resource languages. Six years turning research models into products. Nairobi, Kenya.
+
+NOTES
+-----
+- Twitter/X bio limit is 160 characters; emojis count as 2 characters.
+- The "@ SautiFlow Labs" wording implies a tagged employer. If that is not desired, swap it for "SautiFlow Labs · Nairobi" or drop the company name.
+- Source: portfolio at lyle-mlengineer.github.io (role, focus areas, location, employer).
