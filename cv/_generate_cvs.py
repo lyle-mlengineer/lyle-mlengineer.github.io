@@ -7,19 +7,50 @@ from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_TAB_ALIGNMENT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+from docx.opc.constants import RELATIONSHIP_TYPE as RT
 from docx.shared import Pt, Inches, RGBColor
 
 NAME = "LYLE OKOTH"
 PHONE = "+254 797 668 066"
 EMAIL = "lyleokoth.mlengineer@gmail.com"
 LOCATION = "Nairobi, Kenya"
-LINKS = "linkedin.com/in/lyle-okoth  |  github.com/lyle-mlengineer  |  lyle-mlengineer.github.io  |  medium.com/@lyle-okoth"
+LINKS = [
+    ("linkedin.com/in/lyle-okoth", "https://www.linkedin.com/in/lyle-okoth/"),
+    ("github.com/lyle-mlengineer", "https://github.com/lyle-mlengineer"),
+    ("lyle-mlengineer.github.io", "https://lyle-mlengineer.github.io"),
+    ("medium.com/@lyle-okoth", "https://medium.com/@lyle-okoth"),
+]
 DARK = RGBColor(0x1F, 0x2A, 0x37)
+
+
+def add_hyperlink(paragraph, url, text, size=9.5):
+    part = paragraph.part
+    r_id = part.relate_to(url, RT.HYPERLINK, is_external=True)
+    hyperlink = OxmlElement("w:hyperlink")
+    hyperlink.set(qn("r:id"), r_id)
+    run = OxmlElement("w:r")
+    rpr = OxmlElement("w:rPr")
+    color = OxmlElement("w:color")
+    color.set(qn("w:val"), "1F6FB2")
+    rpr.append(color)
+    underline = OxmlElement("w:u")
+    underline.set(qn("w:val"), "single")
+    rpr.append(underline)
+    sz = OxmlElement("w:sz")
+    sz.set(qn("w:val"), str(int(size * 2)))
+    rpr.append(sz)
+    run.append(rpr)
+    t = OxmlElement("w:t")
+    t.text = text
+    run.append(t)
+    hyperlink.append(run)
+    paragraph._p.append(hyperlink)
 
 
 def section_heading(doc, text):
     p = doc.add_paragraph()
-    p.paragraph_format.space_before = Pt(10)
+    p.paragraph_format.keep_with_next = True
+    p.paragraph_format.space_before = Pt(8)
     p.paragraph_format.space_after = Pt(4)
     r = p.add_run(text.upper())
     r.bold = True
@@ -63,7 +94,8 @@ def labeled(doc, label, text):
 
 def job_header(doc, title, company, dates):
     p = doc.add_paragraph()
-    p.paragraph_format.space_before = Pt(6)
+    p.paragraph_format.keep_with_next = True
+    p.paragraph_format.space_before = Pt(5)
     p.paragraph_format.space_after = Pt(2)
     tab = p.paragraph_format.tab_stops
     tab.add_tab_stop(Inches(7.3), WD_TAB_ALIGNMENT.RIGHT)
@@ -77,7 +109,7 @@ def job_header(doc, title, company, dates):
 
 def bullet(doc, text, lead_bold=None):
     p = doc.add_paragraph(style="List Bullet")
-    p.paragraph_format.space_after = Pt(2)
+    p.paragraph_format.space_after = Pt(1)
     if lead_bold:
         r = p.add_run(lead_bold)
         r.bold = True
@@ -110,37 +142,50 @@ def header(doc, headline):
     r.font.color.rgb = DARK
     para(doc, headline, bold=True, size=11.5, space_after=1, align=WD_ALIGN_PARAGRAPH.CENTER)
     para(doc, f"{LOCATION}  |  {PHONE}  |  {EMAIL}", size=10, space_after=1, align=WD_ALIGN_PARAGRAPH.CENTER)
-    para(doc, LINKS, size=10, space_after=2, align=WD_ALIGN_PARAGRAPH.CENTER)
+
+    links = doc.add_paragraph()
+    links.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    links.paragraph_format.space_after = Pt(2)
+    for i, (label, url) in enumerate(LINKS):
+        if i:
+            sep = links.add_run("  |  ")
+            sep.font.size = Pt(10)
+        add_hyperlink(links, url, label, size=10)
 
 
 ML_ENGINEER = {
     "file": "LYLE-OKOTH-MACHINE-LEARNING-ENGINEER.docx",
-    "headline": "MACHINE LEARNING ENGINEER | SPEECH & AUDIO PROCESSING",
+    "headline": "MACHINE LEARNING ENGINEER | SPEECH & VOICE AI",
     "summary": (
-        "Machine Learning Engineer with 6+ years of experience designing, training and productionising "
-        "multilingual speech systems — automatic speech recognition, speech-to-speech translation and text-to-speech "
-        "synthesis — for East African languages. Owns the full model lifecycle (data, training, evaluation, "
-        "deployment): halved Swahili/Sheng ASR error rates, shipped real-time speech translation at 310 ms median "
-        "latency, and cut inference costs 58% through quantisation. Backed by deep software and data engineering "
-        "roots, and published open datasets and models with 18,000+ downloads on Hugging Face."
+        "Machine Learning Engineer and researcher with over six years of experience designing, training and "
+        "productionising multilingual speech systems — automatic speech recognition, speech-to-speech translation "
+        "and text-to-speech synthesis — for East African languages. Owns the full model lifecycle from data and "
+        "evaluation to deployment: cut Swahili and Sheng ASR error rate from 23.4% to 11.8%, shipped streaming "
+        "speech translation at 310 ms median first-audio latency across six language pairs, and raised capacity to "
+        "42 concurrent voices per GPU while cutting inference cost 58%. Published three open speech datasets and "
+        "two fine-tuned models on Hugging Face with 18,000+ downloads."
     ),
     "competencies": [
-        ("Core ML", "ASR (Whisper), TTS & voice cloning, speech-to-speech translation, transformer architectures, "
-                    "diffusion & flow-matching models, LLM fine-tuning (LoRA / QLoRA), RLHF & preference optimisation, "
-                    "synthetic data generation, multilingual & low-resource speech"),
-        ("Speech Engineering", "Speaker diarisation, VAD, voice embeddings, streaming inference, latency optimisation, "
-                    "time-to-first-token budgets, model evaluation (WER, CER, MOS)"),
-        ("MLOps", "Experiment tracking (W&B), model registry, CI regression gates, quantisation (int8), "
-                  "TensorRT/ONNX, GPU serving (CUDA, Triton), Kubernetes, monitoring & model-drift detection"),
-        ("Data & Product", "Audio data collection, alignment & annotation platforms, dataset versioning (DVC), "
-                 "data-quality frameworks, research-to-production, technical writing, UI design for speech products"),
+        ("Speech & Voice AI", "ASR (Whisper, wav2vec 2.0, NeMo), TTS and voice cloning (VITS, XTTS-v2, Coqui, "
+                              "F5-TTS), speech-to-speech translation (SeamlessM4T, NLLB-200), diarisation, VAD and "
+                              "speaker embeddings (pyannote.audio)"),
+        ("Modelling & Evaluation", "PyTorch training and distributed runs, LoRA / QLoRA fine-tuning, diffusion and "
+                                   "flow-matching models, WER / CER / MOS evaluation, blind listening tests, experiment "
+                                   "tracking (Weights & Biases, MLflow, Optuna)"),
+        ("MLOps & Serving", "int8 / FP16 quantisation, ONNX Runtime, TensorRT, Triton Inference Server, vLLM, KV "
+                            "caching, continuous batching, CI regression gates, Kubernetes, Grafana monitoring"),
+        ("Research & Product", "Research-to-production, multilingual and low-resource speech, annotation platforms, "
+                               "technical writing, product design for voice interfaces"),
     ],
     "tech": [
         ("Languages", "Python, C++, JavaScript/TypeScript, SQL"),
-        ("ML Frameworks", "PyTorch, Hugging Face Transformers, Diffusers, scikit-learn, LoRA/PEFT, NLTK, spaCy"),
-        ("Serving & Infra", "FastAPI, Triton Inference Server, CUDA, TensorRT, ONNX, WebRTC, Redis, Celery"),
-        ("Data & MLOps", "Apache Spark, Kafka, Airflow, dbt, DVC, Great Expectations, Weights & Biases, Docker, Kubernetes, Terraform"),
-        ("Cloud", "AWS (S3, GPU instances), GCP"),
+        ("Speech & ML", "PyTorch 2.x, Hugging Face Transformers, PEFT, Accelerate, DeepSpeed, Diffusers, ESPnet, "
+                        "Coqui TTS, pyannote.audio, scikit-learn, Optuna"),
+        ("Serving & Infra", "FastAPI, Triton Inference Server, ONNX Runtime, TensorRT, vLLM, gRPC / WebSocket "
+                            "streaming, WebRTC, Redis, Celery, Docker, Kubernetes"),
+        ("Data & MLOps", "Apache Spark, Kafka, Airflow, dbt, DVC, Great Expectations, Weights & Biases, MLflow, "
+                         "Terraform"),
+        ("Cloud", "AWS (S3, GPU instances), Google Cloud, Render"),
     ],
     "jobs": [
         {
@@ -149,133 +194,152 @@ ML_ENGINEER = {
             "dates": "2024 – Present",
             "bullets": [
                 ("Cut Swahili and Sheng ASR word error rate from 23.4% to 11.8% by LoRA fine-tuning Whisper-large-v3 "
-                 "on 1,240 hours of in-house audio — the company's first production-grade transcription product for East Africa."),
-                ("Architected and shipped streaming speech-to-speech translation at 310 ms median first-audio latency "
-                 "(p95 780 ms) on a single T4 GPU — a 4.5x improvement over the 1.4 s batch baseline."),
-                ("Compressed a 1.6 GB TTS checkpoint to 480 MB using int8 quantisation and KV caching, raising capacity "
-                 "to 42 concurrent voices per GPU and cutting inference cost by 58%."),
-                ("Built the model evaluation harness (WER, CER, MOS with CI regression gates), blocking 9 model "
-                 "regressions from release across two quarters."),
-                ("Published 3 open speech datasets and 2 fine-tuned models to Hugging Face, reaching 18,000+ downloads "
-                 "in the first quarter."),
-                ("Built an audio data collection, editing and annotation platform leveraging fine-tuned audio models for "
-                 "AI pre-labelling, reducing human labelling time by 68%."),
-                ("Developed speaker diarisation, VAD and voice-embedding pipelines for multi-speaker meeting audio, and "
-                 "RL preference-tuning guardrails against prompt injection and model misuse."),
-                ("Set the team's model-card and experiment-tracking standard across 60+ training runs per month; "
-                 "implemented latest speech research to keep models close to state of the art."),
+                 "on 1,240 hours of in-house audio."),
+                ("Shipped streaming speech-to-speech translation at 310 ms median / 780 ms p95 first-audio latency "
+                 "across six language pairs (English ↔ Swahili, Luo and Kikuyu), down from a 1.4 s batch baseline; "
+                 "domain fine-tuning added 1.9 chrF over the open model."),
+                ("Compressed a 1.6 GB TTS checkpoint to 480 MB with int8 quantisation and KV caching: 42 concurrent "
+                 "voices per GPU, 3.1x throughput and 58% lower inference cost."),
+                ("Built the evaluation harness — WER, CER, MOS and CI regression gates — which blocked 9 model "
+                 "regressions from release in two quarters."),
+                ("Built diarisation, VAD and speaker-embedding pipelines for multi-speaker meeting audio: 89% speaker "
+                 "accuracy on up to 8 speakers at a 12.4% diarisation error rate."),
+                ("Published 3 open speech datasets and 2 fine-tuned models to Hugging Face (18,000+ downloads in the "
+                 "first quarter) and set the team's model-card and experiment-tracking standard across 60+ runs a month."),
             ],
         },
         {
             "title": "Data Engineer",
             "company": "SautiFlow Labs, Nairobi",
-            "dates": "2022 – 2024",
+            "dates": "2023 – 2024",
             "bullets": [
                 ("Designed batch and streaming pipelines (Airflow, Kafka, Spark) processing 6 TB / 38,000 hours of raw "
-                 "audio per year into training-ready speech datasets."),
+                 "audio a year into training-ready datasets."),
                 ("Automated transcription alignment and diarisation pre-labelling, cutting human labelling from 11 to "
-                 "3.5 minutes per hour of audio; introduced DVC dataset versioning so every model release traces to an "
-                 "exact data snapshot."),
+                 "3.5 minutes per hour of audio — a 68% saving adopted as the platform's default workflow."),
+                ("Introduced dataset versioning with DVC and content hashing, so every model release traces to an exact "
+                 "data snapshot."),
+                ("Consolidated 14 scattered schemas into one dbt-modelled warehouse: pipeline failures down 41%, monthly "
+                 "compute spend down 23%."),
+                ("Owned speaker consent, retention and PII-redaction flows for 40,000+ hours of stored audio."),
             ],
         },
         {
             "title": "Software Engineer",
             "company": "SautiFlow Labs, Nairobi",
-            "dates": "2020 – 2022",
+            "dates": "2022 – 2023",
             "bullets": [
-                ("Shipped full-stack features for IVR and WhatsApp voice assistants serving 40,000+ monthly users, and "
-                 "trained the team's first production model — a FastAPI-served intent classifier deflecting 28% of "
-                 "support chats."),
+                ("Shipped 5 production features for an IVR and WhatsApp voice assistant serving 40,000+ monthly users."),
+                ("Built REST and WebSocket APIs in Django and Node.js handling 1.2M requests a day at p95 latency under "
+                 "140 ms."),
+                ("Introduced Docker deploys and GitHub Actions CI/CD: release cadence from monthly to weekly, lead time "
+                 "from 3 weeks to 2 days."),
+                ("Took front-end test coverage from 0 to 71% and reduced reported production bugs 34%; trained the "
+                 "team's first model, a scikit-learn intent classifier that deflected 28% of support chats."),
             ],
         },
     ],
     "projects": [
-        ("Vocalis — Brand Voice Studio", "Voice-cloning TTS service: one licensed studio read in, a reusable brand voice out, "
-            "served over an API. Built for African-accented English and local-language narration that vendor catalogs "
-            "do not cover."),
-        ("EchoID — Speaker Attribution", "Turns unlabelled audio archives into speaker-labelled, searchable transcripts "
-            "using diarisation, voice embeddings and ASR — queryable by legal, research and support teams."),
-        ("LabelSet — Speech Data Platform", "End-to-end data pipeline behind every model shipped: sourcing recordings, "
-            "human + AI collaborative labelling, and quality verification before training."),
-        ("FaceForm — Synthetic Face Generator", "Generates consistent, clearly synthetic faces for teams that need people "
-            "in their visuals without licensing real ones — a designer sets an archetype once, then draws a whole "
-            "persona family from the same latent noise."),
+        ("Vocalis — Brand Voice Studio",
+         "Voice-cloning TTS studio: one licensed studio read in, a reusable brand voice out, served over a streaming "
+         "API in 32 languages — 42 concurrent voices per GPU, 6 working days from recordings to a deployed voice.",
+         [("github.com/lyle-mlengineer/vocalis", "https://github.com/lyle-mlengineer/vocalis"),
+          ("vocalis-rvcw.onrender.com", "https://vocalis-rvcw.onrender.com")]),
+        ("EchoID — Speaker Identification & Diarisation",
+         "Turns raw recordings into speaker-labelled, searchable transcripts. 89% speaker accuracy on meetings with "
+         "up to 8 speakers at a 12.4% diarisation error rate; one hour of four-speaker audio processed in 4 minutes "
+         "on a single GPU.",
+         [("github.com/lyle-mlengineer/echoid", "https://github.com/lyle-mlengineer/echoid"),
+          ("echoid.onrender.com", "https://echoid.onrender.com")]),
+        ("LabelSet — Speech & Multimodal Data Platform",
+         "Sources recordings, gets them labelled by real speakers and proves the labels are trustworthy before a "
+         "training run. 18,000 hours of audio and 1.2M images delivered across 11 language and accent bands at "
+         "Cohen's kappa 0.87.",
+         [("labelset.onrender.com", "https://labelset.onrender.com")]),
+        ("FaceForm — Synthetic Persona Generator",
+         "Consistent, clearly synthetic faces drawn from one latent neighbourhood. 96% of released sets passed human "
+         "realism review, and persona sets ship 8x faster than the stock-photography workflow they replaced.",
+         [("github.com/lyle-mlengineer/faceform", "https://github.com/lyle-mlengineer/faceform"),
+          ("faceform-2rkf.onrender.com", "https://faceform-2rkf.onrender.com")]),
     ],
     "education": [
-        ("BSc, Computer Security and Forensics", "Jaramogi Oginga Odinga University of Science and Technology (JOOUST)", "2016 – 2020"),
-        ("Diploma, Mechatronics Engineering", "JKUAT, Juja, Kenya", "2013 – 2016"),
+        ("BSc, Computer Security and Forensics (First Class Honours)", "Jaramogi Oginga Odinga University of Science and Technology (JOOUST)", "2016 – 2020"),
+        ("Diploma, Mechatronics Engineering (Upper Second Class)", "JKUAT, Juja, Kenya", "2013 – 2016"),
     ],
-    "certs": "DeepLearning.AI, NVIDIA Deep Learning Institute, AWS and Google Cloud professional certifications (2021 – 2025).",
+    "certs": "DeepLearning.AI, NVIDIA Deep Learning Institute, AWS and Google Cloud — 14 credentials (2021 – 2025).",
     "extra": None,
 }
 
 DATA_ENGINEER = {
     "file": "LYLE-OKOTH-DATA-ENGINEER.docx",
-    "headline": "DATA ENGINEER | AUDIO & ML DATA PIPELINES",
+    "headline": "DATA ENGINEER | AUDIO & MULTIMODAL ML DATA",
     "summary": (
-        "Data Engineer with 6+ years of experience building batch and streaming pipelines that turn raw, noisy audio "
-        "into training-ready datasets at scale — 6 TB / 38,000 hours per year — for machine learning teams. Owns "
-        "ingestion, alignment, labelling, versioning and data quality end to end, with hands-on software engineering "
-        "(APIs at 1.2M requests/day) and ML experience that keeps pipelines tuned for model training, not just "
-        "analytics. Cut human data-labelling time 68% through automation and reduced pipeline failures 41% by "
-        "consolidating 14 scattered schemas into a dbt-modelled warehouse."
+        "Data Engineer with over six years of experience building the ingestion, alignment, labelling and versioning "
+        "path that turns raw audio and images into training-ready datasets. Delivered 6 TB / 38,000 hours of raw "
+        "audio a year, cut manual labelling time 68%, and reduced pipeline failures 41% by consolidating 14 schemas "
+        "into a dbt-modelled warehouse. Owns data quality, consent, retention and PII redaction for 40,000+ hours of "
+        "stored audio, with the software background (APIs at 1.2M requests a day) to keep pipelines operable in "
+        "production."
     ),
     "competencies": [
-        ("Pipeline Engineering", "Batch ETL / ELT, streaming & event-driven jobs, Spark tuning for audio shards, "
-                                 "Parquet/Arrow data lakes, feature stores, orchestration with Airflow and Dagster-style "
-                                 "dependency graphs"),
-        ("Data Quality & Governance", "Great Expectations checks, dataset versioning (DVC) + content hashing, schema "
-                                      "consolidation with dbt, speaker consent, retention and PII-redaction flows for "
-                                      "40,000+ hours of stored audio"),
-        ("ML Data Support", "Transcription alignment, diarisation pre-labelling, human + AI collaborative annotation "
-                            "platforms, synthetic data generation, data pipelines tuned for ASR/TTS/translation training"),
-        ("Platform & Reliability", "AWS S3, GCS, PostgreSQL, Elasticsearch, Redis, Kafka, Terraform, Docker, on-call "
-                                   "and observability: moved from monthly restores to daily automated checks"),
+        ("Pipeline Engineering", "Batch ETL / ELT, streaming and event-driven jobs, Spark tuning for audio shards, "
+                                 "Parquet / Arrow data lakes, Delta Lake, Airflow and Kafka orchestration, dbt and "
+                                 "DuckDB modelling"),
+        ("Data Quality & Governance", "Great Expectations checks, DVC versioning with content hashing, dataset cards "
+                                      "and lineage from raw file to training shard, speaker consent, retention and "
+                                      "PII-redaction flows"),
+        ("ML Data Support", "Transcription alignment, diarisation pre-labelling, forced alignment, human + AI "
+                            "collaborative annotation, synthetic data generation, dataset tuning for ASR, TTS and "
+                            "translation training"),
+        ("Platform & Reliability", "AWS S3, GCS, PostgreSQL, BigQuery, Elasticsearch, Redis, Terraform, Docker, "
+                                   "Kubernetes, on-call observability: monthly restores replaced by daily automated checks"),
     ],
     "tech": [
         ("Languages", "Python, SQL, JavaScript/TypeScript, C++"),
-        ("Processing", "Apache Spark, Kafka, Airflow, dbt, DuckDB, Flink-style streaming, Celery"),
-        ("Storage & Warehousing", "PostgreSQL, AWS S3, GCS, Parquet / Arrow, Elasticsearch, Redis"),
-        ("Quality & Versioning", "Great Expectations, DVC, content hashing, data contracts"),
-        ("Infrastructure", "Docker, Kubernetes, Terraform, GitHub Actions CI/CD, AWS, GCP"),
+        ("Processing", "Apache Spark, Kafka, Airflow, dbt, DuckDB, Polars / Pandas, Celery"),
+        ("Storage & Warehousing", "PostgreSQL, BigQuery, AWS S3, GCS, Parquet / Arrow, Delta Lake, Elasticsearch, Redis"),
+        ("Quality & Versioning", "Great Expectations, DVC, data contracts, dataset cards and lineage"),
+        ("Infrastructure", "Docker, Kubernetes, Terraform, GitHub Actions CI/CD, AWS, GCP, Render"),
     ],
     "jobs": [
-        {
-            "title": "Data Engineer",
-            "company": "SautiFlow Labs, Nairobi",
-            "dates": "2022 – 2024",
-            "bullets": [
-                ("Designed batch and streaming pipelines with Apache Spark, Airflow and Kafka processing 6 TB / 38,000 "
-                 "hours of raw audio per year into training-ready datasets for ASR, translation and TTS models."),
-                ("Automated transcription alignment and diarisation pre-labelling, cutting human labelling time from 11 "
-                 "to 3.5 minutes per hour of audio — a 68% saving adopted as the platform's default workflow."),
-                ("Introduced dataset versioning with DVC and content hashing so every model release traces to an exact "
-                 "data snapshot, eliminating reproducibility disputes across the ML team."),
-                ("Consolidated 14 scattered schemas into a single dbt-modelled warehouse, reducing pipeline failures by "
-                 "41% and monthly compute spend by 23%."),
-                ("Built data-quality runbooks (Great Expectations) and onboarded 3 team members; owned speaker consent, "
-                 "retention and PII-redaction flows for 40,000+ hours of stored audio."),
-                ("Engineered feature stores and Parquet data lakes tuned for audio shards rather than tabular rows; "
-                 "moved pipeline reliability from monthly restores to daily automated checks."),
-            ],
-        },
         {
             "title": "Machine Learning Engineer",
             "company": "SautiFlow Labs, Nairobi",
             "dates": "2024 – Present",
             "bullets": [
                 ("Own the speech model lifecycle end to end; the data foundation built in this role feeds all model "
-                 "training — 1,240 hours of curated audio drove a Whisper ASR fine-tune that cut WER from 23.4% to 11.8%."),
-                ("Built the audio data collection, editing and annotation platform leveraging fine-tuned models for "
-                 "AI-assisted labelling; published 3 open datasets to Hugging Face (18,000+ downloads)."),
+                 "training — 1,240 curated hours drove a Whisper ASR fine-tune that cut WER from 23.4% to 11.8%."),
+                ("Built the audio collection, editing and annotation platform with AI-assisted pre-labelling, and "
+                 "published 3 open datasets to Hugging Face (18,000+ downloads)."),
+                ("Run one evaluation harness across 5 ASR models, processing an hour of four-speaker audio in 4 minutes "
+                 "on a single GPU and 40,000 hours indexed for production tenants."),
+            ],
+        },
+        {
+            "title": "Data Engineer",
+            "company": "SautiFlow Labs, Nairobi",
+            "dates": "2023 – 2024",
+            "bullets": [
+                ("Designed batch and streaming pipelines with Apache Spark, Airflow and Kafka processing 6 TB / 38,000 "
+                 "hours of raw audio a year into training-ready datasets for ASR, translation and TTS models."),
+                ("Automated transcription alignment and diarisation pre-labelling, cutting human labelling time from 11 "
+                 "to 3.5 minutes per hour of audio — a 68% saving adopted as the platform's default workflow."),
+                ("Introduced dataset versioning with DVC and content hashing so every model release traces to an exact "
+                 "data snapshot, eliminating reproducibility disputes across the ML team."),
+                ("Consolidated 14 scattered schemas into a single dbt-modelled warehouse, reducing pipeline failures 41% "
+                 "and monthly compute spend 23%."),
+                ("Delivered 18,000 hours of audio and 1.2M images across 11 language and accent bands at Cohen's kappa "
+                 "0.87, cutting batch turnaround from 3.5 weeks to 9 days."),
+                ("Owned speaker consent, retention and PII-redaction flows for 40,000+ hours of stored audio; wrote the "
+                 "data-quality runbook that onboarded 3 team members."),
             ],
         },
         {
             "title": "Software Engineer",
             "company": "SautiFlow Labs, Nairobi",
-            "dates": "2020 – 2022",
+            "dates": "2022 – 2023",
             "bullets": [
-                ("Built and maintained REST and WebSocket APIs in Django and Node.js serving 1.2M requests/day at p95 "
+                ("Built and maintained REST and WebSocket APIs in Django and Node.js serving 1.2M requests a day at p95 "
                  "latency under 140 ms, with PostgreSQL, Redis and Twilio voice/SMS integrations."),
                 ("Introduced Docker deployments and a GitHub Actions CI/CD pipeline: release cadence moved from monthly "
                  "to weekly and lead time dropped from 3 weeks to 2 days."),
@@ -283,19 +347,28 @@ DATA_ENGINEER = {
         },
     ],
     "projects": [
-        ("LabelSet — Speech Data Pipeline", "Sources recordings, gets them labelled by real speakers, and verifies label "
-            "quality before training — the data backbone behind every model in the portfolio."),
-        ("EchoID — Audio Archive Indexing", "Batch pipeline applying diarisation, voice embeddings and ASR to turn raw "
-            "archives into speaker-labelled, searchable transcripts."),
-        ("SautiFlow — Script-to-Skit Product", "Turns a written script into a finished skit — casting, voicing, timing "
-            "and mix — giving creators ten renderable variations per joke; served end to end by the audio ingestion, "
-            "alignment and labelling pipelines described above."),
+        ("LabelSet — Speech & Multimodal Data Platform",
+         "Sources audio, image and video data, routes each task to three annotators with adjudication, and ships "
+         "versioned datasets with a dataset card per release. 18,000 hours of audio and 1.2M images delivered at "
+         "Cohen's kappa 0.87, with turnaround cut from 3.5 weeks to 9 days.",
+         [("labelset.onrender.com", "https://labelset.onrender.com")]),
+        ("EchoID — Audio Archive Indexing",
+         "Indexes raw recordings into speaker-labelled, searchable transcripts with Elasticsearch, word-level ASR "
+         "timestamps and a redaction pass that masks phone numbers, IDs and card fragments before anything leaves "
+         "the pipeline. 40,000 hours indexed for production tenants.",
+         [("github.com/lyle-mlengineer/echoid", "https://github.com/lyle-mlengineer/echoid"),
+          ("echoid.onrender.com", "https://echoid.onrender.com")]),
+        ("SautiFlow — Script-to-Skit Product",
+         "Turns a written script into a finished skit — casting, voicing, timing and mix — served end to end by the "
+         "audio ingestion, alignment and labelling pipelines described above. 40+ skits per creator per session and "
+         "a median 22-second render for a 45-second, four-character scene.",
+         [("sautiflow.co.ke", "https://www.sautiflow.co.ke/")]),
     ],
     "education": [
-        ("BSc, Computer Security and Forensics", "Jaramogi Oginga Odinga University of Science and Technology (JOOUST)", "2016 – 2020"),
-        ("Diploma, Mechatronics Engineering", "JKUAT, Juja, Kenya", "2013 – 2016"),
+        ("BSc, Computer Security and Forensics (First Class Honours)", "Jaramogi Oginga Odinga University of Science and Technology (JOOUST)", "2016 – 2020"),
+        ("Diploma, Mechatronics Engineering (Upper Second Class)", "JKUAT, Juja, Kenya", "2013 – 2016"),
     ],
-    "certs": "AWS, Google Cloud, DeepLearning.AI and NVIDIA DLI certifications (2021 – 2025).",
+    "certs": "DeepLearning.AI, NVIDIA Deep Learning Institute, AWS and Google Cloud — 14 credentials (2021 – 2025).",
     "extra": None,
 }
 
@@ -303,34 +376,60 @@ SOFTWARE_ENGINEER = {
     "file": "LYLE-OKOTH-SOFTWARE-ENGINEER.docx",
     "headline": "SOFTWARE ENGINEER | FULL-STACK & VOICE-FIRST PRODUCTS",
     "summary": (
-        "Software Engineer with 6+ years of experience shipping end-to-end web products — from problem framing and "
-        "UI/UX design through backend APIs at 1.2M requests/day to deployment and feedback loops. Specialised in "
-        "voice-first services: IVR and WhatsApp assistants serving 40,000+ monthly users, real-time speech streaming "
-        "front-ends, and AI-assisted onboarding. Introduced Docker-based CI/CD that cut release lead time from 3 weeks "
-        "to 2 days, and grew front-end test coverage from 0 to 71%, reducing reported production bugs 34%."
+        "Software Engineer with over six years of experience shipping voice-first web products end to end — "
+        "requirement framing, UI/UX, backend APIs, deployment and iteration. Built IVR and WhatsApp assistants "
+        "serving 40,000+ monthly users, REST and WebSocket APIs handling 1.2M requests a day at p95 latency under "
+        "140 ms, and Docker + GitHub Actions CI/CD that moved releases from monthly to weekly and cut lead time from "
+        "3 weeks to 2 days. Took front-end test coverage from 0 to 71% while reported production bugs fell 34%; now "
+        "ships streaming speech interfaces and model services at 310 ms median first-audio latency."
     ),
     "competencies": [
-        ("Backend", "REST and WebSocket APIs, synchronous and asynchronous services for real-time streaming and batch "
-                    "processing, authentication & authorization, payment webhooks, USSD menus, Twilio voice/SMS"),
-        ("Frontend & Product", "React interfaces for speech products (real-time translation, transcription, synthesis), "
-                               "UI/UX design, AI-assisted onboarding workflows, documentation that sped up new-hire onboarding"),
-        ("Platform & Reliability", "Docker, GitHub Actions CI/CD, Kubernetes, logging and tracing for API-usage "
-                                   "monitoring and downtime prevention, bot-abuse mitigation"),
-        ("ML Integration", "Serving models behind FastAPI, LLM-powered features (onboarding, pre-labeling), "
-                           "RAG and agent workflows with LangChain / LlamaIndex"),
+        ("Backend", "REST and WebSocket APIs, Django / FastAPI / Node.js, authentication and authorisation, payment "
+                    "webhooks, USSD menus, Twilio voice and SMS, real-time streaming services"),
+        ("Frontend & Product", "React interfaces for speech products (streaming translation, transcription and "
+                               "synthesis), UI/UX design, AI-assisted onboarding workflows, documentation that sped up "
+                               "new-hire onboarding"),
+        ("Platform & Reliability", "Docker, GitHub Actions CI/CD, Kubernetes, Render deployments, logging, tracing "
+                                   "and cost monitoring, bot-abuse mitigation"),
+        ("ML Integration", "Model services behind FastAPI and Triton, LLM-powered features (onboarding, pre-labelling), "
+                           "RAG and agent workflows"),
     ],
     "tech": [
         ("Languages", "Python, JavaScript/TypeScript, C++, SQL"),
-        ("Frameworks", "Django, FastAPI, Flask, Node.js, React"),
+        ("Frameworks", "Django, FastAPI, Flask, Node.js, React, Next.js"),
         ("Data & Messaging", "PostgreSQL, Redis, Elasticsearch, Apache Kafka, Celery"),
-        ("DevOps & Cloud", "Docker, Kubernetes, GitHub Actions CI/CD, AWS, GCP, Render"),
-        ("Other", "Twilio, payment integrations, WebSocket / WebRTC streaming, scikit-learn, Hugging Face"),
+        ("DevOps & Cloud", "Docker, Kubernetes, GitHub Actions CI/CD, Render, AWS, GCP"),
+        ("Other", "Twilio, payment integrations, WebSocket / WebRTC streaming, scikit-learn, Hugging Face, Triton"),
     ],
     "jobs": [
         {
+            "title": "Machine Learning Engineer (full-stack responsibilities)",
+            "company": "SautiFlow Labs, Nairobi",
+            "dates": "2024 – Present",
+            "bullets": [
+                ("Worked with software engineers to design and ship web interfaces for real-time streaming translation, "
+                 "transcription and synthesis; SautiFlow now serves 2,100 monthly creators at 61% week-four retention."),
+                ("Deployed model services (FastAPI, Triton, Kubernetes) serving streaming speech at 310 ms median "
+                 "first-audio latency; instrumented logging and tracing to monitor token usage and detect model drift."),
+                ("Built authentication and authorisation controls that blocked bot API misuse without adding friction "
+                 "for real users, and wrote the guardrail specs now used across model endpoints."),
+            ],
+        },
+        {
+            "title": "Data Engineer",
+            "company": "SautiFlow Labs, Nairobi",
+            "dates": "2023 – 2024",
+            "bullets": [
+                ("Built a fast, scalable synchronous and asynchronous backend for real-time and batch processing of user "
+                 "requests, plus the data studio for human + AI collaborative data collection and annotation."),
+                ("Designed pipelines (Airflow, Kafka, Spark) processing 6 TB of audio a year and wrote the documentation "
+                 "that made onboarding new hires easier."),
+            ],
+        },
+        {
             "title": "Software Engineer",
             "company": "SautiFlow Labs, Nairobi",
-            "dates": "2020 – 2022",
+            "dates": "2022 – 2023",
             "bullets": [
                 ("Shipped 5 production features for an IVR and WhatsApp voice assistant serving 40,000+ monthly users, "
                  "from requirement framing with non-technical clients through design, build and iteration."),
@@ -344,48 +443,37 @@ SOFTWARE_ENGINEER = {
                 ("Reviewed junior pull requests and ran the internal weekly code club."),
             ],
         },
-        {
-            "title": "Machine Learning Engineer (full-stack responsibilities)",
-            "company": "SautiFlow Labs, Nairobi",
-            "dates": "2024 – Present",
-            "bullets": [
-                ("Worked with software engineers to design and ship web interfaces for speech products including "
-                 "real-time streaming translation, transcription and synthesis — contributing to high retention rates."),
-                ("Deployed model services (FastAPI, Triton, Kubernetes) serving streaming speech at 310 ms median "
-                 "first-audio latency; instrumented logging and tracing to monitor token usage and detect model drift."),
-                ("Built robust authentication and authorization controls that prevented API misuse by bots, improving "
-                 "the experience for real users."),
-            ],
-        },
-        {
-            "title": "Data Engineer",
-            "company": "SautiFlow Labs, Nairobi",
-            "dates": "2022 – 2024",
-            "bullets": [
-                ("Built a fast, scalable synchronous and asynchronous backend for real-time and batch processing of user "
-                 "requests, plus the data studio for human + AI collaborative data collection and annotation."),
-                ("Designed pipelines (Airflow, Kafka, Spark) processing 6 TB of audio per year; wrote detailed "
-                 "documentation that made onboarding new hires easier."),
-            ],
-        },
     ],
     "projects": [
-        ("SautiFlow — Script-to-Skit Studio", "Turns a written script into a finished skit: casting, voicing, timing and "
-            "mix. Creators type the joke, pick a cast, and get back ten renderable variations instead of one take they "
-            "have to record themselves — full product surface from web UI to render backend."),
-        ("LabelSet — Speech Data Platform", "Web application for sourcing recordings, collaborative human + AI labelling, "
-            "and label-quality verification — the pipeline behind every model on the portfolio."),
-        ("FaceForm — Persona Generator", "Generates consistent, clearly synthetic faces for teams that need people in "
-            "their visuals without licensing real ones; a designer sets an archetype once, then draws a whole persona "
-            "family from the same latent noise."),
-        ("PigaMagic — Event Photo Gallery", "Takes a few phone snapshots per guest at a 200-person event and returns a "
-            "gallery of polished event photos for every guest, not just the ones near the camera."),
+        ("SautiFlow — Script-to-Skit Studio",
+         "Turns a written script into a finished skit — casting, voicing, timing and mix — where creators type the joke, "
+         "pick a cast and get ten renderable variations instead of one take they have to record themselves. Full "
+         "product surface from web UI to render backend; 2,100 monthly creators at 61% week-four retention and a "
+         "median 22-second render for a 45-second four-character scene.",
+         [("sautiflow.co.ke", "https://www.sautiflow.co.ke/")]),
+        ("LabelSet — Speech & Multimodal Data Platform",
+         "Web application where audio, image and video tasks route to three annotators with adjudication before a "
+         "versioned dataset ships. 18,000 hours of audio and 1.2M images delivered at Cohen's kappa 0.87, with "
+         "turnaround cut from 3.5 weeks to 9 days.",
+         [("labelset.onrender.com", "https://labelset.onrender.com")]),
+        ("FaceForm — Persona Generator",
+         "Generates consistent, clearly synthetic faces for teams that need people in their visuals without licensing "
+         "real ones: a designer sets an archetype once, then draws a whole persona family from the same latent noise. "
+         "96% of released sets passed an internal human realism check, 8x faster than the stock-and-permission "
+         "workflow it replaced, with 31,000 licensed images generated in year one.",
+         [("github.com/lyle-mlengineer/faceform", "https://github.com/lyle-mlengineer/faceform"),
+          ("faceform-2rkf.onrender.com", "https://faceform-2rkf.onrender.com")]),
+        ("PigaMagic — Event Photo Gallery",
+         "Takes a few phone snapshots per guest at a 200-person event and returns a polished gallery for every guest, "
+         "not just the ones near the camera: 12 gallery shots per guest in under four minutes from upload, with 94% "
+         "passing the automated identity-similarity check and 1 in 6 generations rejected at the quality gate.",
+         [("pigamagic.onrender.com", "https://pigamagic.onrender.com")]),
     ],
     "education": [
-        ("BSc, Computer Security and Forensics", "Jaramogi Oginga Odinga University of Science and Technology (JOOUST)", "2016 – 2020"),
-        ("Diploma, Mechatronics Engineering", "JKUAT, Juja, Kenya", "2013 – 2016"),
+        ("BSc, Computer Security and Forensics (First Class Honours)", "Jaramogi Oginga Odinga University of Science and Technology (JOOUST)", "2016 – 2020"),
+        ("Diploma, Mechatronics Engineering (Upper Second Class)", "JKUAT, Juja, Kenya", "2013 – 2016"),
     ],
-    "certs": "AWS, Google Cloud, DeepLearning.AI and NVIDIA DLI certifications (2021 – 2025).",
+    "certs": "AWS, Google Cloud, DeepLearning.AI and NVIDIA DLI certifications — 14 credentials (2021 – 2025).",
     "extra": ("LEADERSHIP", ["Co-Founder — SautiFlow Labs (2022)", "Volunteer — OMDENA (2024)",
                              "Founded a 12-member coding club and ran weekend build sessions"]),
 }
@@ -413,14 +501,22 @@ def build(cv):
             bullet(doc, b)
 
     section_heading(doc, "Selected Projects")
-    for name, desc in cv["projects"]:
+    for name, desc, links in cv["projects"]:
         p = doc.add_paragraph()
-        p.paragraph_format.space_after = Pt(3)
+        p.paragraph_format.space_after = Pt(1)
         r = p.add_run(name + " — ")
         r.bold = True
         r.font.size = Pt(10.5)
         r2 = p.add_run(desc)
         r2.font.size = Pt(10.5)
+        if links:
+            lp = doc.add_paragraph()
+            lp.paragraph_format.space_after = Pt(2)
+            for i, (text, url) in enumerate(links):
+                if i:
+                    sep = lp.add_run("  ·  ")
+                    sep.font.size = Pt(9)
+                add_hyperlink(lp, url, text, size=9)
 
     section_heading(doc, "Education")
     for title, school, dates in cv["education"]:
@@ -434,8 +530,8 @@ def build(cv):
         for item in cv["extra"][1]:
             bullet(doc, item)
 
-    section_heading(doc, "References")
-    para(doc, "Available on request.", space_after=0)
+    refs = para(doc, "References available on request.", size=9.5, space_after=0, italic=True)
+    refs.paragraph_format.space_before = Pt(6)
 
     doc.save(cv["file"])
     print("saved", cv["file"])
