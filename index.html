@@ -91,14 +91,16 @@
             },
             {
               "@type": "ItemList",
-              "name": "Speech and audio AI projects",
+              "name": "Speech, audio and developer AI projects",
               "itemListElement": [
                 { "@type": "ListItem", "position": 1, "name": "SautiFlow", "url": "https://lyle-mlengineer.github.io/#portfolio", "description": "Turn a written script into dozens of voiced, mixed audio skits in a single session." },
                 { "@type": "ListItem", "position": 2, "name": "PigaMagic", "url": "https://lyle-mlengineer.github.io/#portfolio", "description": "Event photos of every guest, generated from a handful of phone snapshots." },
                 { "@type": "ListItem", "position": 3, "name": "LabelSet", "url": "https://lyle-mlengineer.github.io/portfolio-frontend/labelset/", "description": "AI data sourcing and labelling for audio, image, and video." },
                 { "@type": "ListItem", "position": 4, "name": "FaceForm", "url": "https://lyle-mlengineer.github.io/portfolio-frontend/faceform/", "description": "Photoreal AI persona generator for social content." },
                 { "@type": "ListItem", "position": 5, "name": "Vocalis", "url": "https://lyle-mlengineer.github.io/portfolio-frontend/vocalis/", "description": "AI voice design studio — cloned voices and streaming speech in 32 languages." },
-                { "@type": "ListItem", "position": 6, "name": "EchoID", "url": "https://lyle-mlengineer.github.io/portfolio-frontend/echoid/", "description": "Speaker identification and diarization for recorded and streaming audio." }
+                { "@type": "ListItem", "position": 6, "name": "EchoID", "url": "https://lyle-mlengineer.github.io/portfolio-frontend/echoid/", "description": "Speaker identification and diarization for recorded and streaming audio." },
+                { "@type": "ListItem", "position": 7, "name": "coAgent", "url": "https://coagent-web.onrender.com/", "description": "Design-stage Python coding agent for Google Colab's free T4, with local model inference, test-driven edits and git checkpoints." },
+                { "@type": "ListItem", "position": 8, "name": "Docent", "url": "https://docent-9a62.onrender.com/", "description": "A guide that has used your product: waitlist, contact inbox and product site for an AI walkthrough agent." }
               ]
             }
           ]
@@ -1777,7 +1779,7 @@
             <!--==================== PORTFOLIO ====================-->
             <section class="portfolio section" id="portfolio">
                 <h2 class="section__title">Portfolio</h2>
-                <span class="section__subtitle">Products I have designed, built and shipped</span>
+                <span class="section__subtitle">Shipped products and projects in development</span>
 
                 <div class="portfolio__container container swiper-container">
                     <div class="swiper-wrapper">
@@ -1901,6 +1903,46 @@
 
                                     <a href="https://echoid.onrender.com" target="_blank" class="button button--flex button--small portfolio__button">
                                         Demo
+                                        <i class="uil uil-arrow-right button__icon"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="portfolio__content grid swiper-slide">
+                            <img src="img/coagent.png" alt="coAgent — The GPU forgets. Your repo doesn't." loading="lazy" width="960" height="480" class="portfolio__img">
+                            <div class="portfolio__data">
+                                <h3 class="portfolio__title">coAgent</h3>
+                                <p class="portfolio__description">A Python coding agent designed for Colab's free T4: local inference, test-driven edits and git checkpoints. In development.</p>
+
+                                <div class="portfolio__actions">
+                                    <button type="button" class="button button--flex button--small button--link portfolio__button-open" data-project="coagent">
+                                        Read more
+                                        <i class="uil uil-arrow-right button__icon"></i>
+                                    </button>
+
+                                    <a href="https://coagent-web.onrender.com/" target="_blank" rel="noopener noreferrer" class="button button--flex button--small portfolio__button">
+                                        Website
+                                        <i class="uil uil-arrow-right button__icon"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="portfolio__content grid swiper-slide">
+                            <img src="img/docent.png" alt="Docent — a guide that has used your product." loading="lazy" width="1600" height="840" class="portfolio__img">
+                            <div class="portfolio__data">
+                                <h3 class="portfolio__title">Docent</h3>
+                                <p class="portfolio__description">A guide that has actually used your product: explore a site, narrate the walkthrough, then guide people through the same steps live. Pre-launch.</p>
+
+                                <div class="portfolio__actions">
+                                    <button type="button" class="button button--flex button--small button--link portfolio__button-open" data-project="docent">
+                                        Read more
+                                        <i class="uil uil-arrow-right button__icon"></i>
+                                    </button>
+
+                                    <a href="https://docent-9a62.onrender.com/" target="_blank" rel="noopener noreferrer" class="button button--flex button--small portfolio__button">
+                                        Website
                                         <i class="uil uil-arrow-right button__icon"></i>
                                     </a>
                                 </div>
@@ -2317,6 +2359,156 @@
                             <a href="https://github.com/lyle-mlengineer/echoid" target="_blank" rel="noopener noreferrer" class="button button--flex button--ghost modal-github">
                                 <i class="uil uil-github button__icon button__icon--lead"></i>
                                 View source on GitHub
+                            </a>
+                            <a href="#contact" class="button button--flex modal-cta">
+                                Discuss a project like this
+                                <i class="uil uil-message button__icon"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="portfolio__modal modal" id="pf-coagent" role="dialog" aria-modal="true" aria-labelledby="pf-coagent-title">
+                    <div class="modal-sheet">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="pf-coagent-title">coAgent</h4>
+                            <span class="modal-meta">Python package · Notebook-native coding agent · Design stage</span>
+                            <button type="button" class="modal-close" aria-label="Close coAgent project details" title="Close">
+                                <i class="uil uil-times" aria-hidden="true"></i>
+                            </button>
+                        </div>
+
+                        <p class="modal-lead">A free Colab GPU can disappear mid-task; your work should not disappear with it. coAgent is a Python coding agent being designed around <strong>local model inference and git-backed checkpoints</strong>: survey a repository, propose a plan, edit code, run tests and preserve each verified step on a reviewable branch.</p>
+
+                        <div class="modal-block">
+                            <h5 class="modal-block-title"><i class="uil uil-users-alt"></i> Who it is for</h5>
+                            <ul class="modal-list">
+                                <li><strong>Solo ML engineers</strong> who want repository edits and test runs without leaving their Colab notebook.</li>
+                                <li><strong>Data analysts</strong> who need notebook cells, plots and saved artifacts alongside source-code changes.</li>
+                                <li><strong>Students and independent developers</strong> working with a free T4 rather than a paid model API.</li>
+                            </ul>
+                        </div>
+
+                        <div class="modal-block">
+                            <h5 class="modal-block-title"><i class="uil uil-cog"></i> Planned workflow</h5>
+                            <ul class="modal-list">
+                                <li>Run <strong>Qwen2.5-Coder-7B with NF4 quantisation</strong> inside the user's Colab VM, without sending code to a third-party model API.</li>
+                                <li>Separate <strong>survey, plan, act, verify and report</strong> phases; request human approval before multi-file changes.</li>
+                                <li>Retrieve relevant code with a tree-sitter repository map and BM25, then apply targeted edits instead of rewriting whole files.</li>
+                                <li>Use syntax checks, Ruff and pytest as the verifier, with tests running on CPU by default.</li>
+                                <li>Commit each verified step to a session branch and sync to git or a Drive bundle, with resume support after a runtime disconnect.</li>
+                            </ul>
+                        </div>
+
+                        <div class="modal-block">
+                            <h5 class="modal-block-title"><i class="uil uil-file-alt"></i> Design &amp; release status</h5>
+                            <ul class="modal-list">
+                                <li><strong>Architecture and product requirements are published.</strong> The Python package and bootstrap notebook are planned for v0.1, not yet released.</li>
+                                <li>The design targets a <strong>free 16 GB T4</strong>, a 12,288-token context cap and at most 10 GB peak model VRAM; these are targets, not measured results.</li>
+                                <li>Planned controls include approval for sensitive actions, secret redaction and branch isolation that blocks pushes to main. Colab is not a hardened sandbox.</li>
+                            </ul>
+                        </div>
+
+                        <div class="modal-block">
+                            <h5 class="modal-block-title"><i class="uil uil-layer-group"></i> Planned stack</h5>
+                            <div class="chip-row">
+                                <span class="chip">Python 3.11</span>
+                                <span class="chip">PyTorch</span>
+                                <span class="chip">Transformers</span>
+                                <span class="chip">Qwen2.5-Coder</span>
+                                <span class="chip">bitsandbytes NF4</span>
+                                <span class="chip">tree-sitter</span>
+                                <span class="chip">BM25</span>
+                                <span class="chip">pytest / Ruff</span>
+                                <span class="chip">Google Colab</span>
+                                <span class="chip">Git</span>
+                            </div>
+                        </div>
+
+                        <div class="modal-actions">
+                            <a href="https://github.com/lyle-mlengineer/coagent" target="_blank" rel="noopener noreferrer" class="button button--flex button--ghost modal-github">
+                                <i class="uil uil-github button__icon button__icon--lead"></i>
+                                View project on GitHub
+                            </a>
+                            <a href="https://coagent-web.onrender.com/" target="_blank" rel="noopener noreferrer" class="button button--flex button--ghost">
+                                Visit website
+                                <i class="uil uil-arrow-right button__icon"></i>
+                            </a>
+                            <a href="#contact" class="button button--flex modal-cta">
+                                Discuss a project like this
+                                <i class="uil uil-message button__icon"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="portfolio__modal modal" id="pf-docent" role="dialog" aria-modal="true" aria-labelledby="pf-docent-title">
+                    <div class="modal-sheet">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="pf-docent-title">Docent</h4>
+                            <span class="modal-meta">Independent product · Pre-launch · Website and submission backend live</span>
+                            <button type="button" class="modal-close" aria-label="Close Docent project details" title="Close">
+                                <i class="uil uil-times" aria-hidden="true"></i>
+                            </button>
+                        </div>
+
+                        <p class="modal-lead">A docent studies an exhibit before explaining it to visitors. Docent applies that idea to software: explore a site, understand its workflows, turn them into a narrated walkthrough, then <strong>guide people through the same steps live</strong>. This release is the product's public front door: a responsive landing page, a durable early-access waitlist, a contact channel and a private admin inbox, served by <strong>one FastAPI application</strong> with no frontend framework and no build step.</p>
+
+                        <div class="modal-block">
+                            <h5 class="modal-block-title"><i class="uil uil-users-alt"></i> Who it is for</h5>
+                            <ul class="modal-list">
+                                <li><strong>Product, docs and growth teams</strong> who need new users to actually finish onboarding flows.</li>
+                                <li><strong>Maintainers</strong> collecting early-access signups and enquiries in one reviewable inbox.</li>
+                                <li><strong>Contributors</strong> wanting a small, typed Python application with isolated tests.</li>
+                            </ul>
+                        </div>
+
+                        <div class="modal-block">
+                            <h5 class="modal-block-title"><i class="uil uil-cog"></i> How it works</h5>
+                            <ul class="modal-list">
+                                <li>Server-rendered Jinja2 pages with handwritten CSS and vanilla JavaScript; keyboard navigation and reduced-motion support throughout.</li>
+                                <li>Emails are validated and normalized, then stored in Postgres behind a unique index and atomic inserts, so <strong>duplicate or concurrent signups cannot create a second record</strong>.</li>
+                                <li>Both forms confirm in place after the API accepts a submission; network errors stay visible and throttled responses include a retry time.</li>
+                                <li><strong>HTTP Basic-protected admin pages</strong> paginate newest-first and export the waitlist as CSV with spreadsheet-formula escaping.</li>
+                                <li>Security defaults: typed payloads, honeypots, a 32 KiB body limit, hashed-IP throttling, strict CSP and uncached admin/API responses.</li>
+                            </ul>
+                        </div>
+
+                        <div class="modal-block">
+                            <h5 class="modal-block-title"><i class="uil uil-file-alt"></i> Scope &amp; status</h5>
+                            <ul class="modal-list">
+                                <li><strong>The website and submission backend are implemented and deployed</strong> on Render against a managed Postgres database.</li>
+                                <li>Browser exploration, vision-language understanding, video generation and the embedded live guide are <strong>specified in the design and PRD, not shipped features</strong>.</li>
+                                <li>The architectural spine is a shared, typed step representation: the video, live guide and site model are projections of the same evidence.</li>
+                                <li>Joining the waitlist creates no account and sends no email; invitations and replies are handled manually, by design.</li>
+                                <li><strong>Source is private.</strong> The live website is the reference build.</li>
+                            </ul>
+                        </div>
+
+                        <div class="modal-block">
+                            <h5 class="modal-block-title"><i class="uil uil-layer-group"></i> Technologies used</h5>
+                            <div class="chip-row">
+                                <span class="chip">Python 3.13</span>
+                                <span class="chip">FastAPI</span>
+                                <span class="chip">Starlette</span>
+                                <span class="chip">Jinja2</span>
+                                <span class="chip">SQLAlchemy (async)</span>
+                                <span class="chip">PostgreSQL</span>
+                                <span class="chip">Pydantic</span>
+                                <span class="chip">Vanilla JS</span>
+                                <span class="chip">pytest + Ruff</span>
+                                <span class="chip">Render</span>
+                            </div>
+                        </div>
+
+                        <div class="modal-actions">
+                            <span class="button button--flex button--ghost is-disabled" aria-disabled="true" title="Source is private">
+                                <i class="uil uil-github button__icon button__icon--lead"></i>
+                                View source on GitHub
+                            </span>
+                            <a href="https://docent-9a62.onrender.com/" target="_blank" rel="noopener noreferrer" class="button button--flex button--ghost">
+                                Visit website
+                                <i class="uil uil-arrow-right button__icon"></i>
                             </a>
                             <a href="#contact" class="button button--flex modal-cta">
                                 Discuss a project like this
