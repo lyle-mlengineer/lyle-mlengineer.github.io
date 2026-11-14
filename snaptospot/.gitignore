@@ -9,6 +9,7 @@ venv/
 *.db
 *.sqlite3
 .env
+var/
 
 # Tooling
 .pytest_cache/

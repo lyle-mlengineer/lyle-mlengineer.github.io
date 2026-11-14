@@ -1,4 +1,8 @@
+import functools
+import threading
 from collections.abc import Generator
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
@@ -7,6 +11,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app import models  # noqa: F401  (register mappers before create_all)
+from app.config import get_settings
 from app.db import Base, get_db
 from app.main import app
 
@@ -16,6 +21,38 @@ engine = create_engine(
     poolclass=StaticPool,
 )
 TestingSession = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
+
+FIXTURE_SITES = Path(__file__).parent / "fixtures" / "sites"
+
+
+class QuietHandler(SimpleHTTPRequestHandler):
+    def log_message(self, *_args: object) -> None:
+        return
+
+
+@pytest.fixture(autouse=True)
+def offline_settings() -> Generator[None, None, None]:
+    """Keep tests offline and deterministic.
+
+    Private-address crawling is allowed so tests can use a local HTTP server;
+    the SSRF test flips it back off explicitly.
+    """
+    settings = get_settings()
+    previous = {
+        "ssrf_allow_private": settings.ssrf_allow_private,
+        "use_playwright": settings.use_playwright,
+        "capture_screenshots": settings.capture_screenshots,
+        "llm_api_key": settings.llm_api_key,
+        "max_pages": settings.max_pages,
+    }
+    settings.ssrf_allow_private = True
+    settings.use_playwright = False
+    settings.capture_screenshots = False
+    settings.llm_api_key = None
+    settings.max_pages = 12
+    yield
+    for key, value in previous.items():
+        setattr(settings, key, value)
 
 
 @pytest.fixture(autouse=True)
@@ -54,6 +91,25 @@ def signup(client: TestClient):
         return response.json()
 
     return _signup
+
+
+@pytest.fixture
+def serve_site() -> Generator[object, None, None]:
+    """Serve a fixture directory from a random localhost port."""
+    servers: list[ThreadingHTTPServer] = []
+
+    def _serve(name: str) -> str:
+        handler = functools.partial(QuietHandler, directory=str(FIXTURE_SITES / name))
+        server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        servers.append(server)
+        return f"http://127.0.0.1:{server.server_address[1]}"
+
+    yield _serve
+    for server in servers:
+        server.shutdown()
+        server.server_close()
 
 
 def auth_headers(pair: dict) -> dict[str, str]:
