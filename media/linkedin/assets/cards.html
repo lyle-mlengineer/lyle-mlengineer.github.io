@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lyle Okoth — LinkedIn launch cards</title>
+<style>
+  :root{
+    --ink:#0a0c11;
+    --paper:#f7f4ef;
+    --muted:#a7adb9;
+    --muted-2:#7d8492;
+    --pink:#ff4d8a;
+    --pink-soft:#ff8ab4;
+    --line:rgba(255,255,255,.11);
+    --line-strong:rgba(255,255,255,.2);
+    --display:"Bahnschrift","Segoe UI",sans-serif;
+    --body:"Segoe UI","Helvetica Neue",sans-serif;
+    --mono:"Consolas","Cascadia Mono",monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1200px;height:1200px;background:var(--ink)}
+  body{
+    font-family:var(--body);color:var(--paper);
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+    overflow:hidden;
+  }
+  .card{
+    position:relative;width:1200px;height:1200px;overflow:hidden;
+    padding:54px 64px 46px;display:flex;flex-direction:column;
+    background:
+      radial-gradient(900px 620px at 88% -8%, rgba(255,77,138,.20), transparent 62%),
+      radial-gradient(760px 520px at -10% 108%, rgba(120,92,255,.16), transparent 60%),
+      linear-gradient(146deg,#0b0d13 0%,#0d1017 44%,#0a0b10 100%);
+  }
+  .card::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:radial-gradient(rgba(255,255,255,.075) 1px, transparent 1px);
+    background-size:26px 26px;
+    -webkit-mask-image:radial-gradient(120% 90% at 50% 0%, #000 0%, transparent 72%);
+            mask-image:radial-gradient(120% 90% at 50% 0%, #000 0%, transparent 72%);
+    opacity:.55;
+  }
+  .card::after{
+    content:"";position:absolute;left:0;right:0;bottom:0;height:280px;pointer-events:none;
+    background:linear-gradient(to top, rgba(0,0,0,.42), transparent);
+  }
+  .card > *{position:relative;z-index:2}
+
+  /* ---------- shared chrome ---------- */
+  .topbar{display:flex;align-items:center;justify-content:space-between}
+  .brand{display:flex;align-items:center;gap:13px;font-size:13px;font-weight:600;letter-spacing:.22em;text-transform:uppercase}
+  .brand i{width:9px;height:9px;border-radius:50%;background:var(--pink);box-shadow:0 0 14px rgba(255,77,138,.9)}
+  .topbar .tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-2)}
+  .rule{height:1px;margin-top:20px;background:linear-gradient(90deg,var(--line-strong),var(--line) 45%,rgba(255,255,255,.03))}
+  .foot{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:22px;border-top:1px solid var(--line)}
+  .foot .url{display:flex;align-items:center;gap:10px;font-size:14px;letter-spacing:.02em;color:var(--muted)}
+  .foot .url b{color:var(--paper);font-weight:600}
+  .foot .url .arrow{color:var(--pink);font-family:var(--mono)}
+  .foot .pageno{font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--muted-2)}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--pink);display:flex;align-items:center;gap:14px}
+  .eyebrow::before{content:"";width:34px;height:1px;background:var(--pink);display:block}
+  .display{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:-.025em;line-height:.92}
+  .display em{font-style:normal;color:var(--pink)}
+
+  /* ---------- 01 hero ---------- */
+  .hero{flex:1;display:grid;grid-template-columns:1fr 366px;gap:44px;align-items:center;padding:22px 0 14px}
+  .hero h1{font-size:124px;margin:24px 0 0}
+  .hero .lede{margin-top:30px;max-width:690px;font-size:23px;line-height:1.52;color:#b8bec9;font-weight:300}
+  .hero .lede b{color:var(--paper);font-weight:600}
+  .mini-stats{display:flex;margin-top:44px;border-top:1px solid var(--line);padding-top:24px}
+  .mini{padding-right:38px;margin-right:38px;border-right:1px solid var(--line)}
+  .mini:last-child{border-right:0;margin-right:0;padding-right:0}
+  .mini .n{font-family:var(--display);font-size:40px;line-height:1;letter-spacing:-.02em}
+  .mini .n span{color:var(--pink)}
+  .mini .l{margin-top:8px;font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted-2)}
+  .pull{display:flex;gap:22px;align-items:flex-start;border-left:2px solid var(--pink);padding:4px 0 4px 22px;margin:0 0 30px;max-width:1010}
+  .pull p{font-size:21px;line-height:1.5;color:#cfd4dd;font-weight:300;max-width:880}
+  .pull p b{color:var(--paper);font-weight:600}
+  .pull .k{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-2);white-space:nowrap;padding-top:7px;margin-left:auto}
+  .portrait-col{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px}
+  .portrait{position:relative;width:340px;height:340px;border-radius:50%;padding:7px;
+    background:conic-gradient(from 210deg, rgba(255,77,138,.95), rgba(255,194,75,.55), rgba(255,77,138,.15), rgba(255,77,138,.95));
+    box-shadow:0 34px 90px rgba(0,0,0,.62), 0 0 70px rgba(255,77,138,.16)}
+  .portrait .inner{width:100%;height:100%;border-radius:50%;overflow:hidden;background:#151821;border:1px solid rgba(255,255,255,.14)}
+  .portrait img{width:100%;height:100%;object-fit:cover;object-position:50% 18%;filter:saturate(.92) contrast(1.04)}
+  .portrait .chip{position:absolute;left:50%;transform:translateX(-50%);bottom:-17px;white-space:nowrap;
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    background:#151823;border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:9px 16px;color:#dfe3ea;
+    box-shadow:0 10px 30px rgba(0,0,0,.5)}
+  .portrait .chip b{color:var(--pink);font-weight:600}
+  .nameblock{text-align:center;margin-top:20px}
+  .nameblock .nm{font-family:var(--display);font-size:27px;letter-spacing:.01em}
+  .nameblock .rl{margin-top:6px;font-size:14px;line-height:1.5;color:var(--muted)}
+
+  /* ---------- 02 stack ---------- */
+  .stack-head{display:flex;align-items:flex-end;justify-content:space-between;gap:40px;padding:30px 0 26px}
+  .stack-head h2{font-size:60px;max-width:740px}
+  .stack-head h2 span{color:var(--muted-2)}
+  .stack-head .note{font-family:var(--mono);font-size:11px;line-height:1.9;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2);text-align:right;padding-bottom:8px}
+  .rows{flex:1;display:flex;flex-direction:column;justify-content:space-between}
+  .row{display:grid;grid-template-columns:86px 1fr 308px;gap:22px;align-items:center;padding:24px 0;border-top:1px solid var(--line);flex:1}
+  .row .idx{font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:var(--pink);align-self:start;padding-top:7px}
+  .row h3{font-family:var(--display);font-size:31px;font-weight:600;letter-spacing:-.01em;line-height:1.1}
+  .row p{margin-top:7px;font-size:15.5px;line-height:1.45;color:var(--muted);max-width:560px}
+  .row .metric{text-align:right}
+  .row .metric b{display:block;font-family:var(--display);font-size:30px;font-weight:600;letter-spacing:-.01em;color:var(--paper);white-space:nowrap}
+  .row .metric b em{font-style:normal;color:var(--pink)}
+  .row .metric span{display:block;margin-top:6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted-2)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+  .chipx{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:#c3c9d4;border:1px solid var(--line);background:rgba(255,255,255,.035);border-radius:6px;padding:7px 11px}
+
+  /* ---------- 03 work ---------- */
+  .work-head{display:flex;align-items:flex-end;justify-content:space-between;gap:40px;padding:28px 0 24px}
+  .work-head h2{font-size:58px}
+  .work-head .aside{text-align:right;font-size:13px;line-height:1.65;color:var(--muted);max-width:330px;padding-bottom:6px}
+  .work-head .aside span{display:block;margin-top:6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2)}
+  .tiles{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:30px 24px;margin-top:8px}
+  .tile{display:flex;flex-direction:column;gap:12px;min-height:0}
+  .shot{position:relative;flex:none;aspect-ratio:2/1;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.14);
+    box-shadow:0 18px 44px rgba(0,0,0,.45);background:#0f1219}
+  .shot img{width:100%;height:100%;object-fit:cover;object-position:50% 50%;display:block}
+  .shot .badge{position:absolute;top:10px;left:10px;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+    background:rgba(9,11,16,.82);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:6px 10px;color:#e7eaf0}
+  .shot .badge i{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--pink);margin-right:6px;vertical-align:1px}
+  .cap{display:flex;align-items:baseline;justify-content:space-between;gap:14px}
+  .cap .t{font-family:var(--display);font-size:21px;letter-spacing:.005em}
+  .cap .d{font-size:12.5px;color:var(--muted-2);text-align:right}
+  .work-strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-top:26px;padding:22px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .work-strip div{display:flex;align-items:baseline;gap:12px}
+  .work-strip b{font-family:var(--display);font-size:28px;font-weight:600;letter-spacing:-.01em;color:var(--pink);white-space:nowrap}
+  .work-strip span{font-size:12px;line-height:1.4;color:var(--muted);max-width:180px}
+  .work-foot{display:flex;align-items:center;gap:14px;margin-top:16px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2)}
+  .work-foot b{color:var(--muted);font-weight:400}
+  .work-foot .sep{width:4px;height:4px;border-radius:50%;background:var(--pink)}
+
+  /* ---------- 04 proof ---------- */
+  .proof-head{padding:30px 0 24px}
+  .proof-head h2{font-size:70px;margin-top:22px}
+  .proof-head h2 span{color:var(--muted-2)}
+  .stats{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line)}
+  .stat{padding:42px 34px 38px 0;border-bottom:1px solid var(--line)}
+  .stat:nth-child(odd){border-right:1px solid var(--line);padding-right:40px}
+  .stat:nth-child(even){padding-left:40px}
+  .stat .num{font-family:var(--display);font-size:92px;line-height:.92;letter-spacing:-.03em;display:flex;align-items:baseline;gap:10px}
+  .stat .num em{font-style:normal;font-size:40px;color:var(--pink);letter-spacing:0}
+  .stat .num u{text-decoration:none;font-size:26px;color:var(--muted);letter-spacing:0;font-family:var(--body);font-weight:300}
+  .stat .lab{margin-top:10px;font-size:16px;color:#c6cbd5;font-weight:300}
+  .stat .sub{margin-top:5px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2)}
+  .quote{display:flex;align-items:center;gap:26px;padding:24px 0 4px}
+  .quote p{font-size:19px;line-height:1.45;color:#d3d8e1;font-weight:300;max-width:780}
+  .quote .who{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2);white-space:nowrap;margin-left:auto;text-align:right;line-height:1.8}
+  .quote .who b{color:var(--pink-soft);font-weight:400;display:block}
+  .contact-band{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:30px;
+    background:linear-gradient(120deg, rgba(255,77,138,.15), rgba(255,255,255,.03));
+    border:1px solid rgba(255,77,138,.35);border-radius:14px;padding:24px 28px}
+  .contact-band .k{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--pink-soft)}
+  .contact-band .v{margin-top:8px;font-family:var(--display);font-size:32px;letter-spacing:-.01em;line-height:1}
+  .contact-band .m{margin-top:9px;font-size:13px;color:var(--muted)}
+  .contact-band .qr{width:92px;height:92px;border-radius:10px;background:#fff;padding:7px;flex:none}
+  .contact-band .qr img{width:100%;height:100%;display:block}
+  #card-4 .foot{margin-top:14px}
+</style>
+</head>
+<body>
+
+<!-- ============ 01 · ANNOUNCEMENT ============ -->
+<section class="card" id="card-1">
+  <div class="topbar">
+    <div class="brand"><i></i>Lyle Okoth</div>
+    <div class="tag">Speech &amp; audio AI</div>
+  </div>
+  <div class="rule"></div>
+
+  <div class="hero">
+    <div>
+      <div class="eyebrow">Portfolio · 2026</div>
+      <h1 class="display">Speech AI<br>that <em>ships.</em></h1>
+      <p class="lede">Six years turning research-grade speech models into products people use — <b>transcription</b>, <b>live translation</b> and <b>synthetic voices</b> for African languages.</p>
+
+      <div class="mini-stats">
+        <div class="mini"><div class="n">6<span>+</span></div><div class="l">Years shipping ML</div></div>
+        <div class="mini"><div class="n">7</div><div class="l">Products in production</div></div>
+        <div class="mini"><div class="n">310<span> ms</span></div><div class="l">Median first audio</div></div>
+      </div>
+    </div>
+
+    <div class="portrait-col">
+      <div class="portrait">
+        <div class="inner"><img src="../../../img/lyle-professional-1.jpg" alt="Lyle Okoth"></div>
+        <div class="chip"><b>●</b> Nairobi, Kenya</div>
+      </div>
+      <div class="nameblock">
+        <div class="nm">Lyle Okoth</div>
+        <div class="rl">Machine Learning Engineer<br>SautiFlow Labs</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pull">
+    <p>Anyone can demo a model. The work is making it hold up when the audio is noisy, the language is <b>code-switched</b>, and someone is waiting to hear the answer.</p>
+    <div class="k">Why it matters</div>
+  </div>
+
+  <div class="foot">
+    <div class="url"><span class="arrow">↗</span> <b>lyle-mlengineer.github.io</b></div>
+    <div class="pageno">01 / 04</div>
+  </div>
+</section>
+
+<!-- ============ 02 · WHAT I BUILD ============ -->
+<section class="card" id="card-2" style="display:none">
+  <div class="topbar">
+    <div class="brand"><i></i>Lyle Okoth</div>
+    <div class="tag">What I build</div>
+  </div>
+  <div class="rule"></div>
+
+  <div class="stack-head">
+    <h2 class="display">One engineer.<br>The whole <em>speech stack.</em></h2>
+    <div class="note">Research → model → API<br>Nairobi · remote</div>
+  </div>
+
+  <div class="rows">
+    <div class="row">
+      <div class="idx">01</div>
+      <div>
+        <h3>Automatic speech recognition</h3>
+        <p>Whisper and wav2vec fine-tuned on Swahili, Sheng and code-switched audio — then served as a streaming API.</p>
+      </div>
+      <div class="metric"><b><em>11.8%</em> WER</b><span>From 23.4% · 1,240 hrs</span></div>
+    </div>
+
+    <div class="row">
+      <div class="idx">02</div>
+      <div>
+        <h3>Speech-to-speech translation</h3>
+        <p>Streaming ASR → MT → TTS pipelines for English ↔ Swahili, Luo and Kikuyu, with a latency budget per stage.</p>
+      </div>
+      <div class="metric"><b>310 <em>ms</em></b><span>Median · p95 780 ms</span></div>
+    </div>
+
+    <div class="row">
+      <div class="idx">03</div>
+      <div>
+        <h3>Text-to-speech &amp; voice cloning</h3>
+        <p>Brand voices trained from consented studio audio, quantised and cached to serve many listeners on one GPU.</p>
+      </div>
+      <div class="metric"><b>42 <em>voices</em></b><span>Per GPU · 58% cheaper</span></div>
+    </div>
+
+    <div class="row">
+      <div class="idx">04</div>
+      <div>
+        <h3>Audio data &amp; MLOps</h3>
+        <p>Ingestion, alignment, labelling and versioned datasets — plus evaluation gates that stop regressions reaching users.</p>
+      </div>
+      <div class="metric"><b>38,000 <em>hrs</em></b><span>Audio processed / year</span></div>
+    </div>
+  </div>
+
+  <div class="chips">
+    <span class="chipx">PyTorch</span><span class="chipx">Whisper</span><span class="chipx">NeMo</span><span class="chipx">SeamlessM4T</span>
+    <span class="chipx">VITS / XTTS</span><span class="chipx">TensorRT</span><span class="chipx">Triton</span><span class="chipx">FastAPI</span>
+    <span class="chipx">Airflow</span><span class="chipx">Spark</span><span class="chipx">Kubernetes</span>
+  </div>
+
+  <div class="foot">
+    <div class="url"><span class="arrow">↗</span> <b>lyle-mlengineer.github.io</b></div>
+    <div class="pageno">02 / 04</div>
+  </div>
+</section>
+
+<!-- ============ 03 · SELECTED WORK ============ -->
+<section class="card" id="card-3" style="display:none">
+  <div class="topbar">
+    <div class="brand"><i></i>Lyle Okoth</div>
+    <div class="tag">Selected work</div>
+  </div>
+  <div class="rule"></div>
+
+  <div class="work-head">
+    <h2 class="display">Eight projects.<br>One thread: <em>voice.</em></h2>
+    <div class="aside">
+      Shipped products and builds in progress.
+      <span>Portfolio → case studies</span>
+    </div>
+  </div>
+
+  <div class="tiles">
+    <div class="tile">
+      <div class="shot"><img src="../../../img/sautiflow.png" alt="SautiFlow"><div class="badge"><i></i>Live · 2,100 creators</div></div>
+      <div class="cap"><div class="t">SautiFlow</div><div class="d">Script → voiced, mixed skit</div></div>
+    </div>
+    <div class="tile">
+      <div class="shot"><img src="../../../img/vocalis.png" alt="Vocalis"><div class="badge"><i></i>Voice design studio</div></div>
+      <div class="cap"><div class="t">Vocalis</div><div class="d">Brand voices as an API</div></div>
+    </div>
+    <div class="tile">
+      <div class="shot"><img src="../../../img/echoid.png" alt="EchoID"><div class="badge"><i></i>Diarisation</div></div>
+      <div class="cap"><div class="t">EchoID</div><div class="d">Who spoke, when, and what</div></div>
+    </div>
+    <div class="tile">
+      <div class="shot"><img src="../../../img/labelset.png" alt="LabelSet"><div class="badge"><i></i>Data platform</div></div>
+      <div class="cap"><div class="t">LabelSet</div><div class="d">Audio, image &amp; video labels</div></div>
+    </div>
+  </div>
+
+  <div class="work-strip">
+    <div><b>22 s</b><span>to render a 45-second, four-voice skit</span></div>
+    <div><b>89%</b><span>speaker accuracy across eight voices</span></div>
+    <div><b>68%</b><span>less manual labelling per audio hour</span></div>
+  </div>
+
+  <div class="work-foot">
+    <b>Plus</b><span class="sep"></span>coAgent<span class="sep"></span>Docent<span class="sep"></span>PigaMagic<span class="sep"></span>FaceForm
+  </div>
+
+  <div class="foot">
+    <div class="url"><span class="arrow">↗</span> <b>lyle-mlengineer.github.io</b></div>
+    <div class="pageno">03 / 04</div>
+  </div>
+</section>
+
+<!-- ============ 04 · PROOF ============ -->
+<section class="card" id="card-4" style="display:none">
+  <div class="topbar">
+    <div class="brand"><i></i>Lyle Okoth</div>
+    <div class="tag">Receipts</div>
+  </div>
+  <div class="rule"></div>
+
+  <div class="proof-head">
+    <div class="eyebrow">Measured, not claimed</div>
+    <h2 class="display">Proof,<br>not <span>promises.</span></h2>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="num">7 <em>shipped</em></div>
+      <div class="lab">Production projects across three engineering roles.</div>
+      <div class="sub">SautiFlow Labs · 2020 – present</div>
+    </div>
+    <div class="stat">
+      <div class="num">310 <u>ms</u></div>
+      <div class="lab">Median first-audio latency on live speech translation.</div>
+      <div class="sub">p95 780 ms · down from 1.4 s</div>
+    </div>
+    <div class="stat">
+      <div class="num">42 <em>voices</em></div>
+      <div class="lab">Served concurrently on a single GPU after optimisation.</div>
+      <div class="sub">Inference cost down 58%</div>
+    </div>
+    <div class="stat">
+      <div class="num">2,100</div>
+      <div class="lab">Monthly creators using a product I helped build end to end.</div>
+      <div class="sub">61% retained at week four</div>
+    </div>
+  </div>
+
+  <div class="quote">
+    <p>“He rebuilt our narration pipeline from a batch job into a streaming API and cut the bill by more than half.”</p>
+    <div class="who"><b>Daniel Reyes</b>Founder · Kite Learning</div>
+  </div>
+
+  <div class="contact-band">
+    <div>
+      <div class="k">The full story, project by project</div>
+      <div class="v">lyle-mlengineer.github.io</div>
+      <div class="m">lyleokoth.mlengineer@gmail.com · Nairobi, Kenya</div>
+    </div>
+    <div class="qr"><img src="qr.png" alt="QR code to portfolio"></div>
+  </div>
+
+  <div class="foot">
+    <div class="url"><span class="arrow">↗</span> <b>Let's build something people can hear.</b></div>
+    <div class="pageno">04 / 04</div>
+  </div>
+</section>
+
+<script>
+  const n = Number(new URLSearchParams(location.search).get('card') || 1);
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById('card-' + i).style.display = (i === n ? 'flex' : 'none');
+  }
+</script>
+</body>
+</html>

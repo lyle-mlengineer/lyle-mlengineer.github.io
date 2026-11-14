@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lyle Okoth — WhatsApp share card</title>
+<style>
+  :root{--paper:#f7f4ef;--muted:#a7adb9;--muted-2:#7d8492;--pink:#ff4d8a;--line:rgba(255,255,255,.12);
+    --display:"Bahnschrift","Segoe UI",sans-serif;--body:"Segoe UI","Helvetica Neue",sans-serif;
+    --mono:"Consolas","Cascadia Mono",monospace;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1080px;height:1080px;background:#0a0c11;overflow:hidden}
+  body{font-family:var(--body);color:var(--paper);-webkit-font-smoothing:antialiased}
+  .card{position:relative;width:1080px;height:1080px;padding:54px 64px 44px;display:flex;flex-direction:column;overflow:hidden;
+    background:
+      radial-gradient(760px 620px at 92% -8%, rgba(255,77,138,.24), transparent 62%),
+      radial-gradient(620px 520px at -10% 108%, rgba(120,92,255,.16), transparent 60%),
+      linear-gradient(150deg,#0b0d13 0%,#0d1017 48%,#0a0b10 100%);}
+  .card::before{content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px);background-size:24px 24px;
+    -webkit-mask-image:radial-gradient(110% 90% at 50% 0%, #000 0%, transparent 72%);
+            mask-image:radial-gradient(110% 90% at 50% 0%, #000 0%, transparent 72%);opacity:.5}
+  .card > *{position:relative;z-index:2}
+  .topbar{display:flex;align-items:center;justify-content:space-between}
+  .brand{display:flex;align-items:center;gap:12px;font-size:13px;font-weight:600;letter-spacing:.24em;text-transform:uppercase}
+  .brand i{width:8px;height:8px;border-radius:50%;background:var(--pink);box-shadow:0 0 12px rgba(255,77,138,.9)}
+  .tag{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-2)}
+  .rule{height:1px;margin-top:18px;background:linear-gradient(90deg,rgba(255,255,255,.2),var(--line) 45%,rgba(255,255,255,.03))}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--pink);display:flex;align-items:center;gap:13px;margin-top:38px}
+  .eyebrow::before{content:"";width:32px;height:1px;background:var(--pink)}
+  h1{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:-.03em;line-height:.9;font-size:112px;margin-top:18px}
+  h1 em{font-style:normal;color:var(--pink)}
+  .lede{margin-top:18px;font-size:20px;line-height:1.45;color:#b9bfca;font-weight:300;max-width:800px}
+  .lede b{color:var(--paper);font-weight:600}
+  .body{display:grid;grid-template-columns:320px 1fr;gap:44px;align-items:center;margin-top:32px}
+  .portrait{position:relative;width:320px;height:320px;border-radius:50%;padding:7px;
+    background:conic-gradient(from 210deg,rgba(255,77,138,.95),rgba(255,194,75,.6),rgba(255,77,138,.12),rgba(255,77,138,.95));
+    box-shadow:0 26px 70px rgba(0,0,0,.6),0 0 60px rgba(255,77,138,.18)}
+  .portrait .in{width:100%;height:100%;border-radius:50%;overflow:hidden;border:1px solid rgba(255,255,255,.15)}
+  .portrait img{width:100%;height:100%;object-fit:cover;object-position:50% 18%}
+  .who .nm{font-family:var(--display);font-size:30px}
+  .who .rl{margin-top:7px;font-size:13px;line-height:1.6;color:var(--muted)}
+  .stats{margin-top:20px;border-top:1px solid var(--line);padding-top:14px;display:flex}
+  .stat{flex:1;padding-right:16px;border-right:1px solid var(--line)}
+  .stat:last-child{border-right:0;padding-right:0}
+  .stat + .stat{padding-left:18px}
+  .stat .n{font-family:var(--display);font-size:34px;line-height:1;letter-spacing:-.02em}
+  .stat .n span{color:var(--pink);font-size:19px}
+  .stat .l{margin-top:7px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2);line-height:1.5}
+  .projects{margin-top:auto;padding-top:18px;border-top:1px solid var(--line);display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .projects .k{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--pink-soft)}
+  .projects .v{font-size:13px;color:var(--muted)}
+  .foot{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-top:auto;padding-top:16px;border-top:1px solid var(--line)}  .foot .u{display:flex;align-items:center;gap:12px;font-size:21px;font-weight:600;letter-spacing:.01em}
+  .foot .u i{width:8px;height:8px;border-radius:50%;background:var(--pink);box-shadow:0 0 12px var(--pink);display:block}
+  .foot .mail{font-size:12px;color:var(--muted-2);margin-top:8px;letter-spacing:.02em}
+  .qr{width:104px;height:104px;background:#fff;border-radius:10px;padding:8px;flex:none}
+  .qr img{width:100%;height:100%;display:block}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="topbar"><div class="brand"><i></i>Lyle Okoth</div><div class="tag">Portfolio · 2026</div></div>
+  <div class="rule"></div>
+  <div class="eyebrow">Speech &amp; audio AI · Nairobi</div>
+  <h1>Speech AI<br>that <em>ships.</em></h1>
+  <p class="lede">Six years turning research-grade speech models into products people use — <b>transcription</b>, <b>live translation</b> and <b>synthetic voices</b> for African languages.</p>
+  <div class="body">
+    <div class="portrait"><div class="in"><img src="../../../img/lyle-professional-1.jpg" alt="Lyle Okoth"></div></div>
+    <div class="who">
+      <div class="nm">Lyle Okoth</div>
+      <div class="rl">Machine Learning Engineer · SautiFlow Labs<br>Nairobi, Kenya</div>
+      <div class="stats">
+        <div class="stat"><div class="n">6<span>+</span></div><div class="l">Years shipping ML</div></div>
+        <div class="stat"><div class="n">7</div><div class="l">Products live</div></div>
+        <div class="stat"><div class="n">310<span> ms</span></div><div class="l">First audio</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="projects"><span class="k">Case studies</span><span class="v">SautiFlow · Vocalis · EchoID · LabelSet · coAgent · Docent · PigaMagic · FaceForm</span></div>
+  <div class="foot">
+    <div>
+      <div class="u"><i></i>lyle-mlengineer.github.io</div>
+      <div class="mail">lyleokoth.mlengineer@gmail.com · +254 797 668 066</div>
+    </div>
+    <div class="qr"><img src="qr.png" alt="QR code to portfolio"></div>
+  </div>
+</div>
+</body>
+</html>

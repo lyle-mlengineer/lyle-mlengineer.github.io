@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lyle Okoth — Instagram Reel</title>
+<style>
+  :root{--paper:#f7f4ef;--muted:#a7adb9;--muted-2:#7d8492;--pink:#ff4d8a;--pink-soft:#ff8ab4;
+    --line:rgba(255,255,255,.12);--display:"Bahnschrift","Segoe UI",sans-serif;
+    --body:"Segoe UI","Helvetica Neue",sans-serif;--mono:"Consolas","Cascadia Mono",monospace;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1080px;height:1920px;background:#0a0c11;overflow:hidden}
+  body{font-family:var(--body);color:var(--paper);-webkit-font-smoothing:antialiased}
+  .stage{position:relative;width:1080px;height:1920px;overflow:hidden;
+    background:
+      radial-gradient(900px 900px at 88% -6%, rgba(255,77,138,.24), transparent 62%),
+      radial-gradient(760px 800px at -10% 106%, rgba(120,92,255,.16), transparent 60%),
+      linear-gradient(165deg,#0b0d13 0%,#0d1017 48%,#0a0b10 100%);}
+  .stage::before{content:"";position:absolute;inset:0;
+    background-image:radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px);background-size:26px 26px;
+    -webkit-mask-image:radial-gradient(120% 70% at 50% 0%, #000 0%, transparent 72%);
+            mask-image:radial-gradient(120% 70% at 50% 0%, #000 0%, transparent 72%);opacity:.5}
+  /* Reels safe area: 260px top, 420px bottom reserved for the app UI */
+  .safe{position:absolute;left:64px;right:64px;top:260px;bottom:420px;display:flex;flex-direction:column}
+  .scene{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;will-change:opacity,transform}
+  .eyebrow{font-family:var(--mono);font-size:13px;letter-spacing:.26em;text-transform:uppercase;color:var(--pink);display:flex;align-items:center;gap:14px}
+  .eyebrow::before{content:"";width:34px;height:1px;background:var(--pink)}
+  .display{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:-.03em;line-height:.9}
+  .pink{color:var(--pink)}
+  .mask{overflow:hidden;display:block;padding-bottom:.06em;margin-bottom:-.06em}
+  .mask > span{display:block;will-change:transform}
+
+  /* A */
+  #sceneA{justify-content:center}
+  #a-head{font-size:128px;margin-top:26px}
+  #a-sub{margin-top:30px;font-size:27px;line-height:1.45;color:#b9bfca;font-weight:300}
+  #a-sub b{color:var(--paper);font-weight:600}
+  #a-photo{position:relative;width:392px;height:392px;border-radius:50%;padding:7px;align-self:center;margin-top:56px;
+    background:conic-gradient(from 210deg,rgba(255,77,138,.95),rgba(255,194,75,.6),rgba(255,77,138,.12),rgba(255,77,138,.95));
+    box-shadow:0 34px 90px rgba(0,0,0,.62),0 0 80px rgba(255,77,138,.2)}
+  #a-photo .in{width:100%;height:100%;border-radius:50%;overflow:hidden;border:1px solid rgba(255,255,255,.15)}
+  #a-photo img{width:100%;height:100%;object-fit:cover;object-position:50% 18%}
+  #a-name{font-family:var(--display);font-size:34px;text-align:center;margin-top:34px}
+  #a-role{font-size:15px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.5}
+
+  /* B */
+  #sceneB{justify-content:center}
+  #b-head{font-size:88px;margin-top:20px}
+  .transcript{margin-top:46px}
+  .trow{border-left:2px solid rgba(255,255,255,.16);padding:18px 0 18px 24px}
+  .trow.en{border-left-color:var(--pink);margin-top:6px}
+  .trow .lang{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-2)}
+  .trow.en .lang{color:var(--pink-soft)}
+  .trow .line{font-size:50px;line-height:1.1;letter-spacing:-.015em;margin-top:8px}
+  .trow.en .line{color:var(--pink)}
+  #b-pill{display:inline-flex;align-items:center;gap:12px;margin-top:34px;align-self:flex-start;
+    border:1px solid rgba(255,77,138,.45);background:rgba(255,77,138,.13);border-radius:999px;padding:14px 22px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:#ffd3e2}
+  #b-pill b{color:#fff}
+  .wave{height:230px;display:flex;align-items:flex-end;justify-content:center;gap:7px;margin-top:40px}
+  .wave i{display:block;width:8px;border-radius:4px;background:linear-gradient(180deg,var(--pink),#ff7fac 55%,rgba(255,255,255,.22))}
+
+  /* C */
+  #sceneC{justify-content:center}
+  #c-head{font-size:92px;margin-top:20px}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:52px}
+  .vcard{border:1px solid var(--line);border-radius:18px;padding:30px 28px;background:rgba(255,255,255,.032);
+    box-shadow:0 24px 60px rgba(0,0,0,.35);will-change:transform,opacity}
+  .vcard .k{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-2)}
+  .vcard .n{font-family:var(--display);font-size:66px;letter-spacing:-.03em;line-height:1;margin-top:22px;display:flex;align-items:baseline;gap:5px}
+  .vcard .n em{font-style:normal;font-size:24px;color:var(--pink);letter-spacing:0}
+  .vcard .d{margin-top:16px;font-size:15px;line-height:1.4;color:#c8cdd7}
+  .vcard .s{margin-top:9px;font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted-2)}
+
+  /* D */
+  #sceneD{align-items:center;justify-content:center;text-align:center}
+  #d-glow{position:absolute;width:900px;height:900px;top:60px;left:50%;transform:translateX(-50%);border-radius:50%;
+    background:radial-gradient(circle,rgba(255,77,138,.25),transparent 62%);filter:blur(12px)}
+  #d-photo{position:relative;width:364px;height:364px;border-radius:50%;padding:7px;
+    background:conic-gradient(from 210deg,rgba(255,77,138,.95),rgba(255,194,75,.6),rgba(255,77,138,.12),rgba(255,77,138,.95));
+    box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 80px rgba(255,77,138,.2)}
+  #d-photo .in{width:100%;height:100%;border-radius:50%;overflow:hidden;border:1px solid rgba(255,255,255,.15)}
+  #d-photo img{width:100%;height:100%;object-fit:cover;object-position:50% 18%}
+  #d-label{margin-top:52px;justify-content:center}
+  #d-name{font-family:var(--display);font-size:104px;letter-spacing:-.025em;line-height:1;margin-top:22px;text-transform:uppercase}
+  #d-role{margin-top:16px;font-size:22px;color:var(--muted)}
+  #d-url{margin-top:40px;display:inline-flex;align-items:center;gap:12px;background:rgba(255,77,138,.14);
+    border:1px solid rgba(255,77,138,.45);border-radius:999px;padding:18px 30px;
+    font-family:var(--mono);font-size:21px;letter-spacing:.03em;color:#fff}
+  #d-url i{width:8px;height:8px;border-radius:50%;background:var(--pink);box-shadow:0 0 12px var(--pink);display:block}
+  #d-tag{margin-top:30px;font-size:16px;color:var(--muted-2);letter-spacing:.02em}
+  #d-foot{align-items:center}
+  #d-foot .u{justify-content:center}
+
+  .scene-foot{position:absolute;left:64px;right:64px;bottom:0;display:flex;flex-direction:column;gap:10px;
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-2)}
+  .scene-foot .u{color:#dfe3ea;letter-spacing:.05em;text-transform:none;font-size:13px;display:flex;align-items:center;gap:9px}
+  .scene-foot .u i{width:6px;height:6px;border-radius:50%;background:var(--pink);box-shadow:0 0 10px var(--pink)}
+  #progress{position:absolute;left:0;bottom:0;height:4px;width:0;background:linear-gradient(90deg,var(--pink),#ffa7c4);z-index:10}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="safe">
+
+    <section class="scene" id="sceneA">
+      <div class="eyebrow" id="a-eyebrow">Portfolio · 2026</div>
+      <div class="display" id="a-head">
+        <span class="mask"><span id="a-l1">Speech AI</span></span>
+        <span class="mask"><span id="a-l2">that <span class="pink">ships.</span></span></span>
+      </div>
+      <p id="a-sub">Transcription, live translation and synthetic voices for <b>African languages</b>.</p>
+      <div id="a-photo"><div class="in"><img src="../../../img/lyle-professional-1.jpg" alt="Lyle Okoth"></div></div>
+      <div id="a-name">Lyle Okoth</div>
+      <div id="a-role">Machine Learning Engineer · SautiFlow Labs<br>Nairobi, Kenya</div>
+      <div class="scene-foot" id="a-foot" style="opacity:0">
+        <span>6+ years · 7 products · 310 ms median first audio</span>
+        <span class="u"><i></i>lyle-mlengineer.github.io</span>
+      </div>
+    </section>
+
+    <section class="scene" id="sceneB">
+      <div class="eyebrow" id="b-eyebrow">Live speech-to-speech</div>
+      <div class="display" id="b-head">Same voice.<br>Another <span class="pink">language.</span></div>
+      <div class="transcript">
+        <div class="trow" id="b-sw"><div class="lang">Swahili · source</div><div class="line">Habari, karibu.</div></div>
+        <div class="trow en" id="b-en"><div class="lang">English · translated</div><div class="line">Hello, welcome.</div></div>
+      </div>
+      <div class="wave" id="bars"></div>
+      <div id="b-pill"><b>310 ms</b> median first audio</div>
+      <div class="scene-foot" id="b-foot" style="opacity:0">
+        <span>6 language pairs · English ↔ Swahili, Luo, Kikuyu</span>
+        <span class="u"><i></i>streaming, not batch</span>
+      </div>
+    </section>
+
+    <section class="scene" id="sceneC">
+      <div class="eyebrow" id="c-eyebrow">Measured in production</div>
+      <div class="display" id="c-head">One engineer.<br>The whole <span class="pink">stack.</span></div>
+      <div class="cards">
+        <div class="vcard" id="c1"><div class="k">ASR</div><div class="n">11.8<em>% WER</em></div><div class="d">Swahili and Sheng transcription</div><div class="s">From 23.4% baseline</div></div>
+        <div class="vcard" id="c2"><div class="k">TTS</div><div class="n">42<em>voices</em></div><div class="d">Concurrent on a single GPU</div><div class="s">Inference cost −58%</div></div>
+        <div class="vcard" id="c3"><div class="k">Data</div><div class="n">38k<em>hrs</em></div><div class="d">Audio processed each year</div><div class="s">68% less labelling</div></div>
+        <div class="vcard" id="c4"><div class="k">Speech → speech</div><div class="n">310<em>ms</em></div><div class="d">Median first audio, live</div><div class="s">p95 780 ms</div></div>
+      </div>
+      <div class="scene-foot" id="c-foot" style="opacity:0">
+        <span>SautiFlow · Vocalis · EchoID · LabelSet · +4 more</span>
+        <span class="u"><i></i>lyle-mlengineer.github.io</span>
+      </div>
+    </section>
+
+    <section class="scene" id="sceneD">
+      <div id="d-glow"></div>
+      <div id="d-photo"><div class="in"><img src="../../../img/lyle-professional-1.jpg" alt="Lyle Okoth"></div></div>
+      <div class="eyebrow" id="d-label">The portfolio is live</div>
+      <div id="d-name">Lyle<br>Okoth</div>
+      <div id="d-role">Machine Learning Engineer · SautiFlow Labs</div>
+      <div id="d-url"><i></i>lyle-mlengineer.github.io</div>
+      <div id="d-tag">ASR · speech translation · TTS · Nairobi</div>
+      <div class="scene-foot" id="d-foot" style="opacity:0">
+        <span>Case studies, models and the numbers behind them</span>
+        <span class="u"><i></i>tap the link in bio</span>
+      </div>
+    </section>
+
+  </div>
+  <div id="progress"></div>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const seg = (t, a, b) => clamp((t - a) / (b - a));
+  const ease = (x) => { x = clamp(x); return 1 - Math.pow(1 - x, 3); };
+  const easeOutBack = (x) => { x = clamp(x); const c = 1.28; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+
+  const N = 54;
+  const bars = $("bars");
+  const amps = [];
+  for (let i = 0; i < N; i++) {
+    const env = 0.35 + 0.65 * Math.sin((i / N) * Math.PI);
+    amps.push(env * (0.45 + 0.55 * Math.abs(Math.sin(i * 2.11 + 0.7))));
+  }
+  const els = [];
+  for (let i = 0; i < N; i++) { const el = document.createElement("i"); bars.appendChild(el); els.push(el); }
+
+  const scenes = { A: $("sceneA"), B: $("sceneB"), C: $("sceneC"), D: $("sceneD") };
+
+  function setScene(key, inStart, inEnd, outStart, outEnd, t) {
+    const el = scenes[key];
+    const fi = ease(seg(t, inStart, inEnd));
+    const fo = ease(seg(t, outStart, outEnd));
+    const o = fi * (1 - fo);
+    el.style.opacity = o.toFixed(4);
+    el.style.transform = `translateY(${((1 - fi) * 40 - fo * 30).toFixed(2)}px)`;
+    el.style.visibility = o <= 0.001 ? "hidden" : "visible";
+  }
+
+  window.renderAt = function (t) {
+    setScene("A", 0, 0.7, 4.3, 4.6, t);
+    setScene("B", 4.6, 5.3, 8.9, 9.2, t);
+    setScene("C", 9.2, 9.9, 13.3, 13.6, t);
+    setScene("D", 13.6, 14.3, 99, 100, t);
+
+    $("a-eyebrow").style.opacity = ease(seg(t, 0.2, 0.8)).toFixed(3);
+    $("a-l1").style.transform = `translateY(${((1 - ease(seg(t, 0.3, 1.15))) * 105).toFixed(2)}%)`;
+    $("a-l2").style.transform = `translateY(${((1 - ease(seg(t, 0.5, 1.35))) * 105).toFixed(2)}%)`;
+    const sub = ease(seg(t, 1.4, 2.1));
+    $("a-sub").style.opacity = sub.toFixed(3);
+    $("a-sub").style.transform = `translateY(${((1 - sub) * 20).toFixed(2)}px)`;
+    const ap = easeOutBack(seg(t, 0.7, 1.5));
+    $("a-photo").style.opacity = clamp(seg(t, 0.7, 1.15)).toFixed(3);
+    $("a-photo").style.transform = `scale(${(0.9 + 0.1 * ap).toFixed(4)})`;
+    $("a-name").style.opacity = ease(seg(t, 1.5, 2.0)).toFixed(3);
+    $("a-role").style.opacity = ease(seg(t, 1.65, 2.15)).toFixed(3);
+    $("a-foot").style.opacity = ease(seg(t, 2.6, 3.1)).toFixed(3);
+
+    $("b-eyebrow").style.opacity = ease(seg(t, 4.8, 5.3)).toFixed(3);
+    const bh = ease(seg(t, 4.85, 5.45));
+    $("b-head").style.opacity = bh.toFixed(3);
+    $("b-head").style.transform = `translateY(${((1 - bh) * 20).toFixed(2)}px)`;
+    const sw = ease(seg(t, 5.2, 5.75));
+    $("b-sw").style.opacity = sw.toFixed(3);
+    $("b-sw").style.transform = `translateX(${((1 - sw) * 24).toFixed(2)}px)`;
+    const en = ease(seg(t, 5.9, 6.45));
+    $("b-en").style.opacity = en.toFixed(3);
+    $("b-en").style.transform = `translateX(${((1 - en) * 24).toFixed(2)}px)`;
+    const pill = ease(seg(t, 6.8, 7.3));
+    $("b-pill").style.opacity = pill.toFixed(3);
+    $("b-foot").style.opacity = ease(seg(t, 7.5, 7.9)).toFixed(3);
+
+    const waveIn = easeOutBack(seg(t, 5.0, 5.7));
+    for (let i = 0; i < N; i++) {
+      const live = 0.6 + 0.4 * Math.sin(t * 7.2 + i * 0.5) * Math.sin(t * 2.0 + i * 0.16);
+      const h = Math.max(8, 16 + amps[i] * 208 * (0.55 + 0.55 * live));
+      els[i].style.height = (h * waveIn).toFixed(1) + "px";
+      els[i].style.opacity = (0.3 + 0.7 * Math.min(1, waveIn)).toFixed(2);
+    }
+
+    $("c-eyebrow").style.opacity = ease(seg(t, 9.4, 9.85)).toFixed(3);
+    const ch = ease(seg(t, 9.45, 10.0));
+    $("c-head").style.opacity = ch.toFixed(3);
+    $("c-head").style.transform = `translateY(${((1 - ch) * 20).toFixed(2)}px)`;
+    [["c1", 9.75], ["c2", 9.9], ["c3", 10.05], ["c4", 10.2]].forEach(([id, at]) => {
+      const k = easeOutBack(seg(t, at, at + 0.55));
+      const el = $(id);
+      el.style.opacity = clamp(seg(t, at, at + 0.4)).toFixed(3);
+      el.style.transform = `translateY(${((1 - k) * 46).toFixed(2)}px)`;
+    });
+    $("c-foot").style.opacity = ease(seg(t, 10.7, 11.15)).toFixed(3);
+
+    const dport = easeOutBack(seg(t, 13.8, 14.55));
+    $("d-photo").style.transform = `scale(${(0.86 + 0.14 * dport).toFixed(4)})`;
+    $("d-photo").style.opacity = clamp(seg(t, 13.8, 14.3)).toFixed(3);
+    $("d-glow").style.opacity = clamp(seg(t, 13.7, 14.6)).toFixed(3);
+    [["d-label", 14.15], ["d-name", 14.27], ["d-role", 14.43], ["d-url", 14.6], ["d-tag", 14.75]].forEach(([id, at]) => {
+      const k = ease(seg(t, at, at + 0.5));
+      $(id).style.opacity = k.toFixed(3);
+      $(id).style.transform = `translateY(${((1 - k) * 18).toFixed(2)}px)`;
+    });
+    $("d-foot").style.opacity = ease(seg(t, 15.2, 15.6)).toFixed(3);
+
+    $("progress").style.width = (clamp(t / 18) * 100).toFixed(2) + "%";
+  };
+
+  const qp = new URLSearchParams(location.search);
+  window.renderAt(qp.has("t") ? Number(qp.get("t")) : 0);
+</script>
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lyle Okoth — X launch cards</title>
+<style>
+  :root{
+    --paper:#f7f4ef;--muted:#a7adb9;--muted-2:#7d8492;--pink:#ff4d8a;--pink-soft:#ff8ab4;
+    --line:rgba(255,255,255,.11);--line-strong:rgba(255,255,255,.2);
+    --display:"Bahnschrift","Segoe UI",sans-serif;--body:"Segoe UI","Helvetica Neue",sans-serif;
+    --mono:"Consolas","Cascadia Mono",monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1600px;height:900px;background:#0a0c11}
+  body{font-family:var(--body);color:var(--paper);-webkit-font-smoothing:antialiased;overflow:hidden}
+  .card{position:relative;width:1600px;height:900px;overflow:hidden;padding:48px 64px 36px;display:flex;flex-direction:column;
+    background:
+      radial-gradient(1100px 620px at 92% -14%, rgba(255,77,138,.22), transparent 62%),
+      radial-gradient(820px 520px at -8% 112%, rgba(120,92,255,.16), transparent 60%),
+      linear-gradient(146deg,#0b0d13 0%,#0d1017 46%,#0a0b10 100%);}
+  .card::before{content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px);background-size:24px 24px;
+    -webkit-mask-image:radial-gradient(120% 100% at 50% 0%, #000 0%, transparent 70%);
+            mask-image:radial-gradient(120% 100% at 50% 0%, #000 0%, transparent 70%);opacity:.5}
+  .card > *{position:relative;z-index:2}
+  .topbar{display:flex;align-items:center;justify-content:space-between}
+  .brand{display:flex;align-items:center;gap:12px;font-size:12px;font-weight:600;letter-spacing:.24em;text-transform:uppercase}
+  .brand i{width:8px;height:8px;border-radius:50%;background:var(--pink);box-shadow:0 0 12px rgba(255,77,138,.9)}
+  .topbar .tag{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-2)}
+  .rule{height:1px;margin-top:16px;background:linear-gradient(90deg,var(--line-strong),var(--line) 45%,rgba(255,255,255,.03))}
+  .foot{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:14px;border-top:1px solid var(--line)}
+  .foot .url{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--muted)}
+  .foot .url b{color:var(--paper);font-weight:600}
+  .foot .url .arrow{color:var(--pink);font-family:var(--mono)}
+  .foot .pageno{font-family:var(--mono);font-size:10px;letter-spacing:.22em;color:var(--muted-2)}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--pink);display:flex;align-items:center;gap:13px}
+  .eyebrow::before{content:"";width:32px;height:1px;background:var(--pink)}
+  .display{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:-.025em;line-height:.9}
+  .display em{font-style:normal;color:var(--pink)}
+
+  /* 01 */
+  .hero{flex:1;display:grid;grid-template-columns:1fr 390px;gap:46px;align-items:center;padding:16px 0 10px}
+  .hero h1{font-size:136px;margin-top:20px}
+  .hero .lede{margin-top:24px;max-width:860px;font-size:22px;line-height:1.5;color:#b8bec9;font-weight:300}
+  .hero .lede b{color:var(--paper);font-weight:600}
+  .mini-stats{display:flex;margin-top:34px;border-top:1px solid var(--line);padding-top:20px;max-width:860px}
+  .mini{padding-right:34px;margin-right:34px;border-right:1px solid var(--line)}
+  .mini:last-child{border-right:0;margin-right:0;padding-right:0}
+  .mini .n{font-family:var(--display);font-size:36px;line-height:1;letter-spacing:-.02em}
+  .mini .n span{color:var(--pink)}
+  .mini .l{margin-top:7px;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted-2)}
+  .portrait-col{display:flex;flex-direction:column;align-items:center;gap:18px}
+  .portrait{position:relative;width:360px;height:360px;border-radius:50%;padding:7px;
+    background:conic-gradient(from 210deg, rgba(255,77,138,.95), rgba(255,194,75,.55), rgba(255,77,138,.15), rgba(255,77,138,.95));
+    box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 60px rgba(255,77,138,.16)}
+  .portrait .inner{width:100%;height:100%;border-radius:50%;overflow:hidden;border:1px solid rgba(255,255,255,.14)}
+  .portrait img{width:100%;height:100%;object-fit:cover;object-position:50% 18%}
+  .portrait .chip{position:absolute;left:50%;transform:translateX(-50%);bottom:-16px;white-space:nowrap;
+    font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+    background:#151823;border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:8px 14px;color:#dfe3ea}
+  .portrait .chip b{color:var(--pink);font-weight:600}
+  .nameblock{text-align:center;margin-top:16px}
+  .nameblock .nm{font-family:var(--display);font-size:24px}
+  .nameblock .rl{margin-top:5px;font-size:12.5px;line-height:1.5;color:var(--muted)}
+
+  /* 02 */
+  .head{display:flex;align-items:flex-end;justify-content:space-between;gap:40px;padding:22px 0 20px}
+  .head h2{font-size:58px}
+  .head h2 span{color:var(--muted-2)}
+  .head .note{font-family:var(--mono);font-size:10px;line-height:1.9;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2);text-align:right;padding-bottom:5px}
+  .cols{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--line)}
+  .col{padding:26px 26px 0 0;border-right:1px solid var(--line);display:flex;flex-direction:column}
+  .col:last-child{border-right:0;padding-right:0}
+  .col + .col{padding-left:26px}
+  .col .idx{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--pink)}
+  .col h3{font-family:var(--display);font-size:28px;font-weight:600;line-height:1.12;margin-top:20px;min-height:62px}
+  .col .metric{font-family:var(--display);font-size:46px;letter-spacing:-.02em;margin-top:18px;line-height:1}
+  .col .metric em{font-style:normal;color:var(--pink);font-size:23px}
+  .col .mlabel{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2);margin-top:9px}
+  .col p{margin-top:18px;font-size:15px;line-height:1.5;color:var(--muted)}
+  .facts{display:flex;flex-direction:column;gap:8px;margin-top:18px}
+  .facts span{font-size:13.5px;color:#c2c8d3;display:flex;gap:9px;align-items:flex-start}
+  .facts span::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--pink);flex:none;margin-top:8px}
+  .col .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:22px}
+  .tagx{font-family:var(--mono);font-size:9px;letter-spacing:.04em;color:#b9c0cc;border:1px solid var(--line);border-radius:4px;padding:4px 7px;background:rgba(255,255,255,.03)}
+  .deltas{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:18px;border-top:1px solid var(--line);padding-top:15px}
+  .delta{display:flex;align-items:baseline;gap:10px;font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted-2)}
+  .delta b{font-family:var(--display);font-size:21px;letter-spacing:-.01em;color:var(--pink);white-space:nowrap}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:18px}
+  .chipx{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:#c3c9d4;border:1px solid var(--line);background:rgba(255,255,255,.035);border-radius:5px;padding:6px 9px}
+
+  /* 03 */
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:4px}
+  .tile{display:flex;flex-direction:column;gap:10px}
+  .shot{position:relative;aspect-ratio:2/1;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.14);box-shadow:0 14px 34px rgba(0,0,0,.42);background:#0f1219}
+  .shot img{width:100%;height:100%;object-fit:cover;display:block}
+  .shot .badge{position:absolute;top:8px;left:8px;font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;
+    background:rgba(9,11,16,.84);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:5px 8px;color:#e7eaf0}
+  .shot .badge i{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--pink);margin-right:5px;vertical-align:1px}
+  .cap .t{font-family:var(--display);font-size:18px}
+  .cap .d{margin-top:3px;font-size:11.5px;color:var(--muted-2)}
+  .strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-top:26px;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .strip div{display:flex;align-items:baseline;gap:10px}
+  .strip b{font-family:var(--display);font-size:24px;color:var(--pink);white-space:nowrap}
+  .strip span{font-size:11.5px;color:var(--muted)}
+  .plus{display:flex;align-items:center;gap:12px;margin-top:13px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2)}
+  .plus b{color:var(--muted);font-weight:400}
+  .plus .sep{width:3px;height:3px;border-radius:50%;background:var(--pink)}
+
+  /* 04 */
+  .proof-body{flex:1;display:grid;grid-template-columns:1.34fr 1fr;gap:46px;min-height:0}
+  .stats2{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;border-top:1px solid var(--line)}
+  .stat{padding:20px 26px 18px 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;justify-content:center}
+  .stat:nth-child(odd){border-right:1px solid var(--line);padding-right:30px}
+  .stat:nth-child(even){padding-left:30px}
+  .stat .num{font-family:var(--display);font-size:68px;line-height:.9;letter-spacing:-.03em;display:flex;align-items:baseline;gap:6px}
+  .stat .num em{font-style:normal;font-size:24px;color:var(--pink);letter-spacing:0}
+  .stat .num u{text-decoration:none;font-size:20px;color:var(--muted);font-family:var(--body);font-weight:300}
+  .stat .lab{margin-top:10px;font-size:14px;line-height:1.4;color:#c6cbd5;font-weight:300;max-width:300px}
+  .stat .sub{margin-top:6px;font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2)}
+  .side{display:flex;flex-direction:column;justify-content:space-between;border-top:1px solid var(--line);padding-top:22px}
+  .quote{padding:0 0 22px}
+  .quote p{font-size:18px;line-height:1.5;color:#d3d8e1;font-weight:300}
+  .quote .who{font-family:var(--mono);font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted-2);margin-top:12px;line-height:1.8}
+  .quote .who b{color:var(--pink-soft);font-weight:400;display:block}
+  .band{display:flex;align-items:center;justify-content:space-between;gap:20px;
+    background:linear-gradient(120deg, rgba(255,77,138,.15), rgba(255,255,255,.03));
+    border:1px solid rgba(255,77,138,.35);border-radius:12px;padding:16px 20px}
+  .band .k{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--pink-soft)}
+  .band .v{margin-top:6px;font-family:var(--display);font-size:24px;line-height:1.05}
+  .band .m{margin-top:6px;font-size:11px;color:var(--muted)}
+  .band .qr{width:74px;height:74px;background:#fff;border-radius:8px;padding:6px;flex:none}
+  .band .qr img{width:100%;height:100%;display:block}
+</style>
+</head>
+<body>
+
+<!-- 01 -->
+<section class="card" id="card-1">
+  <div class="topbar"><div class="brand"><i></i>Lyle Okoth</div><div class="tag">Speech &amp; audio AI</div></div>
+  <div class="rule"></div>
+  <div class="hero">
+    <div>
+      <div class="eyebrow">Portfolio · 2026</div>
+      <h1 class="display">Speech AI<br>that <em>ships.</em></h1>
+      <p class="lede">Six years turning research-grade speech models into products people use — <b>transcription</b>, <b>live translation</b> and <b>synthetic voices</b> for African languages.</p>
+      <div class="mini-stats">
+        <div class="mini"><div class="n">6<span>+</span></div><div class="l">Years shipping ML</div></div>
+        <div class="mini"><div class="n">7</div><div class="l">Products in production</div></div>
+        <div class="mini"><div class="n">310<span> ms</span></div><div class="l">Median first audio</div></div>
+      </div>
+    </div>
+    <div class="portrait-col">
+      <div class="portrait">
+        <div class="inner"><img src="../../../img/lyle-professional-1.jpg" alt="Lyle Okoth"></div>
+        <div class="chip"><b>●</b> Nairobi, Kenya</div>
+      </div>
+      <div class="nameblock"><div class="nm">Lyle Okoth</div><div class="rl">Machine Learning Engineer<br>SautiFlow Labs</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="url"><span class="arrow">↗</span> <b>lyle-mlengineer.github.io</b></div><div class="pageno">01 / 04</div></div>
+</section>
+
+<!-- 02 -->
+<section class="card" id="card-2" style="display:none">
+  <div class="topbar"><div class="brand"><i></i>Lyle Okoth</div><div class="tag">What I build</div></div>
+  <div class="rule"></div>
+  <div class="head">
+    <h2 class="display">One engineer.<br>The whole <em>speech stack.</em></h2>
+    <div class="note">Research → model → API<br>Nairobi · remote</div>
+  </div>
+  <div class="cols">
+    <div class="col">
+      <div class="idx">01</div><h3>Automatic speech recognition</h3>
+      <div class="metric">11.8<em>% WER</em></div><div class="mlabel">From 23.4% · 1,240 hrs</div>
+      <p>Whisper and wav2vec fine-tuned on Swahili, Sheng and code-switched audio, served as a streaming API.</p>
+      <div class="facts"><span>5 ASR models in production</span><span>1,240 hrs of in-house audio</span></div>
+      <div class="tags"><span class="tagx">Whisper</span><span class="tagx">wav2vec</span><span class="tagx">NeMo</span></div>
+    </div>
+    <div class="col">
+      <div class="idx">02</div><h3>Speech-to-speech translation</h3>
+      <div class="metric">310<em> ms</em></div><div class="mlabel">Median · p95 780 ms</div>
+      <p>Streaming ASR → MT → TTS pipelines for English ↔ Swahili, Luo and Kikuyu, with a latency budget per stage.</p>
+      <div class="facts"><span>6 language pairs</span><span>310 ms median · 780 ms p95</span></div>
+      <div class="tags"><span class="tagx">SeamlessM4T</span><span class="tagx">NLLB</span><span class="tagx">WebRTC</span></div>
+    </div>
+    <div class="col">
+      <div class="idx">03</div><h3>Text-to-speech &amp; voice cloning</h3>
+      <div class="metric">42<em> voices</em></div><div class="mlabel">Per GPU · 58% cheaper</div>
+      <p>Brand voices from consented studio audio, quantised and cached to serve many listeners on one GPU.</p>
+      <div class="facts"><span>4.1 / 5 MOS from native listeners</span><span>480 MB int8 checkpoint</span></div>
+      <div class="tags"><span class="tagx">VITS</span><span class="tagx">XTTS</span><span class="tagx">TensorRT</span></div>
+    </div>
+    <div class="col">
+      <div class="idx">04</div><h3>Audio data &amp; MLOps</h3>
+      <div class="metric">38,000<em> hrs</em></div><div class="mlabel">Audio processed / year</div>
+      <p>Ingestion, alignment, labelling and versioned datasets, plus evaluation gates that stop regressions.</p>
+      <div class="facts"><span>6 TB ingested a year</span><span>41% fewer pipeline failures</span></div>
+      <div class="tags"><span class="tagx">Spark</span><span class="tagx">Airflow</span><span class="tagx">DVC</span></div>
+    </div>
+  </div>
+  <div class="deltas">
+    <div class="delta"><b>23.4% → 11.8%</b> word error rate</div>
+    <div class="delta"><b>1.4 s → 310 ms</b> first audio</div>
+    <div class="delta"><b>1.6 GB → 480 MB</b> TTS checkpoint</div>
+  </div>
+  <div class="foot"><div class="url"><span class="arrow">↗</span> <b>lyle-mlengineer.github.io</b></div><div class="pageno">02 / 04</div></div>
+</section>
+
+<!-- 03 -->
+<section class="card" id="card-3" style="display:none">
+  <div class="topbar"><div class="brand"><i></i>Lyle Okoth</div><div class="tag">Selected work</div></div>
+  <div class="rule"></div>
+  <div class="head">
+    <h2 class="display">Eight projects.<br>One thread: <em>voice.</em></h2>
+    <div class="note">Shipped products<br>and builds in progress</div>
+  </div>
+  <div class="tiles">
+    <div class="tile">
+      <div class="shot"><img src="../../../img/sautiflow.png" alt="SautiFlow"><div class="badge"><i></i>2,100 creators</div></div>
+      <div class="cap"><div class="t">SautiFlow</div><div class="d">Script → voiced, mixed skit</div></div>
+    </div>
+    <div class="tile">
+      <div class="shot"><img src="../../../img/vocalis.png" alt="Vocalis"><div class="badge"><i></i>Voice studio</div></div>
+      <div class="cap"><div class="t">Vocalis</div><div class="d">Brand voices as an API</div></div>
+    </div>
+    <div class="tile">
+      <div class="shot"><img src="../../../img/echoid.png" alt="EchoID"><div class="badge"><i></i>Diarisation</div></div>
+      <div class="cap"><div class="t">EchoID</div><div class="d">Who spoke, when, and what</div></div>
+    </div>
+    <div class="tile">
+      <div class="shot"><img src="../../../img/labelset.png" alt="LabelSet"><div class="badge"><i></i>Data platform</div></div>
+      <div class="cap"><div class="t">LabelSet</div><div class="d">Audio, image &amp; video labels</div></div>
+    </div>
+    <div class="tile">
+      <div class="shot"><img src="../../../img/coagent.png" alt="coAgent"><div class="badge"><i></i>In development</div></div>
+      <div class="cap"><div class="t">coAgent</div><div class="d">Python agent for free Colab T4</div></div>
+    </div>
+    <div class="tile">
+      <div class="shot"><img src="../../../img/docent.png" alt="Docent"><div class="badge"><i></i>Pre-launch</div></div>
+      <div class="cap"><div class="t">Docent</div><div class="d">A guide that used your product</div></div>
+    </div>
+    <div class="tile">
+      <div class="shot"><img src="../../../img/pigamagic.png" alt="PigaMagic"><div class="badge"><i></i>Event photos</div></div>
+      <div class="cap"><div class="t">PigaMagic</div><div class="d">Every guest, from a few snaps</div></div>
+    </div>
+    <div class="tile">
+      <div class="shot"><img src="../../../img/faceform.png" alt="FaceForm"><div class="badge"><i></i>Personas</div></div>
+      <div class="cap"><div class="t">FaceForm</div><div class="d">Synthetic faces on demand</div></div>
+    </div>
+  </div>
+  <div class="strip">
+    <div><b>22 s</b><span>to render a 45-second, four-voice skit</span></div>
+    <div><b>89%</b><span>speaker accuracy across eight voices</span></div>
+    <div><b>68%</b><span>less manual labelling per audio hour</span></div>
+  </div>
+  <div class="plus"><b>Case studies</b><span class="sep"></span>every project, with the numbers behind it<span class="sep"></span>lyle-mlengineer.github.io</div>
+  <div class="foot"><div class="url"><span class="arrow">↗</span> <b>lyle-mlengineer.github.io</b></div><div class="pageno">03 / 04</div></div>
+</section>
+
+<!-- 04 -->
+<section class="card" id="card-4" style="display:none">
+  <div class="topbar"><div class="brand"><i></i>Lyle Okoth</div><div class="tag">Receipts</div></div>
+  <div class="rule"></div>
+  <div class="head">
+    <div>
+      <div class="eyebrow">Measured, not claimed</div>
+      <h2 class="display" style="font-size:64px;margin-top:16px">Proof,<br>not <span style="color:var(--muted-2)">promises.</span></h2>
+    </div>
+    <div class="note">SautiFlow Labs<br>2020 – present</div>
+  </div>
+  <div class="proof-body">
+    <div class="stats2">
+      <div class="stat"><div class="num">7 <em>shipped</em></div><div class="lab">Production projects across three engineering roles.</div><div class="sub">Research → production</div></div>
+      <div class="stat"><div class="num">310 <u>ms</u></div><div class="lab">Median first-audio latency on live speech translation.</div><div class="sub">p95 780 ms · from 1.4 s</div></div>
+      <div class="stat"><div class="num">42 <em>voices</em></div><div class="lab">Served concurrently on a single GPU after optimisation.</div><div class="sub">Inference cost −58%</div></div>
+      <div class="stat"><div class="num">2,100</div><div class="lab">Monthly creators using a product I built end to end.</div><div class="sub">61% retained at week 4</div></div>
+    </div>
+    <div class="side">
+      <div class="quote">
+        <p>“He rebuilt our narration pipeline from a batch job into a streaming API and cut the bill by more than half.”</p>
+        <div class="who"><b>Daniel Reyes</b>Founder · Kite Learning</div>
+      </div>
+      <div class="band">
+        <div>
+          <div class="k">The full story, project by project</div>
+          <div class="v">lyle-mlengineer.github.io</div>
+          <div class="m">lyleokoth.mlengineer@gmail.com<br>Nairobi, Kenya</div>
+        </div>
+        <div class="qr"><img src="qr.png" alt="QR code to portfolio"></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="url"><span class="arrow">↗</span> <b>Let's build something people can hear.</b></div><div class="pageno">04 / 04</div></div>
+</section>
+
+<script>
+  const n = Number(new URLSearchParams(location.search).get('card') || 1);
+  for (let i = 1; i <= 4; i++) document.getElementById('card-' + i).style.display = (i === n ? 'flex' : 'none');
+</script>
+</body>
+</html>

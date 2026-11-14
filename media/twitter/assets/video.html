@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lyle Okoth — X launch loop</title>
+<style>
+  :root{--paper:#f7f4ef;--muted:#a7adb9;--muted-2:#7d8492;--pink:#ff4d8a;--pink-soft:#ff8ab4;
+    --line:rgba(255,255,255,.12);--display:"Bahnschrift","Segoe UI",sans-serif;
+    --body:"Segoe UI","Helvetica Neue",sans-serif;--mono:"Consolas","Cascadia Mono",monospace;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1920px;height:1080px;background:#0a0c11;overflow:hidden}
+  body{font-family:var(--body);color:var(--paper);-webkit-font-smoothing:antialiased}
+  .stage{position:relative;width:1920px;height:1080px;overflow:hidden;
+    background:
+      radial-gradient(1100px 700px at 88% -10%, rgba(255,77,138,.22), transparent 62%),
+      radial-gradient(900px 620px at -8% 110%, rgba(120,92,255,.15), transparent 60%),
+      linear-gradient(146deg,#0b0d13 0%,#0d1017 48%,#0a0b10 100%);}
+  .stage::before{content:"";position:absolute;inset:0;
+    background-image:radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px);background-size:26px 26px;
+    -webkit-mask-image:radial-gradient(120% 90% at 50% 0%, #000 0%, transparent 72%);
+            mask-image:radial-gradient(120% 90% at 50% 0%, #000 0%, transparent 72%);opacity:.5}
+  .scene{position:absolute;inset:0;padding:58px 84px 54px;opacity:0;will-change:opacity,transform}
+  .chrome{position:absolute;left:84px;right:84px;top:48px;display:flex;align-items:center;justify-content:space-between;z-index:9}
+  .brand{display:flex;align-items:center;gap:12px;font-size:13px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:#e6e9ef}
+  .brand i{width:8px;height:8px;border-radius:50%;background:var(--pink);box-shadow:0 0 14px rgba(255,77,138,.9)}
+  .chrome .tag{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted-2)}
+  .chrome .hr{position:absolute;left:0;right:0;top:36px;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.22),rgba(255,255,255,.05) 60%,transparent)}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--pink);display:flex;align-items:center;gap:14px}
+  .eyebrow::before{content:"";width:34px;height:1px;background:var(--pink)}
+  .display{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:-.03em;line-height:.9}
+  .pink{color:var(--pink)}
+  .mask{overflow:hidden;display:block;padding-bottom:.06em;margin-bottom:-.06em}
+  .mask > span{display:block;will-change:transform}
+
+  /* A */
+  #sceneA{display:flex;flex-direction:column;justify-content:center}
+  .a-grid{display:grid;grid-template-columns:1fr 470px;gap:60px;align-items:center}
+  #sceneA h1{font-size:176px;margin-top:26px}
+  #a-rule{height:2px;width:0;background:linear-gradient(90deg,var(--pink),rgba(255,77,138,0));margin-top:32px}
+  #a-sub{margin-top:24px;font-size:26px;line-height:1.5;color:#b9bfca;font-weight:300;max-width:980px}
+  #a-sub b{color:var(--paper);font-weight:600}
+  .a-portrait{display:flex;flex-direction:column;align-items:center;gap:20px}
+  #a-photo{position:relative;width:420px;height:420px;border-radius:50%;padding:7px;
+    background:conic-gradient(from 210deg,rgba(255,77,138,.95),rgba(255,194,75,.6),rgba(255,77,138,.12),rgba(255,77,138,.95));
+    box-shadow:0 34px 90px rgba(0,0,0,.62),0 0 70px rgba(255,77,138,.18)}
+  #a-photo .in{width:100%;height:100%;border-radius:50%;overflow:hidden;border:1px solid rgba(255,255,255,.15)}
+  #a-photo img{width:100%;height:100%;object-fit:cover;object-position:50% 18%}
+  #a-name{font-family:var(--display);font-size:30px;margin-top:8px}
+  #a-role{font-size:14px;color:var(--muted);margin-top:5px;text-align:center;line-height:1.5}
+
+  /* B */
+  #sceneB{display:flex;flex-direction:column;justify-content:center}
+  .b-grid{display:grid;grid-template-columns:1fr 760px;gap:70px;align-items:center}
+  #b-head{font-size:78px;margin-top:18px}
+  .transcript{margin-top:38px;display:flex;flex-direction:column;gap:0}
+  .trow{display:flex;align-items:baseline;gap:26px;border-left:2px solid rgba(255,255,255,.16);padding:14px 0 14px 24px}
+  .trow.en{border-left-color:var(--pink)}
+  .trow .lang{font-family:var(--mono);font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:var(--muted-2);width:172px;flex:none;white-space:nowrap}
+  .trow.en .lang{color:var(--pink-soft)}
+  .trow .line{font-size:46px;line-height:1.1;letter-spacing:-.015em}
+  .trow.en .line{color:var(--pink)}
+  #b-pill{display:inline-flex;align-items:center;gap:12px;margin-top:26px;align-self:flex-start;
+    border:1px solid rgba(255,77,138,.45);background:rgba(255,77,138,.13);border-radius:999px;padding:12px 20px;
+    font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#ffd3e2}
+  #b-pill b{color:#fff}
+  .wave{height:340px;display:flex;align-items:center;gap:6px}
+  .wave i{display:block;width:9px;border-radius:5px;background:linear-gradient(180deg,var(--pink),#ff7fac 55%,rgba(255,255,255,.22));opacity:.9}
+
+  /* C */
+  #sceneC{display:flex;flex-direction:column;justify-content:center}
+  #c-head{font-size:78px;margin-top:16px}
+  .cards{display:flex;gap:24px;margin-top:50px}
+  .vcard{flex:1;border:1px solid var(--line);border-radius:18px;padding:34px 30px;background:rgba(255,255,255,.032);
+    box-shadow:0 24px 60px rgba(0,0,0,.35);will-change:transform,opacity}
+  .vcard .k{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-2)}
+  .vcard .n{font-family:var(--display);font-size:72px;letter-spacing:-.03em;line-height:1;margin-top:26px;display:flex;align-items:baseline;gap:5px}
+  .vcard .n em{font-style:normal;font-size:30px;color:var(--pink);letter-spacing:0}
+  .vcard .d{margin-top:16px;font-size:18px;line-height:1.4;color:#c8cdd7}
+  .vcard .s{margin-top:10px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2)}
+
+  /* D */
+  #sceneD{display:flex;align-items:center;justify-content:center}
+  .d-grid{display:grid;grid-template-columns:420px auto;gap:92px;align-items:center;justify-content:center;width:100%}
+  #d-glow{position:absolute;width:900px;height:900px;left:20px;top:90px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,77,138,.25),transparent 62%);filter:blur(12px)}
+  #d-portrait{position:relative;width:400px;height:400px;border-radius:50%;padding:7px;
+    background:conic-gradient(from 210deg,rgba(255,77,138,.95),rgba(255,194,75,.6),rgba(255,77,138,.12),rgba(255,77,138,.95));
+    box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 80px rgba(255,77,138,.2)}
+  #d-portrait .in{width:100%;height:100%;border-radius:50%;overflow:hidden;border:1px solid rgba(255,255,255,.15)}
+  #d-portrait img{width:100%;height:100%;object-fit:cover;object-position:50% 18%}
+  #d-label{justify-content:flex-start}
+  #d-name{font-family:var(--display);font-size:92px;letter-spacing:-.025em;line-height:1;margin-top:18px;text-transform:uppercase}
+  #d-role{margin-top:16px;font-size:24px;color:var(--muted)}
+  #d-url{margin-top:32px;display:inline-flex;align-items:center;gap:12px;background:rgba(255,77,138,.14);
+    border:1px solid rgba(255,77,138,.45);border-radius:999px;padding:16px 28px;
+    font-family:var(--mono);font-size:20px;letter-spacing:.04em;color:#fff}
+  #d-url i{width:8px;height:8px;border-radius:50%;background:var(--pink);box-shadow:0 0 12px var(--pink);display:block}
+
+  .scene-foot{position:absolute;left:84px;right:84px;bottom:44px;display:flex;align-items:center;justify-content:space-between;
+    font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-2)}
+  .scene-foot .u{color:#dfe3ea;letter-spacing:.06em;text-transform:none;font-size:12px;display:flex;align-items:center;gap:9px}
+  .scene-foot .u i{width:6px;height:6px;border-radius:50%;background:var(--pink);box-shadow:0 0 10px var(--pink)}
+  #progress{position:absolute;left:0;bottom:0;height:4px;width:0;background:linear-gradient(90deg,var(--pink),#ffa7c4);z-index:10}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="chrome">
+    <div class="brand"><i></i>Lyle Okoth</div>
+    <div class="tag">Portfolio · 2026</div>
+    <div class="hr"></div>
+  </div>
+
+  <section class="scene" id="sceneA">
+    <div class="a-grid">
+      <div>
+        <div class="eyebrow" id="a-eyebrow">Portfolio · 2026</div>
+        <h1 class="display">
+          <span class="mask"><span id="a-l1">Speech AI</span></span>
+          <span class="mask"><span id="a-l2">that <span class="pink">ships.</span></span></span>
+        </h1>
+        <div id="a-rule"></div>
+        <p id="a-sub">Transcription, live translation and synthetic voices for <b>African languages</b>.</p>
+      </div>
+      <div class="a-portrait">
+        <div id="a-photo"><div class="in"><img src="../../../img/lyle-professional-1.jpg" alt="Lyle Okoth"></div></div>
+        <div id="a-name">Lyle Okoth</div>
+        <div id="a-role">Machine Learning Engineer · SautiFlow Labs<br>Nairobi, Kenya</div>
+      </div>
+    </div>
+    <div class="scene-foot" id="a-foot" style="opacity:0">
+      <span>6+ years · 7 products · 310 ms median first audio</span>
+      <span class="u"><i></i>lyle-mlengineer.github.io</span>
+    </div>
+  </section>
+
+  <section class="scene" id="sceneB">
+    <div class="b-grid">
+      <div>
+        <div class="eyebrow" id="b-eyebrow">Live speech-to-speech</div>
+        <h2 class="display" id="b-head">Same voice.<br>Another language.</h2>
+        <div class="transcript">
+          <div class="trow" id="b-sw"><div class="lang">Swahili · source</div><div class="line">Habari, karibu.</div></div>
+          <div class="trow en" id="b-en"><div class="lang">English · translated</div><div class="line">Hello, welcome.</div></div>
+        </div>
+        <div id="b-pill"><b>310 ms</b> median first audio · p95 780 ms</div>
+      </div>
+      <div class="wave" id="bars"></div>
+    </div>
+    <div class="scene-foot" id="b-foot" style="opacity:0">
+      <span>6 language pairs · English ↔ Swahili, Luo, Kikuyu</span>
+      <span class="u"><i></i>streaming, not batch</span>
+    </div>
+  </section>
+
+  <section class="scene" id="sceneC">
+    <div class="eyebrow" id="c-eyebrow">Measured in production</div>
+    <h2 class="display" id="c-head">One engineer.<br>The whole <span class="pink">stack.</span></h2>
+    <div class="cards">
+      <div class="vcard" id="c1">
+        <div class="k">ASR</div><div class="n">11.8<em>% WER</em></div>
+        <div class="d">Swahili and Sheng transcription</div><div class="s">From 23.4% baseline</div>
+      </div>
+      <div class="vcard" id="c2">
+        <div class="k">TTS</div><div class="n">42<em>voices</em></div>
+        <div class="d">Concurrent on a single GPU</div><div class="s">Inference cost −58%</div>
+      </div>
+      <div class="vcard" id="c3">
+        <div class="k">Data</div><div class="n">38k<em>hrs</em></div>
+        <div class="d">Audio processed each year</div><div class="s">68% less labelling time</div>
+      </div>
+      <div class="vcard" id="c4">
+        <div class="k">Speech → speech</div><div class="n">310<em>ms</em></div>
+        <div class="d">Median first audio, live</div><div class="s">p95 780 ms · from 1.4 s</div>
+      </div>
+    </div>
+    <div class="scene-foot" id="c-foot" style="opacity:0">
+      <span>SautiFlow · Vocalis · EchoID · LabelSet · +4 more</span>
+      <span class="u"><i></i>lyle-mlengineer.github.io</span>
+    </div>
+  </section>
+
+  <section class="scene" id="sceneD">
+    <div id="d-glow"></div>
+    <div class="d-grid">
+      <div id="d-portrait"><div class="in"><img src="../../../img/lyle-professional-1.jpg" alt="Lyle Okoth"></div></div>
+      <div>
+        <div class="eyebrow" id="d-label">The portfolio is live</div>
+        <div id="d-name">Lyle Okoth</div>
+        <div id="d-role">Machine Learning Engineer · SautiFlow Labs</div>
+        <div id="d-url"><i></i>lyle-mlengineer.github.io</div>
+      </div>
+    </div>
+    <div class="scene-foot" id="d-foot" style="opacity:0">
+      <span>ASR · Speech translation · TTS · Nairobi, Kenya</span>
+      <span class="u"><i></i>case studies, models and numbers</span>
+    </div>
+  </section>
+
+  <div id="progress"></div>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const seg = (t, a, b) => clamp((t - a) / (b - a));
+  const ease = (x) => { x = clamp(x); return 1 - Math.pow(1 - x, 3); };
+  const easeOutBack = (x) => { x = clamp(x); const c = 1.28; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+
+  const N = 70;
+  const bars = $("bars");
+  const amps = [];
+  for (let i = 0; i < N; i++) {
+    const env = 0.4 + 0.6 * Math.sin((i / N) * Math.PI);
+    amps.push(env * (0.5 + 0.5 * Math.abs(Math.sin(i * 2.11 + 0.7))));
+  }
+  const els = [];
+  for (let i = 0; i < N; i++) { const el = document.createElement("i"); bars.appendChild(el); els.push(el); }
+
+  const scenes = { A: $("sceneA"), B: $("sceneB"), C: $("sceneC"), D: $("sceneD") };
+
+  function setScene(key, inStart, inEnd, outStart, outEnd, t) {
+    const el = scenes[key];
+    const fi = ease(seg(t, inStart, inEnd));
+    const fo = ease(seg(t, outStart, outEnd));
+    const o = fi * (1 - fo);
+    el.style.opacity = o.toFixed(4);
+    el.style.transform = `translateY(${((1 - fi) * 34 - fo * 26).toFixed(2)}px)`;
+    el.style.visibility = o <= 0.001 ? "hidden" : "visible";
+  }
+
+  window.renderAt = function (t) {
+    setScene("A", 0, 0.6, 3.05, 3.32, t);
+    setScene("B", 3.32, 3.9, 7.15, 7.42, t);
+    setScene("C", 7.42, 8.0, 11.2, 11.47, t);
+    setScene("D", 11.47, 12.05, 99, 100, t);
+
+    $("a-eyebrow").style.opacity = ease(seg(t, 0.15, 0.7)).toFixed(3);
+    $("a-l1").style.transform = `translateY(${((1 - ease(seg(t, 0.28, 1.05))) * 105).toFixed(2)}%)`;
+    $("a-l2").style.transform = `translateY(${((1 - ease(seg(t, 0.46, 1.25))) * 105).toFixed(2)}%)`;
+    $("a-rule").style.width = (seg(t, 1.05, 1.75) * 100).toFixed(2) + "%";
+    const sub = ease(seg(t, 1.35, 2.05));
+    $("a-sub").style.opacity = sub.toFixed(3);
+    $("a-sub").style.transform = `translateY(${((1 - sub) * 18).toFixed(2)}px)`;
+    const ap = easeOutBack(seg(t, 0.55, 1.3));
+    $("a-photo").style.opacity = clamp(seg(t, 0.55, 1.0)).toFixed(3);
+    $("a-photo").style.transform = `scale(${(0.9 + 0.1 * ap).toFixed(4)})`;
+    $("a-name").style.opacity = ease(seg(t, 1.0, 1.5)).toFixed(3);
+    $("a-role").style.opacity = ease(seg(t, 1.15, 1.65)).toFixed(3);
+    const af = ease(seg(t, 2.0, 2.5));
+    $("a-foot").style.opacity = af.toFixed(3);
+
+    $("b-eyebrow").style.opacity = ease(seg(t, 3.5, 4.0)).toFixed(3);
+    $("b-head").style.opacity = ease(seg(t, 3.55, 4.1)).toFixed(3);
+    $("b-head").style.transform = `translateY(${((1 - ease(seg(t, 3.55, 4.1))) * 20).toFixed(2)}px)`;
+    const sw = ease(seg(t, 3.9, 4.5));
+    $("b-sw").style.opacity = sw.toFixed(3);
+    $("b-sw").style.transform = `translateX(${((1 - sw) * 20).toFixed(2)}px)`;
+    const en = ease(seg(t, 4.6, 5.15));
+    $("b-en").style.opacity = en.toFixed(3);
+    $("b-en").style.transform = `translateX(${((1 - en) * 20).toFixed(2)}px)`;
+    const pill = ease(seg(t, 5.45, 5.95));
+    $("b-pill").style.opacity = pill.toFixed(3);
+    $("b-foot").style.opacity = ease(seg(t, 6.1, 6.55)).toFixed(3);
+
+    const waveIn = easeOutBack(seg(t, 3.7, 4.35));
+    for (let i = 0; i < N; i++) {
+      const live = 0.62 + 0.38 * Math.sin(t * 7.2 + i * 0.5) * Math.sin(t * 2.0 + i * 0.16);
+      const h = Math.max(10, 30 + amps[i] * 280 * (0.55 + 0.55 * live));
+      els[i].style.height = (h * waveIn).toFixed(1) + "px";
+      els[i].style.opacity = (0.3 + 0.7 * Math.min(1, waveIn)).toFixed(2);
+    }
+
+    $("c-eyebrow").style.opacity = ease(seg(t, 7.65, 8.1)).toFixed(3);
+    $("c-head").style.opacity = ease(seg(t, 7.7, 8.2)).toFixed(3);
+    $("c-head").style.transform = `translateY(${((1 - ease(seg(t, 7.7, 8.2))) * 20).toFixed(2)}px)`;
+    [["c1", 7.95], ["c2", 8.09], ["c3", 8.23], ["c4", 8.37]].forEach(([id, at]) => {
+      const k = easeOutBack(seg(t, at, at + 0.55));
+      const el = $(id);
+      el.style.opacity = clamp(seg(t, at, at + 0.4)).toFixed(3);
+      el.style.transform = `translateY(${((1 - k) * 46).toFixed(2)}px)`;
+    });
+    $("c-foot").style.opacity = ease(seg(t, 9.05, 9.5)).toFixed(3);
+
+    const portrait = easeOutBack(seg(t, 11.7, 12.45));
+    $("d-portrait").style.transform = `scale(${(0.86 + 0.14 * portrait).toFixed(4)})`;
+    $("d-portrait").style.opacity = clamp(seg(t, 11.7, 12.2)).toFixed(3);
+    $("d-glow").style.opacity = clamp(seg(t, 11.6, 12.5)).toFixed(3);
+    [["d-label", 12.0], ["d-name", 12.12], ["d-role", 12.28], ["d-url", 12.45]].forEach(([id, at]) => {
+      const k = ease(seg(t, at, at + 0.5));
+      $(id).style.opacity = k.toFixed(3);
+      $(id).style.transform = `translateY(${((1 - k) * 18).toFixed(2)}px)`;
+    });
+    $("d-foot").style.opacity = ease(seg(t, 12.7, 13.1)).toFixed(3);
+
+    $("progress").style.width = (clamp(t / 15) * 100).toFixed(2) + "%";
+  };
+
+  const qp = new URLSearchParams(location.search);
+  renderAt(qp.has("t") ? Number(qp.get("t")) : 0);
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lyle Okoth — WhatsApp status</title>
+<style>
+  :root{--paper:#f7f4ef;--muted:#a7adb9;--muted-2:#7d8492;--pink:#ff4d8a;--line:rgba(255,255,255,.13);
+    --display:"Bahnschrift","Segoe UI",sans-serif;--body:"Segoe UI","Helvetica Neue",sans-serif;
+    --mono:"Consolas","Cascadia Mono",monospace;}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1080px;height:1920px;background:#0a0c11;overflow:hidden}
+  body{font-family:var(--body);color:var(--paper);-webkit-font-smoothing:antialiased}
+  .card{position:relative;width:1080px;height:1920px;padding:190px 96px 300px;display:flex;flex-direction:column;overflow:hidden;
+    background:
+      radial-gradient(900px 900px at 88% -4%, rgba(255,77,138,.26), transparent 62%),
+      radial-gradient(760px 800px at -12% 104%, rgba(120,92,255,.16), transparent 60%),
+      linear-gradient(165deg,#0b0d13 0%,#0d1017 48%,#0a0b10 100%);}
+  .card::before{content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px);background-size:26px 26px;
+    -webkit-mask-image:radial-gradient(120% 70% at 50% 0%, #000 0%, transparent 72%);
+            mask-image:radial-gradient(120% 70% at 50% 0%, #000 0%, transparent 72%);opacity:.5}
+  .card > *{position:relative;z-index:2}
+  .brand{display:flex;align-items:center;gap:14px;font-size:16px;font-weight:600;letter-spacing:.24em;text-transform:uppercase}
+  .brand i{width:10px;height:10px;border-radius:50%;background:var(--pink);box-shadow:0 0 14px rgba(255,77,138,.9)}
+  .rule{height:1px;margin-top:26px;background:linear-gradient(90deg,rgba(255,255,255,.22),var(--line) 45%,rgba(255,255,255,.03))}
+  .eyebrow{font-family:var(--mono);font-size:16px;letter-spacing:.26em;text-transform:uppercase;color:var(--pink);display:flex;align-items:center;gap:16px;margin-top:64px}
+  .eyebrow::before{content:"";width:40px;height:1px;background:var(--pink)}
+  h1{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:-.03em;line-height:.9;font-size:142px;margin-top:26px}
+  h1 em{font-style:normal;color:var(--pink)}
+  .lede{margin-top:32px;font-size:32px;line-height:1.45;color:#b9bfca;font-weight:300;max-width:880px}
+  .lede b{color:var(--paper);font-weight:600}
+  .portrait{position:relative;width:400px;height:400px;border-radius:50%;padding:8px;margin:64px auto 0;
+    background:conic-gradient(from 210deg,rgba(255,77,138,.95),rgba(255,194,75,.6),rgba(255,77,138,.12),rgba(255,77,138,.95));
+    box-shadow:0 34px 90px rgba(0,0,0,.62),0 0 80px rgba(255,77,138,.2)}
+  .portrait .in{width:100%;height:100%;border-radius:50%;overflow:hidden;border:1px solid rgba(255,255,255,.15)}
+  .portrait img{width:100%;height:100%;object-fit:cover;object-position:50% 18%}
+  .name{font-family:var(--display);font-size:44px;text-align:center;margin-top:40px}
+  .role{font-size:19px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.5}
+  .stats{display:flex;margin-top:auto;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:30px 0}
+  .stat{flex:1;padding-right:24px;border-right:1px solid var(--line)}
+  .stat:last-child{border-right:0;padding-right:0}
+  .stat + .stat{padding-left:28px}
+  .stat .n{font-family:var(--display);font-size:56px;line-height:1;letter-spacing:-.02em}
+  .stat .n span{color:var(--pink);font-size:32px}
+  .stat .l{margin-top:12px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2);line-height:1.5}
+  .cta{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:40px;align-self:center;
+    background:rgba(255,77,138,.14);border:1px solid rgba(255,77,138,.45);border-radius:999px;padding:24px 40px;
+    font-family:var(--mono);font-size:26px;letter-spacing:.02em;color:#fff}
+  .cta i{width:10px;height:10px;border-radius:50%;background:var(--pink);box-shadow:0 0 12px var(--pink);display:block}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand"><i></i>Lyle Okoth</div>
+  <div class="rule"></div>
+  <div class="eyebrow">Portfolio · 2026</div>
+  <h1>Speech AI<br>that <em>ships.</em></h1>
+  <p class="lede">Transcription, live translation and synthetic voices for <b>African languages</b> — with the numbers to prove it.</p>
+  <div class="portrait"><div class="in"><img src="../../../img/lyle-professional-1.jpg" alt="Lyle Okoth"></div></div>
+  <div class="name">Lyle Okoth</div>
+  <div class="role">Machine Learning Engineer · SautiFlow Labs · Nairobi</div>
+  <div class="stats">
+    <div class="stat"><div class="n">6<span>+</span></div><div class="l">Years shipping ML</div></div>
+    <div class="stat"><div class="n">7</div><div class="l">Products live</div></div>
+    <div class="stat"><div class="n">310<span> ms</span></div><div class="l">Median first audio</div></div>
+  </div>
+  <div class="cta"><i></i>lyle-mlengineer.github.io</div>
+</div>
+</body>
+</html>
