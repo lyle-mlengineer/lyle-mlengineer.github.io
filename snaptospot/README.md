@@ -12,7 +12,7 @@ This folder is the implementation. The design lives in `../docs/`:
 
 ## Requirements
 
-- Python 3.12+
+- Python 3.12 (3.15 works for the app but some dependencies ship no wheels yet)
 - Docker (optional, for Postgres + Redis)
 - ffmpeg (needed from the rendering step onward)
 

@@ -1,13 +1,15 @@
 import logging
 import uuid
-from collections.abc import Awaitable, Callable
+from collections.abc import AsyncIterator, Awaitable, Callable
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import __version__
-from app.api.routes import health
+from app.api.routes import auth, health, sites
 from app.config import get_settings
+from app.db import init_db
 
 logging.basicConfig(
     level=logging.INFO,
@@ -18,11 +20,19 @@ logger = logging.getLogger("snaptospot")
 
 def create_app() -> FastAPI:
     settings = get_settings()
+
+    @asynccontextmanager
+    async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+        if settings.database_url.startswith("sqlite"):
+            init_db()
+        yield
+
     app = FastAPI(
         title="SnapToSpot",
         version=__version__,
         summary="Turn a website into a native campaign kit for every social platform.",
         debug=settings.debug,
+        lifespan=lifespan,
     )
 
     if settings.cors_origins:
@@ -44,6 +54,8 @@ def create_app() -> FastAPI:
         return response
 
     app.include_router(health.router)
+    app.include_router(auth.router)
+    app.include_router(sites.router)
 
     @app.get("/", tags=["meta"])
     def root() -> dict[str, str]:

@@ -14,7 +14,7 @@ class Settings(BaseSettings):
 
     database_url: str = "sqlite:///./snaptospot.db"
 
-    secret_key: str = "dev-only-secret-change-me"
+    secret_key: str = "dev-only-secret-change-me-32-bytes-min"
     jwt_algorithm: str = "HS256"
     access_token_minutes: int = 15
     refresh_token_days: int = 30
