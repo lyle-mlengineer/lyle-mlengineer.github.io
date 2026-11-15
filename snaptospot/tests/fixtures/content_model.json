@@ -1,0 +1,76 @@
+{
+  "thesis": "Speech AI that ships, for African languages",
+  "audience": "voice AI teams",
+  "arc": ["hook", "capability", "evidence", "proof"],
+  "facts": [
+    {
+      "id": "f_01",
+      "key": "asr.wer",
+      "value": "11.8",
+      "unit": "% WER",
+      "label": "Swahili/Sheng ASR word error rate",
+      "source_type": "site",
+      "source": "https://example.com/#work",
+      "source_id": "b31",
+      "source_quote": "11.8% word error rate, down from 23.4%",
+      "confidence": 0.99,
+      "tier": "A",
+      "retrieved_at": "2026-11-14"
+    },
+    {
+      "id": "f_02",
+      "key": "work.projects",
+      "value": "7",
+      "label": "production projects",
+      "source_type": "site",
+      "source": "https://example.com/#work",
+      "source_id": "b22",
+      "source_quote": "seven production projects",
+      "confidence": 0.99,
+      "tier": "A",
+      "retrieved_at": "2026-11-14"
+    },
+    {
+      "id": "f_03",
+      "key": "proof.quote",
+      "value": "He rebuilt our narration pipeline.",
+      "label": "client quote",
+      "source_type": "site",
+      "source": "https://example.com/#testimonials",
+      "source_id": "b44",
+      "source_quote": "He rebuilt our narration pipeline.",
+      "confidence": 0.99,
+      "tier": "A",
+      "permission": "published_on_site",
+      "retrieved_at": "2026-11-14"
+    }
+  ],
+  "offerings": [
+    {
+      "key": "asr",
+      "title": "Automatic speech recognition",
+      "one_liner": "Streaming ASR and TTS for African languages.",
+      "metric_fact_id": "f_01",
+      "tools": ["Whisper", "wav2vec"]
+    }
+  ],
+  "projects": [
+    {
+      "name": "SautiFlow",
+      "blurb": "Script to voiced, mixed skit.",
+      "badge_fact_id": "f_02",
+      "status": "shipped"
+    }
+  ],
+  "proof": [
+    {"fact_id": "f_02", "emphasis": "lead"},
+    {"fact_id": "f_01", "emphasis": "normal"}
+  ],
+  "quote": {
+    "fact_id": "f_03",
+    "attribution": "Daniel Reyes",
+    "role": "Founder — Kite Learning"
+  },
+  "cta": {"url": "https://example.com", "label": "example.com"},
+  "disclaimers": []
+}

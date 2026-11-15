@@ -3,9 +3,9 @@
 The build follows `../docs/steps.md`. Each step ends with a working app, a test run,
 and a commit.
 
-**Current step:** 2 complete — ingestion, `SiteProfile` and LLM-assisted site understanding
-**Next step:** 3 — extraction and content model
-**Last updated:** 2026-11-14
+**Current step:** 3 complete — extraction, grounding, `ContentModel` and gaps
+**Next step:** 4 — gap questions and conflicts
+**Last updated:** 2026-11-15
 
 ---
 
@@ -99,8 +99,8 @@ and a commit.
   JS-rendered SPA, a robots-blocked site and a no-image site. Coverage includes
   SSRF rejection, robots enforcement, stable block IDs, asset/colour/entity
   extraction, LLM claim rejection, deterministic fallback, tenant-scoped runs and
-  the end-to-end analyze endpoint. 34 tests pass; the Playwright test uses bundled
-  Chromium when present, otherwise an installed Chrome or Edge. ruff is clean.
+  the end-to-end analyze endpoint. The Playwright test uses bundled Chromium when
+  present, otherwise an installed Chrome or Edge.
 - **Live smoke test.** Started the API and a local fixture server, signed up,
   created a site, analysed it, then read the run and profile back:
   `status=succeeded pages=4 assets=4 ai=False`, name `Lyle Okoth`, role
@@ -109,21 +109,68 @@ and a commit.
 
 **Commit:** `feat(snaptospot): ingest sites and build the first SiteProfile`
 
+### Step 3 — Extraction and content model
+
+- **Contract.** `schemas/content.py` defines `Fact`, `Offering`, `Project`,
+  `Proof`, `QuoteRef`, `CTA`, `ContentModel` and `RejectedFact`. Metrics, badges
+  and quotes are `*_fact_id` pointers; free text may not introduce a digit that no
+  fact supports. `proof[]` only accepts tier A/B facts, and a quote fact must be
+  `published_on_site` or `attested`.
+- **Deterministic pre-pass.** `pipeline/extract/deterministic.py` finds
+  percentages, latency, durations, counts and spelled counts, with as-of dates
+  from month + year. It records the exact sentence as `source_quote` and derives
+  stable keys (`asr.wer`, `work.projects`, `product.creators`, …). It also reads
+  blockquotes plus a following caption into a quote fact, builds projects from
+  work-page headings, and collects emails, phones, dates and client names as
+  resolver signals.
+- **Grounding.** `pipeline/extract/ground.py` normalises Unicode quotes and
+  dashes, matches token windows fuzzily at ≥ 0.92, checks every number in the
+  value against the quote, and flags `number_mismatch` or
+  `unsupported_rounding`. Spelled numbers (`seven` → `7`) count as grounded.
+- **LLM pass.** `prompts/extract_v1.md` is the versioned prompt; its SHA-256 is
+  stored in `runs.model_versions_json`. `pipeline/extract/llm.py` accepts a draft
+  only when every metric/quote cites a crawled `source_id` and the quote exists
+  verbatim in that block. The merge pass keeps deterministic candidates first,
+  lets the LLM fill empty slots, and quarantines a second value for an occupied
+  key with reason `conflict`.
+- **Content model.** `pipeline/extract/model.py` assembles the thesis, audience,
+  arc, ≤ 4 offerings, ≤ 8 projects, ≤ 4 proof points, one quote and the CTA.
+  Anything containing an unsupported number is dropped or neutralised before the
+  schema validates.
+- **Gaps.** `pipeline/extract/requirements.py` fills `SiteProfile.gaps[]` for
+  identity, offer, proof, attribution, recency, visual, commerce and consistency
+  slots, with `blocking`/`soft` severity and the rungs already tried.
+- **API and storage.** `Run` gains `content_model_json` and
+  `model_versions_json` (migration `7b9d2f14c8aa`). `POST .../analyze` stores the
+  model, reject reasons, coverage and gap summary; `GET
+  /v1/sites/{id}/content-model` returns the latest model.
+- **CLI.** `python -m app.cli extract URL --out content.json` writes the model,
+  rejected facts, gaps and model versions.
+- **Fixtures and tests.** The portfolio fixture now carries seven grounded metrics
+  and a named testimonial. Contract tests cover the schema, missing quotes and
+  tier-C proof references. Extraction tests cover the seven golden values,
+  deterministic stability, prompt hashing, an adversarial “60% faster” → “2×
+  faster” rejection, a fabricated quote, contact/date/client signals, and
+  sparse-site gap classes. 48 tests pass; ruff is clean.
+- **Live smoke test.** The same pipeline through uvicorn returned
+  `facts=8, coverage=1.0, llm=False`, all seven metric values and the Daniel Reyes
+  quote; the only portfolio gap was `visual.project_shot`.
+
+**Commit:** `feat(snaptospot): extract grounded content models and gaps`
+
 ---
 
 ## Next step
 
-### Step 3 — Extraction and content model
+### Step 4 — Gap questions and conflicts
 
-1. Versioned extraction prompts in `prompts/extract_v1.md` with JSON-schema output.
-2. `pipeline/extract/`: regex pre-pass for numbers, dates, emails, phones and
-   client names, then one LLM call per site for offerings, projects and proof.
-3. Grounding: quote normalisation, fuzzy containment, number-in-quote checks and
-   banned roundings.
-4. `ContentModel` facts with trust tiers A–D, source quotes and reject reasons.
-5. Populate `SiteProfile.gaps[]` for every empty requirement slot and add the
-   resolver ladder (site → user question → RAG → web → infer → omit).
-6. Contract tests with the portfolio's seven facts plus adversarial fixtures.
+1. `resolve/schema.py`: requirement slots per campaign type with severity.
+2. `resolve/questions.py`: ≤ 5 questions with type, options, default and
+   `unlocks`, deduped against resolved facts.
+3. `resolve/conflicts.py`: precedence and quarantined losers.
+4. `resolve/tiers.py`: tier from `source_type`, never client-supplied.
+5. API: run gaps, answers and fact accept/override/reject, with audit entries.
+6. Blocking-gap guard: render returns 409 with the open gaps.
 
 ---
 
@@ -172,15 +219,27 @@ $run.profile.observed
 $run.profile.entities
 $run.profile.brand
 $run.profile.understanding
+$run.content_model.facts
+$run.stats.gaps
 
 Invoke-RestMethod -Uri "http://127.0.0.1:8000/v1/sites/$($site.id)/profile" -Headers $headers
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/v1/sites/$($site.id)/content-model" -Headers $headers
 ```
 
 Or use the **Authorize** button in `/docs` (flow: password, username = email).
 `analyse` is synchronous in this step, so the response already contains the
-profile; later it moves behind a worker and the run endpoint is what the UI polls.
+profile and content model; later it moves behind a worker and the run endpoint is
+what the UI polls.
 
-### Optional LLM understanding
+### Content model and grounding
+
+`content_model.facts[]` is the only legal source of a number. Each fact has a
+tier (`A`–`D`), `source_id`, `source_quote` and `retrieved_at`; `proof`,
+`quote`, offering metrics and project badges are fact pointers. The portfolio
+fixture yields seven grounded metrics and one named quote. Rejected candidates
+and their reasons are in `stats.rejected_facts`.
+
+### Optional LLM understanding and extraction
 
 Any OpenAI-compatible endpoint works:
 
@@ -190,13 +249,15 @@ SNAP_LLM_BASE_URL=https://api.openai.com/v1
 SNAP_LLM_MODEL=gpt-4o-mini
 ```
 
-Leave `SNAP_LLM_API_KEY` blank to use the deterministic heuristics. LLM output is
-validated against the block tree and falls back automatically.
+Leave `SNAP_LLM_API_KEY` blank to use the deterministic heuristics and regex
+pass. LLM output is validated against the block tree and falls back
+automatically; an inadmissible draft fact is listed with its reject reason.
 
 ### CLI
 
 ```powershell
 python -m app.cli ingest https://lyle-mlengineer.github.io --out var\profile.json
+python -m app.cli extract https://lyle-mlengineer.github.io --out var\content.json
 ```
 
 ### Useful settings

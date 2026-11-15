@@ -3,13 +3,17 @@ from pathlib import Path
 from app.config import get_settings
 from app.models.run import Run
 from app.models.site import Site
+from app.pipeline.extract import ExtractionResult, extract_content
 from app.pipeline.ingest.crawl import CrawlResult, crawl_site
 from app.pipeline.ingest.profile import build_profile
 from app.pipeline.understand import enrich_understanding
 from app.schemas.profile import SiteProfile
 
 
-def analyze_site(site: Site, run: Run) -> tuple[SiteProfile, CrawlResult]:
+def analyze_site(
+    site: Site,
+    run: Run,
+) -> tuple[SiteProfile, CrawlResult, ExtractionResult]:
     """Crawl, extract and understand one site. Blocking by design for now.
 
     Celery wraps this in step 5; the function stays synchronous so it can also be
@@ -24,4 +28,5 @@ def analyze_site(site: Site, run: Run) -> tuple[SiteProfile, CrawlResult]:
     )
     profile = build_profile(crawl)
     profile.understanding = enrich_understanding(profile)
-    return profile, crawl
+    extraction = extract_content(profile)
+    return profile, crawl, extraction

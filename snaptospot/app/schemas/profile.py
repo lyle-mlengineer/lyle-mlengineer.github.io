@@ -86,7 +86,7 @@ class Observed(BaseModel):
 
 
 class Gap(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(populate_by_name=True, serialize_by_alias=True)
 
     key: str
     gap_class: str = Field(alias="class")
