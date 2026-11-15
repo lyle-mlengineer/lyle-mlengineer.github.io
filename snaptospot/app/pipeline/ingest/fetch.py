@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol
+from typing import Any, Protocol
 from urllib.parse import urljoin
 
 import httpx
@@ -117,10 +117,7 @@ class PlaywrightFetcher:
 
         settings = get_settings()
         self._pw = sync_playwright().start()
-        self._browser = self._pw.chromium.launch(
-            headless=True,
-            args=["--disable-gpu", "--hide-scrollbars"],
-        )
+        self._browser = self._launch()
         self._context = self._browser.new_context(
             user_agent=settings.user_agent,
             viewport={"width": 1440, "height": 900},
@@ -129,6 +126,28 @@ class PlaywrightFetcher:
         )
         self._timeout_ms = settings.fetch_timeout_seconds * 1000
         self._text_client = HttpxFetcher()
+
+    def _launch(self) -> Any:
+        """Prefer bundled Chromium, then an installed Chrome or Edge.
+
+        The download can be blocked on restrictive networks. Falling back to a
+        system browser keeps rendering available locally; production images pin
+        bundled Chromium for reproducibility.
+        """
+        args = ["--disable-gpu", "--hide-scrollbars"]
+        last_error: Exception | None = None
+        for channel in (None, "chrome", "msedge"):
+            try:
+                browser = (
+                    self._pw.chromium.launch(headless=True, args=args)
+                    if channel is None
+                    else self._pw.chromium.launch(headless=True, args=args, channel=channel)
+                )
+                logger.info("Playwright using %s", channel or "bundled Chromium")
+                return browser
+            except Exception as exc:  # noqa: BLE001 - try the next local browser
+                last_error = exc
+        raise RuntimeError("No Playwright browser available") from last_error
 
     def fetch(self, url: str, screenshot_path: str | None = None) -> FetchedPage:
         assert_url_allowed(url)

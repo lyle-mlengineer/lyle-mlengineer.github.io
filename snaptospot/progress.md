@@ -99,8 +99,8 @@ and a commit.
   JS-rendered SPA, a robots-blocked site and a no-image site. Coverage includes
   SSRF rejection, robots enforcement, stable block IDs, asset/colour/entity
   extraction, LLM claim rejection, deterministic fallback, tenant-scoped runs and
-  the end-to-end analyze endpoint. 33 tests pass; the Playwright SPA test skips
-  when Chromium is not installed. ruff is clean.
+  the end-to-end analyze endpoint. 34 tests pass; the Playwright test uses bundled
+  Chromium when present, otherwise an installed Chrome or Edge. ruff is clean.
 - **Live smoke test.** Started the API and a local fixture server, signed up,
   created a site, analysed it, then read the run and profile back:
   `status=succeeded pages=4 assets=4 ai=False`, name `Lyle Okoth`, role

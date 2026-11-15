@@ -15,7 +15,8 @@ This folder is the implementation. The design lives in `../docs/`:
 - Python 3.12 (3.15 works for the app but some dependencies ship no wheels yet)
 - Docker (optional, for Postgres + Redis)
 - ffmpeg (needed from the rendering step onward)
-- Chromium via Playwright (optional; without it the crawler uses static HTML)
+- Chromium via Playwright, or an installed Chrome/Edge (optional; without a browser
+  the crawler uses static HTML)
 
 ## Setup (Windows PowerShell)
 
@@ -81,8 +82,8 @@ pytest
 ruff check .
 ```
 
-The suite uses local fixture websites. The one Playwright test skips if Chromium
-is not installed.
+The suite uses local fixture websites. The Playwright test uses bundled Chromium
+when installed, otherwise it falls back to a system Chrome or Edge.
 
 ## Configuration
 
