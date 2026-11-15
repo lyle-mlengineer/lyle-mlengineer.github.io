@@ -61,6 +61,25 @@ def evaluate_gaps(
             )
         )
 
+    if not profile.entities.contact.email:
+        gaps.append(
+            _gap(
+                "contact.email",
+                "contact",
+                "soft",
+                "no contact email found",
+            )
+        )
+    if not profile.entities.contact.url and not profile.entities.contact.email:
+        gaps.append(
+            _gap(
+                "contact.url",
+                "contact",
+                "soft",
+                "no contact email or booking link found",
+            )
+        )
+
     if not model.offerings:
         gaps.append(
             _gap(

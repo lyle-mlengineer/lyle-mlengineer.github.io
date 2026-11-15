@@ -8,6 +8,7 @@ from app.models import AuditLog, Run, Site
 from app.models.base import utcnow
 from app.pipeline.analyze import analyze_site
 from app.pipeline.ingest.errors import CrawlError
+from app.pipeline.resolve.service import ensure_facts
 from app.schemas.content import ContentModel
 from app.schemas.profile import SiteProfile
 from app.schemas.run import RunOut, run_to_out
@@ -95,6 +96,7 @@ def analyze(site_id: str, user: CurrentUser, db: DbSession) -> RunOut:
         run.status = "succeeded"
         run.ai_generated = profile.understanding.ai_generated or extraction.llm_used
         total_candidates = len(content_model.facts) + len(extraction.rejected)
+        ensure_facts(db, run)
         run.stats_json = {
             "page_count": profile.observed.page_count,
             "asset_count": profile.observed.asset_count,
@@ -110,7 +112,7 @@ def analyze(site_id: str, user: CurrentUser, db: DbSession) -> RunOut:
             "coverage": (
                 round(len(content_model.facts) / total_candidates, 3)
                 if total_candidates
-                else 1.0
+                else 0.0
             ),
             "signals": extraction.signals,
             "gaps": [

@@ -3,8 +3,8 @@
 The build follows `../docs/steps.md`. Each step ends with a working app, a test run,
 and a commit.
 
-**Current step:** 3 complete — extraction, grounding, `ContentModel` and gaps
-**Next step:** 4 — gap questions and conflicts
+**Current step:** 4 complete — gap questions, facts, conflicts and the render guard
+**Next step:** 5 — documents and retrieval
 **Last updated:** 2026-11-15
 
 ---
@@ -158,19 +158,76 @@ and a commit.
 
 **Commit:** `feat(snaptospot): extract grounded content models and gaps`
 
+### Step 4 — Gap questions, facts and conflicts
+
+- **Requirement schema.** `pipeline/resolve/schema.py` declares slots for
+  `identity`, `offer`, `proof`, `contact`, `visual`, `commerce`, `attribution`
+  and `recency`, each with a severity, card impact, question type, safe default
+  and the card consequence it unlocks. `requirements.py` now also reports
+  missing contact email and contact URL gaps.
+- **Questions.** `pipeline/resolve/questions.py` generates at most five
+  questions, never asks for an accepted fact, orders deterministically by card
+  impact and supports the fixed types `choice`, `number_unit`, `short_text`,
+  `url`, `file` and `skip`. Every question defaults to skipping/omitting the
+  card, and consistency conflicts can become a choice question.
+- **Trust tiers.** `pipeline/resolve/tiers.py` assigns A to site, user answers
+  and documents; B or C to web sources from their score and corroboration; and D
+  to inference. Request schemas use `extra="forbid"`, so a client-supplied
+  `tier` is a 422.
+- **Conflicts.** `pipeline/resolve/conflicts.py` implements the design precedence
+  table: attested user beats site, site beats document/web, document beats web,
+  and two web sources have no winner. Losers are marked `quarantined`, never
+  deleted.
+- **Storage.** `facts` stores fact candidates with `(run_id, id)` as the primary
+  key and a partial unique index `facts_one_accepted` on
+  `(run_id, key) WHERE status = 'accepted'`. `gap_answers` stores the canonical
+  question JSON next to the answer JSON, so a fact that came from a question
+  keeps its context. Migration `c3a8e1f4d920` adds both tables; facts are
+  backfilled from existing content models on analyze or lazily on the resolve
+  endpoints.
+- **API.**
+  - `GET /v1/runs/{id}/gaps` — gaps, coverage, blocking keys and ≤ 5 questions;
+  - `GET /v1/runs/{id}/facts?status=...` — accepted, quarantined and rejected
+    facts;
+  - `POST /v1/runs/{id}/answers` — answer or skip questions, create tier-A user
+    facts, quarantine a losing fact, rebuild the model and gaps;
+  - `POST /v1/runs/{id}/facts/{fact_id}` — accept, override or reject a fact.
+    Override requires `attest: true` and records both the old and new value;
+  - `POST /v1/runs/{id}/render` — returns 409 with the open blocking gaps, or 202
+    `ready` once they are answered or explicitly skipped.
+- **Audit.** `gap.answered`, `gap.skipped`, `fact.accepted`, `fact.overridden`,
+  `fact.quarantined` and `fact.rejected` are written to `audit_log`.
+- **Coverage.** A run with zero candidates starts at `coverage = 0.0`; answers
+  add accepted facts and raise coverage. The sparse fixture produces five
+  questions and goes from blocked to ready after answering `offer.core` or
+  skipping the blocking slot.
+- **Tests.** 64 tests pass and ruff is clean. New coverage includes the sparse
+  question set, the generator property over four fixtures, the DB partial unique
+  index, override attestation and client-tier rejection, conflict precedence,
+  skip-unblocks-render, answer validation, audit rows and tenant scoping for all
+  new endpoints.
+- **Smoke test.** The sparse fixture returned exactly five questions
+  (`offer.core`, `proof.metrics`, `proof.quote`, `identity.role`,
+  `visual.project_shot`) at coverage `0.0`. Render returned `409 blocked`;
+  answering `offer.core` and skipping the rest returned `202 ready` with
+  coverage `1.0` and a new capability offering in the content model.
+
+**Commit:** `feat(snaptospot): resolve gaps with questions, facts and conflicts`
+
 ---
 
 ## Next step
 
-### Step 4 — Gap questions and conflicts
+### Step 5 — Documents and retrieval
 
-1. `resolve/schema.py`: requirement slots per campaign type with severity.
-2. `resolve/questions.py`: ≤ 5 questions with type, options, default and
-   `unlocks`, deduped against resolved facts.
-3. `resolve/conflicts.py`: precedence and quarantined losers.
-4. `resolve/tiers.py`: tier from `source_type`, never client-supplied.
-5. API: run gaps, answers and fact accept/override/reject, with audit entries.
-6. Blocking-gap guard: render returns 409 with the open gaps.
+1. `POST /v1/runs/:id/documents` with MIME sniffing, size/page limits, a malware
+   hook and a decompression-bomb guard.
+2. Parsers for PDF, DOCX, PPTX, Markdown, CSV, TXT and images (OCR).
+3. Structure-aware chunking (~700 tokens, 120 overlap) with page and ordinal
+   metadata.
+4. Embeddings, BM25 + vector retrieval, reciprocal rank fusion and a reranker.
+5. Extract from the top chunks one gap at a time, with a page-level citation.
+6. Tenant-scoped retrieval, 30-day expiry and a `pin to brand` flag.
 
 ---
 
@@ -238,6 +295,42 @@ tier (`A`–`D`), `source_id`, `source_quote` and `retrieved_at`; `proof`,
 `quote`, offering metrics and project badges are fact pointers. The portfolio
 fixture yields seven grounded metrics and one named quote. Rejected candidates
 and their reasons are in `stats.rejected_facts`.
+
+### Resolve gaps and answer the interview
+
+```powershell
+$gaps = Invoke-RestMethod -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/gaps" -Headers $headers
+$gaps.coverage
+$gaps.blocking_open
+$gaps.questions | Format-Table key, prompt, default, unlocks
+
+# Answer one question. Omit a slot, or send skip = true, to accept the safe default.
+$body = @{
+  answers = @(
+    @{ key = "offer.core"; value = "Brand strategy for small teams"; attest = $true }
+  )
+} | ConvertTo-Json -Depth 5
+
+Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/answers" `
+  -Headers $headers -ContentType 'application/json' -Body $body
+
+# Find fact ids, then accept, override or reject one.
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/facts" -Headers $headers
+
+$override = @{ action = "override"; value = "10.1"; attest = $true } | ConvertTo-Json
+Invoke-RestMethod -Method Post `
+  -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/facts/f_03" `
+  -Headers $headers -ContentType 'application/json' -Body $override
+
+# Render is blocked (409) while a blocking gap is open, then ready (202).
+curl.exe -i -X POST "http://127.0.0.1:8000/v1/runs/$($run.id)/render" `
+  -H "Authorization: Bearer $($pair.access_token)"
+```
+
+An override must include `attest: true`; the old fact is kept with status
+`quarantined`. A client-supplied `tier` is rejected. The `gap_answers` table
+stores the question and answer together, and `audit_log` records every answer,
+skip, override, quarantine and rejection.
 
 ### Optional LLM understanding and extraction
 

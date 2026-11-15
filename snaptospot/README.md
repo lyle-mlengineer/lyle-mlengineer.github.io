@@ -80,6 +80,47 @@ Metrics, badges and quotes in `content_model` are pointers into `facts[]`. Every
 fact carries a tier (`A`–`D`), a source quote and a reject-free grounding record;
 `stats.rejected_facts` lists anything the extractor refused.
 
+### Resolve gaps
+
+After `analyze`, ask the run what is still missing and what to ask the user:
+
+```powershell
+$gaps = Invoke-RestMethod -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/gaps" -Headers $headers
+$gaps.coverage
+$gaps.questions | Format-Table key, prompt, default, unlocks
+```
+
+`questions` is capped at five, ordered by card impact and never asks for a fact
+that is already accepted. Every question has `default = "skip"`, which omits the
+card honestly. Send answers back — `skip = true` accepts the default:
+
+```powershell
+$body = @{
+  answers = @(
+    @{ key = "offer.core"; value = "Brand strategy for small teams"; attest = $true }
+  )
+} | ConvertTo-Json -Depth 5
+
+Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/answers" `
+  -Headers $headers -ContentType 'application/json' -Body $body
+```
+
+Facts can be reviewed and changed one at a time:
+
+```powershell
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/facts" -Headers $headers
+
+$override = @{ action = "override"; value = "10.1"; attest = $true } | ConvertTo-Json
+Invoke-RestMethod -Method Post `
+  -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/facts/f_03" `
+  -Headers $headers -ContentType 'application/json' -Body $override
+```
+
+`POST /v1/runs/{id}/render` returns 409 with the open blocking gaps and 202
+`ready` once they are answered or skipped. An override requires `attest: true`;
+the previous fact is kept as `quarantined`, and the audit log records the change.
+The request schema rejects any client-supplied `tier`.
+
 The same pipeline works without the API:
 
 ```powershell
