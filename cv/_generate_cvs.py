@@ -628,6 +628,107 @@ AI_ENGINEER = {
 }
 
 
+AI_ML_ENGINEER = {
+    "file": "LYLE-OKOTH-AI-ML-ENGINEER.docx",
+    "headline": "AI/ML ENGINEER | LLM AGENTS, RAG & PRODUCTION PLATFORMS",
+    "summary": (
+        "AI/ML Engineer with four years of experience shipping LLM agents and AI products end to end. Built coAgent, "
+        "a private coding agent with a five-phase tool loop, repository retrieval and test-driven verification, "
+        "published on PyPI; SnapToSpot, a multi-tenant FastAPI pipeline that grounds every generated claim in a "
+        "retrieved source; and PlusOne, an agent pipeline with budget guards and partial-run recovery. Strong "
+        "Python, FastAPI and PostgreSQL backend skills, with hands-on RAG, prompt engineering, offline evaluation "
+        "and production deployment on AWS, GCP and Render."
+    ),
+    "competencies": [
+        ("LLM Agents & Orchestration", "Planning and verification loops, tool and function calling, structured "
+                                        "outputs, prompt design, agent state machines, RAG with BM25 and vector "
+                                        "search, human approval, secret redaction and guardrails; working knowledge "
+                                        "of LangChain, LangGraph and LlamaIndex patterns"),
+        ("Python Backend & APIs", "FastAPI, Django and Flask services, REST and WebSocket APIs, OAuth2 / JWT and "
+                                   "Pydantic contracts, SQLAlchemy and Alembic, multi-tenant isolation, background "
+                                   "jobs, idempotent webhooks and payment settlement"),
+        ("Evaluation & Experimentation", "Offline and online evaluation, task-success and regression suites, "
+                                          "WER / CER / MOS and KID / FID metrics, latency and cost budgets, prompt "
+                                          "and model comparisons, CI quality gates, experiment tracking"),
+        ("Production & Cloud", "Docker, Kubernetes, GitHub Actions, Render, AWS and GCP, PostgreSQL, Redis and "
+                                "Celery, observability for token usage and drift, rate limits, CSP, caching and "
+                                "graceful degradation"),
+    ],
+    "tech": [
+        ("Languages", "Python, TypeScript/JavaScript, SQL, C++"),
+        ("LLM & Agents", "OpenAI-compatible APIs, Qwen2.5-Coder, Hugging Face Transformers, LangChain / LangGraph / "
+                         "LlamaIndex (working knowledge), tool calling, RAG, structured outputs, pgvector, BM25"),
+        ("Backend & Data", "FastAPI, Django, Flask, Pydantic, SQLAlchemy, Alembic, PostgreSQL, SQLite, Redis, "
+                           "Celery, Elasticsearch"),
+        ("ML & MLOps", "PyTorch, PEFT / LoRA, bitsandbytes NF4, ONNX Runtime, TensorRT, Triton, vLLM, MLflow, "
+                       "Weights & Biases, scikit-learn"),
+        ("Cloud & DevOps", "Docker, Kubernetes, GitHub Actions, Render, AWS, GCP, Linux, Git"),
+    ],
+    "jobs": [
+        {
+            "title": "Freelance AI Engineer",
+            "company": "Independent, Remote",
+            "dates": "2026 – Present",
+            "bullets": [
+                ("Built coAgent, a private coding agent for Colab's free T4: a five-phase survey → plan → act → verify "
+                 "→ report loop, Qwen2.5-Coder-7B at NF4, tree-sitter and BM25 repository retrieval, Ruff and pytest "
+                 "verification, and a git checkpoint per verified step; published 0.2.1 to PyPI."),
+                ("Built SnapToSpot, a multi-tenant FastAPI service (OAuth2, Alembic, PostgreSQL/pgvector) that turns a "
+                 "website into a campaign kit: crawl, extract, resolve gaps with tiered retrieval, and render only "
+                 "facts that trace to an accepted source."),
+                ("Built PlusOne's agent pipeline: a typed event stream, content-addressed photo store, budget-aware "
+                 "orchestration and resumable runs that return completed work with refunds instead of losing it."),
+                ("Shipped Vocalis, EchoID and FaceForm with provider-agnostic model adapters, credit ledgers, "
+                 "idempotent M-Pesa and Stripe settlement, and evaluation of provider output before release."),
+            ],
+        },
+        {
+            "title": "Machine Learning Engineer",
+            "company": "SautiFlow Labs, Nairobi",
+            "dates": "2024 – Present",
+            "bullets": [
+                ("Cut Swahili and Sheng ASR word error rate from 23.4% to 11.8% by LoRA fine-tuning Whisper-large-v3 "
+                 "on 1,240 curated hours, comparing runs on held-out and noisy field sets before promotion."),
+                ("Built the evaluation harness — WER, CER, MOS and CI regression gates — which blocked 9 model "
+                 "regressions from release in two quarters and set the team's experiment-tracking standard across "
+                 "60+ runs a month."),
+                ("Shipped streaming speech-to-speech translation at 310 ms median / 780 ms p95 first-audio latency "
+                 "across six language pairs, deploying model services on FastAPI, Triton and Kubernetes."),
+                ("Compressed a 1.6 GB TTS checkpoint to 480 MB with int8 quantisation and KV caching: 42 concurrent "
+                 "voices per GPU, 3.1x throughput and 58% lower inference cost."),
+            ],
+        },
+        {
+            "title": "Data Engineer",
+            "company": "SautiFlow Labs, Nairobi",
+            "dates": "2023 – 2024",
+            "bullets": [
+                ("Designed batch and streaming pipelines (Airflow, Kafka, Spark) processing 6 TB / 38,000 hours of raw "
+                 "audio a year into training-ready datasets."),
+                ("Introduced DVC versioning with content hashing so every model release traces to an exact data "
+                 "snapshot; consolidated 14 schemas into a dbt warehouse, cutting compute spend 23%."),
+            ],
+        },
+        {
+            "title": "Software Engineer",
+            "company": "SautiFlow Labs, Nairobi",
+            "dates": "2022 – 2023",
+            "bullets": [
+                ("Built REST and WebSocket APIs in Django and Node.js handling 1.2M requests a day at p95 latency "
+                 "under 140 ms, with PostgreSQL, Redis and Twilio integrations."),
+                ("Introduced Docker deploys and GitHub Actions CI/CD — release cadence monthly to weekly, lead time 3 "
+                 "weeks to 2 days — and took front-end test coverage from 0 to 71%."),
+            ],
+        },
+    ],
+    "projects": [PROJECT_COAGENT, PROJECT_SNAP, PROJECT_PLUSONE],
+    "education": EDUCATION,
+    "certs": CERTS,
+    "extra": None,
+    "compact": True,
+}
+
+
 def build(cv):
     doc = build_doc()
     header(doc, cv["headline"])
@@ -705,5 +806,5 @@ def build(cv):
 
 
 if __name__ == "__main__":
-    for cv in (AI_ENGINEER, ML_ENGINEER, DATA_ENGINEER, SOFTWARE_ENGINEER):
+    for cv in (AI_ENGINEER, ML_ENGINEER, DATA_ENGINEER, SOFTWARE_ENGINEER, AI_ML_ENGINEER):
         build(cv)
