@@ -479,6 +479,122 @@ SOFTWARE_ENGINEER = {
 }
 
 
+AI_ENGINEER = {
+    "file": "LYLE-OKOTH-AI-ENGINEER.docx",
+    "headline": "AI ENGINEER | APPLIED AI, AGENTS & SPEECH",
+    "summary": (
+        "AI Engineer with six years of experience taking applied AI products from prototype to production — LLM "
+        "agents, retrieval, speech and vision systems, and the backend, evaluation and deployment work around them. "
+        "Built and shipped coAgent (a private coding agent for Colab), Docent (an AI product guide), Vocalis (a "
+        "voice-design studio) and EchoID (a speaker-aware transcription studio)."
+    ),
+    "competencies": [
+        ("Applied AI & Agents", "LLM agents, tool use and function calling, planning / verification loops, retrieval "
+                                "augmented generation (BM25 + vector search), prompt design, evaluation harnesses, "
+                                "guardrails, human approval, secret redaction"),
+        ("Speech & Multimodal", "ASR, speaker diarisation and embeddings, TTS and voice cloning, diffusion image "
+                                "generation, face embeddings, quality gates and content provenance"),
+        ("Modelling & Optimisation", "PyTorch training and fine-tuning, LoRA / QLoRA, NF4 and int8 quantisation, "
+                                     "ONNX Runtime, TensorRT, KV caching, batching, latency and cost profiling"),
+        ("AI Platform & Product", "FastAPI model services, PostgreSQL, Redis, Celery, Docker, Kubernetes, GitHub "
+                                  "Actions, Render, AWS / GCP, credit ledgers, idempotent M-Pesa and Stripe payments, "
+                                  "technical writing and handover"),
+    ],
+    "tech": [
+        ("Languages", "Python, TypeScript/JavaScript, SQL, C++"),
+        ("AI & ML", "PyTorch, Hugging Face Transformers, PEFT, Diffusers, scikit-learn, Whisper, pyannote.audio, "
+                    "InsightFace, StyleGAN2, Stable Diffusion XL, Qwen2.5-Coder"),
+        ("Inference & Evaluation", "bitsandbytes NF4, int8 / FP16 quantisation, ONNX Runtime, TensorRT, Triton, "
+                                   "vLLM, KV caching, WER / CER / MOS, offline and online evaluation"),
+        ("Backend, Data & Cloud", "FastAPI, PostgreSQL, Redis, Celery, Elasticsearch, Spark, Kafka, Docker, "
+                                  "Kubernetes, Render, AWS, GCP, Weights & Biases, MLflow, DVC"),
+    ],
+    "jobs": [
+        {
+            "title": "Freelance AI Engineer",
+            "company": "Independent, Remote",
+            "dates": "2026 – Present",
+            "bullets": [
+                ("Partner with founders and product teams to scope, build and ship AI features end to end — data, model "
+                 "selection, evaluation, inference, UI and deployment — leaving behind runbooks the client's team can own."),
+                ("Built coAgent, a private coding agent for Google Colab's free T4: local Qwen2.5-Coder-7B inference at "
+                 "NF4, a survey → plan → act → verify loop, tree-sitter and BM25 repository retrieval, Ruff + pytest "
+                 "verification and git-backed checkpoints; published 0.2.1 to PyPI as co-agent-coder."),
+                ("Shipped Docent's public front door — FastAPI, PostgreSQL, Jinja2 and vanilla JavaScript — with a "
+                 "durable waitlist, contact inbox, protected admin surface, CSV export, rate limits and a strict CSP."),
+                ("Delivered AI product surfaces for Vocalis, EchoID and FaceForm with provider-agnostic model adapters, "
+                 "credit ledgers, idempotent M-Pesa and Stripe payment flows, and review and export workflows."),
+            ],
+        },
+        {
+            "title": "Machine Learning Engineer",
+            "company": "SautiFlow Labs, Nairobi",
+            "dates": "2024 – Present",
+            "bullets": [
+                ("Cut Swahili and Sheng ASR word error rate from 23.4% to 11.8% by LoRA fine-tuning Whisper-large-v3 "
+                 "on 1,240 hours of in-house audio."),
+                ("Shipped streaming speech-to-speech translation at 310 ms median / 780 ms p95 first-audio latency "
+                 "across six language pairs (English ↔ Swahili, Luo and Kikuyu), down from a 1.4 s batch baseline."),
+                ("Compressed a 1.6 GB TTS checkpoint to 480 MB with int8 quantisation and KV caching: 42 concurrent "
+                 "voices per GPU, 3.1x throughput and 58% lower inference cost."),
+                ("Built the evaluation harness — WER, CER, MOS and CI regression gates — which blocked 9 model "
+                 "regressions from release in two quarters."),
+            ],
+        },
+        {
+            "title": "Data Engineer",
+            "company": "SautiFlow Labs, Nairobi",
+            "dates": "2023 – 2024",
+            "bullets": [
+                ("Designed batch and streaming pipelines (Airflow, Kafka, Spark) processing 6 TB / 38,000 hours of raw "
+                 "audio a year into training-ready datasets."),
+                ("Automated transcription alignment and diarisation pre-labelling, cutting human labelling from 11 to "
+                 "3.5 minutes per hour of audio — a 68% saving adopted as the platform default."),
+            ],
+        },
+        {
+            "title": "Software Engineer",
+            "company": "SautiFlow Labs, Nairobi",
+            "dates": "2022 – 2023",
+            "bullets": [
+                ("Shipped 5 production features for an IVR and WhatsApp voice assistant serving 40,000+ monthly users, "
+                 "with REST and WebSocket APIs in Django and Node.js handling 1.2M requests a day at p95 latency under 140 ms."),
+                ("Introduced Docker deploys and GitHub Actions CI/CD — release cadence monthly to weekly, lead time 3 "
+                 "weeks to 2 days — and took front-end test coverage from 0 to 71%."),
+            ],
+        },
+    ],
+    "projects": [
+        ("coAgent — Private Coding Agent for Colab",
+         "Python coding agent for Google Colab's free T4: a local 7B model plans inside the repo, edits with "
+         "tree-sitter and BM25 context, verifies with Ruff and pytest, and commits every checkpoint to a reviewable "
+         "git branch. Published on PyPI as co-agent-coder (0.2.1) — no API keys or per-token cost.",
+         [("github.com/lyle-mlengineer/coagent", "https://github.com/lyle-mlengineer/coagent"),
+          ("coagent-web.onrender.com", "https://coagent-web.onrender.com"),
+          ("pypi.org/project/co-agent-coder", "https://pypi.org/project/co-agent-coder/")]),
+        ("Docent — AI Product Guide",
+         "Pre-launch AI product guide: explore a site, model its workflows, narrate a walkthrough and guide users "
+         "live. Shipped the public front end and submission backend — FastAPI, PostgreSQL, Jinja2, waitlist, contact "
+         "inbox, protected admin, CSV export, rate limits and CSP.",
+         [("docent-9a62.onrender.com", "https://docent-9a62.onrender.com/"),
+          ("github.com/lyle-mlengineer/docent", "https://github.com/lyle-mlengineer/docent")]),
+        ("Vocalis — Voice Design Studio",
+         "Brief-to-voice studio: describe a voice, audition and refine it, organize albums, synthesize speech with "
+         "rate and style controls, and manage credits. Provider-agnostic adapters, ledger-backed billing, idempotent "
+         "M-Pesa / Stripe payments; 42 concurrent voices per GPU.",
+         [("github.com/lyle-mlengineer/vocalis", "https://github.com/lyle-mlengineer/vocalis"),
+          ("vocalis-rvcw.onrender.com", "https://vocalis-rvcw.onrender.com")]),
+    ],
+    "education": [
+        ("BSc, Computer Security and Forensics (First Class Honours)", "Jaramogi Oginga Odinga University of Science and Technology (JOOUST)", "2016 – 2020"),
+        ("Diploma, Mechatronics Engineering (Upper Second Class)", "JKUAT, Juja, Kenya", "2013 – 2016"),
+    ],
+    "certs": "DeepLearning.AI, NVIDIA Deep Learning Institute, AWS and Google Cloud — 14 credentials (2021 – 2025).",
+    "extra": None,
+    "compact": True,
+}
+
+
 def build(cv):
     doc = build_doc()
     header(doc, cv["headline"])
@@ -533,10 +649,28 @@ def build(cv):
     refs = para(doc, "References available on request.", size=9.5, space_after=0, italic=True)
     refs.paragraph_format.space_before = Pt(6)
 
+    if cv.get("compact"):
+        for style_name in ("Normal", "List Bullet"):
+            doc.styles[style_name].font.size = Pt(10)
+        for s in doc.sections:
+            s.top_margin = Inches(0.45)
+            s.bottom_margin = Inches(0.45)
+            s.left_margin = Inches(0.5)
+            s.right_margin = Inches(0.5)
+        for p in doc.paragraphs:
+            for r in p.runs:
+                if r.font.size:
+                    r.font.size = Pt(max(8.5, r.font.size.pt - 0.5))
+            pf = p.paragraph_format
+            if pf.space_before is not None:
+                pf.space_before = Pt(pf.space_before.pt * 0.75)
+            if pf.space_after is not None:
+                pf.space_after = Pt(pf.space_after.pt * 0.75)
+
     doc.save(cv["file"])
     print("saved", cv["file"])
 
 
 if __name__ == "__main__":
-    for cv in (ML_ENGINEER, DATA_ENGINEER, SOFTWARE_ENGINEER):
+    for cv in (AI_ENGINEER, ML_ENGINEER, DATA_ENGINEER, SOFTWARE_ENGINEER):
         build(cv)
