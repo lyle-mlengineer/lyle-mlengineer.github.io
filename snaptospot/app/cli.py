@@ -82,6 +82,22 @@ def _extract(url: str, out: str | None, max_pages: int | None) -> int:
     return 0
 
 
+def _expire_documents(retention_days: int | None, tenant_id: str | None) -> int:
+    from app.db import SessionLocal
+    from app.pipeline.documents.expiry import expire_documents
+
+    with SessionLocal() as db:
+        report = expire_documents(
+            db, tenant_id=tenant_id, retention_days=retention_days
+        )
+        db.commit()
+    print(
+        f"expired {report.expired} document(s), deleted {report.files_deleted} file(s)",
+        file=sys.stderr,
+    )
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="snaptospot", description="SnapToSpot tools")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -96,11 +112,24 @@ def main(argv: list[str] | None = None) -> int:
     extract.add_argument("--out", help="write the content model to a JSON file")
     extract.add_argument("--max-pages", type=int, default=None)
 
+    expire = sub.add_parser(
+        "expire-documents", help="delete document chunks and files past retention"
+    )
+    expire.add_argument(
+        "--days",
+        type=int,
+        default=None,
+        help="override retention by age; default uses each document's expires_at",
+    )
+    expire.add_argument("--tenant", default=None, help="limit to one tenant id")
+
     args = parser.parse_args(argv)
     if args.command == "ingest":
         return _ingest(args.url, args.out, args.max_pages)
     if args.command == "extract":
         return _extract(args.url, args.out, args.max_pages)
+    if args.command == "expire-documents":
+        return _expire_documents(args.days, args.tenant)
     return 2
 
 

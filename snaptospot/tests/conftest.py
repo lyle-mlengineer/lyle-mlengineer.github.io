@@ -31,7 +31,7 @@ class QuietHandler(SimpleHTTPRequestHandler):
 
 
 @pytest.fixture(autouse=True)
-def offline_settings() -> Generator[None, None, None]:
+def offline_settings(tmp_path) -> Generator[None, None, None]:
     """Keep tests offline and deterministic.
 
     Private-address crawling is allowed so tests can use a local HTTP server;
@@ -44,12 +44,22 @@ def offline_settings() -> Generator[None, None, None]:
         "capture_screenshots": settings.capture_screenshots,
         "llm_api_key": settings.llm_api_key,
         "max_pages": settings.max_pages,
+        "media_root": settings.media_root,
+        "max_document_bytes": settings.max_document_bytes,
+        "max_document_pages": settings.max_document_pages,
+        "max_upload_files": settings.max_upload_files,
+        "ocr_enabled": settings.ocr_enabled,
     }
     settings.ssrf_allow_private = True
     settings.use_playwright = False
     settings.capture_screenshots = False
     settings.llm_api_key = None
     settings.max_pages = 12
+    settings.media_root = str(tmp_path / "media")
+    settings.max_document_bytes = 10 * 1024 * 1024
+    settings.max_document_pages = 40
+    settings.max_upload_files = 5
+    settings.ocr_enabled = False
     yield
     for key, value in previous.items():
         setattr(settings, key, value)

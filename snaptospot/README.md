@@ -17,6 +17,7 @@ This folder is the implementation. The design lives in `../docs/`:
 - ffmpeg (needed from the rendering step onward)
 - Chromium via Playwright, or an installed Chrome/Edge (optional; without a browser
   the crawler uses static HTML)
+- Tesseract (optional; only for OCR of image uploads)
 
 ## Setup (Windows PowerShell)
 
@@ -121,6 +122,50 @@ Invoke-RestMethod -Method Post `
 the previous fact is kept as `quarantined`, and the audit log records the change.
 The request schema rejects any client-supplied `tier`.
 
+### Answer a gap from a document
+
+Upload a deck, CV, case study or brand guide. Retrieval runs over the uploaded
+files and the extractor reads only the top three chunks for one gap at a time.
+
+```powershell
+curl.exe -X POST "http://127.0.0.1:8000/v1/runs/$($run.id)/documents" `
+  -H "Authorization: Bearer $($pair.access_token)" `
+  -F "files=@growth-deck.pptx" `
+  -F "gap_key=proof.metrics"
+
+$facts = Invoke-RestMethod -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/facts?status=accepted" -Headers $headers
+$facts | Where-Object source_type -eq "document" | Format-Table key, value, source, source_page, tier, source_quote
+
+$documents = Invoke-RestMethod -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/documents" -Headers $headers
+$documents | Format-Table filename, pages, chunk_count, fact_count, status, pinned_to_brand
+```
+
+Every document fact carries `source_type = "document"`, the filename, the
+page/slide number, the chunk id and a verbatim quote. The upload response reports
+pages, chunks, extracted facts and failures per file.
+
+Limits: 10 MB, 40 pages/slides and five files per run. PDF, DOCX, PPTX, Markdown,
+TXT and CSV are parsed directly; images need OCR (`SNAP_OCR_ENABLED=true` with
+Tesseract installed). MIME type is sniffed from the bytes, archives are checked
+for decompression bombs, and executables, macros and active content are rejected.
+
+```powershell
+# Keep a brand deck past the 30-day retention window.
+$docId = $documents[0].id
+Invoke-RestMethod -Method Post `
+  -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/documents/$docId/pin" `
+  -Headers $headers -ContentType 'application/json' -Body '{"pinned":true}'
+
+# Expire unpinned documents (run daily in production).
+python -m app.cli expire-documents
+python -m app.cli expire-documents --days 30
+```
+
+On Postgres, retrieval uses `tsvector` BM25 plus pgvector cosine behind HNSW and
+GIN indexes. SQLite computes both legs in Python, so the local app needs no
+vector extension. Embeddings use the configured OpenAI-compatible endpoint; with
+no `SNAP_LLM_API_KEY` they fall back to deterministic local hashing.
+
 The same pipeline works without the API:
 
 ```powershell
@@ -163,6 +208,17 @@ SNAP_MEDIA_ROOT=var/media
 SNAP_LLM_API_KEY=
 SNAP_LLM_BASE_URL=https://api.openai.com/v1
 SNAP_LLM_MODEL=gpt-4o-mini
+
+# Documents and retrieval
+SNAP_EMBEDDING_MODEL=text-embedding-3-small
+SNAP_EMBEDDING_DIMENSIONS=1536
+SNAP_MAX_UPLOAD_FILES=5
+SNAP_MAX_DOCUMENT_BYTES=10485760
+SNAP_MAX_DOCUMENT_PAGES=40
+SNAP_DOCUMENT_RETENTION_DAYS=30
+SNAP_RETRIEVAL_TOP_K=8
+SNAP_RETRIEVAL_TOP_CHUNKS=3
+SNAP_OCR_ENABLED=false   # true with Tesseract + pytesseract installed
 ```
 
 LLM output is checked against the crawled block tree; unsupported claims are

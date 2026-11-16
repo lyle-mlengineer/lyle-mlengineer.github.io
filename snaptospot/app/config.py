@@ -36,6 +36,20 @@ class Settings(BaseSettings):
     llm_model: str = "gpt-4o-mini"
     llm_timeout_seconds: int = 30
 
+    # Embeddings (same OpenAI-compatible endpoint; local hashing when blank)
+    embedding_model: str = "text-embedding-3-small"
+    embedding_dimensions: int = 1536
+
+    # Documents and retrieval
+    max_upload_files: int = 5
+    max_document_bytes: int = 10 * 1024 * 1024
+    max_document_pages: int = 40
+    max_document_uncompressed_bytes: int = 80 * 1024 * 1024
+    document_retention_days: int = 30
+    retrieval_top_k: int = 8
+    retrieval_top_chunks: int = 3
+    ocr_enabled: bool = False
+
 
 @lru_cache
 def get_settings() -> Settings:

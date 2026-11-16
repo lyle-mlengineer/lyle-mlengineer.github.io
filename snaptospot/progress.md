@@ -3,9 +3,9 @@
 The build follows `../docs/steps.md`. Each step ends with a working app, a test run,
 and a commit.
 
-**Current step:** 4 complete — gap questions, facts, conflicts and the render guard
-**Next step:** 5 — documents and retrieval
-**Last updated:** 2026-11-15
+**Current step:** 5 complete — documents, retrieval and page-level citations
+**Next step:** 6 — web search
+**Last updated:** 2026-11-16
 
 ---
 
@@ -214,20 +214,91 @@ and a commit.
 
 **Commit:** `feat(snaptospot): resolve gaps with questions, facts and conflicts`
 
+### Step 5 — Documents and retrieval
+
+- **Upload safety.** `POST /v1/runs/{id}/documents` accepts multipart files with
+  MIME classification from bytes, not the browser header. PDF, DOCX, PPTX,
+  Markdown, TXT, CSV and images are supported. The route enforces 10 MB per file,
+  40 pages/slides per document and five documents per run, and reports every
+  rejection per file. `pipeline/documents/security.py` also rejects executables,
+  legacy OLE files, macro-enabled Office packages, embedded active content,
+  EICAR payloads, PDF JavaScript and archives with unsafe paths, excessive
+  entries or a decompression-bomb ratio. `scan_bytes` is the ClamAV hook: swap
+  the function, keep the contract.
+- **Parsers.** `pypdf` extracts PDF pages and reports the failing page on a
+  malformed or encrypted file; `python-docx` walks headings, paragraphs and
+  tables into sections; `python-pptx` turns each slide (and its notes) into a
+  page; Markdown splits on headings, CSV on header/row blocks, TXT on form feeds.
+  Images go through optional OCR (`SNAP_OCR_ENABLED=true` plus pytesseract) and
+  fail with a clear message when OCR is off rather than pretending to read them.
+- **Chunking.** `pipeline/documents/chunking.py` packs paragraphs into ~700-token
+  chunks with 120-token overlap and never crosses a page or slide boundary, so a
+  chunk always maps to one citation. Every chunk stores `document_id`, `page`,
+  `ordinal`, `kind`, text and a token estimate.
+- **Embeddings.** `pipeline/documents/embeddings.py` calls any OpenAI-compatible
+  `/embeddings` endpoint when `SNAP_LLM_API_KEY` is set; without a key, or when the
+  provider fails, it uses deterministic local hashing over words, trigrams and
+  bigrams. Chunks store the vector in `chunks.embedding`; Postgres uses pgvector
+  `vector(1536)` while SQLite stores JSON for local development.
+- **Retrieval.** `pipeline/documents/retrieval.py` runs BM25 and vector search in
+  parallel, fuses with reciprocal rank fusion, then reranks to the top eight.
+  Postgres uses `tsvector`/`ts_rank_cd` and pgvector cosine ordering behind the
+  `chunks_fts` GIN and `chunks_embedding` HNSW indexes; SQLite uses Python BM25
+  and cosine over the same tenant-filtered candidate set. Numeric gaps get a
+  number-density boost so a metric slide can win even when it shares no keywords
+  with the question. Every query filters on `tenant_id`, `run_id` and `site_id`
+  and excludes expired, unpinned documents.
+- **Extraction.** `pipeline/documents/extractor.py` reads only the top three
+  chunks per gap. Deterministic matchers reuse the site pass for percentages,
+  durations, counts, prices, quotes, roles, locations, contact links and image
+  URLs; a configured LLM is the fallback with
+  `prompts/document_extract_v1.md` (temperature 0). Every answer must quote the
+  chunk verbatim and is grounded again before storage. A null or ungrounded
+  answer leaves the gap open for the next rung.
+- **Citations and trust.** A document fact stores `source_type="document"`,
+  `source` = the filename, `source_page` = the page/slide, `source_id` = the chunk
+  id, a verbatim `source_quote`, and tier A from the mechanical tier table.
+  Conflicts reuse the fixed precedence table: the site beats a document unless
+  the document wins on the recorded rules; losers stay `quarantined`. Document
+  quotes carry `permission="brand_document"` and can render the testimonial card.
+- **Storage and expiry.** `Document` and `Chunk` models plus migration
+  `d5e2b7a9c1f3`; `facts.source_page` added. Files live under
+  `SNAP_MEDIA_ROOT/documents/{tenant}/{run}`. `expire_documents` deletes chunks
+  and files after 30 days and skips `pinned_to_brand` rows. The CLI command is
+  `python -m app.cli expire-documents [--days N] [--tenant ID]`.
+- **API.** Upload (with optional `gap_key` and `pin_to_brand`), list, detail with
+  chunks, and `POST .../{document_id}/pin`. Upload returns a parse report per file
+  (`pages`, `chunks`, `extracted_facts`, `failures[]`) and the refreshed gap
+  report. A file that fails every check returns 422 (413 for size) with the reason.
+- **Tests.** 72 tests pass and ruff is clean. New coverage: the 12-slide deck
+  whose metric only appears on slide 7 returns a tier-A document fact with
+  filename, `source_page=7` and the verbatim quote; cross-tenant retrieval returns
+  nothing and cross-tenant document reads are 404; a 41-page PDF is rejected with
+  both limits named; a malformed PDF fails and leaves the gap open; MIME mismatch,
+  size, file-count, pin and expiry are covered; chunking keeps pages and overlap.
+- **Smoke test.** Through the HTTP API, a sparse run was analysed, a 12-slide
+  PPTX was uploaded for `proof.metrics`, and the resulting fact read back as
+  `source_type=document`, `source=growth-deck.pptx`, `source_page=7`,
+  `tier=A`, quote `2,100 monthly active creators as of October 2026.`; the gap
+  moved from open to resolved.
+
+**Commit:** `feat(snaptospot): ingest documents and cite retrieved facts`
+
 ---
 
 ## Next step
 
-### Step 5 — Documents and retrieval
+### Step 6 — Web search
 
-1. `POST /v1/runs/:id/documents` with MIME sniffing, size/page limits, a malware
-   hook and a decompression-bomb guard.
-2. Parsers for PDF, DOCX, PPTX, Markdown, CSV, TXT and images (OCR).
-3. Structure-aware chunking (~700 tokens, 120 overlap) with page and ordinal
-   metadata.
-4. Embeddings, BM25 + vector retrieval, reciprocal rank fusion and a reranker.
-5. Extract from the top chunks one gap at a time, with a page-level citation.
-6. Tenant-scoped retrieval, 30-day expiry and a `pin to brand` flag.
+1. `POST /v1/runs/:id/search` behind a provider interface (`brave`, `tavily`,
+   `serp`), with a 20 s ceiling.
+2. Query templates per gap class, capped at six queries per run and one per class.
+3. Fetch the top results, strip navigation, score and discard below 0.65.
+4. Quote-only extraction prompt; cap web facts at tier B and downgrade to C
+   without a publication date.
+5. `web_queries` log, a seven-day cache keyed by `(domain, query_hash)`, and a
+   prompt-injection wrapper with an adversarial fixture.
+6. Degrade to questions and documents when no search key is configured.
 
 ---
 
@@ -332,6 +403,46 @@ An override must include `attest: true`; the old fact is kept with status
 stores the question and answer together, and `audit_log` records every answer,
 skip, override, quarantine and rejection.
 
+### Upload documents and cite a page
+
+Upload a deck, CV, case study or brand guide and let retrieval answer one gap.
+`gap_key` is optional; without it the uploader tries every open gap.
+
+```powershell
+curl.exe -X POST "http://127.0.0.1:8000/v1/runs/$($run.id)/documents" `
+  -H "Authorization: Bearer $($pair.access_token)" `
+  -F "files=@growth-deck.pptx" `
+  -F "gap_key=proof.metrics"
+
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/facts?status=accepted" -Headers $headers
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/documents" -Headers $headers
+```
+
+The upload response includes one parse report per file and the refreshed gaps.
+A document fact carries the filename, `source_page`, the chunk id and a verbatim
+quote. Pin a brand asset so expiry skips it:
+
+```powershell
+$docs = Invoke-RestMethod -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/documents" -Headers $headers
+$docId = $docs[0].id
+Invoke-RestMethod -Method Post `
+  -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/documents/$docId/pin" `
+  -Headers $headers -ContentType 'application/json' -Body '{"pinned":true}'
+```
+
+Run the retention job from the CLI (cron it daily in production):
+
+```powershell
+python -m app.cli expire-documents            # uses each document's expires_at
+python -m app.cli expire-documents --days 30  # or force by age
+```
+
+PDF, DOCX, PPTX, Markdown, TXT and CSV work out of the box. Images need OCR:
+install Tesseract plus `pytesseract`, then set `SNAP_OCR_ENABLED=true`. On
+Postgres the migration creates the `vector` extension, an HNSW index on
+`chunks.embedding` and a GIN index on `to_tsvector('english', text)`; SQLite uses
+JSON vectors and Python BM25/cosine so local development needs no services.
+
 ### Optional LLM understanding and extraction
 
 Any OpenAI-compatible endpoint works:
@@ -362,6 +473,15 @@ SNAP_CAPTURE_SCREENSHOTS=true
 SNAP_FETCH_TIMEOUT_SECONDS=20
 SNAP_SSRF_ALLOW_PRIVATE=false   # true only for local fixture servers
 SNAP_MEDIA_ROOT=var/media
+SNAP_MAX_UPLOAD_FILES=5
+SNAP_MAX_DOCUMENT_BYTES=10485760
+SNAP_MAX_DOCUMENT_PAGES=40
+SNAP_DOCUMENT_RETENTION_DAYS=30
+SNAP_RETRIEVAL_TOP_K=8
+SNAP_RETRIEVAL_TOP_CHUNKS=3
+SNAP_EMBEDDING_MODEL=text-embedding-3-small
+SNAP_EMBEDDING_DIMENSIONS=1536
+SNAP_OCR_ENABLED=false
 ```
 
 No Docker is required for these steps. Postgres is optional:

@@ -97,6 +97,7 @@ class FactOut(BaseModel):
     source_type: str
     source: str
     source_id: str | None = None
+    source_page: int | None = None
     source_quote: str = ""
     confidence: float = 0.99
     tier: str

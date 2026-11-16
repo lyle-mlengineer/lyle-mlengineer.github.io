@@ -40,12 +40,15 @@ class Fact(BaseModel):
     source_type: SourceType
     source: str = Field(min_length=1, max_length=2048)
     source_id: str | None = Field(default=None, max_length=40)
+    source_page: int | None = Field(default=None, ge=1)
     source_quote: str = Field(min_length=1, max_length=2000)
     confidence: float = Field(default=0.99, ge=0, le=1)
     tier: Tier
     retrieved_at: date
     published_at: date | None = None
-    permission: Literal["published_on_site", "attested", "none"] | None = None
+    permission: Literal[
+        "published_on_site", "attested", "brand_document", "none"
+    ] | None = None
 
     @model_validator(mode="after")
     def _tier_contract(self) -> "Fact":
