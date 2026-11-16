@@ -22,6 +22,16 @@ LINKS = [
 ]
 DARK = RGBColor(0x1F, 0x2A, 0x37)
 
+EDUCATION = [
+    ("BSc, Computer Security and Forensics (in progress)",
+     "JOOUST", "2024 – 2028"),
+    ("Diploma, Mechatronics Engineering (Upper Second Class)",
+     "JKUAT, Juja, Kenya", "2016 – 2019"),
+    ("Kenya Certificate of Secondary Education",
+     "Friends School Kamusinga", "2012 – 2015"),
+]
+CERTS = "DeepLearning.AI, NVIDIA Deep Learning Institute, AWS and Google Cloud — 14 credentials (2021 – 2025)."
+
 
 def add_hyperlink(paragraph, url, text, size=9.5):
     part = paragraph.part
@@ -153,41 +163,142 @@ def header(doc, headline):
         add_hyperlink(links, url, label, size=10)
 
 
+# ---------------------------------------------------------------------------
+# Shared project write-ups, grounded in the READMEs in /home/lyle/git/portfolio
+# ---------------------------------------------------------------------------
+PROJECT_COAGENT = (
+    "coAgent — Private Coding Agent for Colab",
+    "Python coding agent for Google Colab's free T4: Qwen2.5-Coder-7B runs locally at NF4, plans inside the "
+    "repository, edits with a tree-sitter map and BM25 retrieval, verifies with Ruff and pytest, and commits every "
+    "checkpoint to an isolated git branch. Published on PyPI as co-agent-coder 0.2.1 — no API keys or per-token cost.",
+    [("github.com/lyle-mlengineer/coagent", "https://github.com/lyle-mlengineer/coagent"),
+     ("pypi.org/project/co-agent-coder", "https://pypi.org/project/co-agent-coder/")],
+)
+
+PROJECT_DOCENT = (
+    "Docent — AI Product Guide",
+    "Pre-launch AI product guide: explore a site, build an evidence-backed model of its workflows, narrate a "
+    "walkthrough and guide users live. Shipped the public front door — FastAPI, PostgreSQL and Jinja2 with a durable "
+    "waitlist, contact inbox, protected admin, CSV export, rate limits and a strict CSP.",
+    [("docent-9a62.onrender.com", "https://docent-9a62.onrender.com/"),
+     ("github.com/lyle-mlengineer/docent", "https://github.com/lyle-mlengineer/docent")],
+)
+
+PROJECT_SURAYA = (
+    "Suraya — Diffusion Model for Kenyan Faces",
+    "Audit-driven latent diffusion model for photorealistic 256×256 Kenyan faces: a compact 66M-parameter UNet on a "
+    "frozen SD VAE, face-detect/align preprocessing, a VAE quality gate and KID-led evaluation, with an SDXL LoRA "
+    "track for comparison. Pipeline complete and tested; training runs in Colab.",
+    [("github.com/lyle-mlengineer/suraya", "https://github.com/lyle-mlengineer/suraya")],
+)
+
+PROJECT_SNAP = (
+    "SnapToSpot — Website-to-Campaign Pipeline",
+    "Turns a website into a five-platform campaign kit — stills, video, poster and copy deck — built only from facts "
+    "the site can support. The model writes the words and structure, a deterministic renderer sets the type, and "
+    "every number traces to a source span. FastAPI, PostgreSQL/pgvector, Alembic and OAuth2; in active development.",
+    [("github.com/lyle-mlengineer/Snap2Spot", "https://github.com/lyle-mlengineer/Snap2Spot")],
+)
+
+PROJECT_VOCALIS = (
+    "Vocalis — Voice Design Studio",
+    "Brief-to-voice studio: describe a voice, design and audition it, refine the brief, organize albums and "
+    "synthesize narration with rate, volume and style controls. Provider-agnostic Breeze and Fish Audio adapters, a "
+    "credit ledger, idempotent M-Pesa and Stripe settlement, and a FastAPI + Jinja2 monolith.",
+    [("github.com/lyle-mlengineer/vocalis", "https://github.com/lyle-mlengineer/vocalis"),
+     ("vocalis-rvcw.onrender.com", "https://vocalis-rvcw.onrender.com")],
+)
+
+PROJECT_ECHOID = (
+    "EchoID — Speaker-Aware Transcription Studio",
+    "Upload → diarise → review → export. Speaker-labelled transcripts with timestamps, reusable speaker profiles, "
+    "search and filters, and JSON, TXT or branded PDF exports. A pluggable transcription provider behind one JSON "
+    "contract, credit billing with M-Pesa and Stripe, and a domain-driven FastAPI monolith.",
+    [("github.com/lyle-mlengineer/echoid", "https://github.com/lyle-mlengineer/echoid"),
+     ("echoid.onrender.com", "https://echoid.onrender.com")],
+)
+
+PROJECT_LABELSET = (
+    "LabelSet — Audio Data Platform",
+    "Audio-first sourcing and labelling platform: organizations, projects, tasks and a labeler marketplace across 11 "
+    "speech task types, with background preprocessing into 60-second mono 16 kHz clips, review, KES billing and "
+    "JSONL dataset export. FastAPI, PostgreSQL, SQLAlchemy and Jinja2.",
+    [("github.com/lyle-mlengineer/labelset", "https://github.com/lyle-mlengineer/labelset"),
+     ("labelset.onrender.com", "https://labelset.onrender.com")],
+)
+
+PROJECT_SAUTIFLOW = (
+    "SautiFlow — Voice & Podcast Studio",
+    "FastAPI podcast and voice-over studio: guest project creation, account and voice libraries, a responsive "
+    "browser studio and credit-pack checkout, with project settings persisted to SQLite or PostgreSQL. The product "
+    "surface that carries the speech stack.",
+    [("sautiflow.co.ke", "https://www.sautiflow.co.ke/")],
+)
+
+PROJECT_FACEFORM = (
+    "FaceForm — Synthetic Portrait Studio",
+    "Brief-to-portrait studio: describe age, ethnicity, features and styling, then generate photoreal, clearly "
+    "synthetic portraits through NVIDIA Flux. Gallery, albums, regenerate and refine, and pay-per-image credits with "
+    "idempotent M-Pesa and Stripe settlement.",
+    [("github.com/lyle-mlengineer/faceform", "https://github.com/lyle-mlengineer/faceform"),
+     ("faceform-2rkf.onrender.com", "https://faceform-2rkf.onrender.com")],
+)
+
+PROJECT_PLUSONE = (
+    "PlusOne — Personal AI Photography",
+    "Builds a photo story from an event brief, the people in it and a few reference photos, keeping identities "
+    "consistent across every shot. Studio, photo feed, albums and a credit ledger, backed by an agent pipeline with "
+    "content-addressed dedupe, budget guards and partial-run recovery.",
+    [("github.com/lyle-mlengineer/pigamagic-agent", "https://github.com/lyle-mlengineer/pigamagic-agent"),
+     ("pigamagic.onrender.com", "https://pigamagic.onrender.com")],
+)
+
+
 ML_ENGINEER = {
     "file": "LYLE-OKOTH-MACHINE-LEARNING-ENGINEER.docx",
     "headline": "MACHINE LEARNING ENGINEER | SPEECH & VOICE AI",
     "summary": (
-        "Machine Learning Engineer and researcher with over six years of experience designing, training and "
-        "productionising multilingual speech systems — automatic speech recognition, speech-to-speech translation "
-        "and text-to-speech synthesis — for East African languages. Owns the full model lifecycle from data and "
-        "evaluation to deployment: cut Swahili and Sheng ASR error rate from 23.4% to 11.8%, shipped streaming "
-        "speech translation at 310 ms median first-audio latency across six language pairs, and raised capacity to "
-        "42 concurrent voices per GPU while cutting inference cost 58%. Published three open speech datasets and "
-        "two fine-tuned models on Hugging Face with 18,000+ downloads."
+        "Machine Learning Engineer with four years of experience designing, training and productionising multilingual "
+        "speech and vision systems — ASR, speech-to-speech translation, TTS and diffusion image models — for East "
+        "African languages. Owns the full model lifecycle from data and evaluation to deployment: cut Swahili and "
+        "Sheng ASR error rate from 23.4% to 11.8%, shipped streaming translation at 310 ms median first-audio "
+        "latency, and raised TTS capacity to 42 concurrent voices per GPU. Builds the evaluation gates that keep "
+        "regressions out of release."
     ),
     "competencies": [
-        ("Speech & Voice AI", "ASR (Whisper, wav2vec 2.0, NeMo), TTS and voice cloning (VITS, XTTS-v2, Coqui, "
-                              "F5-TTS), speech-to-speech translation (SeamlessM4T, NLLB-200), diarisation, VAD and "
-                              "speaker embeddings (pyannote.audio)"),
-        ("Modelling & Evaluation", "PyTorch training and distributed runs, LoRA / QLoRA fine-tuning, diffusion and "
-                                   "flow-matching models, WER / CER / MOS evaluation, blind listening tests, experiment "
-                                   "tracking (Weights & Biases, MLflow, Optuna)"),
-        ("MLOps & Serving", "int8 / FP16 quantisation, ONNX Runtime, TensorRT, Triton Inference Server, vLLM, KV "
-                            "caching, continuous batching, CI regression gates, Kubernetes, Grafana monitoring"),
-        ("Research & Product", "Research-to-production, multilingual and low-resource speech, annotation platforms, "
-                               "technical writing, product design for voice interfaces"),
+        ("Speech & Voice AI", "ASR (Whisper, wav2vec 2.0, NeMo), TTS and voice design (VITS, XTTS-v2, Fish Audio, "
+                              "Breeze), speech-to-speech translation (SeamlessM4T, NLLB-200), diarisation and VAD"),
+        ("Vision & Generative Models", "Latent diffusion and flow matching, Stable Diffusion / SDXL, LoRA and "
+                                       "DreamBooth, NVIDIA Flux, face detection and alignment, content provenance"),
+        ("Modelling & Evaluation", "PyTorch training and distributed runs, LoRA / QLoRA fine-tuning, WER / CER / MOS "
+                                   "evaluation, KID / FID, blind listening panels, experiment tracking (Weights & "
+                                   "Biases, MLflow, Optuna)"),
+        ("MLOps & Serving", "int8 / FP16 / NF4 quantisation, ONNX Runtime, TensorRT, Triton Inference Server, vLLM, "
+                            "KV caching, continuous batching, CI regression gates, Docker, Kubernetes"),
     ],
     "tech": [
         ("Languages", "Python, C++, JavaScript/TypeScript, SQL"),
-        ("Speech & ML", "PyTorch 2.x, Hugging Face Transformers, PEFT, Accelerate, DeepSpeed, Diffusers, ESPnet, "
-                        "Coqui TTS, pyannote.audio, scikit-learn, Optuna"),
+        ("Speech & ML", "PyTorch 2.x, Hugging Face Transformers, PEFT, Accelerate, Diffusers, ESPnet, Coqui TTS, "
+                        "pyannote.audio, scikit-learn, Optuna"),
         ("Serving & Infra", "FastAPI, Triton Inference Server, ONNX Runtime, TensorRT, vLLM, gRPC / WebSocket "
-                            "streaming, WebRTC, Redis, Celery, Docker, Kubernetes"),
+                            "streaming, Redis, Celery, Docker, Kubernetes"),
         ("Data & MLOps", "Apache Spark, Kafka, Airflow, dbt, DVC, Great Expectations, Weights & Biases, MLflow, "
-                         "Terraform"),
-        ("Cloud", "AWS (S3, GPU instances), Google Cloud, Render"),
+                         "PostgreSQL, Render"),
     ],
     "jobs": [
+        {
+            "title": "Freelance AI Engineer",
+            "company": "Independent, Remote",
+            "dates": "2026 – Present",
+            "bullets": [
+                ("Built Suraya, an audit-driven latent-diffusion pipeline for photoreal Kenyan faces: 889-image data "
+                 "audit, face detect and align, a compact 66M UNet on a frozen SD VAE, and KID-led evaluation."),
+                ("Shipped Vocalis and EchoID with provider-agnostic voice and transcription adapters, credit ledgers "
+                 "and idempotent M-Pesa / Stripe settlement, evaluating provider output before release."),
+                ("Wrote the evaluation and guardrail patterns clients keep using: offline quality gates, latency and "
+                 "cost budgets, secret redaction and human approval for sensitive actions."),
+            ],
+        },
         {
             "title": "Machine Learning Engineer",
             "company": "SautiFlow Labs, Nairobi",
@@ -196,16 +307,11 @@ ML_ENGINEER = {
                 ("Cut Swahili and Sheng ASR word error rate from 23.4% to 11.8% by LoRA fine-tuning Whisper-large-v3 "
                  "on 1,240 hours of in-house audio."),
                 ("Shipped streaming speech-to-speech translation at 310 ms median / 780 ms p95 first-audio latency "
-                 "across six language pairs (English ↔ Swahili, Luo and Kikuyu), down from a 1.4 s batch baseline; "
-                 "domain fine-tuning added 1.9 chrF over the open model."),
+                 "across six language pairs (English ↔ Swahili, Luo and Kikuyu), down from a 1.4 s batch baseline."),
                 ("Compressed a 1.6 GB TTS checkpoint to 480 MB with int8 quantisation and KV caching: 42 concurrent "
                  "voices per GPU, 3.1x throughput and 58% lower inference cost."),
                 ("Built the evaluation harness — WER, CER, MOS and CI regression gates — which blocked 9 model "
                  "regressions from release in two quarters."),
-                ("Built diarisation, VAD and speaker-embedding pipelines for multi-speaker meeting audio: 89% speaker "
-                 "accuracy on up to 8 speakers at a 12.4% diarisation error rate."),
-                ("Published 3 open speech datasets and 2 fine-tuned models to Hugging Face (18,000+ downloads in the "
-                 "first quarter) and set the team's model-card and experiment-tracking standard across 60+ runs a month."),
             ],
         },
         {
@@ -216,12 +322,9 @@ ML_ENGINEER = {
                 ("Designed batch and streaming pipelines (Airflow, Kafka, Spark) processing 6 TB / 38,000 hours of raw "
                  "audio a year into training-ready datasets."),
                 ("Automated transcription alignment and diarisation pre-labelling, cutting human labelling from 11 to "
-                 "3.5 minutes per hour of audio — a 68% saving adopted as the platform's default workflow."),
-                ("Introduced dataset versioning with DVC and content hashing, so every model release traces to an exact "
-                 "data snapshot."),
-                ("Consolidated 14 scattered schemas into one dbt-modelled warehouse: pipeline failures down 41%, monthly "
-                 "compute spend down 23%."),
-                ("Owned speaker consent, retention and PII-redaction flows for 40,000+ hours of stored audio."),
+                 "3.5 minutes per hour of audio — a 68% saving adopted as the platform default."),
+                ("Introduced DVC versioning with content hashing so every model release traces to an exact data "
+                 "snapshot; consolidated 14 schemas into a dbt warehouse, cutting compute spend 23%."),
             ],
         },
         {
@@ -229,56 +332,29 @@ ML_ENGINEER = {
             "company": "SautiFlow Labs, Nairobi",
             "dates": "2022 – 2023",
             "bullets": [
-                ("Shipped 5 production features for an IVR and WhatsApp voice assistant serving 40,000+ monthly users."),
-                ("Built REST and WebSocket APIs in Django and Node.js handling 1.2M requests a day at p95 latency under "
-                 "140 ms."),
-                ("Introduced Docker deploys and GitHub Actions CI/CD: release cadence from monthly to weekly, lead time "
-                 "from 3 weeks to 2 days."),
-                ("Took front-end test coverage from 0 to 71% and reduced reported production bugs 34%; trained the "
-                 "team's first model, a scikit-learn intent classifier that deflected 28% of support chats."),
+                ("Shipped 5 production features for an IVR and WhatsApp voice assistant serving 40,000+ monthly users, "
+                 "with REST and WebSocket APIs in Django and Node.js at p95 latency under 140 ms."),
+                ("Introduced Docker deploys and GitHub Actions CI/CD — release cadence monthly to weekly, lead time 3 "
+                 "weeks to 2 days — and took front-end test coverage from 0 to 71%."),
             ],
         },
     ],
-    "projects": [
-        ("Vocalis — Brand Voice Studio",
-         "Voice-cloning TTS studio: one licensed studio read in, a reusable brand voice out, served over a streaming "
-         "API in 32 languages — 42 concurrent voices per GPU, 6 working days from recordings to a deployed voice.",
-         [("github.com/lyle-mlengineer/vocalis", "https://github.com/lyle-mlengineer/vocalis"),
-          ("vocalis-rvcw.onrender.com", "https://vocalis-rvcw.onrender.com")]),
-        ("EchoID — Speaker Identification & Diarisation",
-         "Turns raw recordings into speaker-labelled, searchable transcripts. 89% speaker accuracy on meetings with "
-         "up to 8 speakers at a 12.4% diarisation error rate; one hour of four-speaker audio processed in 4 minutes "
-         "on a single GPU.",
-         [("github.com/lyle-mlengineer/echoid", "https://github.com/lyle-mlengineer/echoid"),
-          ("echoid.onrender.com", "https://echoid.onrender.com")]),
-        ("LabelSet — Speech & Multimodal Data Platform",
-         "Sources recordings, gets them labelled by real speakers and proves the labels are trustworthy before a "
-         "training run. 18,000 hours of audio and 1.2M images delivered across 11 language and accent bands at "
-         "Cohen's kappa 0.87.",
-         [("labelset.onrender.com", "https://labelset.onrender.com")]),
-        ("FaceForm — Synthetic Persona Generator",
-         "Consistent, clearly synthetic faces drawn from one latent neighbourhood. 96% of released sets passed human "
-         "realism review, and persona sets ship 8x faster than the stock-photography workflow they replaced.",
-         [("github.com/lyle-mlengineer/faceform", "https://github.com/lyle-mlengineer/faceform"),
-          ("faceform-2rkf.onrender.com", "https://faceform-2rkf.onrender.com")]),
-    ],
-    "education": [
-        ("BSc, Computer Security and Forensics (First Class Honours)", "Jaramogi Oginga Odinga University of Science and Technology (JOOUST)", "2016 – 2020"),
-        ("Diploma, Mechatronics Engineering (Upper Second Class)", "JKUAT, Juja, Kenya", "2013 – 2016"),
-    ],
-    "certs": "DeepLearning.AI, NVIDIA Deep Learning Institute, AWS and Google Cloud — 14 credentials (2021 – 2025).",
+    "projects": [PROJECT_VOCALIS, PROJECT_ECHOID, PROJECT_SURAYA],
+    "education": EDUCATION,
+    "certs": CERTS,
     "extra": None,
+    "compact": True,
 }
 
 DATA_ENGINEER = {
     "file": "LYLE-OKOTH-DATA-ENGINEER.docx",
     "headline": "DATA ENGINEER | AUDIO & MULTIMODAL ML DATA",
     "summary": (
-        "Data Engineer with over six years of experience building the ingestion, alignment, labelling and versioning "
-        "path that turns raw audio and images into training-ready datasets. Delivered 6 TB / 38,000 hours of raw "
-        "audio a year, cut manual labelling time 68%, and reduced pipeline failures 41% by consolidating 14 schemas "
-        "into a dbt-modelled warehouse. Owns data quality, consent, retention and PII redaction for 40,000+ hours of "
-        "stored audio, with the software background (APIs at 1.2M requests a day) to keep pipelines operable in "
+        "Data Engineer with four years of experience building the ingestion, alignment, labelling and versioning path "
+        "that turns raw audio and images into training-ready datasets. Designed LabelSet, an audio-first sourcing and "
+        "labelling platform with 11 speech task types and KES billing; built pipelines processing 6 TB / 38,000 hours "
+        "of raw audio a year; and cut manual labelling time 68%. Owns data quality, consent, retention and PII "
+        "redaction, with the software background (APIs at 1.2M requests a day) to keep pipelines operable in "
         "production."
     ),
     "competencies": [
@@ -291,17 +367,34 @@ DATA_ENGINEER = {
         ("ML Data Support", "Transcription alignment, diarisation pre-labelling, forced alignment, human + AI "
                             "collaborative annotation, synthetic data generation, dataset tuning for ASR, TTS and "
                             "translation training"),
-        ("Platform & Reliability", "AWS S3, GCS, PostgreSQL, BigQuery, Elasticsearch, Redis, Terraform, Docker, "
-                                   "Kubernetes, on-call observability: monthly restores replaced by daily automated checks"),
+        ("Platform & Reliability", "PostgreSQL, S3-compatible object storage, Redis, Terraform, Docker, Kubernetes, "
+                                   "FFmpeg pipelines, on-call observability: monthly restores replaced by daily "
+                                   "automated checks"),
     ],
     "tech": [
         ("Languages", "Python, SQL, JavaScript/TypeScript, C++"),
-        ("Processing", "Apache Spark, Kafka, Airflow, dbt, DuckDB, Polars / Pandas, Celery"),
+        ("Processing", "Apache Spark, Kafka, Airflow, dbt, DuckDB, Polars / Pandas, Celery, FFmpeg"),
         ("Storage & Warehousing", "PostgreSQL, BigQuery, AWS S3, GCS, Parquet / Arrow, Delta Lake, Elasticsearch, Redis"),
         ("Quality & Versioning", "Great Expectations, DVC, data contracts, dataset cards and lineage"),
         ("Infrastructure", "Docker, Kubernetes, Terraform, GitHub Actions CI/CD, AWS, GCP, Render"),
     ],
     "jobs": [
+        {
+            "title": "Freelance AI Engineer",
+            "company": "Independent, Remote",
+            "dates": "2026 – Present",
+            "bullets": [
+                ("Built LabelSet's audio-first data platform: organizations, projects, tasks and a labeler "
+                 "marketplace, with background preprocessing into 60-second mono 16 kHz clips and JSONL dataset "
+                 "export."),
+                ("Implemented KES billing for organizations and labelers, with provider-confirmed top-ups, atomic "
+                 "task settlement and signed payment webhooks."),
+                ("Built SnapToSpot's fact-grounded pipeline: crawl → site profile → facts and conflicts → deterministic "
+                 "render, with a source span behind every number."),
+                ("Built Suraya's dataset audit and preprocessing: an 889-image audit, face detect and align, 256 px "
+                 "crops, a VAE quality gate and reproducible dataset versioning."),
+            ],
+        },
         {
             "title": "Machine Learning Engineer",
             "company": "SautiFlow Labs, Nairobi",
@@ -326,12 +419,8 @@ DATA_ENGINEER = {
                  "to 3.5 minutes per hour of audio — a 68% saving adopted as the platform's default workflow."),
                 ("Introduced dataset versioning with DVC and content hashing so every model release traces to an exact "
                  "data snapshot, eliminating reproducibility disputes across the ML team."),
-                ("Consolidated 14 scattered schemas into a single dbt-modelled warehouse, reducing pipeline failures 41% "
-                 "and monthly compute spend 23%."),
-                ("Delivered 18,000 hours of audio and 1.2M images across 11 language and accent bands at Cohen's kappa "
-                 "0.87, cutting batch turnaround from 3.5 weeks to 9 days."),
-                ("Owned speaker consent, retention and PII-redaction flows for 40,000+ hours of stored audio; wrote the "
-                 "data-quality runbook that onboarded 3 team members."),
+                ("Consolidated 14 scattered schemas into a single dbt-modelled warehouse, reducing pipeline failures "
+                 "41% and monthly compute spend 23%."),
             ],
         },
         {
@@ -339,69 +428,63 @@ DATA_ENGINEER = {
             "company": "SautiFlow Labs, Nairobi",
             "dates": "2022 – 2023",
             "bullets": [
-                ("Built and maintained REST and WebSocket APIs in Django and Node.js serving 1.2M requests a day at p95 "
-                 "latency under 140 ms, with PostgreSQL, Redis and Twilio voice/SMS integrations."),
+                ("Built and maintained REST and WebSocket APIs in Django and Node.js serving 1.2M requests a day at "
+                 "p95 latency under 140 ms, with PostgreSQL, Redis and Twilio voice/SMS integrations."),
                 ("Introduced Docker deployments and a GitHub Actions CI/CD pipeline: release cadence moved from monthly "
                  "to weekly and lead time dropped from 3 weeks to 2 days."),
             ],
         },
     ],
-    "projects": [
-        ("LabelSet — Speech & Multimodal Data Platform",
-         "Sources audio, image and video data, routes each task to three annotators with adjudication, and ships "
-         "versioned datasets with a dataset card per release. 18,000 hours of audio and 1.2M images delivered at "
-         "Cohen's kappa 0.87, with turnaround cut from 3.5 weeks to 9 days.",
-         [("labelset.onrender.com", "https://labelset.onrender.com")]),
-        ("EchoID — Audio Archive Indexing",
-         "Indexes raw recordings into speaker-labelled, searchable transcripts with Elasticsearch, word-level ASR "
-         "timestamps and a redaction pass that masks phone numbers, IDs and card fragments before anything leaves "
-         "the pipeline. 40,000 hours indexed for production tenants.",
-         [("github.com/lyle-mlengineer/echoid", "https://github.com/lyle-mlengineer/echoid"),
-          ("echoid.onrender.com", "https://echoid.onrender.com")]),
-        ("SautiFlow — Script-to-Skit Product",
-         "Turns a written script into a finished skit — casting, voicing, timing and mix — served end to end by the "
-         "audio ingestion, alignment and labelling pipelines described above. 40+ skits per creator per session and "
-         "a median 22-second render for a 45-second, four-character scene.",
-         [("sautiflow.co.ke", "https://www.sautiflow.co.ke/")]),
-    ],
-    "education": [
-        ("BSc, Computer Security and Forensics (First Class Honours)", "Jaramogi Oginga Odinga University of Science and Technology (JOOUST)", "2016 – 2020"),
-        ("Diploma, Mechatronics Engineering (Upper Second Class)", "JKUAT, Juja, Kenya", "2013 – 2016"),
-    ],
-    "certs": "DeepLearning.AI, NVIDIA Deep Learning Institute, AWS and Google Cloud — 14 credentials (2021 – 2025).",
+    "projects": [PROJECT_LABELSET, PROJECT_SNAP, PROJECT_SURAYA],
+    "education": EDUCATION,
+    "certs": CERTS,
     "extra": None,
+    "compact": True,
 }
 
 SOFTWARE_ENGINEER = {
     "file": "LYLE-OKOTH-SOFTWARE-ENGINEER.docx",
-    "headline": "SOFTWARE ENGINEER | FULL-STACK & VOICE-FIRST PRODUCTS",
+    "headline": "SOFTWARE ENGINEER | FULL-STACK & AI PRODUCTS",
     "summary": (
-        "Software Engineer with over six years of experience shipping voice-first web products end to end — "
+        "Software Engineer with four years of experience shipping voice-first and AI-native products end to end — "
         "requirement framing, UI/UX, backend APIs, deployment and iteration. Built IVR and WhatsApp assistants "
         "serving 40,000+ monthly users, REST and WebSocket APIs handling 1.2M requests a day at p95 latency under "
-        "140 ms, and Docker + GitHub Actions CI/CD that moved releases from monthly to weekly and cut lead time from "
-        "3 weeks to 2 days. Took front-end test coverage from 0 to 71% while reported production bugs fell 34%; now "
-        "ships streaming speech interfaces and model services at 310 ms median first-audio latency."
+        "140 ms, and Docker + GitHub Actions CI/CD that moved releases from monthly to weekly. Now builds multi-tenant "
+        "FastAPI products with credit ledgers, M-Pesa / Stripe billing and LLM and agent features."
     ),
     "competencies": [
-        ("Backend", "REST and WebSocket APIs, Django / FastAPI / Node.js, authentication and authorisation, payment "
-                    "webhooks, USSD menus, Twilio voice and SMS, real-time streaming services"),
-        ("Frontend & Product", "React interfaces for speech products (streaming translation, transcription and "
-                               "synthesis), UI/UX design, AI-assisted onboarding workflows, documentation that sped up "
-                               "new-hire onboarding"),
-        ("Platform & Reliability", "Docker, GitHub Actions CI/CD, Kubernetes, Render deployments, logging, tracing "
-                                   "and cost monitoring, bot-abuse mitigation"),
-        ("ML Integration", "Model services behind FastAPI and Triton, LLM-powered features (onboarding, pre-labelling), "
-                           "RAG and agent workflows"),
+        ("Backend", "REST and WebSocket APIs, FastAPI / Django / Flask / Node.js, OAuth2 and PKCE, payment webhooks, "
+                    "idempotent settlement, USSD menus, Twilio voice and SMS, real-time streaming services"),
+        ("Frontend & Product", "Server-rendered Jinja2 and React interfaces, UI/UX design, AI-assisted onboarding, "
+                               "responsive studios and dashboards, documentation that speeds up onboarding"),
+        ("Platform & Reliability", "Docker, GitHub Actions CI/CD, Kubernetes, Render deployments, Postgres and Redis, "
+                                   "logging, tracing and cost monitoring, CSP and rate-limiting defaults"),
+        ("AI Integration", "Model services behind FastAPI, provider-agnostic model adapters, credit ledgers, LLM and "
+                           "agent workflows, retrieval, evaluation hooks and human approval"),
     ],
     "tech": [
         ("Languages", "Python, JavaScript/TypeScript, C++, SQL"),
-        ("Frameworks", "Django, FastAPI, Flask, Node.js, React, Next.js"),
-        ("Data & Messaging", "PostgreSQL, Redis, Elasticsearch, Apache Kafka, Celery"),
+        ("Frameworks", "FastAPI, Django, Flask, Node.js, React, Next.js, Jinja2"),
+        ("Data & Messaging", "PostgreSQL, SQLite, Redis, Elasticsearch, Apache Kafka, Celery, Alembic"),
         ("DevOps & Cloud", "Docker, Kubernetes, GitHub Actions CI/CD, Render, AWS, GCP"),
-        ("Other", "Twilio, payment integrations, WebSocket / WebRTC streaming, scikit-learn, Hugging Face, Triton"),
+        ("Other", "Twilio, M-Pesa Daraja, Stripe, WebSocket streaming, scikit-learn, Hugging Face, NVIDIA Flux"),
     ],
     "jobs": [
+        {
+            "title": "Freelance AI Engineer",
+            "company": "Independent, Remote",
+            "dates": "2026 – Present",
+            "bullets": [
+                ("Built coAgent Web and Docent: FastAPI + Jinja2 front doors with Postgres-backed waitlists, GitHub "
+                 "OAuth / PKCE, rate limits, CSP, honeypots and graceful database failure."),
+                ("Built SnapToSpot: a multi-tenant FastAPI service with OAuth2, tenant-scoped sites, Alembic migrations "
+                 "and a background pipeline that turns a URL into a reviewed campaign kit."),
+                ("Shipped Vocalis, EchoID and FaceForm: server-rendered studios, credit ledgers, M-Pesa and Stripe "
+                 "checkout, and provider adapters behind one typed contract."),
+                ("Built PlusOne's product shell — studio, photo feed, albums, credits — and its rendering agent with "
+                 "content-addressed dedupe and partial-run recovery."),
+            ],
+        },
         {
             "title": "Machine Learning Engineer (full-stack responsibilities)",
             "company": "SautiFlow Labs, Nairobi",
@@ -433,49 +516,19 @@ SOFTWARE_ENGINEER = {
             "bullets": [
                 ("Shipped 5 production features for an IVR and WhatsApp voice assistant serving 40,000+ monthly users, "
                  "from requirement framing with non-technical clients through design, build and iteration."),
-                ("Built REST and WebSocket APIs in Django and Node.js handling 1.2M requests/day while holding p95 "
-                 "latency under 140 ms."),
-                ("Introduced Docker deployments and a GitHub Actions CI/CD pipeline: release cadence moved from monthly "
-                 "to weekly and lead time dropped from 3 weeks to 2 days."),
-                ("Took front-end test coverage from 0 to 71%; reported production bugs fell 34% over two quarters."),
-                ("Trained and served the team's first machine-learning model — a scikit-learn intent classifier behind "
-                 "FastAPI that deflected 28% of support chats; integrated Twilio voice, SMS, payment webhooks and USSD menus."),
-                ("Reviewed junior pull requests and ran the internal weekly code club."),
+                ("Built REST and WebSocket APIs in Django and Node.js handling 1.2M requests a day at p95 latency under "
+                 "140 ms, and introduced Docker deployments with GitHub Actions CI/CD."),
+                ("Took front-end test coverage from 0 to 71%, reported production bugs fell 34%, and trained the team's "
+                 "first model — a scikit-learn intent classifier that deflected 28% of support chats."),
             ],
         },
     ],
-    "projects": [
-        ("SautiFlow — Script-to-Skit Studio",
-         "Turns a written script into a finished skit — casting, voicing, timing and mix — where creators type the joke, "
-         "pick a cast and get ten renderable variations instead of one take they have to record themselves. Full "
-         "product surface from web UI to render backend; 2,100 monthly creators at 61% week-four retention and a "
-         "median 22-second render for a 45-second four-character scene.",
-         [("sautiflow.co.ke", "https://www.sautiflow.co.ke/")]),
-        ("LabelSet — Speech & Multimodal Data Platform",
-         "Web application where audio, image and video tasks route to three annotators with adjudication before a "
-         "versioned dataset ships. 18,000 hours of audio and 1.2M images delivered at Cohen's kappa 0.87, with "
-         "turnaround cut from 3.5 weeks to 9 days.",
-         [("labelset.onrender.com", "https://labelset.onrender.com")]),
-        ("FaceForm — Persona Generator",
-         "Generates consistent, clearly synthetic faces for teams that need people in their visuals without licensing "
-         "real ones: a designer sets an archetype once, then draws a whole persona family from the same latent noise. "
-         "96% of released sets passed an internal human realism check, 8x faster than the stock-and-permission "
-         "workflow it replaced, with 31,000 licensed images generated in year one.",
-         [("github.com/lyle-mlengineer/faceform", "https://github.com/lyle-mlengineer/faceform"),
-          ("faceform-2rkf.onrender.com", "https://faceform-2rkf.onrender.com")]),
-        ("PigaMagic — Event Photo Gallery",
-         "Takes a few phone snapshots per guest at a 200-person event and returns a polished gallery for every guest, "
-         "not just the ones near the camera: 12 gallery shots per guest in under four minutes from upload, with 94% "
-         "passing the automated identity-similarity check and 1 in 6 generations rejected at the quality gate.",
-         [("pigamagic.onrender.com", "https://pigamagic.onrender.com")]),
-    ],
-    "education": [
-        ("BSc, Computer Security and Forensics (First Class Honours)", "Jaramogi Oginga Odinga University of Science and Technology (JOOUST)", "2016 – 2020"),
-        ("Diploma, Mechatronics Engineering (Upper Second Class)", "JKUAT, Juja, Kenya", "2013 – 2016"),
-    ],
-    "certs": "AWS, Google Cloud, DeepLearning.AI and NVIDIA DLI certifications — 14 credentials (2021 – 2025).",
+    "projects": [PROJECT_SAUTIFLOW, PROJECT_DOCENT, PROJECT_PLUSONE],
+    "education": EDUCATION,
+    "certs": CERTS,
     "extra": ("LEADERSHIP", ["Co-Founder — SautiFlow Labs (2022)", "Volunteer — OMDENA (2024)",
                              "Founded a 12-member coding club and ran weekend build sessions"]),
+    "compact": True,
 }
 
 
@@ -483,30 +536,32 @@ AI_ENGINEER = {
     "file": "LYLE-OKOTH-AI-ENGINEER.docx",
     "headline": "AI ENGINEER | APPLIED AI, AGENTS & SPEECH",
     "summary": (
-        "AI Engineer with six years of experience taking applied AI products from prototype to production — LLM "
+        "AI Engineer with four years of experience taking applied AI products from prototype to production — LLM "
         "agents, retrieval, speech and vision systems, and the backend, evaluation and deployment work around them. "
-        "Built and shipped coAgent (a private coding agent for Colab), Docent (an AI product guide), Vocalis (a "
-        "voice-design studio) and EchoID (a speaker-aware transcription studio)."
+        "Built and shipped coAgent (a private coding agent for Colab), Docent (an AI product guide), Suraya (a "
+        "diffusion model for Kenyan faces) and Vocalis (a voice-design studio)."
     ),
     "competencies": [
         ("Applied AI & Agents", "LLM agents, tool use and function calling, planning / verification loops, retrieval "
                                 "augmented generation (BM25 + vector search), prompt design, evaluation harnesses, "
                                 "guardrails, human approval, secret redaction"),
-        ("Speech & Multimodal", "ASR, speaker diarisation and embeddings, TTS and voice cloning, diffusion image "
-                                "generation, face embeddings, quality gates and content provenance"),
+        ("Speech & Multimodal", "ASR, speaker diarisation and embeddings, TTS and voice design, diffusion image "
+                                "generation (Stable Diffusion, SDXL, NVIDIA Flux), face detection and alignment, "
+                                "quality gates and content provenance"),
         ("Modelling & Optimisation", "PyTorch training and fine-tuning, LoRA / QLoRA, NF4 and int8 quantisation, "
-                                     "ONNX Runtime, TensorRT, KV caching, batching, latency and cost profiling"),
+                                     "ONNX Runtime, TensorRT, KV caching, batching, KID / FID, WER / CER / MOS, "
+                                     "latency and cost profiling"),
         ("AI Platform & Product", "FastAPI model services, PostgreSQL, Redis, Celery, Docker, Kubernetes, GitHub "
                                   "Actions, Render, AWS / GCP, credit ledgers, idempotent M-Pesa and Stripe payments, "
                                   "technical writing and handover"),
     ],
     "tech": [
         ("Languages", "Python, TypeScript/JavaScript, SQL, C++"),
-        ("AI & ML", "PyTorch, Hugging Face Transformers, PEFT, Diffusers, scikit-learn, Whisper, pyannote.audio, "
-                    "InsightFace, StyleGAN2, Stable Diffusion XL, Qwen2.5-Coder"),
+        ("AI & ML", "PyTorch, Hugging Face Transformers, PEFT, Diffusers, scikit-learn, Whisper, Qwen2.5-Coder, "
+                    "NVIDIA Flux, Stable Diffusion / SDXL"),
         ("Inference & Evaluation", "bitsandbytes NF4, int8 / FP16 quantisation, ONNX Runtime, TensorRT, Triton, "
-                                   "vLLM, KV caching, WER / CER / MOS, offline and online evaluation"),
-        ("Backend, Data & Cloud", "FastAPI, PostgreSQL, Redis, Celery, Elasticsearch, Spark, Kafka, Docker, "
+                                   "vLLM, KV caching, KID / FID, WER / CER / MOS, offline and online evaluation"),
+        ("Backend, Data & Cloud", "FastAPI, Jinja2, PostgreSQL, Redis, Celery, Elasticsearch, Spark, Kafka, Docker, "
                                   "Kubernetes, Render, AWS, GCP, Weights & Biases, MLflow, DVC"),
     ],
     "jobs": [
@@ -516,14 +571,15 @@ AI_ENGINEER = {
             "dates": "2026 – Present",
             "bullets": [
                 ("Partner with founders and product teams to scope, build and ship AI features end to end — data, model "
-                 "selection, evaluation, inference, UI and deployment — leaving behind runbooks the client's team can own."),
+                 "selection, evaluation, inference, UI and deployment — leaving behind runbooks the client's team can "
+                 "own."),
                 ("Built coAgent, a private coding agent for Google Colab's free T4: local Qwen2.5-Coder-7B inference at "
                  "NF4, a survey → plan → act → verify loop, tree-sitter and BM25 repository retrieval, Ruff + pytest "
                  "verification and git-backed checkpoints; published 0.2.1 to PyPI as co-agent-coder."),
                 ("Shipped Docent's public front door — FastAPI, PostgreSQL, Jinja2 and vanilla JavaScript — with a "
                  "durable waitlist, contact inbox, protected admin surface, CSV export, rate limits and a strict CSP."),
-                ("Delivered AI product surfaces for Vocalis, EchoID and FaceForm with provider-agnostic model adapters, "
-                 "credit ledgers, idempotent M-Pesa and Stripe payment flows, and review and export workflows."),
+                ("Built Suraya, an audit-driven latent-diffusion pipeline for Kenyan faces: a compact 66M UNet on a "
+                 "frozen SD VAE, face-detect/align preprocessing and KID-led evaluation; pipeline complete and tested."),
             ],
         },
         {
@@ -558,38 +614,15 @@ AI_ENGINEER = {
             "dates": "2022 – 2023",
             "bullets": [
                 ("Shipped 5 production features for an IVR and WhatsApp voice assistant serving 40,000+ monthly users, "
-                 "with REST and WebSocket APIs in Django and Node.js handling 1.2M requests a day at p95 latency under 140 ms."),
+                 "with REST and WebSocket APIs in Django and Node.js at p95 latency under 140 ms."),
                 ("Introduced Docker deploys and GitHub Actions CI/CD — release cadence monthly to weekly, lead time 3 "
                  "weeks to 2 days — and took front-end test coverage from 0 to 71%."),
             ],
         },
     ],
-    "projects": [
-        ("coAgent — Private Coding Agent for Colab",
-         "Python coding agent for Google Colab's free T4: a local 7B model plans inside the repo, edits with "
-         "tree-sitter and BM25 context, verifies with Ruff and pytest, and commits every checkpoint to a reviewable "
-         "git branch. Published on PyPI as co-agent-coder (0.2.1) — no API keys or per-token cost.",
-         [("github.com/lyle-mlengineer/coagent", "https://github.com/lyle-mlengineer/coagent"),
-          ("coagent-web.onrender.com", "https://coagent-web.onrender.com"),
-          ("pypi.org/project/co-agent-coder", "https://pypi.org/project/co-agent-coder/")]),
-        ("Docent — AI Product Guide",
-         "Pre-launch AI product guide: explore a site, model its workflows, narrate a walkthrough and guide users "
-         "live. Shipped the public front end and submission backend — FastAPI, PostgreSQL, Jinja2, waitlist, contact "
-         "inbox, protected admin, CSV export, rate limits and CSP.",
-         [("docent-9a62.onrender.com", "https://docent-9a62.onrender.com/"),
-          ("github.com/lyle-mlengineer/docent", "https://github.com/lyle-mlengineer/docent")]),
-        ("Vocalis — Voice Design Studio",
-         "Brief-to-voice studio: describe a voice, audition and refine it, organize albums, synthesize speech with "
-         "rate and style controls, and manage credits. Provider-agnostic adapters, ledger-backed billing, idempotent "
-         "M-Pesa / Stripe payments; 42 concurrent voices per GPU.",
-         [("github.com/lyle-mlengineer/vocalis", "https://github.com/lyle-mlengineer/vocalis"),
-          ("vocalis-rvcw.onrender.com", "https://vocalis-rvcw.onrender.com")]),
-    ],
-    "education": [
-        ("BSc, Computer Security and Forensics (First Class Honours)", "Jaramogi Oginga Odinga University of Science and Technology (JOOUST)", "2016 – 2020"),
-        ("Diploma, Mechatronics Engineering (Upper Second Class)", "JKUAT, Juja, Kenya", "2013 – 2016"),
-    ],
-    "certs": "DeepLearning.AI, NVIDIA Deep Learning Institute, AWS and Google Cloud — 14 credentials (2021 – 2025).",
+    "projects": [PROJECT_COAGENT, PROJECT_DOCENT, PROJECT_SURAYA],
+    "education": EDUCATION,
+    "certs": CERTS,
     "extra": None,
     "compact": True,
 }
