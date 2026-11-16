@@ -465,6 +465,7 @@ def build_gap_report(db: Session, run: Run) -> GapReport:
         questions=questions,
         blocking_open=blocking,
         ready=not blocking,
+        web_search=str(stats.get("web_search", "not_run")),
     )
 
 

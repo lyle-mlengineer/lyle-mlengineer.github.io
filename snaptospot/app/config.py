@@ -50,6 +50,16 @@ class Settings(BaseSettings):
     retrieval_top_chunks: int = 3
     ocr_enabled: bool = False
 
+    # Web search (blank provider or key disables the rung)
+    search_provider: str = ""
+    search_api_key: str | None = None
+    search_endpoint: str | None = None
+    search_timeout_seconds: int = 20
+    web_search_max_queries: int = 6
+    web_search_results: int = 3
+    web_search_cache_days: int = 7
+    web_search_min_score: float = 0.65
+
 
 @lru_cache
 def get_settings() -> Settings:

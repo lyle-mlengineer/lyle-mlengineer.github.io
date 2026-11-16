@@ -166,6 +166,38 @@ GIN indexes. SQLite computes both legs in Python, so the local app needs no
 vector extension. Embeddings use the configured OpenAI-compatible endpoint; with
 no `SNAP_LLM_API_KEY` they fall back to deterministic local hashing.
 
+### Search the web for a public gap
+
+Search is a rung, not a dependency. Configure one provider; leaving the provider
+or key blank keeps the endpoint working and labels the run as disabled.
+
+```dotenv
+SNAP_SEARCH_PROVIDER=brave        # brave | tavily | serp
+SNAP_SEARCH_API_KEY=...
+# SNAP_SEARCH_ENDPOINT=...        # optional override, e.g. a proxy
+```
+
+```powershell
+$search = Invoke-RestMethod -Method Post `
+  -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/search" -Headers $headers
+
+$search.status                    # searched | disabled | degraded | exhausted
+$search.label
+$search.queries | Format-Table gap_key, query, engine, score, status, cache_hit
+$search.facts | Format-Table key, value, unit, tier, published_at, source, source_quote
+$search.gaps.web_search
+```
+
+The resolver issues at most six queries per run, one per public gap class
+(identity, offer, proof, commerce, recency). It fetches the top three results,
+strips navigation, and keeps only sources scoring at least `0.65` on
+`0.35 domain_quality + 0.25 first_party + 0.20 recency + 0.20 corroboration`.
+Extraction must return a verbatim quote; web facts cap at tier B and become tier
+C without a publication date, so an undated metric resolves the gap but never
+renders a number. Every query is logged in `web_queries`, and a repeat within
+seven days reuses the cached result list. A page that tries to instruct the
+model is skipped with a warning and no fact.
+
 The same pipeline works without the API:
 
 ```powershell
@@ -219,6 +251,15 @@ SNAP_DOCUMENT_RETENTION_DAYS=30
 SNAP_RETRIEVAL_TOP_K=8
 SNAP_RETRIEVAL_TOP_CHUNKS=3
 SNAP_OCR_ENABLED=false   # true with Tesseract + pytesseract installed
+
+# Web search; blank provider or key disables the rung
+SNAP_SEARCH_PROVIDER=
+SNAP_SEARCH_API_KEY=
+SNAP_SEARCH_TIMEOUT_SECONDS=20
+SNAP_WEB_SEARCH_MAX_QUERIES=6
+SNAP_WEB_SEARCH_RESULTS=3
+SNAP_WEB_SEARCH_CACHE_DAYS=7
+SNAP_WEB_SEARCH_MIN_SCORE=0.65
 ```
 
 LLM output is checked against the crawled block tree; unsupported claims are

@@ -3,8 +3,8 @@
 The build follows `../docs/steps.md`. Each step ends with a working app, a test run,
 and a commit.
 
-**Current step:** 5 complete — documents, retrieval and page-level citations
-**Next step:** 6 — web search
+**Current step:** 6 complete — web search, scored sources and dated citations
+**Next step:** 7 — design system and composition
 **Last updated:** 2026-11-16
 
 ---
@@ -284,21 +284,71 @@ and a commit.
 
 **Commit:** `feat(snaptospot): ingest documents and cite retrieved facts`
 
+### Step 6 — Web search
+
+- **Provider interface.** `pipeline/resolve/search.py` defines a small
+  `SearchProvider` protocol and three adapters: `brave`, `tavily` and `serp`.
+  `build_provider` returns `None` unless `SNAP_SEARCH_PROVIDER` is one of those
+  names and `SNAP_SEARCH_API_KEY` is set, so a missing key is a normal,
+  labelled state rather than an error. Requests time out after 20 s.
+- **Query builder.** One query per gap class, drawn from the crawled entities
+  (person/org name, role, location, domain, current year). Only public,
+  professional classes are searched: identity, offer, proof, commerce and
+  recency. Contact, visual, attribution and consistency gaps are deliberately
+  excluded. Hard cap of six queries per run; cached hits do not consume it.
+- **Fetch and score.** The top three results are fetched through the same SSRF
+  guard as the crawler, stripped of nav/header/footer/forms/scripts, and capped
+  at 20k characters. Score is exactly
+  `0.35 domain_quality + 0.25 first_party + 0.20 recency + 0.20 corroboration`;
+  results below `0.65` are discarded before extraction. Recency decays over 24
+  months and a metric older than five years scores zero.
+- **Extraction.** A deterministic pass handles identity, offer, metrics, price
+  and recency; a configured LLM is the fallback with
+  `prompts/web_extract_v1.md`, which demands a verbatim quote and forbids
+  invented dates. Grounding runs again before storage.
+- **Tier rules.** Web facts can never exceed tier B. A tier-B fact requires a
+  publication date and either a first-party source or corroboration; anything
+  without `published_at` is downgraded to tier C automatically. Tier C facts
+  resolve gaps but do not enter `content_model.proof`, so an undated metric is
+  never rendered as a card number.
+- **Injection defence.** `detect_injection` flags instruction overrides,
+  system-prompt requests, role resets, chat markup and schema hijacks. A
+  flagged page is skipped, a warning is logged and returned, and the extraction
+  prompt receives page text only inside `wrap_untrusted`, which labels it as
+  data. The adversarial fixture yields no fact and leaks no schema keys.
+- **Log and cache.** Every query is written to `web_queries` (migration
+  `e6f3c2a1b8d4`) with the gap, query hash, domain, engine, result metadata and
+  scores, but never page bodies. A repeat query on the same
+  `(domain, query_hash)` inside seven days reuses the stored result list and is
+  marked `cache_hit`; pages themselves live in a process-memory cache.
+- **API and degradation.** `POST /v1/runs/{id}/search` returns the refreshed
+  facts, query log and gap report. When search is disabled it returns
+  `status="disabled"` and the run keeps its questions and documents; a provider
+  failure returns `status="degraded"`; a used-up budget returns `"exhausted"`.
+  In every case `stats.web_search` and `GapReport.web_search` carry the label.
+- **Tests.** 78 tests pass and ruff is clean. New coverage: the injection
+  fixture produces a null extraction, a warning and no leaked keys; an undated
+  metric is tier C and absent from the proof card; a dated primary page becomes
+  tier B with a working URL and `as_of`; search disabled leaves questions and
+  documents and is labelled; the query builder caps at six with one per class;
+  the score formula and seven-day cache expiry are asserted directly.
+
+**Commit:** `feat(snaptospot): search the web and cite scored sources`
+
 ---
 
 ## Next step
 
-### Step 6 — Web search
+### Step 7 — Design system and composition
 
-1. `POST /v1/runs/:id/search` behind a provider interface (`brave`, `tavily`,
-   `serp`), with a 20 s ceiling.
-2. Query templates per gap class, capped at six queries per run and one per class.
-3. Fetch the top results, strip navigation, score and discard below 0.65.
-4. Quote-only extraction prompt; cap web facts at tier B and downgrade to C
-   without a publication date.
-5. `web_queries` log, a seven-day cache keyed by `(domain, query_hash)`, and a
-   prompt-injection wrapper with an adversarial fixture.
-6. Degrade to questions and documents when no search key is configured.
+1. Derive brand tokens (colour ramp, type scale, spacing, radii, shadows) from
+   the site profile plus user overrides.
+2. Compose the content model into section templates, choosing layouts by
+   available facts and observed page roles.
+3. Keep every number, quote and badge pointing at an accepted fact; tier C/D
+   remains unrenderable.
+4. Render a static, responsive HTML preview with accessible markup and no
+   client-side framework requirement.
 
 ---
 
@@ -443,6 +493,34 @@ Postgres the migration creates the `vector` extension, an HNSW index on
 `chunks.embedding` and a GIN index on `to_tsvector('english', text)`; SQLite uses
 JSON vectors and Python BM25/cosine so local development needs no services.
 
+### Search the web for a public gap
+
+Configure one provider. Search stays disabled when the provider or key is blank,
+and the run is labelled rather than failing:
+
+```dotenv
+SNAP_SEARCH_PROVIDER=brave        # brave | tavily | serp
+SNAP_SEARCH_API_KEY=...
+# SNAP_SEARCH_ENDPOINT=...        # optional override, e.g. a proxy
+```
+
+```powershell
+$search = Invoke-RestMethod -Method Post `
+  -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/search" -Headers $headers
+
+$search.status                    # searched | disabled | degraded | exhausted
+$search.label
+$search.queries | Format-Table gap_key, query, engine, score, status, cache_hit
+$search.facts | Format-Table key, value, unit, tier, published_at, source, source_quote
+$search.gaps.web_search
+```
+
+Only public, professional gaps are searched, with one query per class and at
+most six per run. A fact needs a score of at least `0.65`, a verbatim quote and
+a working URL. Without a publication date the fact is tier C and cannot render a
+number; results without a quotable answer leave the gap open for an answer or a
+document.
+
 ### Optional LLM understanding and extraction
 
 Any OpenAI-compatible endpoint works:
@@ -482,6 +560,13 @@ SNAP_RETRIEVAL_TOP_CHUNKS=3
 SNAP_EMBEDDING_MODEL=text-embedding-3-small
 SNAP_EMBEDDING_DIMENSIONS=1536
 SNAP_OCR_ENABLED=false
+SNAP_SEARCH_PROVIDER=              # brave | tavily | serp; blank disables search
+SNAP_SEARCH_API_KEY=
+SNAP_SEARCH_TIMEOUT_SECONDS=20
+SNAP_WEB_SEARCH_MAX_QUERIES=6
+SNAP_WEB_SEARCH_RESULTS=3
+SNAP_WEB_SEARCH_CACHE_DAYS=7
+SNAP_WEB_SEARCH_MIN_SCORE=0.65
 ```
 
 No Docker is required for these steps. Postgres is optional:

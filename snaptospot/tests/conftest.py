@@ -14,6 +14,7 @@ from app import models  # noqa: F401  (register mappers before create_all)
 from app.config import get_settings
 from app.db import Base, get_db
 from app.main import app
+from app.pipeline.resolve import search as search_module
 
 engine = create_engine(
     "sqlite://",
@@ -49,6 +50,13 @@ def offline_settings(tmp_path) -> Generator[None, None, None]:
         "max_document_pages": settings.max_document_pages,
         "max_upload_files": settings.max_upload_files,
         "ocr_enabled": settings.ocr_enabled,
+        "search_provider": settings.search_provider,
+        "search_api_key": settings.search_api_key,
+        "search_endpoint": settings.search_endpoint,
+        "web_search_max_queries": settings.web_search_max_queries,
+        "web_search_results": settings.web_search_results,
+        "web_search_cache_days": settings.web_search_cache_days,
+        "web_search_min_score": settings.web_search_min_score,
     }
     settings.ssrf_allow_private = True
     settings.use_playwright = False
@@ -60,7 +68,16 @@ def offline_settings(tmp_path) -> Generator[None, None, None]:
     settings.max_document_pages = 40
     settings.max_upload_files = 5
     settings.ocr_enabled = False
+    settings.search_provider = ""
+    settings.search_api_key = None
+    settings.search_endpoint = None
+    settings.web_search_max_queries = 6
+    settings.web_search_results = 3
+    settings.web_search_cache_days = 7
+    settings.web_search_min_score = 0.65
+    search_module.clear_cache()
     yield
+    search_module.clear_cache()
     for key, value in previous.items():
         setattr(settings, key, value)
 
