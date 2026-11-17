@@ -142,7 +142,7 @@ def build_doc():
     return doc
 
 
-def header(doc, headline):
+def header(doc, headline, link_list=None):
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p.paragraph_format.space_after = Pt(0)
@@ -156,11 +156,11 @@ def header(doc, headline):
     links = doc.add_paragraph()
     links.alignment = WD_ALIGN_PARAGRAPH.CENTER
     links.paragraph_format.space_after = Pt(2)
-    for i, (label, url) in enumerate(LINKS):
+    for i, (label, url) in enumerate(link_list or LINKS):
         if i:
             sep = links.add_run("  |  ")
-            sep.font.size = Pt(10)
-        add_hyperlink(links, url, label, size=10)
+            sep.font.size = Pt(9)
+        add_hyperlink(links, url, label, size=9)
 
 
 # ---------------------------------------------------------------------------
@@ -307,7 +307,7 @@ ML_ENGINEER = {
                 ("Cut Swahili and Sheng ASR word error rate from 23.4% to 11.8% by LoRA fine-tuning Whisper-large-v3 "
                  "on 1,240 hours of in-house audio."),
                 ("Shipped streaming speech-to-speech translation at 310 ms median / 780 ms p95 first-audio latency "
-                 "across six language pairs (English ↔ Swahili, Luo and Kikuyu), down from a 1.4 s batch baseline."),
+                 "across six language pairs (English and Swahili, Luo and Kikuyu), down from a 1.4 s batch baseline."),
                 ("Compressed a 1.6 GB TTS checkpoint to 480 MB with int8 quantisation and KV caching: 42 concurrent "
                  "voices per GPU, 3.1x throughput and 58% lower inference cost."),
                 ("Built the evaluation harness — WER, CER, MOS and CI regression gates — which blocked 9 model "
@@ -590,7 +590,7 @@ AI_ENGINEER = {
                 ("Cut Swahili and Sheng ASR word error rate from 23.4% to 11.8% by LoRA fine-tuning Whisper-large-v3 "
                  "on 1,240 hours of in-house audio."),
                 ("Shipped streaming speech-to-speech translation at 310 ms median / 780 ms p95 first-audio latency "
-                 "across six language pairs (English ↔ Swahili, Luo and Kikuyu), down from a 1.4 s batch baseline."),
+                 "across six language pairs (English and Swahili, Luo and Kikuyu), down from a 1.4 s batch baseline."),
                 ("Compressed a 1.6 GB TTS checkpoint to 480 MB with int8 quantisation and KV caching: 42 concurrent "
                  "voices per GPU, 3.1x throughput and 58% lower inference cost."),
                 ("Built the evaluation harness — WER, CER, MOS and CI regression gates — which blocked 9 model "
@@ -634,22 +634,20 @@ AI_ML_ENGINEER = {
     "summary": (
         "AI/ML Engineer with four years of experience shipping LLM agents and AI products end to end. Built coAgent, "
         "a private coding agent with a five-phase tool loop, repository retrieval and test-driven verification, "
-        "published on PyPI; SnapToSpot, a multi-tenant FastAPI pipeline that grounds every generated claim in a "
-        "retrieved source; and PlusOne, an agent pipeline with budget guards and partial-run recovery. Strong "
-        "Python, FastAPI and PostgreSQL backend skills, with hands-on RAG, prompt engineering, offline evaluation "
-        "and production deployment on AWS, GCP and Render."
+        "published on PyPI; SnapToSpot, a multi-tenant pipeline that grounds every generated claim in a retrieved "
+        "source; and PlusOne, an agent pipeline with budget guards and partial-run recovery. Strong Python, FastAPI "
+        "and PostgreSQL, with hands-on RAG, evaluation and deployment on AWS, GCP and Render."
     ),
     "competencies": [
         ("LLM Agents & Orchestration", "Planning and verification loops, tool and function calling, structured "
-                                        "outputs, prompt design, agent state machines, RAG with BM25 and vector "
-                                        "search, human approval, secret redaction and guardrails; working knowledge "
-                                        "of LangChain, LangGraph and LlamaIndex patterns"),
+                                        "outputs, RAG with BM25 and vector search, agent state machines, human "
+                                        "approval and guardrails; LangChain / LangGraph / LlamaIndex patterns"),
         ("Python Backend & APIs", "FastAPI, Django and Flask services, REST and WebSocket APIs, OAuth2 / JWT and "
                                    "Pydantic contracts, SQLAlchemy and Alembic, multi-tenant isolation, background "
                                    "jobs, idempotent webhooks and payment settlement"),
         ("Evaluation & Experimentation", "Offline and online evaluation, task-success and regression suites, "
-                                          "WER / CER / MOS and KID / FID metrics, latency and cost budgets, prompt "
-                                          "and model comparisons, CI quality gates, experiment tracking"),
+                                          "WER / CER / MOS and KID / FID, latency and cost budgets, prompt and model "
+                                          "comparisons, CI quality gates and experiment tracking"),
         ("Production & Cloud", "Docker, Kubernetes, GitHub Actions, Render, AWS and GCP, PostgreSQL, Redis and "
                                 "Celery, observability for token usage and drift, rate limits, CSP, caching and "
                                 "graceful degradation"),
@@ -657,12 +655,11 @@ AI_ML_ENGINEER = {
     "tech": [
         ("Languages", "Python, TypeScript/JavaScript, SQL, C++"),
         ("LLM & Agents", "OpenAI-compatible APIs, Qwen2.5-Coder, Hugging Face Transformers, LangChain / LangGraph / "
-                         "LlamaIndex (working knowledge), tool calling, RAG, structured outputs, pgvector, BM25"),
-        ("Backend & Data", "FastAPI, Django, Flask, Pydantic, SQLAlchemy, Alembic, PostgreSQL, SQLite, Redis, "
-                           "Celery, Elasticsearch"),
-        ("ML & MLOps", "PyTorch, PEFT / LoRA, bitsandbytes NF4, ONNX Runtime, TensorRT, Triton, vLLM, MLflow, "
-                       "Weights & Biases, scikit-learn"),
-        ("Cloud & DevOps", "Docker, Kubernetes, GitHub Actions, Render, AWS, GCP, Linux, Git"),
+                         "LlamaIndex (working knowledge), tool calling, RAG, pgvector, BM25"),
+        ("Backend & Data", "FastAPI, Django, Flask, Pydantic, SQLAlchemy, Alembic, PostgreSQL, Redis, Celery, "
+                           "Elasticsearch"),
+        ("MLOps & Cloud", "PyTorch, PEFT / LoRA, bitsandbytes NF4, ONNX Runtime, TensorRT, Triton, vLLM, MLflow, "
+                          "Weights & Biases, Docker, Kubernetes, AWS, GCP"),
     ],
     "jobs": [
         {
@@ -670,13 +667,12 @@ AI_ML_ENGINEER = {
             "company": "Independent, Remote",
             "dates": "2026 – Present",
             "bullets": [
-                ("Built coAgent, a private coding agent for Colab's free T4: a five-phase survey → plan → act → verify "
-                 "→ report loop, Qwen2.5-Coder-7B at NF4, tree-sitter and BM25 repository retrieval, Ruff and pytest "
-                 "verification, and a git checkpoint per verified step; published 0.2.1 to PyPI."),
+                ("Built coAgent, a private coding agent for Colab's free T4: a survey → plan → act → verify → report "
+                 "loop, Qwen2.5-Coder-7B at NF4, tree-sitter and BM25 retrieval, Ruff and pytest verification, and a "
+                 "git checkpoint per verified step; published 0.2.1 to PyPI."),
                 ("Built SnapToSpot, a multi-tenant FastAPI service (OAuth2, Alembic, PostgreSQL/pgvector) that turns a "
-                 "website into a campaign kit: crawl, extract, resolve gaps with tiered retrieval, and render only "
-                 "facts that trace to an accepted source."),
-                ("Built PlusOne's agent pipeline: a typed event stream, content-addressed photo store, budget-aware "
+                 "website into a campaign kit, rendering only facts that trace to an accepted source."),
+                ("Built PlusOne's agent pipeline: typed event stream, content-addressed photo store, budget-aware "
                  "orchestration and resumable runs that return completed work with refunds instead of losing it."),
                 ("Shipped Vocalis, EchoID and FaceForm with provider-agnostic model adapters, credit ledgers, "
                  "idempotent M-Pesa and Stripe settlement, and evaluation of provider output before release."),
@@ -690,8 +686,8 @@ AI_ML_ENGINEER = {
                 ("Cut Swahili and Sheng ASR word error rate from 23.4% to 11.8% by LoRA fine-tuning Whisper-large-v3 "
                  "on 1,240 curated hours, comparing runs on held-out and noisy field sets before promotion."),
                 ("Built the evaluation harness — WER, CER, MOS and CI regression gates — which blocked 9 model "
-                 "regressions from release in two quarters and set the team's experiment-tracking standard across "
-                 "60+ runs a month."),
+                 "regressions from release in two quarters and set the experiment-tracking standard across 60+ runs "
+                 "a month."),
                 ("Shipped streaming speech-to-speech translation at 310 ms median / 780 ms p95 first-audio latency "
                  "across six language pairs, deploying model services on FastAPI, Triton and Kubernetes."),
                 ("Compressed a 1.6 GB TTS checkpoint to 480 MB with int8 quantisation and KV caching: 42 concurrent "
@@ -715,9 +711,9 @@ AI_ML_ENGINEER = {
             "dates": "2022 – 2023",
             "bullets": [
                 ("Built REST and WebSocket APIs in Django and Node.js handling 1.2M requests a day at p95 latency "
-                 "under 140 ms, with PostgreSQL, Redis and Twilio integrations."),
-                ("Introduced Docker deploys and GitHub Actions CI/CD — release cadence monthly to weekly, lead time 3 "
-                 "weeks to 2 days — and took front-end test coverage from 0 to 71%."),
+                 "under 140 ms, and introduced Docker deploys with GitHub Actions CI/CD."),
+                ("Took front-end test coverage from 0 to 71% and cut reported production bugs 34% by adding "
+                 "regression tests around the payment and voice flows."),
             ],
         },
     ],
@@ -725,13 +721,114 @@ AI_ML_ENGINEER = {
     "education": EDUCATION,
     "certs": CERTS,
     "extra": None,
+    "references": False,
     "compact": True,
 }
 
 
+ML_RESEARCHER = {
+    "file": "LYLE-OKOTH-ML-RESEARCHER.docx",
+    "headline": "MACHINE LEARNING RESEARCHER | SPEECH, GENERATIVE MODELS & EVALUATION",
+    "summary": (
+        "Machine Learning Researcher with four years of experience designing experiments, curating low-resource "
+        "datasets and evaluating speech and generative models. Designed an audit-driven diffusion study for Kenyan "
+        "faces — a compact 66M UNet against an SDXL LoRA baseline, with KID-led evaluation and a VAE quality gate — "
+        "and built the 1,240-hour Swahili and Sheng corpus behind a Whisper-large-v3 fine-tune that cut WER from "
+        "23.4% to 11.8%. Established the team's evaluation harness and published 3 datasets and 2 fine-tuned models "
+        "on Hugging Face."
+    ),
+    "competencies": [
+        ("Research Areas", "Multilingual and low-resource ASR, speech synthesis and voice design, speech translation, "
+                           "speaker diarisation, latent diffusion and flow matching, evaluation methodology and "
+                           "efficient inference"),
+        ("Experimental Method", "Controlled ablations against strong baselines, held-out and noisy out-of-domain test "
+                                "sets, WER / CER / MOS and KID / FID comparison, error analysis, reproducibility "
+                                "checklists and dataset documentation"),
+        ("Modelling", "PyTorch, Hugging Face Transformers and Diffusers, LoRA / QLoRA and DreamBooth, Whisper, "
+                      "wav2vec 2.0, NVIDIA NeMo, VITS, XTTS-v2, SeamlessM4T, pyannote.audio, scikit-learn"),
+        ("Compute & Tooling", "Distributed training (DDP / FSDP), mixed precision (FP16 / BF16), Colab T4 and cloud "
+                              "GPUs, ONNX Runtime, TensorRT, Triton, vLLM, Weights & Biases, MLflow, Optuna, DVC, "
+                              "technical writing"),
+    ],
+    "tech": [
+        ("Languages", "Python, C++, SQL, JavaScript/TypeScript"),
+        ("Frameworks", "PyTorch 2.x, Hugging Face Transformers, Diffusers, PEFT, Accelerate, ESPnet, NeMo, Coqui "
+                       "TTS, pyannote.audio, torchaudio, librosa, scikit-learn"),
+        ("Training & Evaluation", "DDP / FSDP, AMP (FP16 / BF16), LoRA / QLoRA, DreamBooth, Optuna, Weights & Biases, "
+                                  "MLflow, DVC, WER / CER / MOS, KID / FID, blind listening panels"),
+        ("Serving & Data", "ONNX Runtime, TensorRT, Triton, vLLM, int8 / FP16 / NF4, KV caching, Spark, Kafka, "
+                           "Airflow, dbt, PostgreSQL, Docker, Kubernetes, AWS, GCP"),
+    ],
+    "jobs": [
+        {
+            "title": "Independent Researcher & AI Engineer",
+            "company": "Freelance, Remote",
+            "dates": "2026 – Present",
+            "bullets": [
+                ("Designed Suraya, a data-scale study of Kenyan face generation: an 889-image audit that set "
+                 "resolution, crop and augmentation policy, a compact 66M UNet on a frozen SD VAE, a paired SDXL "
+                 "LoRA track, and a VAE quality gate with KID-led comparison, so the comparison is the deliverable."),
+                ("Built LabelSet, a dataset platform covering 11 speech task types — transcription, translation, "
+                 "diarisation, voice design and cloning, speech description, benchmarks and RL environments — with "
+                 "16 kHz preprocessing, review and JSONL export."),
+                ("Shipped Vocalis and EchoID on provider-agnostic voice and transcription adapters, so competing "
+                 "models can be compared under one contract, and published the resulting datasets and checkpoints."),
+            ],
+        },
+        {
+            "title": "Machine Learning Engineer",
+            "company": "SautiFlow Labs, Nairobi",
+            "dates": "2024 – Present",
+            "bullets": [
+                ("Cut Swahili and Sheng ASR word error rate from 23.4% to 11.8% by LoRA fine-tuning Whisper-large-v3 "
+                 "on 1,240 curated hours, comparing held-out and noisy field sets before promoting a checkpoint."),
+                ("Designed the evaluation protocol the team now uses — WER, CER, MOS and CI regression gates across 5 "
+                 "ASR models — which blocked 9 model regressions from release in two quarters."),
+                ("Benchmarked streaming speech-to-speech translation to 310 ms median / 780 ms p95 first-audio latency "
+                 "across six language pairs on a single T4, against a 1.4 s batch baseline."),
+                ("Studied compression trade-offs for TTS: int8 quantisation and KV caching took a 1.6 GB checkpoint to "
+                 "480 MB at 42 concurrent voices per GPU and 3.1x throughput, checked against the float baseline."),
+            ],
+        },
+        {
+            "title": "Data Engineer",
+            "company": "SautiFlow Labs, Nairobi",
+            "dates": "2023 – 2024",
+            "bullets": [
+                ("Built the corpus behind the research programme: Spark, Airflow and Kafka pipelines turning 6 TB / "
+                 "38,000 hours of raw audio a year into training-ready ASR, translation and TTS datasets, versioned "
+                 "with DVC content hashing."),
+                ("Ran the pre-labelling study behind a 68% labelling reduction — alignment and diarisation models took "
+                 "human effort from 11 to 3.5 minutes per audio hour — and shipped it as the platform default."),
+            ],
+        },
+        {
+            "title": "Software Engineer",
+            "company": "SautiFlow Labs, Nairobi",
+            "dates": "2022 – 2023",
+            "bullets": [
+                ("Trained the team's first model — a scikit-learn intent classifier that deflected 28% of support "
+                 "chats — and instrumented the telemetry later used to evaluate model and product changes."),
+                ("Shipped 5 production features for an IVR and WhatsApp assistant serving 40,000+ monthly users, and "
+                 "introduced Docker deploys and GitHub Actions CI/CD, moving releases from monthly to weekly."),
+            ],
+        },
+    ],
+    "projects": [PROJECT_SURAYA, PROJECT_LABELSET],
+    "education": EDUCATION,
+    "certs": CERTS,
+    "extra": ("Research Output", [
+        "3 open speech datasets and 2 fine-tuned models on Hugging Face (18,000+ downloads).",
+        "Reference evaluation harness — WER, CER, MOS and CI gates — reused across team and client projects.",
+        "Public technical write-ups on ASR fine-tuning, diffusion evaluation and inference optimisation.",
+    ]),
+    "references": False,
+    "compact": True,
+}
+
 def build(cv):
     doc = build_doc()
-    header(doc, cv["headline"])
+    header(doc, cv["headline"], cv.get("links"))
 
     section_heading(doc, "Professional Summary")
     para(doc, cv["summary"], space_after=4)
@@ -780,8 +877,9 @@ def build(cv):
         for item in cv["extra"][1]:
             bullet(doc, item)
 
-    refs = para(doc, "References available on request.", size=9.5, space_after=0, italic=True)
-    refs.paragraph_format.space_before = Pt(6)
+    if cv.get("references", True):
+        refs = para(doc, "References available on request.", size=9.5, space_after=0, italic=True)
+        refs.paragraph_format.space_before = Pt(6)
 
     if cv.get("compact"):
         for style_name in ("Normal", "List Bullet"):
@@ -806,5 +904,5 @@ def build(cv):
 
 
 if __name__ == "__main__":
-    for cv in (AI_ENGINEER, ML_ENGINEER, DATA_ENGINEER, SOFTWARE_ENGINEER, AI_ML_ENGINEER):
+    for cv in (AI_ENGINEER, ML_ENGINEER, ML_RESEARCHER, DATA_ENGINEER, SOFTWARE_ENGINEER, AI_ML_ENGINEER):
         build(cv)
