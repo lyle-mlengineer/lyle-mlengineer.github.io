@@ -3,9 +3,9 @@
 The build follows `../docs/steps.md`. Each step ends with a working app, a test run,
 and a commit.
 
-**Current step:** 6 complete — web search, scored sources and dated citations
-**Next step:** 7 — design system and composition
-**Last updated:** 2026-11-16
+**Current step:** 7 complete — design system and measured composition
+**Next step:** 8 — still rendering and export
+**Last updated:** 2026-11-17
 
 ---
 
@@ -335,20 +335,78 @@ and a commit.
 
 **Commit:** `feat(snaptospot): search the web and cite scored sources`
 
+### Step 7 — Design system and composition
+
+- **Directions.** `design/directions.py` ships Editorial Dark, Swiss Paper and
+  Signal Grid as complete token sets: background, surface, muted inks, accent,
+  text-on-accent, hairlines, display/body/mono families, tracking, transform and
+  radius. `direction_for` reads the profile and defaults to Editorial Dark;
+  strong data-product or writing signals can choose Signal Grid or Swiss Paper.
+- **Brand tokens.** `design/tokens.py` parses the site palette, converts to
+  OKLab, drops near-black, near-white and grey clusters, then picks the highest
+  `area × chroma` accent that reaches 4.5:1 against the direction background.
+  A failing sample falls back to the direction's stock accent instead of shipping
+  an unreadable brand colour. Display and body families are only used when they
+  are on the pinned list; otherwise the direction family wins. The resulting
+  `DesignSystem` is hashed and pinned on `sites.design_system_json` /
+  `sites.design_system_hash`, so a later run looks like the same brand. An
+  explicit different direction rebuilds it.
+- **Platform specs.** `design/platforms.py` holds LinkedIn 1200×1200, X
+  1600×900, Instagram 1080×1350, TikTok 1080×1920 and two WhatsApp stills,
+  including safe areas, caption limits, link rules and hashtag ranges. Selection
+  is data (`spec_for`, `specs_for`), not branching.
+- **Templates.** `asset_templates/cards.html` emits HTML + CSS from Jinja
+  macros. Every ratio has its own composition classes, and slots are stable:
+  `eyebrow`, `headline[]`, `subhead`, `stat[]`, `tile[]`, `media[]`, `quote`,
+  `cta` and `qr`. Each number, badge and quote carries `data-fact-id`; the QR is
+  a local, deterministic `segno` SVG. Hero portraits get a conic ring,
+  face-aware `object-position` and a grayscale-to-warm grade that keeps identity.
+- **Density variants.** `compose/layouts.py` selects a template per platform and
+  ratio, then an ordered density list: proof 4 → 3 → 2, projects 8 → 6 → 4 → 2
+  on 16:9 and 4 → 2 elsewhere, capabilities 4 → 2.
+- **Measured fitting.** `compose/fitting.py` renders in Chromium, measures every
+  `[data-slot]` box, line count and widow, and binary-searches display type
+  between the nominal size and a 60% floor. If the floor still fails, it drops to
+  the next density before shrinking further. If even the last density fails, the
+  AST is labelled `overflow` with a warning. Without Chromium an estimator
+  degrades the run and the response says it was not measured in a browser.
+- **AST and provenance.** `compose/ast.py` builds slots only from tier A/B facts;
+  a metric older than 90 days without `as_of` is dropped, and tier C/D can never
+  render a number, badge or quote. `compose/service.py` composes all requested
+  cards, records the design hash, assets and browser flag in
+  `runs.stats_json` and `audit_log`.
+- **API and storage.** `POST /v1/runs/{id}/compose` accepts
+  `{direction, platforms, cards}` and returns the design system, hash,
+  `LayoutAST[]`, warnings and `measured_in_browser`. Unknown platforms are 422,
+  a missing profile or content model is 409, and another tenant's run is 404.
+  Migration `f7a4d9c2e6b1` adds the pinned design columns.
+- **Tests.** 135 tests pass and ruff is clean. New coverage: contrast ≥ 4.5:1 in
+  all three directions, accent fallback, pinned font mapping, face-aware
+  portrait position, hash pinning, 34 template/density snapshots, a 90-character
+  headline that shrinks without crossing the floor, density fallback before
+  further shrinking, widow rejection, deterministic QR, tier-C/stale-fact
+  exclusion, fact ids on every stat and quote, endpoint auth/error cases, and the
+  portfolio exit criterion.
+- **Exit criterion and smoke test.** The real portfolio model composed four
+  LinkedIn cards at 1200×1200 with `direction=editorial_dark`,
+  `measured_in_browser=true` and zero overflow. Hero type reduced from 78 px to
+  55 px (above the 47 px floor); the other three cards held their nominal sizes.
+  The design hash was pinned on the site.
+
+**Commit:** `feat(snaptospot): compose measured cards from brand tokens`
+
 ---
 
 ## Next step
 
-### Step 7 — Design system and composition
+### Step 8 — Still rendering and export
 
-1. Derive brand tokens (colour ramp, type scale, spacing, radii, shadows) from
-   the site profile plus user overrides.
-2. Compose the content model into section templates, choosing layouts by
-   available facts and observed page roles.
-3. Keep every number, quote and badge pointing at an accepted fact; tier C/D
-   remains unrenderable.
-4. Render a static, responsive HTML preview with accessible markup and no
-   client-side framework requirement.
+1. Render each `LayoutAST` to a PNG at its platform size with the pinned
+   Chromium build.
+2. Package the stills per platform as a ZIP with a manifest that records template,
+   design-system and renderer versions.
+3. Return share links and keep the generated assets tenant-scoped.
+4. Add render tests for size, pixel format and manifest integrity.
 
 ---
 
@@ -364,7 +422,8 @@ pip install -e ".[dev]"
 Copy-Item .env.example .env
 alembic upgrade head
 
-# browser rendering (optional; the app falls back to static HTML)
+# browser rendering and card measurement (optional; the app falls back to static
+# HTML and an estimator, but measured cards require Chromium)
 playwright install chromium
 
 # every time
@@ -520,6 +579,43 @@ most six per run. A fact needs a score of at least `0.65`, a verbatim quote and
 a working URL. Without a publication date the fact is tier C and cannot render a
 number; results without a quotable answer leave the gap open for an answer or a
 document.
+
+### Compose measured cards
+
+Composition derives (or reuses) the site's design system, builds each card from
+tier A/B facts, and measures it in Chromium:
+
+```powershell
+$body = @{
+  direction = "auto"       # auto | editorial_dark | swiss_paper | signal_grid
+  platforms = @("linkedin")
+  cards = @("hero", "capabilities", "projects", "proof")
+} | ConvertTo-Json -Depth 4
+
+$composed = Invoke-RestMethod -Method Post `
+  -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/compose" `
+  -Headers $headers -ContentType 'application/json' -Body $body
+
+$composed.design_system.direction
+$composed.design_system_hash
+$composed.measured_in_browser          # true when Chromium measured the cards
+$composed.layouts | Format-Table asset, ratio, measured.fit, measured.headline_pt, measured.overflow
+$composed.layouts[3].slots.stats | Format-Table value, unit, label, fact_id, tier
+```
+
+- `direction=auto` reuses the direction pinned on the site. Pass an explicit
+  direction to rebuild the token set deliberately.
+- `fit` is `ok`, `reduced` (display type shrank within the 60% floor),
+  `density_reduced` (a lower-density variant was used) or `overflow` (copy must
+  be shortened; the response carries a warning).
+- Every number, badge and quote in `slots` has a `fact_id`; tier C/D and stale
+  undated facts never reach a card.
+- Chromium is required for real metrics. Install it once with
+  `playwright install chromium`; without it composition still runs with a
+  conservative estimate and returns `measured_in_browser=false`.
+- Template snapshots live in `tests/fixtures/snapshots/`. Refresh them after an
+  intentional design change with
+  `$env:SNAP_UPDATE_SNAPSHOTS="1"; pytest -k snapshot; Remove-Item Env:SNAP_UPDATE_SNAPSHOTS`.
 
 ### Optional LLM understanding and extraction
 

@@ -15,8 +15,9 @@ This folder is the implementation. The design lives in `../docs/`:
 - Python 3.12 (3.15 works for the app but some dependencies ship no wheels yet)
 - Docker (optional, for Postgres + Redis)
 - ffmpeg (needed from the rendering step onward)
-- Chromium via Playwright, or an installed Chrome/Edge (optional; without a browser
-  the crawler uses static HTML)
+- Chromium via Playwright, or an installed Chrome/Edge. Without a browser the
+  crawler uses static HTML and composition falls back to an estimator instead of
+  measuring real line boxes.
 - Tesseract (optional; only for OCR of image uploads)
 
 ## Setup (Windows PowerShell)
@@ -29,7 +30,7 @@ pip install -e ".[dev]"
 Copy-Item .env.example .env
 alembic upgrade head
 
-# optional, for JS-rendered sites and screenshots
+# browser for JS-rendered sites, screenshots and measured cards
 playwright install chromium
 ```
 
@@ -198,6 +199,41 @@ renders a number. Every query is logged in `web_queries`, and a repeat within
 seven days reuses the cached result list. A page that tries to instruct the
 model is skipped with a warning and no fact.
 
+### Compose measured cards
+
+Composition turns the accepted content model into measured `LayoutAST` cards.
+The site's palette seeds one of three directions, and that design system is
+pinned on the site so later runs look consistent.
+
+```powershell
+$body = @{
+  direction = "auto"       # auto | editorial_dark | swiss_paper | signal_grid
+  platforms = @("linkedin")
+  cards = @("hero", "capabilities", "projects", "proof")
+} | ConvertTo-Json -Depth 4
+
+$composed = Invoke-RestMethod -Method Post `
+  -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/compose" `
+  -Headers $headers -ContentType 'application/json' -Body $body
+
+$composed.design_system.direction
+$composed.design_system_hash
+$composed.measured_in_browser
+$composed.layouts | Format-Table asset, ratio, measured.fit, measured.headline_pt, measured.overflow
+$composed.layouts[3].slots.stats | Format-Table value, unit, label, fact_id, tier
+```
+
+- Supported stills: LinkedIn `1200x1200`, X `1600x900`, Instagram `1080x1350`,
+  TikTok `1080x1920`, and WhatsApp status/share.
+- `fit` reports `ok`, `reduced` (type shrank, never below 60% of nominal),
+  `density_reduced` (a lower-density variant was chosen), or `overflow` with a
+  warning telling you to shorten the copy.
+- Every rendered number, badge and quote carries a `fact_id`. Tier C/D facts
+  and stale undated metrics are filtered before composition.
+- Chromium measures the real line boxes. Install it with
+  `playwright install chromium`; without a browser the response is labelled
+  `measured_in_browser=false`.
+
 The same pipeline works without the API:
 
 ```powershell
@@ -212,8 +248,17 @@ pytest
 ruff check .
 ```
 
-The suite uses local fixture websites. The Playwright test uses bundled Chromium
-when installed, otherwise it falls back to a system Chrome or Edge.
+The suite uses local fixture websites. The composition tests use bundled
+Chromium when installed, otherwise a system Chrome or Edge; if neither exists
+the browser exit-criterion test skips and the unit tests use the estimator.
+Template snapshots live in `tests/fixtures/snapshots/` (34 ratio/density cases).
+Refresh them after an intentional template change:
+
+```powershell
+$env:SNAP_UPDATE_SNAPSHOTS="1"
+pytest -k snapshot
+Remove-Item Env:SNAP_UPDATE_SNAPSHOTS
+```
 
 ## Configuration
 

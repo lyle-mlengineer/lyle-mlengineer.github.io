@@ -76,6 +76,8 @@ class ImageAsset(BaseModel):
     w: int | None = None
     h: int | None = None
     alt: str | None = None
+    # Normalised [x, y, width, height] when a face or subject box is known.
+    face_bbox: list[float] | None = None
 
 
 class Observed(BaseModel):
