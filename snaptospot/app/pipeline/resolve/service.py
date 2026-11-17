@@ -126,6 +126,7 @@ def ensure_facts(db: Session, run: Run) -> None:
                 source_type=fact.source_type,
                 source=fact.source,
                 source_id=fact.source_id,
+                source_page=fact.source_page,
                 source_quote=fact.source_quote,
                 confidence=fact.confidence,
                 tier=fact.tier,
@@ -149,6 +150,7 @@ def _fact_from_record(record: FactRecord) -> Fact:
         source_type=record.source_type,
         source=record.source,
         source_id=record.source_id,
+        source_page=record.source_page,
         source_quote=record.source_quote or record.value,
         confidence=record.confidence,
         tier=record.tier,
@@ -284,7 +286,11 @@ def _rebuild_model(
 
     quote: QuoteRef | None = None
     quote_fact = next((fact for fact in facts if fact.key == "proof.quote"), None)
-    if quote_fact is not None and quote_fact.permission in {"published_on_site", "attested"}:
+    if quote_fact is not None and quote_fact.permission in {
+        "published_on_site",
+        "attested",
+        "brand_document",
+    }:
         attribution, role = _quote_meta(db, run, model)
         attribution_fact = next(
             (record for record in accepted if record.key == "attribution.quote"), None
@@ -459,6 +465,7 @@ def build_gap_report(db: Session, run: Run) -> GapReport:
         questions=questions,
         blocking_open=blocking,
         ready=not blocking,
+        web_search=str(stats.get("web_search", "not_run")),
     )
 
 

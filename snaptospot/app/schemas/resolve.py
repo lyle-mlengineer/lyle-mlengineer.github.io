@@ -46,6 +46,7 @@ class GapReport(BaseModel):
     questions: list[Question] = Field(default_factory=list)
     blocking_open: list[str] = Field(default_factory=list)
     ready: bool = False
+    web_search: str = "not_run"
 
 
 class RenderOut(BaseModel):
@@ -97,6 +98,7 @@ class FactOut(BaseModel):
     source_type: str
     source: str
     source_id: str | None = None
+    source_page: int | None = None
     source_quote: str = ""
     confidence: float = 0.99
     tier: str

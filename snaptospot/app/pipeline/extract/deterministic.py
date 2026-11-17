@@ -539,3 +539,55 @@ def deterministic_candidates(
     _offering_candidates(profile, candidates)
     _signal_candidates(profile, candidates)
     return candidates
+
+
+def split_sentences(text: str) -> list[str]:
+    """Public sentence splitter for document extraction."""
+    return _sentences(text)
+
+
+def parse_attribution(text: str) -> tuple[str | None, str | None]:
+    """Public attribution parser for document quotes."""
+    return _parse_attribution(text)
+
+
+def metric_facts_for_text(
+    text: str,
+    *,
+    source: str,
+    source_id: str,
+    retrieved_at: date,
+) -> list[Fact]:
+    """Find grounded percent, duration and count facts in one chunk.
+
+    Document extraction reuses the same deterministic matchers as the site pass,
+    so a metric read from a deck is grounded by exactly the same rules.
+    """
+    candidates = CandidateSet()
+    for sentence in _sentences(text):
+        _percent_facts(
+            candidates,
+            sentence=sentence,
+            source=source,
+            source_id=source_id,
+            source_text=text,
+            retrieved_at=retrieved_at,
+        )
+        _time_facts(
+            candidates,
+            sentence=sentence,
+            source=source,
+            source_id=source_id,
+            source_text=text,
+            retrieved_at=retrieved_at,
+        )
+        _count_facts(
+            candidates,
+            sentence=sentence,
+            source=source,
+            source_id=source_id,
+            source_text=text,
+            retrieved_at=retrieved_at,
+        )
+    return candidates.facts
+

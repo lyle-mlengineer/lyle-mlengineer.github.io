@@ -71,13 +71,15 @@ class LLMClient:
     def available(self) -> bool:
         return bool(self.api_key)
 
-    def complete_json(self, system: str, user: str) -> dict[str, Any]:
+    def complete_json(
+        self, system: str, user: str, *, temperature: float = 0.2
+    ) -> dict[str, Any]:
         if not self.api_key:
             raise LLMError("No LLM API key configured")
 
         payload: dict[str, Any] = {
             "model": self.model,
-            "temperature": 0.2,
+            "temperature": temperature,
             "messages": [
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},

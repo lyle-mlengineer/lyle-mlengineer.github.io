@@ -36,6 +36,30 @@ class Settings(BaseSettings):
     llm_model: str = "gpt-4o-mini"
     llm_timeout_seconds: int = 30
 
+    # Embeddings (same OpenAI-compatible endpoint; local hashing when blank)
+    embedding_model: str = "text-embedding-3-small"
+    embedding_dimensions: int = 1536
+
+    # Documents and retrieval
+    max_upload_files: int = 5
+    max_document_bytes: int = 10 * 1024 * 1024
+    max_document_pages: int = 40
+    max_document_uncompressed_bytes: int = 80 * 1024 * 1024
+    document_retention_days: int = 30
+    retrieval_top_k: int = 8
+    retrieval_top_chunks: int = 3
+    ocr_enabled: bool = False
+
+    # Web search (blank provider or key disables the rung)
+    search_provider: str = ""
+    search_api_key: str | None = None
+    search_endpoint: str | None = None
+    search_timeout_seconds: int = 20
+    web_search_max_queries: int = 6
+    web_search_results: int = 3
+    web_search_cache_days: int = 7
+    web_search_min_score: float = 0.65
+
 
 @lru_cache
 def get_settings() -> Settings:
