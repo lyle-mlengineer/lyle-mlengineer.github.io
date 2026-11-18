@@ -7,7 +7,7 @@ from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import __version__
-from app.api.routes import auth, compose, documents, health, render, runs, search, sites
+from app.api.routes import auth, compose, documents, health, render, runs, search, sites, video
 from app.config import get_settings
 from app.db import init_db
 
@@ -61,6 +61,7 @@ def create_app() -> FastAPI:
     app.include_router(search.router)
     app.include_router(compose.router)
     app.include_router(render.router)
+    app.include_router(video.router)
 
     @app.get("/", tags=["meta"])
     def root() -> dict[str, str]:

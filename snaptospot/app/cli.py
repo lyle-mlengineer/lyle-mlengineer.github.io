@@ -134,6 +134,51 @@ def _render(run_id: str, platforms: list[str], cards: list[str], force: bool) ->
     return 0
 
 
+def _video(
+    run_id: str,
+    platforms: list[str],
+    force: bool,
+    workers: int,
+) -> int:
+    from sqlalchemy import select
+
+    from app.db import SessionLocal
+    from app.models import Run
+    from app.render.video import VideoError, render_run_videos
+    from app.schemas.video import VideoIn
+
+    with SessionLocal() as db:
+        run = db.scalar(select(Run).where(Run.id == run_id))
+        if run is None:
+            print(f"run not found: {run_id}", file=sys.stderr)
+            return 1
+        try:
+            report = render_run_videos(
+                db,
+                run,
+                VideoIn(
+                    platforms=platforms,
+                    reuse_cache=not force,
+                    workers=workers,
+                ),
+            )
+        except VideoError as exc:
+            print(f"video failed: {exc}", file=sys.stderr)
+            return 1
+        db.commit()
+
+    for item in report.videos:
+        print(
+            f"{item.platform}/{item.filename} -> {item.path} "
+            f"({item.width}x{item.height}, {item.duration:g}s, {item.bytes} bytes, "
+            f"{item.sha256[:12]})"
+        )
+        print(f"  poster {item.poster_filename} -> {item.poster_path} ({item.poster_bytes} bytes)")
+    for warning in report.warnings:
+        print(f"warning: {warning}", file=sys.stderr)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="snaptospot", description="SnapToSpot tools")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -181,6 +226,27 @@ def main(argv: list[str] | None = None) -> int:
         "--force", action="store_true", help="ignore the content-hash cache"
     )
 
+    video = sub.add_parser(
+        "video", help="render a composed run's platform videos to MP4"
+    )
+    video.add_argument("--run", required=True, help="run id")
+    video.add_argument(
+        "--platform",
+        dest="platforms",
+        action="append",
+        default=None,
+        help="platform name or id; repeatable (default linkedin)",
+    )
+    video.add_argument(
+        "--force", action="store_true", help="ignore the content-hash cache"
+    )
+    video.add_argument(
+        "--workers",
+        type=int,
+        default=2,
+        help="parallel frame-capture workers (default 2)",
+    )
+
     args = parser.parse_args(argv)
     if args.command == "ingest":
         return _ingest(args.url, args.out, args.max_pages)
@@ -194,6 +260,13 @@ def main(argv: list[str] | None = None) -> int:
             args.platforms or ["linkedin"],
             args.cards or ["hero", "capabilities", "projects", "proof"],
             args.force,
+        )
+    if args.command == "video":
+        return _video(
+            args.run,
+            args.platforms or ["linkedin"],
+            args.force,
+            args.workers,
         )
     return 2
 

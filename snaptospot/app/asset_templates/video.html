@@ -1,0 +1,298 @@
+{# Timeline-driven video template. The browser only executes renderAt(t). #}
+{% macro _last_word(text) -%}
+{%- set words = text.split() -%}
+{%- if words|length > 1 -%}{{ words[:-1]|join(' ') }} <em>{{ words[-1] }}</em>{%- else -%}<em>{{ text }}</em>{%- endif -%}
+{%- endmacro %}
+
+{% macro _inline(part) -%}
+{%- if part.emphasis == "last_word" -%}{{ _last_word(part.text) }}{%- elif part.emphasis == "accent" -%}<em>{{ part.text }}</em>{%- else -%}{{ part.text }}{%- endif -%}
+{%- endmacro %}
+
+{% macro _headline(parts) -%}
+{%- for part in parts -%}{{ _inline(part) }}{%- if not loop.last %} {% endif -%}{%- endfor -%}
+{%- endmacro %}
+
+{% macro _bars(count, seed) -%}
+<div class="v-bars" data-bars data-seed="{{ seed }}">
+{%- for _ in range(count) -%}<i></i>{%- endfor -%}
+</div>
+{%- endmacro %}
+
+{% macro _foot(left, url) -%}
+<footer class="v-foot">
+  <span class="v-foot-l">{{ left }}</span>
+  {%- if url %}<span class="v-url"><i></i>{{ url }}</span>{% endif %}
+</footer>
+{%- endmacro %}
+
+{% macro _style(ctx, t) -%}
+<style>
+  .v-stage, .v-stage * { box-sizing: border-box; }
+  .v-stage {
+    --bg: {{ t.bg }}; --bg-alt: {{ t.bg_alt }}; --surface: {{ t.surface }};
+    --paper: {{ t.paper }}; --muted: {{ t.muted }}; --muted-2: {{ t.muted_2 }};
+    --accent: {{ t.accent }}; --accent-soft: {{ t.accent_soft }}; --on-accent: {{ t.text_on_accent }};
+    --line: {{ t.line }}; --radius: {{ t.radius }}px; --rule: {{ t.rule }};
+    --font-display: '{{ t.font_display }}'; --font-body: '{{ t.font_body }}'; --font-mono: '{{ t.font_mono }}';
+    --tracking: {{ t.display_tracking }}; --transform: {{ t.display_transform }};
+    --shadow: {{ ctx.media_treatment.shadow }};
+    --safe-top: 0px; --safe-bottom: 0px; --safe-right: 0px;
+    --pad-top: 64px; --pad-right: 72px; --pad-bottom: 58px; --pad-left: 72px;
+    position: relative; overflow: hidden; color: var(--paper);
+    background: var(--bg); font-family: var(--font-body), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .v-stage.ratio-9-16 {
+    --pad-top: calc(64px + var(--safe-top));
+    --pad-right: calc(64px + var(--safe-right));
+    --pad-bottom: calc(58px + var(--safe-bottom));
+    --pad-left: 64px;
+  }
+  .v-stage.ratio-16-9 { --pad-top: 54px; --pad-right: 84px; --pad-left: 84px; --pad-bottom: 52px; }
+  .v-stage::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(720px 560px at 88% -8%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 62%),
+      radial-gradient(640px 520px at -10% 110%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 60%),
+      linear-gradient(146deg, var(--bg-alt) 0%, var(--bg) 52%, var(--bg-alt) 100%);
+  }
+  .v-stage::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0; opacity: .45;
+    background-image: radial-gradient(color-mix(in srgb, var(--paper) 9%, transparent) 1px, transparent 1px);
+    background-size: 28px 28px;
+    -webkit-mask-image: radial-gradient(120% 90% at 50% 0%, #000 0%, transparent 74%);
+            mask-image: radial-gradient(120% 90% at 50% 0%, #000 0%, transparent 74%);
+  }
+  .v-chrome {
+    position: absolute; left: var(--pad-left); right: var(--pad-right); top: calc(var(--pad-top) + 2px);
+    display: flex; align-items: center; justify-content: space-between; z-index: 12;
+  }
+  .v-brand { display: flex; align-items: center; gap: 12px; font-size: 12px; font-weight: 600;
+    letter-spacing: .24em; text-transform: uppercase; color: var(--paper); }
+  .v-brand i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+    box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 85%, transparent); }
+  .v-tag { font-family: var(--font-mono), monospace; font-size: 10px; letter-spacing: .22em;
+    text-transform: uppercase; color: var(--muted-2); }
+  .v-chrome .v-hr { position: absolute; left: 0; right: 0; top: 34px; height: 1px;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--paper) 22%, transparent), transparent); }
+  .v-scene {
+    position: absolute; inset: 0; z-index: 5; opacity: 0; visibility: hidden;
+    padding: calc(var(--pad-top) + 56px) var(--pad-right) calc(var(--pad-bottom) + 96px) var(--pad-left);
+    display: flex; flex-direction: column; justify-content: center;
+    will-change: opacity, transform;
+  }
+  .v-eyebrow { display: flex; align-items: center; gap: 14px; color: var(--accent);
+    font-family: var(--font-mono), monospace; font-size: 12px; letter-spacing: .28em;
+    text-transform: uppercase; }
+  .v-eyebrow::before { content: ""; width: 34px; height: 1px; background: var(--accent); flex: none; }
+  .v-display { margin: 0; font-family: var(--font-display), var(--font-body), sans-serif;
+    font-weight: 600; text-transform: var(--transform); letter-spacing: -.03em; line-height: .92;
+    overflow-wrap: normal; word-break: normal; text-wrap: balance; }
+  .v-display em { font-style: normal; color: var(--accent); }
+  .v-hero { font-size: var(--hero-size, 122px); margin-top: 26px; }
+  .v-h2 { font-size: 58px; margin-top: 18px; }
+  .ratio-16-9 .v-h2 { font-size: 52px; }
+  .ratio-9-16 .v-h2 { font-size: 54px; }
+  .v-mask { display: block; overflow: hidden; padding-bottom: .06em; margin-bottom: -.06em; }
+  .v-mask > span { display: block; will-change: transform; }
+  .v-rule { height: 2px; width: 100%; margin-top: 32px; opacity: 0;
+    background: linear-gradient(90deg, var(--accent), transparent); }
+  .v-sub { margin: 24px 0 0; color: var(--muted); font-size: 24px; line-height: 1.45;
+    font-weight: 300; max-width: 46ch; }
+  .ratio-16-9 .v-sub { max-width: 40ch; }
+  .v-bars { position: absolute; left: var(--pad-left); right: var(--pad-right);
+    bottom: calc(var(--pad-bottom) + 126px); display: flex; align-items: center; gap: 4px;
+    height: 62px; max-width: 62%; opacity: .55;
+    -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 62%, transparent 100%);
+            mask-image: linear-gradient(90deg, #000 0%, #000 62%, transparent 100%); }
+  .v-bars i { flex: 1; min-height: 4px; border-radius: 3px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 88%, transparent), color-mix(in srgb, var(--paper) 12%, transparent)); }
+  .v-card, .v-stat, .v-quote, .v-portrait { will-change: transform, opacity; }
+  .v-cards { display: grid; gap: 18px; margin-top: 42px; }
+  .v-cards { grid-template-columns: repeat(2, 1fr); }
+  .v-cards-4 { grid-template-columns: repeat(4, 1fr); }
+  .ratio-16-9 .v-cards { grid-template-columns: repeat(4, 1fr); }
+  .ratio-9-16 .v-cards { grid-template-columns: 1fr; gap: 14px; }
+  .v-card { border: 1px solid var(--line); border-radius: var(--radius); padding: 24px 22px 20px;
+    background: color-mix(in srgb, var(--surface) 62%, transparent); box-shadow: var(--shadow); min-width: 0; }
+  .v-card-k { font-family: var(--font-mono), monospace; font-size: 10px; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--muted-2); }
+  .v-card-n { margin-top: 16px; font-family: var(--font-display), var(--font-body), sans-serif;
+    font-size: 46px; line-height: 1; letter-spacing: -.03em; color: var(--accent); }
+  .v-card-d { margin-top: 12px; font-size: 16px; line-height: 1.36; color: var(--muted); }
+  .v-card-t { margin-top: 10px; font-family: var(--font-mono), monospace; font-size: 10px;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--muted-2); }
+  .ratio-9-16 .v-card { display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; align-items: baseline; }
+  .ratio-9-16 .v-card-n { grid-row: 1 / span 2; grid-column: 2; margin-top: 0; font-size: 40px; }
+  .v-proof { display: grid; grid-template-columns: 1.05fr .95fr; gap: 40px; margin-top: 38px;
+    align-items: stretch; min-height: 0; }
+  .ratio-9-16 .v-proof { grid-template-columns: 1fr; gap: 22px; }
+  .ratio-16-9 .v-proof { grid-template-columns: 1fr .92fr; }
+  .v-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px 24px; align-content: start; }
+  .ratio-16-9 .v-stats { grid-template-columns: repeat(4, 1fr); }
+  .v-stat { border-top: var(--rule) solid var(--line); padding-top: 14px; min-width: 0; }
+  .v-stat-v { font-family: var(--font-display), var(--font-body), sans-serif; font-size: 64px;
+    line-height: .96; letter-spacing: -.03em; }
+  .ratio-16-9 .v-stat-v { font-size: 50px; }
+  .ratio-9-16 .v-stat-v { font-size: 68px; }
+  .v-stat-v em { font-style: normal; font-size: .42em; color: var(--accent); margin-left: 4px; }
+  .v-stat-l { margin-top: 8px; font-size: 15px; line-height: 1.3; color: var(--muted); }
+  .v-stat-d { margin-top: 6px; font-family: var(--font-mono), monospace; font-size: 11px; color: var(--muted-2); }
+  .v-quote { margin: 0; border-left: var(--rule) solid var(--accent); padding-left: 24px;
+    display: flex; flex-direction: column; justify-content: center; }
+  .ratio-9-16 .v-quote { border-left: 0; border-top: var(--rule) solid var(--accent); padding: 18px 0 0; }
+  .v-quote p { margin: 0; font-family: var(--font-display), var(--font-body), serif; font-size: 31px;
+    line-height: 1.2; letter-spacing: -.02em; }
+  .v-quote cite { margin-top: 14px; font-style: normal; color: var(--muted);
+    font-family: var(--font-mono), monospace; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+  .v-scene-d { align-items: center; text-align: center; justify-content: center; }
+  .v-portrait { position: relative; width: 292px; height: 292px; border-radius: 50%; padding: 6px;
+    background: conic-gradient(from 210deg, var(--accent), var(--accent-soft), color-mix(in srgb, var(--accent) 12%, transparent), var(--accent));
+    box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 0 80px color-mix(in srgb, var(--accent) 22%, transparent);
+    transform-origin: 50% 50%; }
+  .ratio-9-16 .v-portrait { width: 334px; height: 334px; }
+  .ratio-16-9 .v-portrait { width: 238px; height: 238px; }
+  .v-portrait .in { width: 100%; height: 100%; border-radius: 50%; overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--paper) 16%, transparent); }
+  .v-portrait img { width: 100%; height: 100%; object-fit: cover; object-position: {{ ctx.portrait_treatment.object_position }}; }
+  .v-scene-d .v-eyebrow { margin-top: 34px; justify-content: center; }
+  .v-scene-d .v-eyebrow::before { display: none; }
+  .v-name { margin-top: 14px; font-family: var(--font-display), var(--font-body), sans-serif;
+    font-size: 66px; line-height: 1; letter-spacing: -.02em; text-transform: var(--transform); }
+  .ratio-9-16 .v-name { font-size: 72px; }
+  .v-role { margin-top: 14px; color: var(--muted); font-size: 19px; }
+  .v-last { display: inline-flex; align-items: center; gap: 12px; margin-top: 28px;
+    padding: 14px 24px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--accent) 48%, transparent);
+    background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--paper);
+    font-family: var(--font-mono), monospace; font-size: 16px; letter-spacing: .04em; }
+  .v-last i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+    box-shadow: 0 0 12px var(--accent); }
+  .v-caption { position: absolute; left: var(--pad-left); right: var(--pad-right);
+    bottom: calc(var(--pad-bottom) + 58px); display: inline-flex; align-items: center;
+    align-self: flex-start; gap: 12px; max-width: 78%; padding: 11px 16px; border-radius: 4px;
+    border-left: 3px solid var(--accent); background: rgba(0,0,0,.56); color: #f4f6fa;
+    font-size: 15px; line-height: 1.35; letter-spacing: .01em; }
+  .v-d-caption-wrap { position: absolute; left: 0; right: 0;
+    bottom: calc(var(--pad-bottom) + 58px); display: flex; justify-content: center; }
+  .v-d-caption-wrap .v-caption { position: static; left: auto; right: auto; bottom: auto;
+    max-width: 78%; }
+  .v-foot { position: absolute; left: var(--pad-left); right: var(--pad-right);
+    bottom: var(--pad-bottom); display: flex; align-items: center; justify-content: space-between;
+    gap: 20px; font-family: var(--font-mono), monospace; font-size: 10.5px;
+    letter-spacing: .18em; text-transform: uppercase; color: var(--muted-2); }
+  .v-foot-l { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .v-url { color: var(--paper); letter-spacing: .04em; text-transform: none; font-size: 12px;
+    display: flex; align-items: center; gap: 9px; white-space: nowrap; }
+  .v-url i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+    box-shadow: 0 0 10px var(--accent); }
+  .v-scene-d .v-foot { left: 50%; right: auto; transform: translateX(-50%); white-space: nowrap; }
+  .v-scene-hook { align-items: center; justify-content: center; text-align: center; padding: 0 80px; }
+  .v-hook { font-family: var(--font-display), var(--font-body), sans-serif; font-size: 142px;
+    font-weight: 600; line-height: .9; letter-spacing: -.04em; text-transform: var(--transform); }
+  .v-hook em { font-style: normal; color: var(--accent); }
+  #progress { position: absolute; left: 0; bottom: 0; height: 5px; width: 0; z-index: 20;
+    background: linear-gradient(90deg, var(--accent), var(--accent-soft));
+    box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 65%, transparent); }
+</style>
+{%- endmacro %}
+
+{% macro video(ctx) -%}
+{%- set t = ctx.tokens -%}
+{%- set s = ctx.scenes -%}
+{{ _style(ctx, t) }}
+<div class="v-stage ratio-{{ ctx.ratio_class }}"
+     style="width: {{ ctx.width }}px; height: {{ ctx.height }}px; --safe-top: {{ ctx.safe.top or 0 }}px; --safe-bottom: {{ ctx.safe.bottom or 0 }}px; --safe-right: {{ ctx.safe.right or 0 }}px; --hero-size: {{ ctx.hero_size }}px;"
+     data-template="{{ ctx.template_version }}" data-duration="{{ ctx.duration }}" data-fps="{{ ctx.fps }}">
+  <div class="v-chrome">
+    <div class="v-brand"><i></i>{{ ctx.brand }}</div>
+    <div class="v-tag">{{ ctx.tag }}</div>
+    <div class="v-hr"></div>
+  </div>
+
+  {%- if ctx.hook %}
+  <section class="v-scene v-scene-hook" id="sceneHook">
+    <div class="v-hook">{{ ctx.hook_text }}</div>
+  </section>
+  {%- endif %}
+
+  <section class="v-scene v-scene-a" id="sceneA">
+    <div class="v-eyebrow" data-enter="0.15" data-enter-y="14">{{ s.a.eyebrow }}</div>
+    <h1 class="v-display v-hero">
+      {%- for part in s.a.headline %}
+      <span class="v-mask"><span data-enter="{{ 0.28 + loop.index0 * 0.18 }}" data-enter-y="105" data-enter-dur="0.77">{{ _inline(part) }}</span></span>
+      {%- endfor %}
+    </h1>
+    <div class="v-rule" data-enter="1.05" data-enter-y="0" data-enter-dur="0.7"></div>
+    <p class="v-sub" data-enter="1.35" data-enter-y="18">{{ s.a.subhead }}</p>
+    {{ _bars(58, 0.4) }}
+    <div class="v-caption" data-enter="1.8" data-enter-y="10">{{ s.a.caption }}</div>
+    {{ _foot(s.a.foot, ctx.cta.url) }}
+  </section>
+
+  <section class="v-scene v-scene-b" id="sceneB">
+    <div class="v-eyebrow" data-enter="0.1" data-enter-y="14">{{ s.b.eyebrow }}</div>
+    <h2 class="v-display v-h2" data-enter="0.18" data-enter-y="20">{{ _headline(s.b.headline) }}</h2>
+    {%- if s.b.tiles %}
+    <div class="v-cards{% if s.b.tiles|length > 3 %} v-cards-4{% endif %}">
+      {%- for tile in s.b.tiles %}
+      <article class="v-card" data-enter="{{ 0.38 + loop.index0 * 0.15 }}" data-enter-y="46" data-enter-ease="out_back">
+        <div class="v-card-k">{{ tile.title }}</div>
+        {%- if tile.badge %}
+        <div class="v-card-n" data-fact-id="{{ tile.badge_fact_id }}">{{ tile.badge }}</div>
+        {%- endif %}
+        <div class="v-card-d">{{ tile.blurb }}</div>
+        {%- if tile.tools %}<div class="v-card-t">{{ tile.tools|join(' · ') }}</div>{% endif %}
+      </article>
+      {%- endfor %}
+    </div>
+    {%- else %}
+    <p class="v-sub" data-enter="0.38" data-enter-y="18">{{ s.b.subhead }}</p>
+    {%- endif %}
+    <div class="v-caption" data-enter="1.55" data-enter-y="10">{{ s.b.caption }}</div>
+    {{ _foot(s.b.foot, ctx.cta.url) }}
+  </section>
+
+  <section class="v-scene v-scene-c" id="sceneC">
+    <div class="v-eyebrow" data-enter="0.1" data-enter-y="14">{{ s.c.eyebrow }}</div>
+    <h2 class="v-display v-h2" data-enter="0.18" data-enter-y="20">{{ _headline(s.c.headline) }}</h2>
+    <div class="v-proof">
+      <div class="v-stats">
+        {%- for stat in s.c.stats %}
+        <div class="v-stat" data-enter="{{ 0.34 + loop.index0 * 0.14 }}" data-enter-y="40" data-enter-ease="out_back" data-fact-id="{{ stat.fact_id }}">
+          <div class="v-stat-v">{{ stat.value }}{% if stat.unit %}<em>{{ stat.unit }}</em>{% endif %}</div>
+          <div class="v-stat-l">{{ stat.label }}</div>
+          {%- if stat.as_of %}<div class="v-stat-d">as of {{ stat.as_of }}</div>{% endif %}
+        </div>
+        {%- endfor %}
+      </div>
+      {%- if s.c.quote %}
+      <blockquote class="v-quote" data-enter="0.98" data-enter-y="24" data-fact-id="{{ s.c.quote.fact_id }}">
+        <p>“{{ s.c.quote.text }}”</p>
+        <cite>{% if s.c.quote.attribution %}{{ s.c.quote.attribution }}{% endif %}{% if s.c.quote.role %} · {{ s.c.quote.role }}{% endif %}</cite>
+      </blockquote>
+      {%- endif %}
+    </div>
+    <div class="v-caption" data-enter="1.5" data-enter-y="10">{{ s.c.caption }}</div>
+    {{ _foot(s.c.foot, ctx.cta.url) }}
+  </section>
+
+  <section class="v-scene v-scene-d" id="sceneD">
+    {%- if s.d.portrait %}
+    <div class="v-portrait" data-enter="0.1" data-enter-y="0" data-enter-dur="0.75" data-enter-scale="0.86">
+      <div class="in"><img src="{{ s.d.portrait.url }}" alt="{{ s.d.portrait.alt or 'Portrait' }}" loading="eager" decoding="sync"></div>
+    </div>
+    {%- endif %}
+    <div class="v-eyebrow" data-enter="0.3" data-enter-y="14">{{ s.d.eyebrow }}</div>
+    <div class="v-name" data-enter="0.42" data-enter-y="18">{{ s.d.name }}</div>
+    <div class="v-role" data-enter="0.58" data-enter-y="14">{{ s.d.role }}</div>
+    <div class="v-last" data-enter="0.75" data-enter-y="18" data-enter-ease="out_back"><i></i>{{ ctx.last_line.value }}</div>
+    <div class="v-d-caption-wrap">
+      <div class="v-caption" data-enter="0.92" data-enter-y="10">{{ s.d.caption }}</div>
+    </div>
+    {{ _foot(s.d.foot, "") }}
+  </section>
+
+  <div id="progress"></div>
+</div>
+<script>{{ ctx.timeline_script|safe }}</script>
+{%- endmacro %}

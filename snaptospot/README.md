@@ -291,6 +291,65 @@ The golden SSIM gate renders the hand-built `media/linkedin/assets/cards.html`
 through the same capture pipeline and requires SSIM >= 0.98 against
 `media/linkedin/0*.png` for all four cards.
 
+## Step 9 — video
+
+Video is a pure timeline rather than a screen recording. `app/render/frames.py`
+ships one `renderAt(t)` function to a self-contained page; frame `n` is always
+`n / fps`, so scenes, entrances, the progress bar and burned-in captions are a
+function of time and nothing else. Frames are captured as 1× JPEG at quality 95
+through CDP, split across workers by frame index and reassembled in order, then
+encoded with ffmpeg.
+
+```powershell
+$videos = Invoke-RestMethod -Method Post `
+  -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/videos" `
+  -Headers $headers -ContentType 'application/json' `
+  -Body (@{ platforms = @("linkedin", "whatsapp"); workers = 2 } | ConvertTo-Json)
+
+$videos.renderer_version
+$videos.videos | Format-Table platform, filename, width, height, duration, bytes, cached, within_ceiling
+$videos.videos[0].poster_path, $videos.videos[0].poster_timestamp
+$videos.videos[0].probe | Format-List codec_name, pix_fmt, color_range, color_space, fps, duration
+```
+
+Files land under the tenant-scoped media root:
+
+```text
+var/media/<tenant>/<site>/<run>/videos/<platform>/
+  launch-video.mp4      # linkedin, x, tiktok
+  reel.mp4              # instagram
+  status-video.mp4      # whatsapp
+  video-poster.png      # reel-poster.png on instagram
+```
+
+- Specs: LinkedIn 1080×1080/15 s, X 1920×1080/15 s, Instagram 1080×1920/18 s,
+  TikTok 1080×1920/21 s, WhatsApp 1080×1920/18 s, all at 30 fps.
+- ffmpeg is required on `PATH`. Encoding is BT.709 limited range, H.264,
+  `-crf 19`, `-preset slow`, `yuv420p`, `+faststart`, with bitexact flags so the
+  same frames produce the same MP4 hash. ffprobe fields are returned with each
+  video.
+- `workers` (1–8, default 2) splits the timeline by index. Each worker replays a
+  2.5 s warm-up window before its range so Chromium's text raster cache matches
+  a single-worker run; 1, 2 and 4 workers produce identical frames and MP4s.
+- The poster is captured at `duration − 0.8 s` and retried at 72% and 55% of the
+  duration if the frame is flat.
+- The cache is keyed by
+  `(content_model_hash, design_system_hash, platform, template_version)` under
+  `var/media/video-cache`. A repeat request reports `cached=true`; pass
+  `"reuse_cache": false` or `--force` to re-encode.
+- `within_ceiling` checks the platform limit (LinkedIn 5 GB, X 512 MB,
+  Instagram/TikTok 4 GB, WhatsApp 16 MB) and adds a warning when exceeded.
+- The CLI works without the API:
+
+```powershell
+python -m app.cli video --run $run.id --platform linkedin --platform whatsapp
+python -m app.cli video --run $run.id --platform linkedin --workers 4 --force
+```
+
+The LinkedIn and X last line is the URL; Instagram points at the bio, TikTok
+asks for a follow, and WhatsApp asks for a reply. Composing a run is a
+prerequisite; the endpoint returns 409 until it exists.
+
 ## Test
 
 ```powershell

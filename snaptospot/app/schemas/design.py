@@ -89,6 +89,26 @@ class PlatformSpec(BaseModel):
     last_verified: str = "2026-11-16"
 
 
+class VideoSpec(BaseModel):
+    """One platform video: size, duration and the §11 filenames."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: str
+    platform: str
+    size: tuple[int, int]
+    ratio: Ratio
+    duration: int
+    fps: int = 30
+    filename: str
+    poster_filename: str
+    max_bytes: int
+    last_line: Literal["url", "bio", "reply", "follow"] = "url"
+    safe: dict[str, int] = Field(default_factory=dict)
+    template_version: str = "video@1"
+    last_verified: str = "2026-11-01"
+
+
 class HeadlinePart(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

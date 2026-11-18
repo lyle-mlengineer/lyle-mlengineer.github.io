@@ -24,6 +24,11 @@ def _module() -> object:
     return _environment().get_template("cards.html").module
 
 
+@lru_cache(maxsize=1)
+def _video_module() -> object:
+    return _environment().get_template("video.html").module
+
+
 def render_card(
     context: dict[str, object],
     card_id: str,
@@ -32,6 +37,12 @@ def render_card(
 ) -> str:
     module = _module()
     return str(module.card(context, card_id, density, headline_pt))
+
+
+def render_video(context: dict[str, object]) -> str:
+    """Render the timeline template. The browser only runs ``renderAt(t)``."""
+    module = _video_module()
+    return str(module.video(context))
 
 
 def standalone(html: str, width: int, height: int) -> str:

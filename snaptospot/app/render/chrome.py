@@ -13,6 +13,7 @@ import base64
 import io
 import logging
 import threading
+from collections.abc import Sequence
 from dataclasses import dataclass
 
 from PIL import Image
@@ -21,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 DEVICE_SCALE_FACTOR = 2
 RENDERER_VERSION = "chrome-playwright@1"
+VIDEO_RENDERER_VERSION = "chrome-playwright@1+ffmpeg"
 
 # Flags that remove sources of non-determinism: GPU rasterisation, colour
 # management drift, scrollbars, LCD subpixel text and background networking.
@@ -91,6 +93,15 @@ def _downsample(raw: bytes, width: int, height: int) -> bytes:
         buffer = io.BytesIO()
         # Pillow writes no text chunks unless pnginfo is passed, so the result
         # carries no timestamp, software tag or EXIF block.
+        image.save(buffer, format="PNG", optimize=False, compress_level=6)
+    return buffer.getvalue()
+
+
+def normalise_png(raw: bytes) -> bytes:
+    """Re-encode a 1x screenshot without a timestamp or software chunk."""
+    with Image.open(io.BytesIO(raw)) as source:
+        image = source.convert("RGB")
+        buffer = io.BytesIO()
         image.save(buffer, format="PNG", optimize=False, compress_level=6)
     return buffer.getvalue()
 
@@ -187,6 +198,97 @@ class ChromeWorker:
                 page.close()
             except Exception:  # noqa: BLE001 - teardown is best effort
                 pass
+
+    def capture_frames(
+        self,
+        html: str,
+        width: int,
+        height: int,
+        samples: Sequence[tuple[int, float]],
+        *,
+        image_format: str = "jpeg",
+        quality: int = 95,
+    ) -> dict[int, bytes]:
+        """Capture one 1x frame per ``(index, timestamp)`` sample.
+
+        The page is loaded once and ``window.renderAt(t)`` is called for every
+        timestamp. JPEG is the shipping frame format: it is several times faster
+        than PNG and H.264 removes any visible difference.
+        """
+        if self.closed:
+            raise ChromeRenderError("Renderer is closed")
+        if not samples:
+            return {}
+        if image_format not in {"jpeg", "png"}:
+            raise ChromeRenderError(f"Unsupported frame format {image_format!r}")
+
+        page = self._context.new_page()
+        try:
+            session = self._context.new_cdp_session(page)
+            session.send(
+                "Emulation.setDeviceMetricsOverride",
+                {
+                    "width": width,
+                    "height": height,
+                    "screenWidth": width,
+                    "screenHeight": height,
+                    "deviceScaleFactor": 1,
+                    "mobile": False,
+                },
+            )
+            page.set_content(html, wait_until="domcontentloaded")
+            page.evaluate(_READY_JS)
+            page.evaluate(
+                "() => {"
+                "  if (typeof window.renderAt !== 'function') {"
+                "    throw new Error('video template did not define renderAt');"
+                "  }"
+                "}"
+            )
+            captured: dict[int, bytes] = {}
+            for index, timestamp in samples:
+                page.evaluate("(t) => window.renderAt(t)", float(timestamp))
+                params: dict[str, object] = {
+                    "format": image_format,
+                    "fromSurface": True,
+                    "captureBeyondViewport": False,
+                }
+                if image_format == "jpeg":
+                    params["quality"] = quality
+                payload = session.send("Page.captureScreenshot", params)
+                captured[index] = base64.b64decode(payload["data"])
+            return captured
+        except ChromeRenderError:
+            raise
+        except Exception as exc:  # noqa: BLE001 - surface one clear error
+            raise ChromeRenderError(f"Frame capture failed: {exc}") from exc
+        finally:
+            try:
+                page.close()
+            except Exception:  # noqa: BLE001 - teardown is best effort
+                pass
+
+    def capture_frame(
+        self,
+        html: str,
+        width: int,
+        height: int,
+        timestamp: float,
+        *,
+        image_format: str = "png",
+        quality: int = 95,
+    ) -> bytes:
+        """Capture a single 1x frame; PNG results are metadata-free."""
+        frames = self.capture_frames(
+            html,
+            width,
+            height,
+            [(0, timestamp)],
+            image_format=image_format,
+            quality=quality,
+        )
+        data = frames[0]
+        return normalise_png(data) if image_format == "png" else data
 
     def close(self) -> None:
         if self.closed:

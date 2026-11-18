@@ -3,8 +3,8 @@
 The build follows `../docs/steps.md`. Each step ends with a working app, a test run,
 and a commit.
 
-**Current step:** 8 complete — deterministic still rendering
-**Next step:** 9 — video
+**Current step:** 9 complete — deterministic video
+**Next step:** 10 — copy and alt text
 **Last updated:** 2026-11-18
 
 ---
@@ -450,16 +450,93 @@ and a commit.
 
 ---
 
-## Next step
-
 ### Step 9 — Video
 
-1. `render/frames.py`: a pure `renderAt(t)` timeline, scene in/out, element enter
-   offsets and the easing library (`cubic_out`, `out_back`).
-2. Template per ratio with a progress bar and burned-in captions.
-3. Capture JPEG frames through Chromium at 30 fps, then encode with ffmpeg
-   (`bt709`, `-crf 19`, `-preset slow`, `yuv420p`, `+faststart`).
-4. Poster at `duration − 0.8 s`; deterministic frame and MP4 hashes.
+- **Platform registry.** `design/video.py` holds the five specs as data, never
+  branches: LinkedIn 1080×1080/15 s (`launch-video.mp4`), X 1920×1080/15 s,
+  Instagram 1080×1920/18 s (`reel.mp4`, `reel-poster.png`), TikTok
+  1080×1920/21 s, WhatsApp 1080×1920/18 s (`status-video.mp4`). Each carries its
+  own safe area, byte ceiling and closing line. LinkedIn and X close on the URL;
+  Instagram points at the bio; TikTok asks for a follow; WhatsApp asks for a
+  reply, because a status cannot hold a link.
+- **Pure timeline.** `render/frames.py` builds a JSON payload of scene windows
+  and ships one `renderAt(t)` function to the page. Nothing reads a clock, a
+  random number or `requestAnimationFrame`: frame `n` is `n / fps`, so the same
+  timeline always paints the same frame. Scenes cross-fade
+  (`CROSSFADE = 0.34 s`) so a boundary never lands on a near-black frame, and
+  the progress bar is just `clamp(t / duration)` written to a CSS width.
+- **One template, three ratios.** `asset_templates/video.html` renders scenes
+  A–D into the same markup and lets ratio classes place the safe areas. Text
+  enters with `cubic_out`; the accent rule and portrait use `out_back`. Captions
+  are burned in, never fetched: the page carries a strict CSP and aborts every
+  network request.
+- **Readable hero copy.** A 122 px headline cannot hold a full thesis, so
+  `_short_hook` splits the thesis at the first colon or sentence into a hook of
+  at most 52 characters and keeps the remainder as the subhead. `_hero_size`
+  picks a deterministic size from 148 px down to 72 px from the hook's length
+  and longest word, which is what finally stopped scene A from colliding with
+  the header on a square frame.
+- **Capture.** `ChromeWorker.capture_frames` sets 1× device metrics, calls
+  `renderAt(t)` and then `Page.captureScreenshot({format: "jpeg", quality: 95})`.
+  Ranges are split by index and reassembled into a dense `{index: bytes}` list,
+  so worker completion order cannot reorder frames. Chromium rasterises text
+  differently depending on what was painted first, so each worker replays a
+  `WARMUP_SECONDS = 2.5` window before its range and discards those frames; with
+  that, 1, 2 and 4 workers produce byte-identical frames and one MP4 hash.
+- **Deterministic encode.** `render/encode.py` shells out to ffmpeg with
+  BT.709 conversion (`scale=in_range=full:out_range=tv:out_color_matrix=bt709`),
+  `-crf 19`, `-preset slow`, `yuv420p`, `-r 30`, `+faststart`, `-an`, and the
+  bitexact flags (`-fflags +bitexact`, `-flags:v +bitexact`,
+  `-map_metadata -1`). `ffprobe` reports the result so a caller can assert
+  codec, size, pixel format, colour range and frame count.
+- **Poster.** `render/poster.py` captures a 1× PNG at `duration − 0.8 s`; if the
+  frame is flat (`stddev < 3`, one grey level above 98.5% or fewer than four
+  levels) it retries at `0.72 ×` and then `0.55 ×` duration before reporting
+  the poster as blank. A blank poster is a warning, not a shipped thumbnail.
+- **Cache and output.** The key is the same
+  `(content_model_hash, design_system_hash, platform, template_version)`
+  4-tuple, stored under `var/media/video-cache`; files land under
+  `var/media/<tenant>/<site>/<run>/videos/<platform>/` with the §11 names. A
+  repeat request reports `cached=true` and does not start Chromium.
+- **API and CLI.** `POST /v1/runs/{id}/videos` accepts
+  `{platforms, reuse_cache, workers}` and returns path, poster, byte sizes,
+  SHA-256s, poster timestamp, `within_ceiling` and the ffprobe fields. Workers
+  are constrained to 1–8. `python -m app.cli video --run <id> --platform
+  linkedin --workers 2` does the same without the API.
+- **Tests.** 183 tests pass and ruff is clean. New coverage: easing endpoints,
+  index-derived frame times, poster timestamp, range partitioning, cross-faded
+  boundaries, a pure render script with no clock/random/rAF, out-of-order range
+  reassembly, the full registry and last-line table, short-hook and hero-size
+  rules, warnings for missing evidence, strict CSP, blank detection, ceiling
+  reporting on cache hits, the exact ffmpeg flag contract, identical frame and
+  MP4 hashes across runs, ffprobe BT.709/limited-range output, a non-blank
+  poster, cache hits without a browser, auth, tenant scoping, the
+  analyse-before-video 409 and the unknown-platform 422.
+- **Smoke test.** On the real portfolio run, LinkedIn 1080×1080/15 s rendered in
+  **28.1 s** and WhatsApp 1080×1920/18 s in **52.3 s**, both under the 60 s
+  exit bar. ffprobe reported `h264`, `yuv420p`, `tv`, `bt709` on all four colour
+  fields, 30 fps and 450/540 frames; posters landed at 14.2 s and 17.2 s and
+  were non-blank. Frames at every scene boundary were inspected and play with
+  readable burned-in captions when muted.
+
+**Commit:** `feat(snaptospot): render deterministic video`
+
+---
+
+## Next step
+
+### Step 10 — Copy and alt text
+
+1. `copy/counts.py`: grapheme-aware counters for LinkedIn, X (URL = 23),
+   Instagram, TikTok and WhatsApp.
+2. `copy/deck.py`: one platform-native deck per network with alternatives,
+   thread, short variant and hashtags, validated against tier A/B facts.
+3. `copy/alt.py`: alt text derived from the `LayoutAST`, with spatial hints
+   checked against the AST.
+4. `pack/postmd.py`: the nine-section deck from design §11, including sources
+   and omissions.
+5. WhatsApp message shapes (status, individual, group, broadcast) with no
+   hashtags and no link in a status.
 
 ---
 
@@ -709,6 +786,52 @@ python -m app.cli render --run $run.id --platform linkedin --force
   cannot be loaded are omitted instead of drawn as broken frames.
 - Composing a run is a prerequisite; the endpoint returns 409 otherwise.
 
+### Render deterministic video
+
+Compose first; video builds its own scenes from the content model and writes one
+MP4 plus a poster per platform:
+
+```powershell
+$videos = Invoke-RestMethod -Method Post `
+  -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/videos" `
+  -Headers $headers -ContentType 'application/json' `
+  -Body (@{ platforms = @("linkedin", "whatsapp"); workers = 2 } | ConvertTo-Json)
+
+$videos.renderer_version
+$videos.videos | Format-Table platform, filename, width, height, duration, bytes, cached, within_ceiling
+$videos.videos[0].poster_path, $videos.videos[0].poster_timestamp
+$videos.videos[0].probe | Format-List codec_name, pix_fmt, color_range, color_space, fps, duration
+```
+
+Or from the CLI:
+
+```powershell
+python -m app.cli video --run $run.id --platform linkedin --platform whatsapp
+python -m app.cli video --run $run.id --platform linkedin --workers 4 --force
+```
+
+- Output: `var/media/<tenant>/<site>/<run>/videos/<platform>/launch-video.mp4`
+  (Instagram `reel.mp4`, WhatsApp `status-video.mp4`) plus the platform poster.
+- Specs: LinkedIn 1080×1080/15 s, X 1920×1080/15 s, Instagram
+  1080×1920/18 s, TikTok 1080×1920/21 s, WhatsApp 1080×1920/18 s, all at 30 fps.
+- Capture is 1× JPEG at quality 95; ffmpeg encodes H.264 with BT.709 limited
+  range, `-crf 19`, `-preset slow`, `yuv420p` and `+faststart`. ffprobe output is
+  returned so the colour and frame count can be checked without another tool.
+- `workers` (1–8, default 2) splits the timeline by frame index. Each worker
+  replays a 2.5 s warm-up window first, so 1, 2 and 4 workers produce the same
+  frames and the same MP4 hash.
+- The poster is a PNG at `duration − 0.8 s` (14.2 s for 15 s, 17.2 s for 18 s),
+  retried at 72% and 55% of the duration if the frame is flat.
+- The cache is keyed by
+  `(content_model_hash, design_system_hash, platform, template_version)` under
+  `var/media/video-cache`. A repeat request reports `cached=true`; send
+  `"reuse_cache": false` or `--force` to re-encode.
+- `within_ceiling` compares the file with the platform limit (LinkedIn 5 GB, X
+  512 MB, Instagram/TikTok 4 GB, WhatsApp 16 MB) and adds a warning when it is
+  exceeded.
+- ffmpeg and ffprobe must be on `PATH`; no Python package replaces them.
+- Composing a run is a prerequisite; the endpoint returns 409 otherwise.
+
 ### Optional LLM understanding and extraction
 
 Any OpenAI-compatible endpoint works:
@@ -729,6 +852,7 @@ automatically; an inadmissible draft fact is listed with its reject reason.
 python -m app.cli ingest https://lyle-mlengineer.github.io --out var\profile.json
 python -m app.cli extract https://lyle-mlengineer.github.io --out var\content.json
 python -m app.cli render --run <run-id> --platform linkedin
+python -m app.cli video --run <run-id> --platform linkedin --platform whatsapp
 ```
 
 ### Useful settings
@@ -741,6 +865,7 @@ SNAP_FETCH_TIMEOUT_SECONDS=20
 SNAP_SSRF_ALLOW_PRIVATE=false   # true only for local fixture servers
 SNAP_MEDIA_ROOT=var/media
 SNAP_RENDER_FETCH_REMOTE=true   # false keeps rendering fully offline
+# Video rendering shells out to ffmpeg/ffprobe on PATH and shares SNAP_MEDIA_ROOT.
 SNAP_MAX_UPLOAD_FILES=5
 SNAP_MAX_DOCUMENT_BYTES=10485760
 SNAP_MAX_DOCUMENT_PAGES=40
