@@ -205,6 +205,9 @@ def compose_run(
         "direction": design.direction,
         "assets": assets,
         "measured_in_browser": measured_in_browser,
+        # Persist the measured ASTs so rendering is a separate, cacheable step
+        # that cannot silently re-fit a card with different browser metrics.
+        "layouts": [layout.model_dump(mode="json") for layout in layouts],
     }
     run.stats_json = stats
     _audit(db, run, actor_id, design_hash, assets, measured_in_browser)

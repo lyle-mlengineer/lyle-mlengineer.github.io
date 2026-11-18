@@ -98,6 +98,42 @@ def _expire_documents(retention_days: int | None, tenant_id: str | None) -> int:
     return 0
 
 
+def _render(run_id: str, platforms: list[str], cards: list[str], force: bool) -> int:
+    from sqlalchemy import select
+
+    from app.db import SessionLocal
+    from app.models import Run
+    from app.render.service import RenderError, render_run
+    from app.schemas.render import RenderIn
+
+    with SessionLocal() as db:
+        run = db.scalar(select(Run).where(Run.id == run_id))
+        if run is None:
+            print(f"run not found: {run_id}", file=sys.stderr)
+            return 1
+        try:
+            report = render_run(
+                db,
+                run,
+                RenderIn(
+                    platforms=platforms,
+                    cards=cards,  # type: ignore[arg-type]
+                    reuse_cache=not force,
+                ),
+            )
+        except RenderError as exc:
+            print(f"render failed: {exc}", file=sys.stderr)
+            return 1
+        db.commit()
+
+    for asset in report.assets:
+        print(
+            f"{asset.asset} -> {asset.path} "
+            f"({asset.width}x{asset.height}, {asset.size} bytes, {asset.sha256[:12]})"
+        )
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="snaptospot", description="SnapToSpot tools")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -123,6 +159,28 @@ def main(argv: list[str] | None = None) -> int:
     )
     expire.add_argument("--tenant", default=None, help="limit to one tenant id")
 
+    render = sub.add_parser(
+        "render", help="render a composed run's stills to PNG"
+    )
+    render.add_argument("--run", required=True, help="run id")
+    render.add_argument(
+        "--platform",
+        dest="platforms",
+        action="append",
+        default=None,
+        help="platform name or id; repeatable (default linkedin)",
+    )
+    render.add_argument(
+        "--card",
+        dest="cards",
+        action="append",
+        default=None,
+        help="card id; repeatable (default all)",
+    )
+    render.add_argument(
+        "--force", action="store_true", help="ignore the content-hash cache"
+    )
+
     args = parser.parse_args(argv)
     if args.command == "ingest":
         return _ingest(args.url, args.out, args.max_pages)
@@ -130,6 +188,13 @@ def main(argv: list[str] | None = None) -> int:
         return _extract(args.url, args.out, args.max_pages)
     if args.command == "expire-documents":
         return _expire_documents(args.days, args.tenant)
+    if args.command == "render":
+        return _render(
+            args.run,
+            args.platforms or ["linkedin"],
+            args.cards or ["hero", "capabilities", "projects", "proof"],
+            args.force,
+        )
     return 2
 
 

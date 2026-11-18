@@ -50,6 +50,7 @@ def offline_settings(tmp_path) -> Generator[None, None, None]:
         "max_document_pages": settings.max_document_pages,
         "max_upload_files": settings.max_upload_files,
         "ocr_enabled": settings.ocr_enabled,
+        "render_fetch_remote": settings.render_fetch_remote,
         "search_provider": settings.search_provider,
         "search_api_key": settings.search_api_key,
         "search_endpoint": settings.search_endpoint,
@@ -68,6 +69,7 @@ def offline_settings(tmp_path) -> Generator[None, None, None]:
     settings.max_document_pages = 40
     settings.max_upload_files = 5
     settings.ocr_enabled = False
+    settings.render_fetch_remote = False
     settings.search_provider = ""
     settings.search_api_key = None
     settings.search_endpoint = None

@@ -3,9 +3,9 @@
 The build follows `../docs/steps.md`. Each step ends with a working app, a test run,
 and a commit.
 
-**Current step:** 7 complete — design system and measured composition
-**Next step:** 8 — still rendering and export
-**Last updated:** 2026-11-17
+**Current step:** 8 complete — deterministic still rendering
+**Next step:** 9 — video
+**Last updated:** 2026-11-18
 
 ---
 
@@ -397,16 +397,69 @@ and a commit.
 
 ---
 
+### Step 8 — Still rendering
+
+- **Persistent Chromium worker.** `render/chrome.py` keeps one browser and one
+  context per worker thread, opens a fresh tab per asset and closes it in a
+  `finally`. Launch flags remove GPU rasterisation, LCD subpixel text, scrollbars,
+  background networking and colour-profile drift
+  (`--disable-gpu`, `--hide-scrollbars`, `--force-color-profile=srgb`,
+  `--force-device-scale-factor=1`, `--disable-lcd-text`).
+- **Capture contract.** Each card gets `Emulation.setDeviceMetricsOverride`
+  at its exact target size with `deviceScaleFactor=2`, then
+  `Page.captureScreenshot`. The 2× PNG is reduced once with Lanczos to the
+  platform size and re-encoded by Pillow without a timestamp, EXIF or software
+  chunk. The screenshot surface is the target size; nothing is scaled after
+  capture beyond the specified downsample.
+- **Self-contained pages.** `render/assets.py` injects a strict CSP
+  (`default-src 'none'`, `img-src data:`, inline styles only), inlines local
+  images and fetches remote layout images once into a content-addressed asset
+  cache. The page's own context aborts every `http(s)` request, so no font or
+  image can come from the network during capture. An unloadable portrait is
+  omitted rather than drawn as a grey square.
+- **Output contract.** Files use the §11 names
+  (`01-announcement.png`, `02-what-i-build.png`, `03-selected-work.png`,
+  `04-proof.png`) under
+  `var/media/<tenant>/<site>/<run>/stills/<platform>/`. Rendering reads the
+  measured `LayoutAST`s persisted by composition; nothing is re-fitted.
+- **Content-hash cache.** The key is
+  `sha256(content_model_hash, design_system_hash, platform, template_version)`.
+  The key names a cache directory and each card is stored under its output name,
+  so a repeat request is a disk read and reports `cached=true`.
+  `reuse_cache=false` / `--force` recaptures without changing the key.
+- **API and CLI.** `POST /v1/runs/{id}/stills` accepts
+  `{platforms, cards, reuse_cache}` and returns per-file width, height, SHA-256,
+  byte size, cache key and cache flag. A run that has not been composed is 409;
+  another tenant's run is 404. `python -m app.cli render --run <id>` does the
+  same from the command line.
+- **Tests.** 153 tests pass and ruff is clean. New coverage: §11 names and card
+  lookup, cache-key sensitivity to all four inputs, canonical content hash,
+  strict CSP and no network references in the document, no `@font-face`, the
+  same AST rendered twice producing identical SHA-256 and bytes, four 1200×1200
+  RGB PNGs with empty metadata, cache hits that never touch Chromium, forced
+  recapture, tenant scoping and the render-before-compose 409. The golden gate
+  renders `media/linkedin/assets/cards.html` through the same 2×→Lanczos
+  pipeline and scores SSIM 0.986–0.988 against all four hand-built PNGs
+  (threshold ≥ 0.98).
+- **Smoke test.** The real portfolio run recomposed in Chromium and rendered four
+  LinkedIn stills at 1200×1200. All four reported `cached=false` on first write,
+  then cache hits with identical SHA-256s; the design and content hashes were
+  recorded in `runs.stats_json`.
+
+**Commit:** `feat(snaptospot): render deterministic stills`
+
+---
+
 ## Next step
 
-### Step 8 — Still rendering and export
+### Step 9 — Video
 
-1. Render each `LayoutAST` to a PNG at its platform size with the pinned
-   Chromium build.
-2. Package the stills per platform as a ZIP with a manifest that records template,
-   design-system and renderer versions.
-3. Return share links and keep the generated assets tenant-scoped.
-4. Add render tests for size, pixel format and manifest integrity.
+1. `render/frames.py`: a pure `renderAt(t)` timeline, scene in/out, element enter
+   offsets and the easing library (`cubic_out`, `out_back`).
+2. Template per ratio with a progress bar and burned-in captions.
+3. Capture JPEG frames through Chromium at 30 fps, then encode with ffmpeg
+   (`bt709`, `-crf 19`, `-preset slow`, `yuv420p`, `+faststart`).
+4. Poster at `duration − 0.8 s`; deterministic frame and MP4 hashes.
 
 ---
 
@@ -617,6 +670,45 @@ $composed.layouts[3].slots.stats | Format-Table value, unit, label, fact_id, tie
   intentional design change with
   `$env:SNAP_UPDATE_SNAPSHOTS="1"; pytest -k snapshot; Remove-Item Env:SNAP_UPDATE_SNAPSHOTS`.
 
+### Render deterministic stills
+
+Compose first; rendering reads the persisted measured ASTs and writes the four
+LinkedIn PNGs under the tenant-scoped media root:
+
+```powershell
+$stills = Invoke-RestMethod -Method Post `
+  -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/stills" `
+  -Headers $headers -ContentType 'application/json' `
+  -Body (@{ platforms = @("linkedin") } | ConvertTo-Json)
+
+$stills.renderer_version
+$stills.assets | Format-Table filename, width, height, bytes, cached, sha256
+
+# Force a recapture; the cache key stays the same.
+Invoke-RestMethod -Method Post `
+  -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/stills" `
+  -Headers $headers -ContentType 'application/json' `
+  -Body (@{ platforms = @("linkedin"); reuse_cache = $false } | ConvertTo-Json)
+```
+
+Or from the CLI:
+
+```powershell
+python -m app.cli render --run $run.id --platform linkedin
+python -m app.cli render --run $run.id --platform linkedin --force
+```
+
+- Output: `var/media/<tenant>/<site>/<run>/stills/linkedin/01-announcement.png`
+  through `04-proof.png`.
+- Capture is 2× and downsampled once with Lanczos; PNGs have no metadata and the
+  same AST always hashes identically.
+- The cache key is
+  `(content_model_hash, design_system_hash, platform, template_version)`. A
+  second request reports `cached=true`.
+- `SNAP_RENDER_FETCH_REMOTE=false` makes rendering fully offline; images that
+  cannot be loaded are omitted instead of drawn as broken frames.
+- Composing a run is a prerequisite; the endpoint returns 409 otherwise.
+
 ### Optional LLM understanding and extraction
 
 Any OpenAI-compatible endpoint works:
@@ -636,6 +728,7 @@ automatically; an inadmissible draft fact is listed with its reject reason.
 ```powershell
 python -m app.cli ingest https://lyle-mlengineer.github.io --out var\profile.json
 python -m app.cli extract https://lyle-mlengineer.github.io --out var\content.json
+python -m app.cli render --run <run-id> --platform linkedin
 ```
 
 ### Useful settings
@@ -647,6 +740,7 @@ SNAP_CAPTURE_SCREENSHOTS=true
 SNAP_FETCH_TIMEOUT_SECONDS=20
 SNAP_SSRF_ALLOW_PRIVATE=false   # true only for local fixture servers
 SNAP_MEDIA_ROOT=var/media
+SNAP_RENDER_FETCH_REMOTE=true   # false keeps rendering fully offline
 SNAP_MAX_UPLOAD_FILES=5
 SNAP_MAX_DOCUMENT_BYTES=10485760
 SNAP_MAX_DOCUMENT_PAGES=40

@@ -241,6 +241,56 @@ python -m app.cli ingest https://lyle-mlengineer.github.io --out var\profile.jso
 python -m app.cli extract https://lyle-mlengineer.github.io --out var\content.json
 ```
 
+## Step 8 — still rendering
+
+Composition produces measured `LayoutAST`s; rendering turns each one into a PNG
+without re-fitting anything. Chromium runs headless with a persistent worker,
+captures at 2x and downsamples once with Lanczos to the platform size. The page
+is self-contained: images are inlined as data URIs, network requests are
+aborted, and a strict CSP is injected before capture.
+
+```powershell
+$stills = Invoke-RestMethod -Method Post `
+  -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/stills" `
+  -Headers $headers -ContentType 'application/json' `
+  -Body (@{ platforms = @("linkedin") } | ConvertTo-Json)
+
+$stills.renderer_version
+$stills.assets | Format-Table filename, width, height, bytes, cached, sha256
+```
+
+Files land under the tenant-scoped media root using the design contract names:
+
+```text
+var/media/<tenant>/<site>/<run>/stills/linkedin/
+  01-announcement.png
+  02-what-i-build.png
+  03-selected-work.png
+  04-proof.png
+```
+
+- Rendering uses the composed ASTs persisted in `runs.stats_json`; compose a run
+  first. `POST /v1/runs/{id}/stills` returns `409` until then.
+- The content-hash cache is keyed by
+  `(content_model_hash, design_system_hash, platform, template_version)`. A
+  repeat request is a disk read and reports `cached=true`; send
+  `"reuse_cache": false` to recapture.
+- PNGs carry no timestamp, EXIF or software metadata. Rendering the same AST
+  twice yields the same SHA-256.
+- Remote layout images are fetched once and cached as data URIs. Set
+  `SNAP_RENDER_FETCH_REMOTE=false` for a render that never touches the network;
+  unloadable images are omitted rather than drawn as broken placeholders.
+- The CLI works without the API:
+
+```powershell
+python -m app.cli render --run $run.id --platform linkedin
+python -m app.cli render --run $run.id --platform linkedin --force
+```
+
+The golden SSIM gate renders the hand-built `media/linkedin/assets/cards.html`
+through the same capture pipeline and requires SSIM >= 0.98 against
+`media/linkedin/0*.png` for all four cards.
+
 ## Test
 
 ```powershell
@@ -280,6 +330,7 @@ SNAP_CAPTURE_SCREENSHOTS=true
 SNAP_FETCH_TIMEOUT_SECONDS=20
 SNAP_SSRF_ALLOW_PRIVATE=false
 SNAP_MEDIA_ROOT=var/media
+SNAP_RENDER_FETCH_REMOTE=true
 
 # Optional OpenAI-compatible endpoint. Blank = deterministic heuristics.
 SNAP_LLM_API_KEY=

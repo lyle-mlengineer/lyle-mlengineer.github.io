@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     ssrf_allow_private: bool = False
     media_root: str = "var/media"
 
+    # Still rendering. Remote layout images are fetched once and cached as data
+    # URIs; turn this off to guarantee a render never touches the network.
+    render_fetch_remote: bool = True
+
     # LLM enrichment (any OpenAI-compatible endpoint)
     llm_api_key: str | None = None
     llm_base_url: str = "https://api.openai.com/v1"
