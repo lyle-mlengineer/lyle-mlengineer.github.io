@@ -1,0 +1,141 @@
+{% extends "app_shell.html" %}
+
+{% block title %}Dashboard — Skipper{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block eyebrow %}Job search · overview{% endblock %}
+
+{% block topbar_actions %}
+<span class="button button--small button--ghost is-disabled" aria-disabled="true" title="Job intake arrives with the extraction step">
+    <i class="uil uil-plus button__icon button__icon--lead"></i>
+    Add job
+</span>
+{% endblock %}
+
+{% block content %}
+{% if llm_provider == 'fake' %}
+<div class="notice notice--warning" role="status">
+    <i class="uil uil-flask"></i>
+    <span>
+        Running with the <strong>fake</strong> LLM provider, so generation is stubbed. Set
+        <code>SKIPPER_LLM_PROVIDER=groq</code> and a Groq key in <code>.env</code> before the first real run.
+    </span>
+</div>
+{% endif %}
+
+{% if total_jobs == 0 %}
+<div class="notice" role="status">
+    <i class="uil uil-info-circle"></i>
+    <span>
+        The dashboard is live; job intake is the next build step. Once it lands, this page fills itself from
+        every posting you add. The full build order is in <code>docs/steps.md</code>.
+    </span>
+</div>
+{% endif %}
+
+<div class="stat-grid">
+    <div class="stat">
+        <span class="stat__label"><i class="uil uil-briefcase-alt"></i> Jobs</span>
+        <span class="stat__value">{{ total_jobs }}</span>
+    </div>
+    <div class="stat">
+        <span class="stat__label"><i class="uil uil-spinner-alt"></i> In flight</span>
+        <span class="stat__value">{{ active_jobs }}</span>
+    </div>
+    <div class="stat">
+        <span class="stat__label"><i class="uil uil-check-circle"></i> Ready</span>
+        <span class="stat__value">{{ counts.get('ready', 0) }}</span>
+    </div>
+    <div class="stat">
+        <span class="stat__label"><i class="uil uil-building"></i> Companies</span>
+        <span class="stat__value">{{ company_count }}</span>
+    </div>
+</div>
+
+<section class="panel" aria-labelledby="needs-action-title">
+    <div class="panel__head">
+        <div>
+            <h2 class="panel__title" id="needs-action-title">Needs action</h2>
+            <p class="panel__hint">Follow-ups that are due and jobs that are ready to send.</p>
+        </div>
+    </div>
+
+    {% if pending_action %}
+    <div class="list">
+        {% for job in pending_action %}
+        <a class="list__row" href="/jobs/{{ job.id }}">
+            <span class="list__main">
+                <span class="list__title">{{ job.title }}</span>
+                <span class="list__meta">
+                    {{ job.company.name if job.company else 'Unknown company' }}
+                    {% if job.next_action_at %} · due {{ job.next_action_at[:10] }}{% endif %}
+                </span>
+                <span class="list__meta">{{ job.next_action }}</span>
+            </span>
+            <span class="pill pill--{{ status_tone.get(job.status, 'neutral') }}">{{ status_labels.get(job.status, job.status) }}</span>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty">
+        <span class="empty__icon"><i class="uil uil-check"></i></span>
+        <h3 class="empty__title">Nothing is waiting on you</h3>
+        <p class="empty__copy">As soon as a job is marked applied, its next action and date will appear here.</p>
+    </div>
+    {% endif %}
+</section>
+
+<section class="panel" aria-labelledby="pipeline-title">
+    <div class="panel__head">
+        <div>
+            <h2 class="panel__title" id="pipeline-title">Pipeline</h2>
+            <p class="panel__hint">Every job, by the stage it is actually in.</p>
+        </div>
+        <a href="/jobs" class="button button--link button--small">All jobs <i class="uil uil-arrow-right button__icon"></i></a>
+    </div>
+
+    <div class="list">
+        {% for status, label in status_labels.items() %}
+        <div class="list__row">
+            <span class="list__main">
+                <span class="list__title">{{ label }}</span>
+            </span>
+            <span class="pill pill--{{ status_tone.get(status, 'neutral') }}">{{ counts.get(status, 0) }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="panel" aria-labelledby="recent-title">
+    <div class="panel__head">
+        <div>
+            <h2 class="panel__title" id="recent-title">Recently touched</h2>
+            <p class="panel__hint">The last five jobs you added or moved.</p>
+        </div>
+    </div>
+
+    {% if recent %}
+    <div class="list">
+        {% for job in recent %}
+        <a class="list__row" href="/jobs/{{ job.id }}">
+            <span class="list__main">
+                <span class="list__title">{{ job.title }}</span>
+                <span class="list__meta">
+                    {{ job.company.name if job.company else 'Unknown company' }} · {{ job.updated_at[:10] }}
+                </span>
+            </span>
+            <span class="pill pill--{{ status_tone.get(job.status, 'neutral') }}">{{ status_labels.get(job.status, job.status) }}</span>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty">
+        <span class="empty__icon"><i class="uil uil-briefcase-alt"></i></span>
+        <h3 class="empty__title">No jobs tracked yet</h3>
+        <p class="empty__copy">Your first posting creates a job, a company and a run in one action — no form filling.</p>
+        <div class="empty__actions">
+            <a href="/settings" class="button button--small button--ghost">Check providers</a>
+        </div>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

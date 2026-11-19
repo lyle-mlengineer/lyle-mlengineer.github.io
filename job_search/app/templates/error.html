@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}{{ status }} — Skipper{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block nav %}{% endblock %}
+
+{% block content %}
+<main class="error-page" id="main">
+    <p class="error-page__code">{{ status }}</p>
+    <h1 class="auth__title">{{ message }}</h1>
+    <p class="error-page__copy">
+        Nothing was lost. If you followed a job link, it may have been archived or removed.
+    </p>
+    <div class="button-row">
+        <a href="/dashboard" class="button button--flex button--small">
+            Dashboard
+            <i class="uil uil-arrow-right button__icon"></i>
+        </a>
+        <a href="/" class="button button--flex button--small button--ghost">Portfolio</a>
+    </div>
+</main>
+{% endblock %}

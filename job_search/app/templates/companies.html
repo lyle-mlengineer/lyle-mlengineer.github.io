@@ -1,0 +1,29 @@
+{% extends "app_shell.html" %}
+
+{% block title %}Companies — Skipper{% endblock %}
+{% block page_title %}Companies{% endblock %}
+{% block eyebrow %}Research is reusable{% endblock %}
+
+{% block content %}
+{% if companies %}
+<div class="stat-grid">
+    {% for company in companies %}
+    <a class="stat" href="/companies/{{ company.id }}">
+        <span class="stat__label"><i class="uil uil-building"></i> {{ company.jobs | length }} job{{ '' if company.jobs | length == 1 else 's' }}</span>
+        <span class="stat__value">{{ company.name }}</span>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<section class="panel">
+    <div class="empty">
+        <span class="empty__icon"><i class="uil uil-building"></i></span>
+        <h2 class="empty__title">No companies yet</h2>
+        <p class="empty__copy">
+            A company is created with the first job at it. Its research brief is then reused for every later role,
+            instead of paying for the same search twice.
+        </p>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

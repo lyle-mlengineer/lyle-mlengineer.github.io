@@ -1,0 +1,555 @@
+{% extends "base.html" %}
+
+{% block title %}Lyle Okoth — Machine Learning Engineer | Skipper{% endblock %}
+{% block description %}Portfolio of Lyle Okoth, Machine Learning Engineer specialising in speech and audio AI — and Skipper, the private job-search agent that turns a job posting into a complete application pack.{% endblock %}
+{% block body_class %}landing{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/landing.css">
+{% endblock %}
+
+{% block nav %}
+<!--==================== HEADER ====================-->
+<header class="header" id="header">
+    <nav class="nav container" aria-label="Main">
+        <a href="#home" class="nav__logo">Lyle</a>
+
+        <div class="nav__menu" id="nav-menu">
+            <ul class="nav__list grid">
+                <li class="nav__item">
+                    <a href="#home" class="nav__link active-link">
+                        <i class="uil uil-estate nav__icon"></i>
+                        Home
+                    </a>
+                </li>
+                <li class="nav__item">
+                    <a href="#skipper" class="nav__link">
+                        <i class="uil uil-robot nav__icon"></i>
+                        Skipper
+                    </a>
+                </li>
+                <li class="nav__item">
+                    <a href="#about" class="nav__link">
+                        <i class="uil uil-user nav__icon"></i>
+                        About
+                    </a>
+                </li>
+                <li class="nav__item">
+                    <a href="#skills" class="nav__link">
+                        <i class="uil uil-file-alt nav__icon"></i>
+                        Skills
+                    </a>
+                </li>
+                <li class="nav__item">
+                    <a href="#work" class="nav__link">
+                        <i class="uil uil-scenery nav__icon"></i>
+                        Work
+                    </a>
+                </li>
+                <li class="nav__item">
+                    <a href="#contact" class="nav__link">
+                        <i class="uil uil-message nav__icon"></i>
+                        Contact
+                    </a>
+                </li>
+            </ul>
+
+            <i class="uil uil-times nav__close" id="nav-close"></i>
+        </div>
+
+        <div class="nav__btns">
+            <a href="/login?next=/dashboard" class="button button--small nav__cta">
+                <i class="uil uil-lock-alt"></i>
+                <span class="nav__cta-label">Dashboard</span>
+            </a>
+
+            <!-- Theme change button -->
+            <i class="uil uil-moon change-theme" id="theme-button" role="button" tabindex="0" aria-label="Toggle dark theme"></i>
+
+            <div class="nav__toggle" id="nav-toggle">
+                <i class="uil uil-apps"></i>
+            </div>
+        </div>
+    </nav>
+</header>
+{% endblock %}
+
+{% block content %}
+<main class="main" id="main">
+    <!--==================== HOME ====================-->
+    <section class="home section" id="home">
+        <div class="home__container container grid">
+            <div class="home__content grid">
+                <div class="home__social">
+                    <a href="https://www.linkedin.com/in/lyle-okoth/" target="_blank" rel="noopener" class="home__social-link" aria-label="LinkedIn">
+                        <i class="uil uil-linkedin-alt"></i>
+                    </a>
+                    <a href="https://github.com/lyle-mlengineer" target="_blank" rel="noopener" class="home__social-link" aria-label="GitHub">
+                        <i class="uil uil-github-alt"></i>
+                    </a>
+                    <a href="https://x.com/LyleOkoth" target="_blank" rel="noopener" class="home__social-link" aria-label="X">
+                        <i class="uil uil-twitter-alt"></i>
+                    </a>
+                    <a href="https://medium.com/@lyle-okoth" target="_blank" rel="noopener" class="home__social-link" aria-label="Medium">
+                        <i class="uil uil-medium-m"></i>
+                    </a>
+                    <a href="https://www.instagram.com/lyle_okoth/" target="_blank" rel="noopener" class="home__social-link" aria-label="Instagram">
+                        <i class="uil uil-instagram"></i>
+                    </a>
+                </div>
+
+                <div class="home__img">
+                    <svg class="home__blob" role="img" aria-label="Portrait of Lyle Okoth, Machine Learning Engineer" viewBox="0 0 200 187" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <mask id="mask0" mask-type="alpha">
+                            <path d="M190.312 36.4879C206.582 62.1187 201.309 102.826 182.328 134.186C163.346 165.547
+                            130.807 187.559 100.226 186.353C69.6454 185.297 41.0228 161.023 21.7403 129.362C2.45775
+                            97.8511 -7.48481 59.1033 6.67581 34.5279C20.9871 10.1032 59.7028 -0.149132 97.9666
+                            0.00163737C136.23 0.303176 174.193 10.857 190.312 36.4879Z"/>
+                        </mask>
+                        <g mask="url(#mask0)">
+                            <path d="M190.312 36.4879C206.582 62.1187 201.309 102.826 182.328 134.186C163.346
+                            165.547 130.807 187.559 100.226 186.353C69.6454 185.297 41.0228 161.023 21.7403
+                            129.362C2.45775 97.8511 -7.48481 59.1033 6.67581 34.5279C20.9871 10.1032 59.7028
+                            -0.149132 97.9666 0.00163737C136.23 0.303176 174.193 10.857 190.312 36.4879Z"/>
+                            <image class="home__blob-img" x="0" y="0" href="/static/img/lyle-professional-1.jpg"/>
+                        </g>
+                    </svg>
+                </div>
+
+                <div class="home__data">
+                    <span class="eyebrow">
+                        <span class="eyebrow__dot" aria-hidden="true"></span>
+                        Skipper is running
+                    </span>
+                    <h1 class="home__title">Lyle Okoth</h1>
+                    <h3 class="home__subtitle">Machine Learning Engineer</h3>
+                    <p class="home__description">
+                        I build multilingual speech and audio AI — recognition, translation and synthesis for African
+                        languages. I also built <strong>Skipper</strong>: the agent that reads a job posting, researches
+                        the company and writes the whole application pack from my portfolio.
+                    </p>
+
+                    <div class="button-row">
+                        <a href="/login?next=/dashboard" class="button button--flex">
+                            Open Skipper
+                            <i class="uil uil-arrow-right button__icon"></i>
+                        </a>
+                        <a href="#skipper" class="button button--flex button--ghost">
+                            How it works
+                            <i class="uil uil-arrow-down button__icon"></i>
+                        </a>
+                    </div>
+
+                    <p class="home__note">
+                        <i class="uil uil-shield-check"></i>
+                        Private, password-gated, and grounded in a portfolio I maintain by hand.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!--==================== SKIPPER ====================-->
+    <section class="section skipper" id="skipper">
+        <h2 class="section__title">Skipper</h2>
+        <span class="section__subtitle">My job-search agent</span>
+
+        <div class="container">
+            <p class="skipper__lead">
+                Applying well is not typing. It is re-deciding the same eleven things for every role: what this job
+                really is, who this company is, which projects map to it, and what they will ask me. Skipper runs that
+                pipeline once per posting, from a link or a paste, and leaves me with a pack I can send — not a chat
+                window I have to prompt.
+            </p>
+
+            <div class="skipper__cards grid">
+                <article class="services__content">
+                    <i class="uil uil-file-search-alt services__icon"></i>
+                    <h3 class="services__title">Reads the job</h3>
+                    <p class="services__desc">
+                        A careers page, a job-board link or pasted text. Skipper fetches the posting, cleans it and pulls
+                        out the title, stack, salary, must-haves, nice-to-haves and the red flags worth knowing.
+                    </p>
+                    <div class="chip-row services__chips">
+                        <span class="chip">Extraction</span><span class="chip">Summary</span><span class="chip">Fit gaps</span>
+                    </div>
+                </article>
+
+                <article class="services__content">
+                    <i class="uil uil-pen services__icon"></i>
+                    <h3 class="services__title">Writes the pack</h3>
+                    <p class="services__desc">
+                        A tailored CV in PDF and DOCX, a cover letter, the email to send, three spoken answers, a
+                        company brief and two interview briefs — each grounded in the portfolio, never in guesswork.
+                    </p>
+                    <div class="chip-row services__chips">
+                        <span class="chip">CV · PDF + DOCX</span><span class="chip">Cover letter</span><span class="chip">Interview prep</span>
+                    </div>
+                </article>
+
+                <article class="services__content">
+                    <i class="uil uil-columns services__icon"></i>
+                    <h3 class="services__title">Keeps the board</h3>
+                    <p class="services__desc">
+                        Every job lives on one dashboard from discovered to offer, with the artifacts attached, the
+                        status honest and the next action written down before I forget it.
+                    </p>
+                    <div class="chip-row services__chips">
+                        <span class="chip">Status</span><span class="chip">Next action</span><span class="chip">Timeline</span>
+                    </div>
+                </article>
+            </div>
+
+            <div class="skipper__flow">
+                <div class="skipper__flow-head">
+                    <h3 class="skipper__flow-title">One input, eleven skills</h3>
+                    <p class="skipper__flow-copy">Each skill has a typed output and a schema it must satisfy.</p>
+                </div>
+                <ul class="skipper__chips chip-row">
+                    <li class="chip">Job extraction</li>
+                    <li class="chip">Job summary</li>
+                    <li class="chip">Company research</li>
+                    <li class="chip">CV writing</li>
+                    <li class="chip">Cover letter</li>
+                    <li class="chip">Email</li>
+                    <li class="chip">Tell me about yourself</li>
+                    <li class="chip">Work history</li>
+                    <li class="chip">Proud project</li>
+                    <li class="chip">Technical interview</li>
+                    <li class="chip">Behavioural interview</li>
+                </ul>
+            </div>
+
+            <ol class="skipper__steps">
+                <li class="skipper__step">
+                    <span class="skipper__step-num">01</span>
+                    <h3 class="skipper__step-title">Paste a posting</h3>
+                    <p class="skipper__step-copy">A link or the text. The job page opens immediately and starts working.</p>
+                </li>
+                <li class="skipper__step">
+                    <span class="skipper__step-num">02</span>
+                    <h3 class="skipper__step-title">Watch the pack build</h3>
+                    <p class="skipper__step-copy">Progress streams in step by step — research, CV, letter, interviews. Cancel any time.</p>
+                </li>
+                <li class="skipper__step">
+                    <span class="skipper__step-num">03</span>
+                    <h3 class="skipper__step-title">Send, then track</h3>
+                    <p class="skipper__step-copy">Download, edit in place, mark applied. The dashboard remembers what is next.</p>
+                </li>
+            </ol>
+
+            <div class="skipper__cta">
+                <div>
+                    <h3 class="skipper__cta-title">The dashboard needs a password</h3>
+                    <p class="skipper__cta-copy">It is my job search, not a product demo. One account, one session, no tracking.</p>
+                </div>
+                <a href="/login?next=/dashboard" class="button button--flex">
+                    Enter the dashboard
+                    <i class="uil uil-lock-alt button__icon"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!--==================== ABOUT ====================-->
+    <section class="about section" id="about">
+        <h2 class="section__title">About Me</h2>
+        <span class="section__subtitle">My introduction</span>
+
+        <div class="about__container container grid">
+            <img src="/static/img/professional-1.jpeg" alt="Lyle Okoth, Machine Learning Engineer" class="about__img" loading="lazy">
+
+            <div class="about__data">
+                <p class="about__description">
+                    I am a Machine Learning Engineer with over four years of experience designing, building and
+                    deploying speech products end to end — transcription, translation and synthesis — backed by a
+                    foundation in software and data engineering. Skipper is the tool I built to stop rewriting the same
+                    application by hand.
+                </p>
+
+                <div class="about__info">
+                    <div>
+                        <span class="about__info-title">04+</span>
+                        <span class="about__info-name">Years of <br> experience</span>
+                    </div>
+                    <div>
+                        <span class="about__info-title">08+</span>
+                        <span class="about__info-name">Projects <br> completed</span>
+                    </div>
+                    <div>
+                        <span class="about__info-title">11</span>
+                        <span class="about__info-name">Skills in <br> Skipper</span>
+                    </div>
+                </div>
+
+                <div class="about__buttons">
+                    <a href="{{ portfolio_url }}cv/LYLE-OKOTH-MACHINE-LEARNING-ENGINEER.pdf"
+                       class="button button--flex" download>
+                        Download CV
+                        <i class="uil uil-download-alt button__icon"></i>
+                    </a>
+                    <a href="{{ portfolio_url }}" class="button button--flex button--ghost">
+                        Full portfolio
+                        <i class="uil uil-external-link-alt button__icon"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!--==================== SKILLS ====================-->
+    <section class="skills section" id="skills">
+        <h2 class="section__title">Skills</h2>
+        <span class="section__subtitle">What Skipper has to work with</span>
+
+        <div class="skills__container container grid">
+            <div class="skills__content skills__open">
+                <div class="skills__header" role="button" tabindex="0" aria-expanded="true">
+                    <i class="uil uil-microphone skills__icon"></i>
+                    <div>
+                        <h3 class="skills__title">Speech &amp; Voice AI</h3>
+                        <span class="skills__subtitle">Core specialisation · 4+ years</span>
+                    </div>
+                    <i class="uil uil-angle-down skills__arrow"></i>
+                </div>
+
+                <div class="skills__list grid">
+                    <div class="skills__data">
+                        <div class="skills__titles">
+                            <h4 class="skills__name">Automatic speech recognition</h4>
+                            <span class="skills__number">92%</span>
+                        </div>
+                        <div class="skills__bar"><span class="skills__percentage" style="--pct: 92%"></span></div>
+                    </div>
+                    <div class="skills__data">
+                        <div class="skills__titles">
+                            <h4 class="skills__name">Speech synthesis &amp; voice cloning</h4>
+                            <span class="skills__number">88%</span>
+                        </div>
+                        <div class="skills__bar"><span class="skills__percentage" style="--pct: 88%"></span></div>
+                    </div>
+                    <div class="skills__data">
+                        <div class="skills__titles">
+                            <h4 class="skills__name">Speech-to-speech translation</h4>
+                            <span class="skills__number">84%</span>
+                        </div>
+                        <div class="skills__bar"><span class="skills__percentage" style="--pct: 84%"></span></div>
+                    </div>
+                    <div class="skills__group">
+                        <h4 class="skills__group-title">Toolchain</h4>
+                        <div class="chip-row">
+                            <span class="chip">Whisper</span><span class="chip">wav2vec 2.0</span>
+                            <span class="chip">NeMo</span><span class="chip">Coqui TTS</span>
+                            <span class="chip">pyannote.audio</span><span class="chip">FFmpeg</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="skills__content skills__open">
+                <div class="skills__header" role="button" tabindex="0" aria-expanded="true">
+                    <i class="uil uil-brain skills__icon"></i>
+                    <div>
+                        <h3 class="skills__title">ML, Data &amp; MLOps</h3>
+                        <span class="skills__subtitle">Research to production · 4+ years</span>
+                    </div>
+                    <i class="uil uil-angle-down skills__arrow"></i>
+                </div>
+
+                <div class="skills__list grid">
+                    <div class="skills__data">
+                        <div class="skills__titles">
+                            <h4 class="skills__name">PyTorch training &amp; fine-tuning</h4>
+                            <span class="skills__number">90%</span>
+                        </div>
+                        <div class="skills__bar"><span class="skills__percentage" style="--pct: 90%"></span></div>
+                    </div>
+                    <div class="skills__data">
+                        <div class="skills__titles">
+                            <h4 class="skills__name">Data pipelines &amp; audio labelling</h4>
+                            <span class="skills__number">86%</span>
+                        </div>
+                        <div class="skills__bar"><span class="skills__percentage" style="--pct: 86%"></span></div>
+                    </div>
+                    <div class="skills__data">
+                        <div class="skills__titles">
+                            <h4 class="skills__name">APIs, containers &amp; deployment</h4>
+                            <span class="skills__number">88%</span>
+                        </div>
+                        <div class="skills__bar"><span class="skills__percentage" style="--pct: 88%"></span></div>
+                    </div>
+                    <div class="skills__group">
+                        <h4 class="skills__group-title">Toolchain</h4>
+                        <div class="chip-row">
+                            <span class="chip">PyTorch</span><span class="chip">Hugging Face</span>
+                            <span class="chip">FastAPI</span><span class="chip">PostgreSQL</span>
+                            <span class="chip">Docker</span><span class="chip">Airflow</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!--==================== WORK ====================-->
+    <section class="section work" id="work">
+        <h2 class="section__title">Selected Work</h2>
+        <span class="section__subtitle">Shipped products and projects in development</span>
+
+        <div class="container">
+            <div class="work__grid">
+                <article class="work__card">
+                    <img src="/static/img/sautiflow.png" alt="SautiFlow studio interface" class="work__img" loading="lazy" width="1280" height="640">
+                    <div class="work__body">
+                        <h3 class="work__title">SautiFlow</h3>
+                        <p class="work__desc">Turn a written script into voiced, mixed audio skits in one session.</p>
+                        <a href="https://www.sautiflow.co.ke/" target="_blank" rel="noopener" class="button button--small button--link work__link">
+                            Visit <i class="uil uil-arrow-right button__icon"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <article class="work__card">
+                    <img src="/static/img/labelset.png" alt="LabelSet review queue" class="work__img" loading="lazy" width="1280" height="640">
+                    <div class="work__body">
+                        <h3 class="work__title">LabelSet</h3>
+                        <p class="work__desc">Source, label and ship audio datasets with review and versioned exports.</p>
+                        <a href="https://labelset.onrender.com" target="_blank" rel="noopener" class="button button--small button--link work__link">
+                            Visit <i class="uil uil-arrow-right button__icon"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <article class="work__card">
+                    <img src="/static/img/faceform.png" alt="FaceForm persona generator" class="work__img" loading="lazy" width="1280" height="640">
+                    <div class="work__body">
+                        <h3 class="work__title">FaceForm</h3>
+                        <p class="work__desc">Photoreal synthetic portraits from a written casting brief.</p>
+                        <a href="https://faceform-2rkf.onrender.com" target="_blank" rel="noopener" class="button button--small button--link work__link">
+                            Visit <i class="uil uil-arrow-right button__icon"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <article class="work__card">
+                    <img src="/static/img/vocalis.png" alt="Vocalis voice design studio" class="work__img" loading="lazy" width="1280" height="640">
+                    <div class="work__body">
+                        <h3 class="work__title">Vocalis</h3>
+                        <p class="work__desc">Design, refine and synthesize narration with rate, style and volume controls.</p>
+                        <a href="{{ portfolio_url }}portfolio-frontend/vocalis/" target="_blank" rel="noopener" class="button button--small button--link work__link">
+                            Visit <i class="uil uil-arrow-right button__icon"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <article class="work__card">
+                    <img src="/static/img/pigamagic.png" alt="PlusOne personal AI photography" class="work__img" loading="lazy" width="1280" height="640">
+                    <div class="work__body">
+                        <h3 class="work__title">PlusOne</h3>
+                        <p class="work__desc">A photo story of your event, built from your people and a few reference photos.</p>
+                        <a href="https://pigamagic.onrender.com" target="_blank" rel="noopener" class="button button--small button--link work__link">
+                            Visit <i class="uil uil-arrow-right button__icon"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <article class="work__card">
+                    <img src="/static/img/coagent.png" alt="coAgent coding agent" class="work__img" loading="lazy" width="1280" height="640">
+                    <div class="work__body">
+                        <h3 class="work__title">coAgent</h3>
+                        <p class="work__desc">A private coding agent for Colab's free T4 — local inference, test-driven edits.</p>
+                        <a href="https://coagent-web.onrender.com/" target="_blank" rel="noopener" class="button button--small button--link work__link">
+                            Visit <i class="uil uil-arrow-right button__icon"></i>
+                        </a>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!--==================== CONTACT ====================-->
+    <section class="contact section" id="contact">
+        <h2 class="section__title">Contact me</h2>
+        <span class="section__subtitle">Get in touch</span>
+
+        <div class="contact__container container grid">
+            <div>
+                <div class="contact__information">
+                    <i class="uil uil-phone contact__icon"></i>
+                    <div>
+                        <h3 class="contact__title">Call me</h3>
+                        <span class="contact__subtitle">+254 797 668 066</span>
+                    </div>
+                </div>
+
+                <div class="contact__information">
+                    <i class="uil uil-envelope contact__icon"></i>
+                    <div>
+                        <h3 class="contact__title">Email</h3>
+                        <span class="contact__subtitle">lyleokoth.mlengineer@gmail.com</span>
+                    </div>
+                </div>
+
+                <div class="contact__information">
+                    <i class="uil uil-map-marker contact__icon"></i>
+                    <div>
+                        <h3 class="contact__title">Location</h3>
+                        <span class="contact__subtitle">Nairobi, Kenya</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact__panel">
+                <h3 class="contact__panel-title">Hiring for speech, audio or applied AI?</h3>
+                <p class="contact__panel-copy">
+                    I am open to ML Engineer, AI Engineer and speech-focused roles — and to conversations about
+                    shipping research-grade models as products.
+                </p>
+                <a href="mailto:lyleokoth.mlengineer@gmail.com?subject=Hello%20Lyle" class="button button--flex">
+                    Email me
+                    <i class="uil uil-message button__icon"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!--==================== FOOTER ====================-->
+<footer class="footer">
+    <div class="footer__bg">
+        <div class="footer__container container grid">
+            <div>
+                <h2 class="footer__title">Lyle</h2>
+                <span class="footer__subtitle">Machine Learning Engineer</span>
+            </div>
+
+            <ul class="footer__links">
+                <li><a href="#skipper" class="footer__link">Skipper</a></li>
+                <li><a href="#work" class="footer__link">Work</a></li>
+                <li><a href="#contact" class="footer__link">Contact me</a></li>
+                <li><a href="/login?next=/dashboard" class="footer__link">Dashboard</a></li>
+            </ul>
+
+            <div class="footer__socials">
+                <a href="https://www.linkedin.com/in/lyle-okoth/" target="_blank" rel="noopener" class="footer__social" aria-label="LinkedIn">
+                    <i class="uil uil-linkedin-alt"></i>
+                </a>
+                <a href="https://github.com/lyle-mlengineer" target="_blank" rel="noopener" class="footer__social" aria-label="GitHub">
+                    <i class="uil uil-github-alt"></i>
+                </a>
+                <a href="https://x.com/LyleOkoth" target="_blank" rel="noopener" class="footer__social" aria-label="X">
+                    <i class="uil uil-twitter-alt"></i>
+                </a>
+                <a href="https://medium.com/@lyle-okoth" target="_blank" rel="noopener" class="footer__social" aria-label="Medium">
+                    <i class="uil uil-medium-m"></i>
+                </a>
+                <a href="https://www.instagram.com/lyle_okoth/" target="_blank" rel="noopener" class="footer__social" aria-label="Instagram">
+                    <i class="uil uil-instagram"></i>
+                </a>
+            </div>
+        </div>
+
+        <p class="footer__copy">&#169; {{ year }} lyleokoth. All rights reserved.</p>
+    </div>
+</footer>
+{% endblock %}

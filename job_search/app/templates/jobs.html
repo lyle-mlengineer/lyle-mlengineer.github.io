@@ -1,0 +1,44 @@
+{% extends "app_shell.html" %}
+
+{% block title %}Jobs — Skipper{% endblock %}
+{% block page_title %}Jobs{% endblock %}
+{% block eyebrow %}Everything you have considered{% endblock %}
+
+{% block topbar_actions %}
+<span class="button button--small button--ghost is-disabled" aria-disabled="true" title="Job intake arrives with the extraction step">
+    <i class="uil uil-plus button__icon button__icon--lead"></i>
+    Add job
+</span>
+{% endblock %}
+
+{% block content %}
+{% if jobs %}
+<div class="list">
+    {% for job in jobs %}
+    <a class="list__row" href="/jobs/{{ job.id }}">
+        <span class="list__main">
+            <span class="list__title">{{ job.title }}</span>
+            <span class="list__meta">
+                {{ job.company.name if job.company else 'Unknown company' }}
+                {% if job.location %} · {{ job.location }}{% endif %}
+                {% if job.work_mode %} · {{ job.work_mode }}{% endif %}
+            </span>
+            <span class="list__meta">Updated {{ job.updated_at[:10] }}</span>
+        </span>
+        <span class="pill pill--{{ status_tone.get(job.status, 'neutral') }}">{{ status_labels.get(job.status, job.status) }}</span>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<section class="panel">
+    <div class="empty">
+        <span class="empty__icon"><i class="uil uil-briefcase-alt"></i></span>
+        <h2 class="empty__title">No jobs yet</h2>
+        <p class="empty__copy">
+            Jobs appear here the moment a posting is added. Intake, extraction and the job detail page are the next
+            build step — the table, filters and status controls are already designed.
+        </p>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

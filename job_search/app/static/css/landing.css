@@ -1,0 +1,367 @@
+/*==============================================================================
+  Landing page additions — the Skipper sections and the work grid.
+  Everything here is built from the portfolio's tokens in style.css; no new
+  palette, no new typography, no external assets.
+==============================================================================*/
+
+/* ---------------- hero extras ---------------- */
+
+.eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .3rem .65rem;
+    border-radius: 999px;
+    background-color: var(--chip-bg);
+    color: var(--chip-text);
+    font-size: var(--smaller-font-size);
+    font-weight: var(--font-semi-bold);
+    margin-bottom: var(--mb-0-75);
+}
+
+.eyebrow__dot {
+    width: .45rem;
+    height: .45rem;
+    border-radius: 50%;
+    background-color: var(--first-color);
+    box-shadow: 0 0 0 3px hsla(var(--hue-color), 69%, 61%, .18);
+}
+
+.button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-bottom: var(--mb-1);
+}
+
+.home__note {
+    display: flex;
+    align-items: flex-start;
+    gap: .4rem;
+    font-size: var(--smaller-font-size);
+    color: var(--text-color-light);
+    line-height: 1.5;
+}
+
+.home__note i {
+    color: var(--first-color);
+    font-size: 1rem;
+}
+
+.nav__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .55rem .85rem;
+}
+
+.nav__cta i {
+    margin-left: 0;
+    font-size: 1rem;
+}
+
+@media screen and (max-width: 1100px) {
+    .nav__cta-label {
+        display: none;
+    }
+
+    .nav__cta {
+        padding: .55rem .6rem;
+    }
+}
+
+/* ---------------- skipper section ---------------- */
+
+.skipper {
+    background:
+        radial-gradient(60rem 28rem at 50% -10%, hsla(var(--hue-color), 69%, 61%, .08), transparent 70%);
+}
+
+.skipper__lead {
+    max-width: 46rem;
+    margin: 0 auto var(--mb-2-5);
+    text-align: center;
+    line-height: 1.75;
+    color: var(--text-color);
+}
+
+.skipper__cards {
+    grid-template-columns: 1fr;
+}
+
+.skipper__flow {
+    margin-top: var(--mb-2-5);
+    padding: 1.5rem;
+    background-color: var(--container-color);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+}
+
+.skipper__flow-head {
+    margin-bottom: var(--mb-1);
+}
+
+.skipper__flow-title {
+    font-size: var(--h3-font-size);
+    margin-bottom: var(--mb-0-25);
+}
+
+.skipper__flow-copy {
+    font-size: var(--small-font-size);
+    color: var(--text-color-light);
+}
+
+.skipper__chips {
+    gap: .4rem;
+    flex-wrap: wrap;
+}
+
+.skipper__steps {
+    display: grid;
+    gap: 1rem;
+    margin-top: var(--mb-2-5);
+    padding: 0;
+    list-style: none;
+}
+
+.skipper__step {
+    position: relative;
+    padding: 1.25rem 1.25rem 1.25rem 1.1rem;
+    background-color: var(--container-color);
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--first-color-lighter);
+    border-radius: .75rem;
+}
+
+.skipper__step-num {
+    display: block;
+    font-size: var(--smaller-font-size);
+    font-weight: var(--font-semi-bold);
+    letter-spacing: .08em;
+    color: var(--accent-text);
+    margin-bottom: var(--mb-0-25);
+}
+
+.skipper__step-title {
+    font-size: var(--normal-font-size);
+    margin-bottom: var(--mb-0-25);
+}
+
+.skipper__step-copy {
+    font-size: var(--small-font-size);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.skipper__cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    margin-top: var(--mb-2-5);
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background-color: var(--first-color-second);
+    color: #fff;
+}
+
+.skipper__cta-title {
+    color: #fff;
+    font-size: var(--h3-font-size);
+    margin-bottom: var(--mb-0-25);
+}
+
+.skipper__cta-copy {
+    color: hsla(0, 0%, 100%, .82);
+    font-size: var(--small-font-size);
+    line-height: 1.6;
+    max-width: 34rem;
+}
+
+.skipper__cta .button {
+    background-color: #fff;
+    color: var(--first-color-alt);
+    white-space: nowrap;
+}
+
+.skipper__cta .button:hover {
+    background-color: hsl(var(--hue-color), 92%, 95%);
+}
+
+/* ---------------- about extras ---------------- */
+
+.about__buttons {
+    gap: .75rem;
+    flex-wrap: wrap;
+}
+
+/* ---------------- selected work ---------------- */
+
+.work__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+.work__card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background-color: var(--container-color);
+    border: 1px solid var(--border-color);
+    border-radius: .75rem;
+    transition: .3s;
+}
+
+.work__card:hover {
+    border-color: var(--first-color-lighter);
+    box-shadow: 0 .75rem 2rem hsla(var(--hue-color), 40%, 20%, .10);
+    transform: translateY(-2px);
+}
+
+.work__img {
+    width: 100%;
+    aspect-ratio: 2 / 1;
+    object-fit: cover;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--input-color);
+}
+
+.work__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 1rem 1.25rem 1.25rem;
+}
+
+.work__title {
+    font-size: var(--normal-font-size);
+    margin-bottom: var(--mb-0-25);
+}
+
+.work__desc {
+    font-size: var(--small-font-size);
+    line-height: 1.6;
+    color: var(--text-color);
+    margin-bottom: var(--mb-1);
+}
+
+.work__link {
+    margin-top: auto;
+    align-self: flex-start;
+}
+
+/* ---------------- contact panel ---------------- */
+
+.contact__panel {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--mb-0-75);
+    padding: 1.5rem;
+    background-color: var(--container-color);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+}
+
+.contact__panel-title {
+    font-size: var(--h3-font-size);
+    line-height: 1.35;
+}
+
+.contact__panel-copy {
+    font-size: var(--small-font-size);
+    line-height: 1.7;
+    color: var(--text-color);
+}
+
+/* ---------------- responsive ---------------- */
+
+@media screen and (min-width: 568px) {
+    .skipper__cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .work__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .skipper__steps {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media screen and (min-width: 768px) {
+    .landing .home.section {
+        padding-top: 4.5rem;
+    }
+
+    .landing .home__content {
+        padding-top: 2.5rem;
+    }
+
+    .landing .home__social {
+        transform: translate(-2rem);
+    }
+
+    .skipper__lead {
+        font-size: 1.05rem;
+    }
+
+    .skipper__step {
+        padding: 1.5rem;
+    }
+}
+
+/* Footer: keep labels on one line and give the socials room. */
+.footer__links {
+    flex-wrap: wrap;
+}
+
+.footer__link {
+    white-space: nowrap;
+}
+
+@media screen and (min-width: 768px) {
+    .footer__container {
+        align-items: start;
+        grid-template-columns: 1fr auto auto;
+        column-gap: 2rem;
+    }
+
+    .footer__links {
+        column-gap: 1.5rem;
+    }
+
+    .footer__socials {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: .6rem;
+    }
+
+    .footer__social {
+        margin-right: 0;
+    }
+
+    .footer__copy {
+        color: hsla(0, 0%, 100%, .85);
+    }
+}
+
+@media screen and (min-width: 1024px) {
+    .skipper__cards {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .work__grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .work__card {
+        transform: none !important;
+    }
+}

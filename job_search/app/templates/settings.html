@@ -1,0 +1,78 @@
+{% extends "app_shell.html" %}
+
+{% block title %}Settings — Skipper{% endblock %}
+{% block page_title %}Settings{% endblock %}
+{% block eyebrow %}Providers and runtime{% endblock %}
+
+{% block content %}
+<section class="panel" aria-labelledby="runtime-title">
+    <div class="panel__head">
+        <div>
+            <h2 class="panel__title" id="runtime-title">Runtime</h2>
+            <p class="panel__hint">Read-only in the UI; change these in <code>.env</code> and restart.</p>
+        </div>
+        <a href="/readyz" class="button button--link button--small">Readiness JSON <i class="uil uil-external-link-alt button__icon"></i></a>
+    </div>
+
+    <dl class="kv">
+        <dt>Environment</dt><dd><code>{{ settings.env }}</code></dd>
+        <dt>Database</dt><dd><code>{{ settings.db_path }}</code></dd>
+        <dt>Artifacts</dt><dd><code>{{ settings.artifacts_dir }}</code></dd>
+        <dt>Portfolio corpus</dt><dd><code>{{ settings.portfolio_dir }}</code></dd>
+        <dt>LLM provider</dt><dd><code>{{ settings.llm_provider }}</code></dd>
+        <dt>Large model</dt><dd><code>{{ settings.llm_model_large }}</code></dd>
+        <dt>Small model</dt><dd><code>{{ settings.llm_model_small }}</code></dd>
+        <dt>Search provider</dt><dd><code>{{ settings.search_provider }}</code></dd>
+        <dt>Run ceiling</dt><dd><code>{{ settings.run_max_minutes }} min</code></dd>
+        <dt>Token budget</dt><dd><code>{{ settings.run_token_budget }}</code></dd>
+    </dl>
+</section>
+
+<section class="panel" aria-labelledby="session-title">
+    <div class="panel__head">
+        <div>
+            <h2 class="panel__title" id="session-title">Session</h2>
+            <p class="panel__hint">Opaque token, hashed on the server, twelve-hour expiry.</p>
+        </div>
+    </div>
+
+    <dl class="kv">
+        <dt>Signed in as</dt><dd>{{ session.username }}</dd>
+        <dt>Expires</dt><dd><code>{{ session.expires_at }}</code></dd>
+        <dt>Checked</dt><dd><code>{{ now }}</code></dd>
+    </dl>
+</section>
+
+<section class="panel" aria-labelledby="next-title">
+    <div class="panel__head">
+        <div>
+            <h2 class="panel__title" id="next-title">What is not wired yet</h2>
+            <p class="panel__hint">Kept explicit so the UI never pretends to work.</p>
+        </div>
+    </div>
+
+    <div class="list">
+        <div class="list__row">
+            <span class="list__main">
+                <span class="list__title">Job intake and extraction</span>
+                <span class="list__meta">Next build step — see <code>docs/steps.md</code>, Phase 4.</span>
+            </span>
+            <span class="pill pill--warning">Pending</span>
+        </div>
+        <div class="list__row">
+            <span class="list__main">
+                <span class="list__title">Skills, providers and artifacts</span>
+                <span class="list__meta">Phases 2, 3, 5 and 6.</span>
+            </span>
+            <span class="pill pill--neutral">Planned</span>
+        </div>
+        <div class="list__row">
+            <span class="list__main">
+                <span class="list__title">Landing page, auth, app shell</span>
+                <span class="list__meta">Built and verified at 320 / 768 / 1440 px in both themes.</span>
+            </span>
+            <span class="pill pill--success">Done</span>
+        </div>
+    </div>
+</section>
+{% endblock %}

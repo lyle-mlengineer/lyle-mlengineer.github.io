@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Skipper — sign in{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block nav %}{% endblock %}
+
+{% block content %}
+<main class="auth" id="main">
+    <a class="auth__brand" href="/">
+        <i class="uil uil-rocket"></i>
+        <span>Skipper</span>
+    </a>
+
+    <section class="auth__card" aria-labelledby="login-title">
+        <h1 class="auth__title" id="login-title">Sign in</h1>
+        <p class="auth__subtitle">The dashboard is private. One account, one session.</p>
+
+        {% if error %}
+        <div class="auth__error" role="alert">
+            <i class="uil uil-exclamation-circle"></i>
+            <span>{{ error }}</span>
+        </div>
+        {% endif %}
+
+        <form method="post" action="/login" autocomplete="on">
+            <input type="hidden" name="next" value="{{ next }}">
+
+            <div class="auth__field">
+                <label class="auth__label" for="username">Username</label>
+                <input class="auth__input" id="username" name="username" type="text"
+                       value="{{ username }}" autocomplete="username" required autofocus
+                       maxlength="64" spellcheck="false">
+            </div>
+
+            <div class="auth__field">
+                <label class="auth__label" for="password">Password</label>
+                <input class="auth__input" id="password" name="password" type="password"
+                       autocomplete="current-password" required minlength="8" maxlength="256">
+            </div>
+
+            <button class="button button--flex auth__submit" type="submit">
+                Enter dashboard
+                <i class="uil uil-arrow-right button__icon"></i>
+            </button>
+        </form>
+
+        <p class="auth__foot">Five attempts, then a fifteen-minute pause.</p>
+    </section>
+
+    <a href="/" class="button button--link button--small auth__back">
+        <i class="uil uil-arrow-left button__icon button__icon--lead"></i>
+        Back to the portfolio
+    </a>
+</main>
+{% endblock %}

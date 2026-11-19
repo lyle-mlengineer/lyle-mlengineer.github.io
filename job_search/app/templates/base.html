@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Skipper — Lyle Okoth{% endblock %}</title>
+    <meta name="description" content="{% block description %}Skipper is Lyle Okoth's private job-search agent: one job posting in, a complete tailored application pack out.{% endblock %}">
+    <meta name="theme-color" content="#4070f4">
+    <meta name="robots" content="{% block robots %}index, follow{% endblock %}">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/static/img/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/img/apple-touch-icon.png">
+
+    <!--==================== UNICONS ====================-->
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.2.0/css/line.css">
+
+    <!--==================== PORTFOLIO TOKENS + APP ====================-->
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/app.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <script src="/static/js/theme-init.js"></script>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    {% block nav %}{% endblock %}
+
+    {% block content %}{% endblock %}
+
+    <a href="#home" class="scrollup" id="scroll-up" aria-label="Back to top">
+        <i class="uil uil-arrow-up scrollup__icon"></i>
+    </a>
+
+    <script src="/static/js/main.js" defer></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
