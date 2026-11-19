@@ -8,14 +8,15 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session, joinedload, selectinload
 
 from ..config import get_settings
 from ..db import utcnow
 from ..deps import current_session, get_db
-from ..domain import ACTIVE_JOB_STATUSES, JOB_STATUS_LABELS
-from ..models import Company, Job, PortfolioChunk, PortfolioDoc, User
+from ..domain import ACTIVE_JOB_STATUSES, JOB_STATUS_LABELS, JOB_STATUSES
+from ..jobs.render import markdown_to_html
+from ..models import Company, Job, PortfolioChunk, PortfolioDoc, Run, User
 from ..rag.ingest import sync_portfolio
 from ..security import (
     clear_login_failures,
@@ -191,9 +192,18 @@ def jobs_page(request: Request, db: Session = Depends(get_db)) -> Response:
     session = current_session(request, db)
     if session is None:
         return RedirectResponse("/login?next=/jobs", status_code=303)
-    jobs = db.execute(
-        select(Job).options(joinedload(Job.company)).order_by(Job.updated_at.desc()).limit(50)
-    ).scalars().all()
+
+    status_filter = request.query_params.get("status", "").strip()
+    query = request.query_params.get("q", "").strip()[:120]
+    stmt = select(Job).options(joinedload(Job.company), selectinload(Job.runs)).order_by(Job.updated_at.desc())
+    if status_filter in JOB_STATUSES:
+        stmt = stmt.where(Job.status == status_filter)
+    if query:
+        stmt = stmt.outerjoin(Company, Job.company_id == Company.id).where(
+            or_(Job.title.ilike(f"%{query}%"), Company.name.ilike(f"%{query}%"))
+        )
+    jobs = db.execute(stmt.limit(100)).unique().scalars().all()
+
     return _templates(request).TemplateResponse(
         request,
         "jobs.html",
@@ -203,6 +213,52 @@ def jobs_page(request: Request, db: Session = Depends(get_db)) -> Response:
             "csrf_token": session["csrf_token"],
             "jobs": jobs,
             "status_labels": JOB_STATUS_LABELS,
+            "status_filter": status_filter,
+            "query": query,
+        },
+    )
+
+
+@router.get("/jobs/{job_id}", response_class=HTMLResponse)
+def job_detail(request: Request, job_id: int, db: Session = Depends(get_db)) -> Response:
+    session = current_session(request, db)
+    if session is None:
+        return RedirectResponse(f"/login?next=/jobs/{job_id}", status_code=303)
+
+    job = db.scalar(
+        select(Job)
+        .options(
+            joinedload(Job.company),
+            selectinload(Job.runs).selectinload(Run.steps),
+            selectinload(Job.artifacts),
+            selectinload(Job.events),
+        )
+        .where(Job.id == job_id)
+    )
+    if job is None:
+        return _templates(request).TemplateResponse(
+            request,
+            "error.html",
+            {"status": 404, "message": "That job does not exist."},
+            status_code=404,
+        )
+
+    latest_run = job.runs[0] if job.runs else None
+    summary = next(
+        (artifact for artifact in job.artifacts if artifact.kind == "job_summary" and artifact.is_current),
+        None,
+    )
+    return _templates(request).TemplateResponse(
+        request,
+        "job_detail.html",
+        {
+            "page": "jobs",
+            "session": session,
+            "csrf_token": session["csrf_token"],
+            "job": job,
+            "latest_run": latest_run,
+            "summary_html": markdown_to_html(summary.content_md) if summary and summary.content_md else None,
+            "events": job.events[:8],
         },
     )
 

@@ -19,7 +19,15 @@ from fastapi.templating import Jinja2Templates
 
 from .config import BASE_DIR, get_settings
 from .db import get_session_factory, init_db, session_scope, sweep_expired_sessions, sweep_interrupted_runs
-from .domain import ARTIFACT_LABELS, JOB_STATUS_LABELS, JOB_STATUSES, SKILL_LABELS, STATUS_TONE
+from .domain import (
+    ARTIFACT_LABELS,
+    JOB_STATUS_LABELS,
+    JOB_STATUSES,
+    RUN_STATUS_LABELS,
+    SKILL_LABELS,
+    STATUS_TONE,
+)
+from .providers.fetch.http import Fetcher
 from .providers.llm.base import LLMProviderError
 from .providers.llm.registry import build_llm_provider
 from .providers.search.registry import build_search_provider
@@ -56,6 +64,11 @@ async def lifespan(app: FastAPI):
         logger.warning("LLM provider unavailable: %s", exc)
         app.state.llm = None
     app.state.search = build_search_provider(settings, session_factory=factory)
+    app.state.fetcher = Fetcher(
+        max_bytes=settings.fetch_max_bytes,
+        timeout_s=settings.fetch_timeout_s,
+        max_redirects=settings.fetch_max_redirects,
+    )
 
     try:
         report = reindex(settings)
@@ -76,6 +89,10 @@ async def lifespan(app: FastAPI):
         settings.search_provider,
     )
     yield
+
+    fetcher = getattr(app.state, "fetcher", None)
+    if fetcher is not None:
+        fetcher.close()
 
 
 def create_app() -> FastAPI:
@@ -108,6 +125,7 @@ def create_app() -> FastAPI:
         status_order=JOB_STATUSES,
         artifact_labels=ARTIFACT_LABELS,
         skill_labels=SKILL_LABELS,
+        run_status_labels=RUN_STATUS_LABELS,
     )
     app.state.templates = templates
 

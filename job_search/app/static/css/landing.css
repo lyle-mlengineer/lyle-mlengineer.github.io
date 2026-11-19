@@ -467,8 +467,7 @@
         justify-self: end;
     }
 
-    .landing .home__blob,
-    .landing .home__blob-img {
+    .landing .home__blob {
         width: 26rem;
     }
 

@@ -1,0 +1,209 @@
+{% extends "app_shell.html" %}
+
+{% block title %}{{ job.title }} — Skipper{% endblock %}
+{% block page_title %}{{ job.title }}{% endblock %}
+{% block eyebrow %}{{ job.company.name if job.company else 'Company pending' }}{% if job.location %} · {{ job.location }}{% endif %}{% endblock %}
+
+{% block topbar_actions %}
+<a href="/jobs" class="button button--small button--link">
+    <i class="uil uil-arrow-left button__icon button__icon--lead"></i>
+    All jobs
+</a>
+{% endblock %}
+
+{% block app_content %}
+{% set run = latest_run %}
+<div class="job-head">
+    <div class="job-head__meta">
+        <span class="pill pill--{{ status_tone.get(job.status, 'neutral') }}">{{ status_labels.get(job.status, job.status) }}</span>
+        {% if job.work_mode %}<span class="chip">{{ job.work_mode }}</span>{% endif %}
+        {% if job.employment_type %}<span class="chip">{{ job.employment_type }}</span>{% endif %}
+        {% if job.seniority %}<span class="chip">{{ job.seniority }}</span>{% endif %}
+        {% if job.salary_min or job.salary_max %}
+        <span class="chip">
+            {{ job.salary_currency or '' }}
+            {{ '{:,}'.format(job.salary_min) if job.salary_min else '—' }}–{{ '{:,}'.format(job.salary_max) if job.salary_max else '—' }}
+            {% if job.salary_period %}/{{ job.salary_period }}{% endif %}
+        </span>
+        {% endif %}
+        {% if job.deadline %}<span class="chip">Closes {{ job.deadline }}</span>{% endif %}
+    </div>
+    {% if job.source_url %}
+    <a class="button button--small button--link" href="{{ job.source_url }}" target="_blank" rel="noopener noreferrer">
+        Open original <i class="uil uil-external-link-alt button__icon"></i>
+    </a>
+    {% endif %}
+</div>
+
+<section class="panel" id="run-panel" data-run-id="{{ run.id if run else '' }}" data-run-status="{{ run.status if run else 'none' }}">
+    <div class="panel__head">
+        <div>
+            <p class="panel__kicker">Pipeline</p>
+            <h2 class="panel__title" id="run-title">Reading this posting</h2>
+            <p class="panel__hint" id="run-hint">
+                {% if run and run.status in ('queued', 'running') %}
+                    Working — this page updates itself.
+                {% elif run and run.status == 'succeeded' %}
+                    Finished in {{ run.steps|length }} steps.
+                {% elif run and run.status == 'failed' %}
+                    Stopped before finishing.
+                {% elif run and run.status == 'cancelled' %}
+                    Cancelled.
+                {% elif run and run.status == 'interrupted' %}
+                    Interrupted by a restart.
+                {% else %}
+                    No run yet.
+                {% endif %}
+            </p>
+        </div>
+        <div class="panel__actions">
+            {% if run and run.status in ('queued', 'running') %}
+            <button type="button" class="button button--small button--ghost" id="run-cancel">Cancel</button>
+            {% elif run %}
+            <button type="button" class="button button--small" id="run-retry">
+                <i class="uil uil-redo button__icon button__icon--lead"></i>
+                Run again
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+         aria-valuenow="{{ run.progress_pct if run else 0 }}"
+         aria-label="Run progress" id="run-progress">
+        <span class="progress__bar" id="run-bar" style="width: {{ run.progress_pct if run else 0 }}%"></span>
+    </div>
+
+    <ol class="steps" id="run-steps" aria-live="polite">
+        {% for step in (run.steps if run else []) %}
+        <li class="steps__item steps__item--{{ step.status }}" data-skill="{{ step.skill }}">
+            <span class="steps__icon">
+                {% if step.status == 'succeeded' %}<i class="uil uil-check"></i>
+                {% elif step.status == 'running' %}<i class="uil uil-spinner-alt"></i>
+                {% elif step.status == 'failed' %}<i class="uil uil-exclamation-triangle"></i>
+                {% else %}<i class="uil uil-circle"></i>{% endif %}
+            </span>
+            <span class="steps__body">
+                <span class="steps__label">{{ skill_labels.get(step.skill, step.skill) }}</span>
+                {% if step.error %}<span class="steps__error">{{ step.error }}</span>{% endif %}
+            </span>
+            <span class="steps__meta">
+                {% if step.duration_ms %}{{ step.duration_ms }} ms{% endif %}
+                {% if step.tokens_in or step.tokens_out %} · {{ step.tokens_in + step.tokens_out }} tokens{% endif %}
+            </span>
+        </li>
+        {% endfor %}
+    </ol>
+
+    <p class="run-error" id="run-error" role="alert" {% if not (run and run.error) %}hidden{% endif %}>{{ run.error if run else '' }}</p>
+</section>
+
+<div class="dash-grid">
+    <div class="dash-grid__main">
+        <section class="panel" aria-labelledby="brief-title">
+            <div class="panel__head">
+                <div>
+                    <p class="panel__kicker">Brief</p>
+                    <h2 class="panel__title" id="brief-title">What the posting asks for</h2>
+                    <p class="panel__hint">Extracted from the posting only. Nothing here is invented.</p>
+                </div>
+                {% if summary_html %}<span class="pill pill--success">Summary ready</span>{% endif %}
+            </div>
+
+            {% if summary_html %}
+            <div class="prose" id="summary-md">{{ summary_html|safe }}</div>
+            {% else %}
+            <div class="empty">
+                <span class="empty__icon"><i class="uil uil-file-alt"></i></span>
+                <h3 class="empty__title">The brief appears when the run finishes</h3>
+                <p class="empty__copy">Skipper reads the posting, extracts the must-haves and writes a one-screen summary.</p>
+            </div>
+            {% endif %}
+        </section>
+
+        {% if job.extract_json %}
+        <section class="panel" aria-labelledby="extract-title">
+            <div class="panel__head">
+                <div>
+                    <p class="panel__kicker">Structured</p>
+                    <h2 class="panel__title" id="extract-title">Extracted fields</h2>
+                    <p class="panel__hint">What later skills read instead of re-parsing the page.</p>
+                </div>
+            </div>
+
+            <dl class="kv kv--stack">
+                <div class="kv__row"><dt>Title</dt><dd>{{ job.extract_json.title }}</dd></div>
+                <div class="kv__row"><dt>Company</dt><dd>{{ job.extract_json.company_name }}</dd></div>
+                {% if job.extract_json.location %}<div class="kv__row"><dt>Location</dt><dd>{{ job.extract_json.location }}</dd></div>{% endif %}
+                {% if job.extract_json.seniority %}<div class="kv__row"><dt>Seniority</dt><dd>{{ job.extract_json.seniority }}</dd></div>{% endif %}
+                {% if job.extract_json.summary_one_line %}<div class="kv__row"><dt>One line</dt><dd>{{ job.extract_json.summary_one_line }}</dd></div>{% endif %}
+            </dl>
+
+            {% macro chips(title, items) %}
+            {% if items %}
+            <h3 class="chips__title">{{ title }}</h3>
+            <ul class="chips">
+                {% for item in items %}<li class="chip">{{ item }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+            {% endmacro %}
+
+            {{ chips('Must have', job.extract_json.must_have) }}
+            {{ chips('Nice to have', job.extract_json.nice_to_have) }}
+            {{ chips('Keywords', job.extract_json.keywords) }}
+            {{ chips('Benefits', job.extract_json.benefits) }}
+            {% if job.extract_json.red_flags %}
+            <h3 class="chips__title">Red flags</h3>
+            <ul class="chips chips--warning">
+                {% for item in job.extract_json.red_flags %}<li class="chip">{{ item }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+        </section>
+        {% endif %}
+    </div>
+
+    <aside class="dash-grid__side">
+        <section class="panel panel--quiet" aria-labelledby="timeline-title">
+            <div class="panel__head">
+                <div>
+                    <p class="panel__kicker">History</p>
+                    <h2 class="panel__title" id="timeline-title">Timeline</h2>
+                </div>
+            </div>
+            <div class="list list--tight">
+                {% for event in events %}
+                <div class="list__row list__row--plain">
+                    <span class="list__main">
+                        <span class="list__title">{{ event.event_type|capitalize }}</span>
+                        <span class="list__meta">{{ event.note or (status_labels.get(event.to_status) if event.to_status else '') }}</span>
+                        <span class="list__meta">{{ event.created_at[:16].replace('T', ' ') }} UTC</span>
+                    </span>
+                </div>
+                {% else %}
+                <p class="panel__hint">Nothing recorded yet.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="panel panel--quiet" aria-labelledby="run-stats-title">
+            <div class="panel__head">
+                <div>
+                    <p class="panel__kicker">Cost</p>
+                    <h2 class="panel__title" id="run-stats-title">This run</h2>
+                </div>
+            </div>
+            <dl class="kv">
+                <div class="kv__row"><dt>Status</dt><dd id="run-stat-status">{{ run_status_labels.get(run.status, run.status) if run else '—' }}</dd></div>
+                <div class="kv__row"><dt>Tokens in</dt><dd id="run-stat-in">{{ run.tokens_in if run else 0 }}</dd></div>
+                <div class="kv__row"><dt>Tokens out</dt><dd id="run-stat-out">{{ run.tokens_out if run else 0 }}</dd></div>
+                <div class="kv__row"><dt>Cost</dt><dd id="run-stat-cost">${{ '%.4f'|format(run.cost_usd) if run else '0.0000' }}</dd></div>
+            </dl>
+        </section>
+    </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/poll.js" defer></script>
+<script src="/static/js/job_detail.js" defer></script>
+{% endblock %}

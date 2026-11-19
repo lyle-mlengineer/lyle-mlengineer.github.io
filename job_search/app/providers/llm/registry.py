@@ -8,6 +8,7 @@ from __future__ import annotations
 import httpx
 
 from ...config import Settings
+from ...skills.registry import FAKE_RESPONSES
 from .base import LLMProvider, LLMProviderError
 from .cache import CachingLLMProvider
 from .fake import FakeLLMProvider
@@ -41,7 +42,7 @@ def build_llm_provider(
             **kwargs,
         )
     elif settings.llm_provider == "fake":
-        provider = FakeLLMProvider()
+        provider = FakeLLMProvider(FAKE_RESPONSES)
     else:  # pragma: no cover - config validation rejects this
         raise LLMProviderError(f"Unsupported LLM provider: {settings.llm_provider}")
 

@@ -61,6 +61,15 @@ ACTIVE_JOB_STATUSES: tuple[str, ...] = (
 RUN_STATUSES: tuple[str, ...] = ("queued", "running", "succeeded", "failed", "cancelled", "interrupted")
 RUN_TERMINAL: frozenset[str] = frozenset({"succeeded", "failed", "cancelled", "interrupted"})
 
+RUN_STATUS_LABELS: dict[str, str] = {
+    "queued": "Queued",
+    "running": "Working",
+    "succeeded": "Finished",
+    "failed": "Failed",
+    "cancelled": "Cancelled",
+    "interrupted": "Interrupted",
+}
+
 STEP_STATUSES: tuple[str, ...] = ("pending", "running", "succeeded", "failed", "skipped")
 
 ARTIFACT_KINDS: tuple[str, ...] = (

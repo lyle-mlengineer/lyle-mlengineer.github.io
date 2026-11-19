@@ -180,3 +180,13 @@ def test_404_renders_a_page(client):
     response = client.get("/nope")
     assert response.status_code == 404
     assert "does not exist" in response.text
+
+
+def test_hero_uses_a_precropped_retina_asset(client):
+    html = client.get("/").text
+    assert '/static/img/lyle-hero-2x.jpg' in html
+    assert 'preserveAspectRatio="xMidYMin slice"' in html
+    image = client.get("/static/img/lyle-hero-2x.jpg")
+    assert image.status_code == 200
+    assert image.headers["content-type"] == "image/jpeg"
+    assert len(image.content) < 400_000

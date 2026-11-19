@@ -5,10 +5,10 @@
 {% block eyebrow %}Job search · overview{% endblock %}
 
 {% block topbar_actions %}
-<span class="button button--small button--ghost is-disabled" aria-disabled="true" title="Job intake arrives with the extraction step">
+<a href="/jobs" class="button button--small">
     <i class="uil uil-plus button__icon button__icon--lead"></i>
     Add job
-</span>
+</a>
 {% endblock %}
 
 {% block app_content %}
@@ -26,8 +26,8 @@
 <div class="notice" role="status">
     <i class="uil uil-info-circle"></i>
     <span>
-        The dashboard is live; job intake is the next build step. Once it lands, this page fills itself from
-        every posting you add. The full build order is in <code>docs/steps.md</code>.
+        No jobs yet. Add a posting on the <a href="/jobs">Jobs page</a> and Skipper will read it, write the brief
+        and keep the status here up to date.
     </span>
 </div>
 {% endif %}

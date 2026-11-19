@@ -5,13 +5,33 @@
 {% block eyebrow %}Everything you have considered{% endblock %}
 
 {% block topbar_actions %}
-<span class="button button--small button--ghost is-disabled" aria-disabled="true" title="Job intake arrives with the extraction step">
+<button type="button" class="button button--small" data-add-job-open>
     <i class="uil uil-plus button__icon button__icon--lead"></i>
     Add job
-</span>
+</button>
 {% endblock %}
 
 {% block app_content %}
+<form class="filters" method="get" action="/jobs" role="search">
+    <label class="field field--inline">
+        <span class="field__label">Search</span>
+        <input class="input" type="search" name="q" value="{{ query }}" placeholder="Title or company">
+    </label>
+    <label class="field field--inline">
+        <span class="field__label">Status</span>
+        <select class="input" name="status">
+            <option value="">Any status</option>
+            {% for status in status_order %}
+            <option value="{{ status }}" {% if status_filter == status %}selected{% endif %}>{{ status_labels.get(status, status) }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <button type="submit" class="button button--small button--ghost">Filter</button>
+    {% if query or status_filter %}
+    <a href="/jobs" class="button button--small button--link">Clear</a>
+    {% endif %}
+</form>
+
 {% if jobs %}
 <div class="list">
     {% for job in jobs %}
@@ -19,26 +39,97 @@
         <span class="list__main">
             <span class="list__title">{{ job.title }}</span>
             <span class="list__meta">
-                {{ job.company.name if job.company else 'Unknown company' }}
+                {{ job.company.name if job.company else 'Company pending' }}
                 {% if job.location %} · {{ job.location }}{% endif %}
                 {% if job.work_mode %} · {{ job.work_mode }}{% endif %}
             </span>
-            <span class="list__meta">Updated {{ job.updated_at[:10] }}</span>
+            <span class="list__meta">
+                {% set run = job.runs[0] if job.runs else None %}
+                {% if run and run.status in ('queued', 'running') %}
+                    Working · {{ run.progress_pct }}%
+                {% elif run and run.status == 'failed' %}
+                    Last run failed · retry available
+                {% else %}
+                    Updated {{ job.updated_at[:10] }}
+                {% endif %}
+            </span>
         </span>
         <span class="pill pill--{{ status_tone.get(job.status, 'neutral') }}">{{ status_labels.get(job.status, job.status) }}</span>
     </a>
     {% endfor %}
 </div>
+{% elif query or status_filter %}
+<section class="panel">
+    <div class="empty">
+        <span class="empty__icon"><i class="uil uil-search"></i></span>
+        <h2 class="empty__title">No jobs match that filter</h2>
+        <p class="empty__copy">Try a different company, title or status.</p>
+        <a href="/jobs" class="button button--small button--ghost">Clear filters</a>
+    </div>
+</section>
 {% else %}
 <section class="panel">
     <div class="empty">
         <span class="empty__icon"><i class="uil uil-briefcase-alt"></i></span>
         <h2 class="empty__title">No jobs yet</h2>
         <p class="empty__copy">
-            Jobs appear here the moment a posting is added. Intake, extraction and the job detail page are the next
-            build step — the table, filters and status controls are already designed.
+            Paste a posting or a link and Skipper reads it, writes the brief and keeps everything in one place.
         </p>
+        <button type="button" class="button button--small" data-add-job-open>
+            <i class="uil uil-plus button__icon button__icon--lead"></i>
+            Add your first job
+        </button>
     </div>
 </section>
 {% endif %}
+
+<dialog class="job-modal" id="add-job" aria-labelledby="add-job-title">
+    <form class="modal__body" id="add-job-form" novalidate>
+        <div class="modal__head">
+            <h2 class="modal__title" id="add-job-title">Add a job</h2>
+            <button type="button" class="modal__close" data-add-job-close aria-label="Close">
+                <i class="uil uil-times"></i>
+            </button>
+        </div>
+
+        <div class="tabs" role="tablist" aria-label="Job source">
+            <button type="button" class="tabs__tab tabs__tab--active" role="tab" aria-selected="true" data-tab="url">
+                Job link
+            </button>
+            <button type="button" class="tabs__tab" role="tab" aria-selected="false" data-tab="text">
+                Paste text
+            </button>
+        </div>
+
+        <div data-panel="url">
+            <label class="field">
+                <span class="field__label">Posting URL</span>
+                <input class="input" type="url" name="source_url" placeholder="https://company.com/careers/role" autocomplete="off">
+            </label>
+            <p class="field__hint">Public careers pages and job boards work best. If the page needs JavaScript, paste the text instead.</p>
+        </div>
+
+        <div data-panel="text" hidden>
+            <label class="field">
+                <span class="field__label">Posting text</span>
+                <textarea class="input input--area" name="source_text" rows="10" placeholder="Paste the whole posting…"></textarea>
+            </label>
+            <p class="field__hint">At least 200 characters. Up to 60,000.</p>
+        </div>
+
+        <p class="form__error" id="add-job-error" role="alert" hidden></p>
+
+        <div class="modal__foot">
+            <button type="submit" class="button button--small" id="add-job-submit">
+                <i class="uil uil-rocket button__icon button__icon--lead"></i>
+                Read this job
+            </button>
+            <button type="button" class="button button--small button--link" data-add-job-close>Cancel</button>
+        </div>
+    </form>
+</dialog>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/add_job.js" defer></script>
 {% endblock %}

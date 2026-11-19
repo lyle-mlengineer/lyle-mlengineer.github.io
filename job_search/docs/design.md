@@ -388,7 +388,7 @@ It is an external-content index over `portfolio_chunks`; the RAG ingest rebuilds
 4. **Extract:** BeautifulSoup → drop `script/style/noscript/svg/iframe/nav/footer/aside`; pick the densest block among `main`, `article`, `[class*=job]`, `[id*=job]`, `body`; normalise whitespace; keep lists as `- ` lines; keep headings as `## `. Output: `title`, `text`, `description_md`.
 5. **Fallback:** if extracted text < 400 chars, use the whole body text; if still < 400, mark the run `failed` with "Could not read a job description from that page — paste the text instead" and keep the URL for the user.
 6. **Store** the fetch in `sources` (kind `posting`) for provenance.
-7. **Dedupe:** fingerprint `sha1(lower(company_name)|lower(title)|lower(location))` after extraction. On collision, return `409` with the existing `job_id` and the option `?attach=1`, which starts a new run on the existing job instead of creating a duplicate.
+7. **Dedupe:** fingerprint the source identity at creation — `sha1("url|" + canonical_url)` or `sha1("text|" + normalised_text)` — and keep it stable when extraction renames the job. On collision, return `409` with the existing `job_id` and the option `?attach=1`, which starts a new run on the existing job instead of creating a duplicate. A post-extraction company/title/location key was rejected because it changes after creation and would let the same paste through twice.
 
 ### 11.3 Text path
 
@@ -603,7 +603,7 @@ Execution is a topological pass with a deterministic order (`PIPELINE_ORDER`). v
 1. Worker claims the run atomically: `UPDATE runs SET status='running', started_at=? WHERE id=? AND status='queued'` — 0 rows means someone else owns it; exit.
 2. For each step in order: write `status='running'`, check `cancel_requested`, check elapsed against `RUN_MAX_MINUTES`, execute, persist `output_json`, `status='succeeded'`, recompute progress in the same transaction.
 3. On a required-step failure: run → `failed`, `error` = human sentence + skill name + attempt count; optional steps after it are `skipped`; artifacts already produced stay current (a failed interview step does not delete a good CV).
-4. On completion: run → `succeeded`, job status `preparing` → `ready` (only if all required artifacts exist), `job_events` row, `next_action` suggested ("Send email to …").
+4. On completion: run → `succeeded`; job status moves to `reviewing` while only the brief exists, and to `ready` once every required artifact exists. Every change writes a `job_events` row and suggests a `next_action`.
 5. **Cancellation:** `POST /api/runs/{id}/cancel` sets `cancel_requested=1`; the worker checks between steps and between LLM retries; terminal status `cancelled`, completed artifacts kept.
 6. **Recovery:** on startup, `UPDATE runs SET status='interrupted', error='Server restarted during the run' WHERE status IN ('queued','running')`. The job page offers "Resume" which creates a new run seeded with the previous run's `output_json` per skill (prior outputs are passed in `SkillContext.prior`), so resumes skip completed work.
 7. **Single-flight:** `POST /api/jobs/{id}/runs` returns `409` if the job already has a `queued`/`running` run.
