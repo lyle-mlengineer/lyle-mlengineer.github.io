@@ -182,6 +182,7 @@ job_search/
   app/
     main.py              # app factory, lifespan, middleware, routers
     config.py            # pydantic-settings (SKIPPER_ prefix)
+    validation.py        # small dependency-free JSON schema validator
     db.py                # engine, session factory, schema bootstrap, sweeps
     models.py            # SQLAlchemy 2.0 declarative models (single source of truth)
     domain.py            # statuses, transitions, skill manifest, labels
@@ -203,6 +204,8 @@ job_search/
         base.py          # LLMProvider ABC, ChatMessage, LLMResponse
         groq.py          # GroqProvider (OpenAI-compatible)
         fake.py          # FakeLLMProvider for tests
+        cache.py         # exact-match response cache
+        pricing.py       # token price table for cost display
         registry.py      # provider selection + model routing
       search/
         base.py          # SearchProvider ABC, SearchResult
@@ -434,7 +437,7 @@ A `complete_json(messages, schema, ...)` helper lives beside the ABC (not in pro
 1. Append `Respond with a single JSON object and nothing else.` plus a compact schema description.
 2. Call with `response_format="json"` (wire-level JSON mode when supported; otherwise prompt-enforced).
 3. `json.loads` with fence stripping; on failure, one **repair turn**: send back the raw output plus the parse error and request only a corrected JSON object.
-4. Validate with `skills/base.py::validate(payload, schema)` — a small, dependency-free validator supporting `type`, `required`, `items`, `enum`, `min_len`, `nullable`.
+4. Validate with `app/validation.py::validate(payload, schema)` — a small, dependency-free validator supporting `type`, `required`, `properties`, `items`, `enum`, `min_len`, `nullable`.
 5. On validation failure: one repair turn naming the offending paths; then raise `SkillValidationError` (recorded on the step, not the whole run).
 
 ### 12.2 Groq implementation
@@ -454,14 +457,14 @@ payload = {
 
 - `openai/gpt-oss-120b` is the large tier: extraction, company research, CV, interviews.
 - `openai/gpt-oss-20b` is the small tier: summary, email, spoken answers, cover letter first draft.
-- Groq's limits are honoured by reading `retry-after` and the `x-ratelimit-remaining-requests` headers; tokens-per-minute risk is handled by a per-process token bucket (60k TPM default, configurable).
+- Groq's limits are honoured by reading `retry-after` and the `x-ratelimit-remaining-requests` headers; tokens-per-minute risk is handled by a per-process token bucket (30k TPM default, configurable with `SKIPPER_GROQ_TPM`).
 - Retries: 3 attempts on `429`, `5xx`, `httpx.TimeoutException`, `httpx.ConnectError` with exponential backoff (1, 4, 12 s + jitter). No retry on `400`/`401`.
 - `groq` is `openai`-compatible, so `OpenAICompatibleProvider` is the base class: swap base URL + key for OpenAI/OpenRouter/Ollama/vLLM without new code. Only Groq is wired in v1.
 
 ### 12.3 Routing, caching and cost
 
 - Skills declare `tier: large | small`; `registry.py` maps tier → configured model.
-- Cache key: `sha256(provider|model|temperature|json-schema-version|messages)`; hits return the cached response and record `tokens_in=0`. Cache is scoped to a job run by default (`replay=false` env for debugging), and is what makes "regenerate one artifact" cheap.
+- Cache key: `sha256(provider|model|temperature|response_format|messages)`; hits return the cached response and record `tokens_in=0`. Entries are exact-match and never expire automatically; they make retries after a crash free and keep development from paying twice for an identical prompt.
 - Every call writes tokens into the current `run_steps` row; runs roll up into `runs.tokens_*`. `cost_usd` uses a static price table in `providers/llm/pricing.py` (Groq list prices; zero for `fake`).
 - Per-run budget guard: if tokens exceed `SKIPPER_RUN_TOKEN_BUDGET` (default 120k), remaining optional steps are skipped with a clear reason.
 
@@ -744,7 +747,7 @@ Typography scale, section titles, `.button`, `.chip`, `.modal`, `.services__cont
 A rebuilt portfolio in Jinja at `/`, deliberately static-quality:
 
 - Same fixed header/nav, hero (name, subtitle, description, two CTAs: **Open Skipper** and **View my work**), social rail, blob portrait.
-- New sections: **Skipper** (what it does, the 11 skills as chips, a 3-step "paste → run → apply" strip, screenshot panel built from CSS), **Selected work** (six projects as a static grid, no Swiper dependency), **About** (condensed), **Contact**, footer.
+- New sections: **Skipper** (what it does, the 11 skills as chips, a 3-step "paste → run → apply" strip, screenshot panel built from CSS), **Selected work** (all ten portfolio projects as a static grid, no Swiper dependency), **Skills** (the portfolio's four groups with 16 bars and every toolchain chip), **About** (condensed, with a CV picker listing all six role variants; each opens its PDF in a new tab), **Contact**, footer.
 - No API calls, no polling, theme toggle persisted in `localStorage`; one small JS file.
 
 ### 19.3 App shell

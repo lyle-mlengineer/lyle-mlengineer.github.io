@@ -273,7 +273,7 @@
                         <span class="about__info-name">Years of <br> experience</span>
                     </div>
                     <div>
-                        <span class="about__info-title">08+</span>
+                        <span class="about__info-title">10+</span>
                         <span class="about__info-name">Projects <br> completed</span>
                     </div>
                     <div>
@@ -283,11 +283,51 @@
                 </div>
 
                 <div class="about__buttons">
-                    <a href="{{ portfolio_url }}cv/LYLE-OKOTH-MACHINE-LEARNING-ENGINEER.pdf"
-                       class="button button--flex" download>
-                        Download CV
-                        <i class="uil uil-download-alt button__icon"></i>
-                    </a>
+                    <div class="cv-menu" data-cv-menu>
+                        <button type="button" class="button button--flex cv-menu__toggle" id="cv-menu-button"
+                                aria-haspopup="true" aria-expanded="false" aria-controls="cv-menu-list">
+                            Download CV
+                            <i class="uil uil-angle-down button__icon"></i>
+                        </button>
+                        <ul class="cv-menu__list" id="cv-menu-list" role="menu" aria-labelledby="cv-menu-button" hidden>
+                        <li role="none">
+                            <a role="menuitem" class="cv-menu__item" href="/static/cv/LYLE-OKOTH-AI-ENGINEER.pdf" target="_blank" rel="noopener">
+                                <span>AI Engineer</span>
+                                <span class="cv-menu__format">PDF <i class="uil uil-external-link-alt"></i></span>
+                            </a>
+                        </li>
+                        <li role="none">
+                            <a role="menuitem" class="cv-menu__item" href="/static/cv/LYLE-OKOTH-AI-ML-ENGINEER.pdf" target="_blank" rel="noopener">
+                                <span>AI/ML Engineer</span>
+                                <span class="cv-menu__format">PDF <i class="uil uil-external-link-alt"></i></span>
+                            </a>
+                        </li>
+                        <li role="none">
+                            <a role="menuitem" class="cv-menu__item" href="/static/cv/LYLE-OKOTH-DATA-ENGINEER.pdf" target="_blank" rel="noopener">
+                                <span>Data Engineer</span>
+                                <span class="cv-menu__format">PDF <i class="uil uil-external-link-alt"></i></span>
+                            </a>
+                        </li>
+                        <li role="none">
+                            <a role="menuitem" class="cv-menu__item" href="/static/cv/LYLE-OKOTH-MACHINE-LEARNING-ENGINEER.pdf" target="_blank" rel="noopener">
+                                <span>Machine Learning Engineer</span>
+                                <span class="cv-menu__format">PDF <i class="uil uil-external-link-alt"></i></span>
+                            </a>
+                        </li>
+                        <li role="none">
+                            <a role="menuitem" class="cv-menu__item" href="/static/cv/LYLE-OKOTH-ML-RESEARCHER.pdf" target="_blank" rel="noopener">
+                                <span>ML Researcher</span>
+                                <span class="cv-menu__format">PDF <i class="uil uil-external-link-alt"></i></span>
+                            </a>
+                        </li>
+                        <li role="none">
+                            <a role="menuitem" class="cv-menu__item" href="/static/cv/LYLE-OKOTH-SOFTWARE-ENGINEER.pdf" target="_blank" rel="noopener">
+                                <span>Software Engineer</span>
+                                <span class="cv-menu__format">PDF <i class="uil uil-external-link-alt"></i></span>
+                            </a>
+                        </li>
+                        </ul>
+                    </div>
                     <a href="{{ portfolio_url }}" class="button button--flex button--ghost">
                         Full portfolio
                         <i class="uil uil-external-link-alt button__icon"></i>
@@ -300,7 +340,7 @@
     <!--==================== SKILLS ====================-->
     <section class="skills section" id="skills">
         <h2 class="section__title">Skills</h2>
-        <span class="section__subtitle">What Skipper has to work with</span>
+        <span class="section__subtitle">Every skill from the portfolio, in four groups</span>
 
         <div class="skills__container container grid">
             <div class="skills__content skills__open">
@@ -335,12 +375,19 @@
                         </div>
                         <div class="skills__bar"><span class="skills__percentage" style="--pct: 84%"></span></div>
                     </div>
+                    <div class="skills__data">
+                        <div class="skills__titles">
+                            <h4 class="skills__name">Diarisation, VAD &amp; speaker embeddings</h4>
+                            <span class="skills__number">80%</span>
+                        </div>
+                        <div class="skills__bar"><span class="skills__percentage" style="--pct: 80%"></span></div>
+                    </div>
                     <div class="skills__group">
                         <h4 class="skills__group-title">Toolchain</h4>
                         <div class="chip-row">
-                            <span class="chip">Whisper</span><span class="chip">wav2vec 2.0</span>
-                            <span class="chip">NeMo</span><span class="chip">Coqui TTS</span>
-                            <span class="chip">pyannote.audio</span><span class="chip">FFmpeg</span>
+                            <span class="chip">OpenAI Whisper</span><span class="chip">wav2vec 2.0 / HuBERT</span><span class="chip">NVIDIA NeMo</span><span class="chip">ESPnet</span>
+                            <span class="chip">Coqui TTS</span><span class="chip">VITS / Matcha-TTS</span><span class="chip">pyannote.audio</span><span class="chip">torchaudio</span>
+                            <span class="chip">librosa</span><span class="chip">WebRTC VAD</span><span class="chip">Kaldi</span><span class="chip">FFmpeg</span>
                         </div>
                     </div>
                 </div>
@@ -350,8 +397,8 @@
                 <div class="skills__header" role="button" tabindex="0" aria-expanded="true">
                     <i class="uil uil-brain skills__icon"></i>
                     <div>
-                        <h3 class="skills__title">ML, Data &amp; MLOps</h3>
-                        <span class="skills__subtitle">Research to production · 4+ years</span>
+                        <h3 class="skills__title">Machine Learning &amp; Deep Learning</h3>
+                        <span class="skills__subtitle">Research to model · 4+ years</span>
                     </div>
                     <i class="uil uil-angle-down skills__arrow"></i>
                 </div>
@@ -359,31 +406,139 @@
                 <div class="skills__list grid">
                     <div class="skills__data">
                         <div class="skills__titles">
-                            <h4 class="skills__name">PyTorch training &amp; fine-tuning</h4>
+                            <h4 class="skills__name">PyTorch training &amp; distributed runs</h4>
                             <span class="skills__number">90%</span>
                         </div>
                         <div class="skills__bar"><span class="skills__percentage" style="--pct: 90%"></span></div>
                     </div>
                     <div class="skills__data">
                         <div class="skills__titles">
-                            <h4 class="skills__name">Data pipelines &amp; audio labelling</h4>
+                            <h4 class="skills__name">Fine-tuning &amp; PEFT (LoRA / QLoRA)</h4>
+                            <span class="skills__number">87%</span>
+                        </div>
+                        <div class="skills__bar"><span class="skills__percentage" style="--pct: 87%"></span></div>
+                    </div>
+                    <div class="skills__data">
+                        <div class="skills__titles">
+                            <h4 class="skills__name">Diffusion &amp; flow-matching models</h4>
+                            <span class="skills__number">78%</span>
+                        </div>
+                        <div class="skills__bar"><span class="skills__percentage" style="--pct: 78%"></span></div>
+                    </div>
+                    <div class="skills__data">
+                        <div class="skills__titles">
+                            <h4 class="skills__name">Evaluation &amp; experiment tracking</h4>
+                            <span class="skills__number">85%</span>
+                        </div>
+                        <div class="skills__bar"><span class="skills__percentage" style="--pct: 85%"></span></div>
+                    </div>
+                    <div class="skills__group">
+                        <h4 class="skills__group-title">Toolchain</h4>
+                        <div class="chip-row">
+                            <span class="chip">PyTorch 2.x</span><span class="chip">Hugging Face Transformers</span><span class="chip">Datasets</span><span class="chip">PEFT</span>
+                            <span class="chip">Accelerate</span><span class="chip">DeepSpeed</span><span class="chip">Diffusers</span><span class="chip">scikit-learn</span>
+                            <span class="chip">XGBoost</span><span class="chip">Weights &amp; Biases</span><span class="chip">MLflow</span><span class="chip">Optuna</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="skills__content skills__open">
+                <div class="skills__header" role="button" tabindex="0" aria-expanded="true">
+                    <i class="uil uil-database skills__icon"></i>
+                    <div>
+                        <h3 class="skills__title">Data Engineering</h3>
+                        <span class="skills__subtitle">Data foundations · 4+ years</span>
+                    </div>
+                    <i class="uil uil-angle-down skills__arrow"></i>
+                </div>
+
+                <div class="skills__list grid">
+                    <div class="skills__data">
+                        <div class="skills__titles">
+                            <h4 class="skills__name">Audio ingestion, alignment &amp; labelling</h4>
+                            <span class="skills__number">90%</span>
+                        </div>
+                        <div class="skills__bar"><span class="skills__percentage" style="--pct: 90%"></span></div>
+                    </div>
+                    <div class="skills__data">
+                        <div class="skills__titles">
+                            <h4 class="skills__name">Batch ETL / ELT pipelines</h4>
                             <span class="skills__number">86%</span>
                         </div>
                         <div class="skills__bar"><span class="skills__percentage" style="--pct: 86%"></span></div>
                     </div>
                     <div class="skills__data">
                         <div class="skills__titles">
-                            <h4 class="skills__name">APIs, containers &amp; deployment</h4>
-                            <span class="skills__number">88%</span>
+                            <h4 class="skills__name">SQL modelling &amp; warehousing</h4>
+                            <span class="skills__number">82%</span>
                         </div>
-                        <div class="skills__bar"><span class="skills__percentage" style="--pct: 88%"></span></div>
+                        <div class="skills__bar"><span class="skills__percentage" style="--pct: 82%"></span></div>
+                    </div>
+                    <div class="skills__data">
+                        <div class="skills__titles">
+                            <h4 class="skills__name">Streaming &amp; event-driven jobs</h4>
+                            <span class="skills__number">74%</span>
+                        </div>
+                        <div class="skills__bar"><span class="skills__percentage" style="--pct: 74%"></span></div>
                     </div>
                     <div class="skills__group">
                         <h4 class="skills__group-title">Toolchain</h4>
                         <div class="chip-row">
-                            <span class="chip">PyTorch</span><span class="chip">Hugging Face</span>
-                            <span class="chip">FastAPI</span><span class="chip">PostgreSQL</span>
-                            <span class="chip">Docker</span><span class="chip">Airflow</span>
+                            <span class="chip">Apache Spark</span><span class="chip">Airflow</span><span class="chip">Kafka</span><span class="chip">dbt</span>
+                            <span class="chip">PostgreSQL</span><span class="chip">BigQuery</span><span class="chip">Parquet / Arrow</span><span class="chip">Delta Lake</span>
+                            <span class="chip">S3 / GCS</span><span class="chip">Label Studio</span><span class="chip">Pandas / Polars</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="skills__content skills__open">
+                <div class="skills__header" role="button" tabindex="0" aria-expanded="true">
+                    <i class="uil uil-server-network skills__icon"></i>
+                    <div>
+                        <h3 class="skills__title">MLOps &amp; Deployment</h3>
+                        <span class="skills__subtitle">Model to production · 4+ years</span>
+                    </div>
+                    <i class="uil uil-angle-down skills__arrow"></i>
+                </div>
+
+                <div class="skills__list grid">
+                    <div class="skills__data">
+                        <div class="skills__titles">
+                            <h4 class="skills__name">Real-time API &amp; streaming services</h4>
+                            <span class="skills__number">88%</span>
+                        </div>
+                        <div class="skills__bar"><span class="skills__percentage" style="--pct: 88%"></span></div>
+                    </div>
+                    <div class="skills__data">
+                        <div class="skills__titles">
+                            <h4 class="skills__name">Containerisation &amp; orchestration</h4>
+                            <span class="skills__number">84%</span>
+                        </div>
+                        <div class="skills__bar"><span class="skills__percentage" style="--pct: 84%"></span></div>
+                    </div>
+                    <div class="skills__data">
+                        <div class="skills__titles">
+                            <h4 class="skills__name">Inference optimisation &amp; quantisation</h4>
+                            <span class="skills__number">85%</span>
+                        </div>
+                        <div class="skills__bar"><span class="skills__percentage" style="--pct: 85%"></span></div>
+                    </div>
+                    <div class="skills__data">
+                        <div class="skills__titles">
+                            <h4 class="skills__name">CI/CD, monitoring &amp; model registry</h4>
+                            <span class="skills__number">78%</span>
+                        </div>
+                        <div class="skills__bar"><span class="skills__percentage" style="--pct: 78%"></span></div>
+                    </div>
+                    <div class="skills__group">
+                        <h4 class="skills__group-title">Toolchain</h4>
+                        <div class="chip-row">
+                            <span class="chip">FastAPI</span><span class="chip">Uvicorn</span><span class="chip">gRPC / WebSockets</span><span class="chip">ONNX Runtime</span>
+                            <span class="chip">TensorRT</span><span class="chip">Triton Inference Server</span><span class="chip">Docker</span><span class="chip">Kubernetes</span>
+                            <span class="chip">Redis</span><span class="chip">GitHub Actions</span><span class="chip">Terraform</span><span class="chip">AWS (S3, EC2, ECS)</span>
+                            <span class="chip">GCP Vertex AI</span><span class="chip">Prometheus / Grafana</span>
                         </div>
                     </div>
                 </div>
@@ -402,9 +557,20 @@
                     <img src="/static/img/sautiflow.png" alt="SautiFlow studio interface" class="work__img" loading="lazy" width="1280" height="640">
                     <div class="work__body">
                         <h3 class="work__title">SautiFlow</h3>
-                        <p class="work__desc">Turn a written script into voiced, mixed audio skits in one session.</p>
+                        <p class="work__desc">Turn a written script into dozens of voiced, mixed audio skits in a single session.</p>
                         <a href="https://www.sautiflow.co.ke/" target="_blank" rel="noopener" class="button button--small button--link work__link">
-                            Visit <i class="uil uil-arrow-right button__icon"></i>
+                            Demo <i class="uil uil-arrow-right button__icon"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <article class="work__card">
+                    <img src="/static/img/pigamagic.png" alt="PlusOne personal AI photography studio" class="work__img" loading="lazy" width="1280" height="640">
+                    <div class="work__body">
+                        <h3 class="work__title">PlusOne</h3>
+                        <p class="work__desc">A photo story of your event, built from your people and a few reference photos.</p>
+                        <a href="https://pigamagic.onrender.com" target="_blank" rel="noopener" class="button button--small button--link work__link">
+                            Website <i class="uil uil-arrow-right button__icon"></i>
                         </a>
                     </div>
                 </article>
@@ -413,9 +579,9 @@
                     <img src="/static/img/labelset.png" alt="LabelSet review queue" class="work__img" loading="lazy" width="1280" height="640">
                     <div class="work__body">
                         <h3 class="work__title">LabelSet</h3>
-                        <p class="work__desc">Source, label and ship audio datasets with review and versioned exports.</p>
+                        <p class="work__desc">Source, label and ship audio datasets with review, KES billing and versioned exports.</p>
                         <a href="https://labelset.onrender.com" target="_blank" rel="noopener" class="button button--small button--link work__link">
-                            Visit <i class="uil uil-arrow-right button__icon"></i>
+                            Demo <i class="uil uil-arrow-right button__icon"></i>
                         </a>
                     </div>
                 </article>
@@ -424,9 +590,9 @@
                     <img src="/static/img/faceform.png" alt="FaceForm persona generator" class="work__img" loading="lazy" width="1280" height="640">
                     <div class="work__body">
                         <h3 class="work__title">FaceForm</h3>
-                        <p class="work__desc">Photoreal synthetic portraits from a written casting brief.</p>
+                        <p class="work__desc">Photoreal synthetic portraits from a written casting brief, ready to license and reuse.</p>
                         <a href="https://faceform-2rkf.onrender.com" target="_blank" rel="noopener" class="button button--small button--link work__link">
-                            Visit <i class="uil uil-arrow-right button__icon"></i>
+                            Demo <i class="uil uil-arrow-right button__icon"></i>
                         </a>
                     </div>
                 </article>
@@ -435,31 +601,64 @@
                     <img src="/static/img/vocalis.png" alt="Vocalis voice design studio" class="work__img" loading="lazy" width="1280" height="640">
                     <div class="work__body">
                         <h3 class="work__title">Vocalis</h3>
-                        <p class="work__desc">Design, refine and synthesize narration with rate, style and volume controls.</p>
-                        <a href="{{ portfolio_url }}portfolio-frontend/vocalis/" target="_blank" rel="noopener" class="button button--small button--link work__link">
-                            Visit <i class="uil uil-arrow-right button__icon"></i>
+                        <p class="work__desc">Design a voice from a written brief, then synthesize narration with style, rate and volume controls.</p>
+                        <a href="https://vocalis-rvcw.onrender.com" target="_blank" rel="noopener" class="button button--small button--link work__link">
+                            Demo <i class="uil uil-arrow-right button__icon"></i>
                         </a>
                     </div>
                 </article>
 
                 <article class="work__card">
-                    <img src="/static/img/pigamagic.png" alt="PlusOne personal AI photography" class="work__img" loading="lazy" width="1280" height="640">
+                    <img src="/static/img/echoid.png" alt="EchoID speaker timeline" class="work__img" loading="lazy" width="1280" height="640">
                     <div class="work__body">
-                        <h3 class="work__title">PlusOne</h3>
-                        <p class="work__desc">A photo story of your event, built from your people and a few reference photos.</p>
-                        <a href="https://pigamagic.onrender.com" target="_blank" rel="noopener" class="button button--small button--link work__link">
-                            Visit <i class="uil uil-arrow-right button__icon"></i>
+                        <h3 class="work__title">EchoID</h3>
+                        <p class="work__desc">Speaker-labelled transcripts you can search, correct and export.</p>
+                        <a href="https://echoid.onrender.com" target="_blank" rel="noopener" class="button button--small button--link work__link">
+                            Demo <i class="uil uil-arrow-right button__icon"></i>
                         </a>
                     </div>
                 </article>
 
                 <article class="work__card">
-                    <img src="/static/img/coagent.png" alt="coAgent coding agent" class="work__img" loading="lazy" width="1280" height="640">
+                    <img src="/static/img/suraya.png" alt="Suraya — an AI face generator for Kenyan faces" class="work__img" loading="lazy" width="1280" height="640">
+                    <div class="work__body">
+                        <h3 class="work__title">Suraya</h3>
+                        <p class="work__desc">A latent diffusion model for photoreal Kenyan faces — small, inspectable and audit-driven.</p>
+                        <a href="https://github.com/lyle-mlengineer/suraya" target="_blank" rel="noopener" class="button button--small button--link work__link">
+                            Source <i class="uil uil-arrow-right button__icon"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <article class="work__card">
+                    <img src="/static/img/coagent.png" alt="coAgent — The GPU forgets. Your repo doesn't." class="work__img" loading="lazy" width="1280" height="640">
                     <div class="work__body">
                         <h3 class="work__title">coAgent</h3>
-                        <p class="work__desc">A private coding agent for Colab's free T4 — local inference, test-driven edits.</p>
+                        <p class="work__desc">A Python coding agent for Colab's free T4: local inference, test-driven edits and git checkpoints. Alpha on PyPI.</p>
                         <a href="https://coagent-web.onrender.com/" target="_blank" rel="noopener" class="button button--small button--link work__link">
-                            Visit <i class="uil uil-arrow-right button__icon"></i>
+                            Website <i class="uil uil-arrow-right button__icon"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <article class="work__card">
+                    <img src="/static/img/docent.png" alt="Docent — a guide that has used your product." class="work__img" loading="lazy" width="1280" height="640">
+                    <div class="work__body">
+                        <h3 class="work__title">Docent</h3>
+                        <p class="work__desc">A guide that has actually used your product: explore a site, narrate the walkthrough, then guide people through the same steps live. Pre-launch.</p>
+                        <a href="https://docent-9a62.onrender.com/" target="_blank" rel="noopener" class="button button--small button--link work__link">
+                            Website <i class="uil uil-arrow-right button__icon"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <article class="work__card">
+                    <img src="/static/img/snapsavanna.png" alt="SnapToSpot campaign kit generated from a website" class="work__img" loading="lazy" width="1280" height="640">
+                    <div class="work__body">
+                        <h3 class="work__title">SnapToSpot</h3>
+                        <p class="work__desc">Paste a URL and get a five-platform campaign kit built only from facts the site can support. In development.</p>
+                        <a href="https://github.com/lyle-mlengineer/Snap2Spot" target="_blank" rel="noopener" class="button button--small button--link work__link">
+                            Source <i class="uil uil-arrow-right button__icon"></i>
                         </a>
                     </div>
                 </article>

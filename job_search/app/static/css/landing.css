@@ -194,9 +194,99 @@
 .about__buttons {
     gap: .75rem;
     flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+/* ---------------- CV picker ---------------- */
+
+.cv-menu {
+    position: relative;
+    display: inline-flex;
+}
+
+.cv-menu__toggle {
+    gap: .4rem;
+}
+
+.cv-menu__toggle[aria-expanded="true"] .button__icon {
+    transform: rotate(-180deg);
+}
+
+.cv-menu__toggle .button__icon {
+    transition: transform .3s;
+}
+
+.cv-menu__list {
+    position: absolute;
+    top: calc(100% + .5rem);
+    left: 0;
+    z-index: 30;
+    display: grid;
+    gap: .15rem;
+    min-width: 16rem;
+    padding: .4rem;
+    background-color: var(--container-color);
+    border: 1px solid var(--border-color);
+    border-radius: .75rem;
+    box-shadow: 0 .75rem 2rem hsla(var(--hue-color), 40%, 20%, .16);
+}
+
+.cv-menu__list[hidden] {
+    display: none;
+}
+
+.cv-menu__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .6rem .75rem;
+    border-radius: .5rem;
+    color: var(--title-color);
+    font-size: var(--small-font-size);
+    white-space: nowrap;
+}
+
+.cv-menu__item:hover,
+.cv-menu__item:focus-visible {
+    background-color: var(--first-color-lighter);
+    color: var(--chip-text);
+}
+
+.cv-menu__format {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    font-size: var(--smaller-font-size);
+    color: var(--text-color);
+}
+
+@media screen and (max-width: 480px) {
+    .cv-menu {
+        display: flex;
+        width: 100%;
+    }
+
+    .cv-menu__toggle {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .cv-menu__list {
+        left: 0;
+        right: auto;
+        transform: none;
+        min-width: 0;
+        width: calc(100vw - 3rem);
+        max-width: 20rem;
+    }
 }
 
 /* ---------------- selected work ---------------- */
+
+.landing section[id] {
+    scroll-margin-top: 4.5rem;
+}
 
 .work__grid {
     display: grid;

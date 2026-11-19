@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from app.db import dispose_engines
 from tests.conftest import login
 
 
@@ -33,9 +34,50 @@ def test_landing_page_has_required_sections_and_skills(client):
         "Behavioural interview",
     ):
         assert skill in html
+    for skill_group in (
+        "Speech &amp; Voice AI",
+        "Machine Learning &amp; Deep Learning",
+        "Data Engineering",
+        "MLOps &amp; Deployment",
+    ):
+        assert skill_group in html
 
 
-from app.db import dispose_engines
+def test_landing_lists_every_portfolio_project(client):
+    html = client.get("/").text
+    for title in (
+        "SautiFlow",
+        "PlusOne",
+        "LabelSet",
+        "FaceForm",
+        "Vocalis",
+        "EchoID",
+        "Suraya",
+        "coAgent",
+        "Docent",
+        "SnapToSpot",
+    ):
+        assert title in html
+    assert html.count('class="work__card"') == 10
+
+
+def test_landing_cv_picker_opens_each_pdf_in_a_new_tab(client):
+    html = client.get("/").text
+    assert 'id="cv-menu-button"' in html
+    assert 'aria-expanded="false"' in html
+    for role in (
+        "LYLE-OKOTH-AI-ENGINEER.pdf",
+        "LYLE-OKOTH-AI-ML-ENGINEER.pdf",
+        "LYLE-OKOTH-DATA-ENGINEER.pdf",
+        "LYLE-OKOTH-MACHINE-LEARNING-ENGINEER.pdf",
+        "LYLE-OKOTH-ML-RESEARCHER.pdf",
+        "LYLE-OKOTH-SOFTWARE-ENGINEER.pdf",
+    ):
+        assert f'href="/static/cv/{role}" target="_blank" rel="noopener"' in html
+
+    pdf = client.get("/static/cv/LYLE-OKOTH-MACHINE-LEARNING-ENGINEER.pdf")
+    assert pdf.status_code == 200
+    assert pdf.headers["content-type"] == "application/pdf"
 
 
 def test_landing_works_without_database_access(client, settings):

@@ -18,8 +18,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from .config import BASE_DIR, get_settings
-from .db import init_db, session_scope, sweep_expired_sessions, sweep_interrupted_runs
-from .domain import ARTIFACT_LABELS, JOB_STATUSES, JOB_STATUS_LABELS, SKILL_LABELS, STATUS_TONE
+from .db import get_session_factory, init_db, session_scope, sweep_expired_sessions, sweep_interrupted_runs
+from .domain import ARTIFACT_LABELS, JOB_STATUS_LABELS, JOB_STATUSES, SKILL_LABELS, STATUS_TONE
+from .providers.llm.base import LLMProviderError
+from .providers.llm.registry import build_llm_provider
+from .providers.search.registry import build_search_provider
 from .routes import API_ROUTERS, PAGE_ROUTER
 from .security import seed_admin
 
@@ -43,6 +46,15 @@ async def lifespan(app: FastAPI):
     interrupted = sweep_interrupted_runs(settings)
     if expired or interrupted:
         logger.info("startup sweep: %s sessions, %s runs", expired, interrupted)
+
+    factory = get_session_factory(settings)
+    app.state.session_factory = factory
+    try:
+        app.state.llm = build_llm_provider(settings, session_factory=factory)
+    except LLMProviderError as exc:
+        logger.warning("LLM provider unavailable: %s", exc)
+        app.state.llm = None
+    app.state.search = build_search_provider(settings, session_factory=factory)
 
     logger.info(
         "Skipper ready (env=%s, llm=%s, search=%s)",

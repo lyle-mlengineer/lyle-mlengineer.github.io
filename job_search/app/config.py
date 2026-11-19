@@ -36,17 +36,24 @@ class Settings(BaseSettings):
 
     llm_provider: str = "fake"
     groq_api_key: str = ""
+    groq_base_url: str = "https://api.groq.com/openai/v1"
+    groq_tpm: int = 30_000
     llm_model_large: str = "openai/gpt-oss-120b"
     llm_model_small: str = "openai/gpt-oss-20b"
     llm_timeout_s: float = 120.0
+    llm_max_retries: int = 3
+    llm_cache_enabled: bool = True
     run_token_budget: int = 120_000
 
     search_provider: str = "auto"
     serper_api_key: str = ""
     search_max_queries: int = 8
+    search_timeout_s: float = 20.0
+    search_cache_ttl_hours: int = 24
 
     fetch_max_bytes: int = 3_000_000
     fetch_timeout_s: float = 20.0
+    fetch_max_redirects: int = 5
     run_max_minutes: int = 25
     soffice_path: str = "soffice"
 
