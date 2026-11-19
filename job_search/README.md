@@ -26,7 +26,7 @@ The full brief is in [`../job_search.md`](../job_search.md), the technical desig
 | App shell, dashboard, jobs/companies/settings pages | **Built** (empty states) |
 | SQLAlchemy 2.0 data model + SQLite schema | **Built** |
 | LLM / search / fetch provider seams | **Built** (Phase 2) |
-| Portfolio RAG (FTS5) | Planned — Phase 3 |
+| Portfolio RAG (FTS5) | **Built** (Phase 3) |
 | Job intake + extraction + polling job page | Planned — Phase 4 |
 | Skills, CV/PDF/DOCX, full pack | Planned — Phases 5–6 |
 | Tracking, regeneration, hardening | Planned — Phases 7–9 |

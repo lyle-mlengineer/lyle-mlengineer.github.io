@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import secrets
+import shutil
 from typing import Any
 
-from fastapi import APIRouter, Depends, Form, Request, status
+from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload, selectinload
@@ -13,7 +15,8 @@ from ..config import get_settings
 from ..db import utcnow
 from ..deps import current_session, get_db
 from ..domain import ACTIVE_JOB_STATUSES, JOB_STATUS_LABELS
-from ..models import Company, Job, User
+from ..models import Company, Job, PortfolioChunk, PortfolioDoc, User
+from ..rag.ingest import sync_portfolio
 from ..security import (
     clear_login_failures,
     create_session,
@@ -157,6 +160,8 @@ def dashboard(request: Request, db: Session = Depends(get_db)) -> Response:
         select(Job).options(joinedload(Job.company)).order_by(Job.updated_at.desc()).limit(5)
     ).scalars().all()
     company_count = db.execute(select(func.count(Company.id))).scalar_one()
+    settings = get_settings()
+    portfolio_chunks = db.execute(select(func.count(PortfolioChunk.id))).scalar_one()
 
     return _templates(request).TemplateResponse(
         request,
@@ -172,7 +177,11 @@ def dashboard(request: Request, db: Session = Depends(get_db)) -> Response:
             "company_count": company_count,
             "pending_action": pending_action,
             "recent": recent,
-            "llm_provider": get_settings().llm_provider,
+            "llm_provider": settings.llm_provider,
+            "llm_model": settings.llm_model_small if settings.llm_provider != "fake" else "fake (offline)",
+            "search_provider": settings.search_provider,
+            "pdf_engine": "libreoffice" if shutil.which(settings.soffice_path) else "reportlab",
+            "portfolio_chunks": portfolio_chunks,
         },
     )
 
@@ -233,5 +242,30 @@ def settings_page(request: Request, db: Session = Depends(get_db)) -> Response:
             "csrf_token": session["csrf_token"],
             "settings": settings,
             "now": utcnow(),
+            "portfolio_docs": db.execute(select(func.count(PortfolioDoc.id))).scalar_one(),
+            "portfolio_chunks": db.execute(select(func.count(PortfolioChunk.id))).scalar_one(),
+            "reindex_notice": request.query_params.get("indexed"),
+            "reindex_chunks": request.query_params.get("chunks"),
+            "reindex_removed": request.query_params.get("removed"),
         },
     )
+
+
+@router.post("/settings/reindex")
+def reindex_portfolio(
+    request: Request,
+    csrf_token: str = Form(""),
+    db: Session = Depends(get_db),
+) -> Response:
+    session = current_session(request, db)
+    if session is None:
+        return RedirectResponse("/login?next=/settings", status_code=303)
+    if not secrets.compare_digest(csrf_token, session.get("csrf_token", "")):
+        raise HTTPException(status_code=403, detail="csrf_failed")
+
+    report = sync_portfolio(db, get_settings())
+    params = (
+        f"indexed={report.docs_indexed}&chunks={report.chunks_written}"
+        f"&removed={report.docs_removed}"
+    )
+    return RedirectResponse(f"/settings?{params}", status_code=303)

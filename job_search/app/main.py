@@ -23,6 +23,7 @@ from .domain import ARTIFACT_LABELS, JOB_STATUS_LABELS, JOB_STATUSES, SKILL_LABE
 from .providers.llm.base import LLMProviderError
 from .providers.llm.registry import build_llm_provider
 from .providers.search.registry import build_search_provider
+from .rag.ingest import reindex
 from .routes import API_ROUTERS, PAGE_ROUTER
 from .security import seed_admin
 
@@ -55,6 +56,18 @@ async def lifespan(app: FastAPI):
         logger.warning("LLM provider unavailable: %s", exc)
         app.state.llm = None
     app.state.search = build_search_provider(settings, session_factory=factory)
+
+    try:
+        report = reindex(settings)
+        if report.changed:
+            logger.info(
+                "portfolio index: %s docs, %s chunks (%s removed)",
+                report.docs_indexed,
+                report.chunks_written,
+                report.docs_removed,
+            )
+    except Exception:
+        logger.exception("portfolio indexing failed; the corpus is unchanged")
 
     logger.info(
         "Skipper ready (env=%s, llm=%s, search=%s)",

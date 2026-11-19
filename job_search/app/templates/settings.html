@@ -4,48 +4,86 @@
 {% block page_title %}Settings{% endblock %}
 {% block eyebrow %}Providers and runtime{% endblock %}
 
-{% block content %}
+{% block app_content %}
+{% if reindex_notice is not none %}
+<div class="notice" role="status">
+    <i class="uil uil-check-circle"></i>
+    <span>
+        Portfolio index rebuilt: <strong>{{ reindex_notice }}</strong> document(s) re-indexed,
+        <strong>{{ reindex_chunks }}</strong> chunk(s) written, {{ reindex_removed }} removed.
+        Unchanged documents were skipped.
+    </span>
+</div>
+{% endif %}
+
 <section class="panel" aria-labelledby="runtime-title">
     <div class="panel__head">
         <div>
+            <p class="panel__kicker">Read-only</p>
             <h2 class="panel__title" id="runtime-title">Runtime</h2>
-            <p class="panel__hint">Read-only in the UI; change these in <code>.env</code> and restart.</p>
+            <p class="panel__hint">Change these in <code>.env</code> and restart.</p>
         </div>
         <a href="/readyz" class="button button--link button--small">Readiness JSON <i class="uil uil-external-link-alt button__icon"></i></a>
     </div>
 
     <dl class="kv">
-        <dt>Environment</dt><dd><code>{{ settings.env }}</code></dd>
-        <dt>Database</dt><dd><code>{{ settings.db_path }}</code></dd>
-        <dt>Artifacts</dt><dd><code>{{ settings.artifacts_dir }}</code></dd>
-        <dt>Portfolio corpus</dt><dd><code>{{ settings.portfolio_dir }}</code></dd>
-        <dt>LLM provider</dt><dd><code>{{ settings.llm_provider }}</code></dd>
-        <dt>Large model</dt><dd><code>{{ settings.llm_model_large }}</code></dd>
-        <dt>Small model</dt><dd><code>{{ settings.llm_model_small }}</code></dd>
-        <dt>Search provider</dt><dd><code>{{ settings.search_provider }}</code></dd>
-        <dt>Run ceiling</dt><dd><code>{{ settings.run_max_minutes }} min</code></dd>
-        <dt>Token budget</dt><dd><code>{{ settings.run_token_budget }}</code></dd>
+        <div class="kv__row"><dt>Environment</dt><dd><code>{{ settings.env }}</code></dd></div>
+        <div class="kv__row"><dt>Database</dt><dd><code>{{ settings.db_path }}</code></dd></div>
+        <div class="kv__row"><dt>Artifacts</dt><dd><code>{{ settings.artifacts_dir }}</code></dd></div>
+        <div class="kv__row"><dt>Portfolio corpus</dt><dd><code>{{ settings.portfolio_dir }}</code></dd></div>
+        <div class="kv__row"><dt>LLM provider</dt><dd><code>{{ settings.llm_provider }}</code></dd></div>
+        <div class="kv__row"><dt>Large model</dt><dd><code>{{ settings.llm_model_large }}</code></dd></div>
+        <div class="kv__row"><dt>Small model</dt><dd><code>{{ settings.llm_model_small }}</code></dd></div>
+        <div class="kv__row"><dt>Search provider</dt><dd><code>{{ settings.search_provider }}</code></dd></div>
+        <div class="kv__row"><dt>Run ceiling</dt><dd><code>{{ settings.run_max_minutes }} min</code></dd></div>
+        <div class="kv__row"><dt>Token budget</dt><dd><code>{{ settings.run_token_budget }}</code></dd></div>
     </dl>
+</section>
+
+<section class="panel" aria-labelledby="index-title">
+    <div class="panel__head">
+        <div>
+            <p class="panel__kicker">Retrieval</p>
+            <h2 class="panel__title" id="index-title">Portfolio index</h2>
+            <p class="panel__hint">Markdown in the corpus, chunked by heading, searched with BM25.</p>
+        </div>
+        <span class="pill pill--success">{{ portfolio_docs }} docs · {{ portfolio_chunks }} chunks</span>
+    </div>
+
+    <p class="panel__copy">
+        Every CV, letter and spoken answer is grounded in these files. Re-index after editing
+        <code>data/portfolio/*.md</code>; unchanged files are skipped by hash.
+    </p>
+
+    <form method="post" action="/settings/reindex" class="inline-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button type="submit" class="button button--small">
+            <i class="uil uil-sync button__icon button__icon--lead"></i>
+            Reindex portfolio
+        </button>
+    </form>
 </section>
 
 <section class="panel" aria-labelledby="session-title">
     <div class="panel__head">
         <div>
+            <p class="panel__kicker">Security</p>
             <h2 class="panel__title" id="session-title">Session</h2>
             <p class="panel__hint">Opaque token, hashed on the server, twelve-hour expiry.</p>
         </div>
     </div>
 
     <dl class="kv">
-        <dt>Signed in as</dt><dd>{{ session.username }}</dd>
-        <dt>Expires</dt><dd><code>{{ session.expires_at }}</code></dd>
-        <dt>Checked</dt><dd><code>{{ now }}</code></dd>
+        <div class="kv__row"><dt>Signed in as</dt><dd>{{ session.username }}</dd></div>
+        <div class="kv__row"><dt>Expires</dt><dd><code>{{ session.expires_at }}</code></dd></div>
+        <div class="kv__row"><dt>Checked</dt><dd><code>{{ now }}</code></dd></div>
     </dl>
 </section>
 
 <section class="panel" aria-labelledby="next-title">
     <div class="panel__head">
         <div>
+            <p class="panel__kicker">Roadmap</p>
             <h2 class="panel__title" id="next-title">What is not wired yet</h2>
             <p class="panel__hint">Kept explicit so the UI never pretends to work.</p>
         </div>
@@ -61,15 +99,15 @@
         </div>
         <div class="list__row">
             <span class="list__main">
-                <span class="list__title">Skills, providers and artifacts</span>
-                <span class="list__meta">Phases 2, 3, 5 and 6.</span>
+                <span class="list__title">Skills, artifacts and interview prep</span>
+                <span class="list__meta">Phases 5 and 6.</span>
             </span>
             <span class="pill pill--neutral">Planned</span>
         </div>
         <div class="list__row">
             <span class="list__main">
-                <span class="list__title">Landing page, auth, app shell</span>
-                <span class="list__meta">Built and verified at 320 / 768 / 1440 px in both themes.</span>
+                <span class="list__title">Provider seams and portfolio retrieval</span>
+                <span class="list__meta">LLM, search, fetch, JSON repair, FTS5 index and grounding checks.</span>
             </span>
             <span class="pill pill--success">Done</span>
         </div>

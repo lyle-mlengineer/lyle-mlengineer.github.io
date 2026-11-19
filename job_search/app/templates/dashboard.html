@@ -11,7 +11,7 @@
 </span>
 {% endblock %}
 
-{% block content %}
+{% block app_content %}
 {% if llm_provider == 'fake' %}
 <div class="notice notice--warning" role="status">
     <i class="uil uil-flask"></i>
@@ -34,108 +34,153 @@
 
 <div class="stat-grid">
     <div class="stat">
-        <span class="stat__label"><i class="uil uil-briefcase-alt"></i> Jobs</span>
-        <span class="stat__value">{{ total_jobs }}</span>
+        <span class="stat__icon stat__icon--pink"><i class="uil uil-briefcase-alt"></i></span>
+        <span class="stat__body">
+            <span class="stat__label">Jobs tracked</span>
+            <span class="stat__value">{{ total_jobs }}</span>
+        </span>
     </div>
     <div class="stat">
-        <span class="stat__label"><i class="uil uil-spinner-alt"></i> In flight</span>
-        <span class="stat__value">{{ active_jobs }}</span>
+        <span class="stat__icon stat__icon--blue"><i class="uil uil-spinner-alt"></i></span>
+        <span class="stat__body">
+            <span class="stat__label">In flight</span>
+            <span class="stat__value">{{ active_jobs }}</span>
+        </span>
     </div>
     <div class="stat">
-        <span class="stat__label"><i class="uil uil-check-circle"></i> Ready</span>
-        <span class="stat__value">{{ counts.get('ready', 0) }}</span>
+        <span class="stat__icon stat__icon--green"><i class="uil uil-check-circle"></i></span>
+        <span class="stat__body">
+            <span class="stat__label">Ready to send</span>
+            <span class="stat__value">{{ counts.get('ready', 0) }}</span>
+        </span>
     </div>
     <div class="stat">
-        <span class="stat__label"><i class="uil uil-building"></i> Companies</span>
-        <span class="stat__value">{{ company_count }}</span>
+        <span class="stat__icon stat__icon--amber"><i class="uil uil-building"></i></span>
+        <span class="stat__body">
+            <span class="stat__label">Companies</span>
+            <span class="stat__value">{{ company_count }}</span>
+        </span>
     </div>
 </div>
 
-<section class="panel" aria-labelledby="needs-action-title">
-    <div class="panel__head">
-        <div>
-            <h2 class="panel__title" id="needs-action-title">Needs action</h2>
-            <p class="panel__hint">Follow-ups that are due and jobs that are ready to send.</p>
-        </div>
+<div class="dash-grid">
+    <div class="dash-grid__main">
+        <section class="panel" aria-labelledby="needs-action-title">
+            <div class="panel__head">
+                <div>
+                    <p class="panel__kicker">Follow-ups</p>
+                    <h2 class="panel__title" id="needs-action-title">Needs action</h2>
+                    <p class="panel__hint">Due follow-ups and jobs that are ready to send.</p>
+                </div>
+                {% if pending_action %}<span class="pill pill--warning">{{ pending_action|length }} waiting</span>{% endif %}
+            </div>
+
+            {% if pending_action %}
+            <div class="list">
+                {% for job in pending_action %}
+                <a class="list__row" href="/jobs/{{ job.id }}">
+                    <span class="list__main">
+                        <span class="list__title">{{ job.title }}</span>
+                        <span class="list__meta">
+                            {{ job.company.name if job.company else 'Unknown company' }}
+                            {% if job.next_action_at %} · due {{ job.next_action_at[:10] }}{% endif %}
+                        </span>
+                        <span class="list__meta">{{ job.next_action }}</span>
+                    </span>
+                    <span class="pill pill--{{ status_tone.get(job.status, 'neutral') }}">{{ status_labels.get(job.status, job.status) }}</span>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty">
+                <span class="empty__icon"><i class="uil uil-check"></i></span>
+                <h3 class="empty__title">Nothing is waiting on you</h3>
+                <p class="empty__copy">When a job is marked applied, its next action and date appear here.</p>
+            </div>
+            {% endif %}
+        </section>
+
+        <section class="panel" aria-labelledby="pipeline-title">
+            <div class="panel__head">
+                <div>
+                    <p class="panel__kicker">Pipeline</p>
+                    <h2 class="panel__title" id="pipeline-title">Every stage</h2>
+                    <p class="panel__hint">Where each tracked job actually stands.</p>
+                </div>
+                <a href="/jobs" class="button button--link button--small">All jobs <i class="uil uil-arrow-right button__icon"></i></a>
+            </div>
+
+            <div class="stage-grid">
+                {% for status, label in status_labels.items() %}
+                {% set count = counts.get(status, 0) %}
+                {% set pct = (count / total_jobs * 100) if total_jobs else 0 %}
+                <div class="stage">
+                    <div class="stage__head">
+                        <span class="stage__label">{{ label }}</span>
+                        <span class="stage__count">{{ count }}</span>
+                    </div>
+                    <div class="stage__bar" aria-hidden="true">
+                        <span style="width: {{ '%.1f'|format([pct, 5]|max if count else 0) }}%"></span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
     </div>
 
-    {% if pending_action %}
-    <div class="list">
-        {% for job in pending_action %}
-        <a class="list__row" href="/jobs/{{ job.id }}">
-            <span class="list__main">
-                <span class="list__title">{{ job.title }}</span>
-                <span class="list__meta">
-                    {{ job.company.name if job.company else 'Unknown company' }}
-                    {% if job.next_action_at %} · due {{ job.next_action_at[:10] }}{% endif %}
-                </span>
-                <span class="list__meta">{{ job.next_action }}</span>
-            </span>
-            <span class="pill pill--{{ status_tone.get(job.status, 'neutral') }}">{{ status_labels.get(job.status, job.status) }}</span>
-        </a>
-        {% endfor %}
-    </div>
-    {% else %}
-    <div class="empty">
-        <span class="empty__icon"><i class="uil uil-check"></i></span>
-        <h3 class="empty__title">Nothing is waiting on you</h3>
-        <p class="empty__copy">As soon as a job is marked applied, its next action and date will appear here.</p>
-    </div>
-    {% endif %}
-</section>
+    <aside class="dash-grid__side">
+        <section class="panel" aria-labelledby="recent-title">
+            <div class="panel__head">
+                <div>
+                    <p class="panel__kicker">Recent</p>
+                    <h2 class="panel__title" id="recent-title">Recently touched</h2>
+                </div>
+            </div>
 
-<section class="panel" aria-labelledby="pipeline-title">
-    <div class="panel__head">
-        <div>
-            <h2 class="panel__title" id="pipeline-title">Pipeline</h2>
-            <p class="panel__hint">Every job, by the stage it is actually in.</p>
-        </div>
-        <a href="/jobs" class="button button--link button--small">All jobs <i class="uil uil-arrow-right button__icon"></i></a>
-    </div>
+            {% if recent %}
+            <div class="list">
+                {% for job in recent %}
+                <a class="list__row" href="/jobs/{{ job.id }}">
+                    <span class="list__main">
+                        <span class="list__title">{{ job.title }}</span>
+                        <span class="list__meta">
+                            {{ job.company.name if job.company else 'Unknown company' }} · {{ job.updated_at[:10] }}
+                        </span>
+                    </span>
+                    <span class="pill pill--{{ status_tone.get(job.status, 'neutral') }}">{{ status_labels.get(job.status, job.status) }}</span>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty">
+                <span class="empty__icon"><i class="uil uil-briefcase-alt"></i></span>
+                <h3 class="empty__title">No jobs tracked yet</h3>
+                <p class="empty__copy">Your first posting creates a job, a company and a run in one action.</p>
+                <div class="empty__actions">
+                    <a href="/settings" class="button button--small button--ghost">Check providers</a>
+                </div>
+            </div>
+            {% endif %}
+        </section>
 
-    <div class="list">
-        {% for status, label in status_labels.items() %}
-        <div class="list__row">
-            <span class="list__main">
-                <span class="list__title">{{ label }}</span>
-            </span>
-            <span class="pill pill--{{ status_tone.get(status, 'neutral') }}">{{ counts.get(status, 0) }}</span>
-        </div>
-        {% endfor %}
-    </div>
-</section>
-
-<section class="panel" aria-labelledby="recent-title">
-    <div class="panel__head">
-        <div>
-            <h2 class="panel__title" id="recent-title">Recently touched</h2>
-            <p class="panel__hint">The last five jobs you added or moved.</p>
-        </div>
-    </div>
-
-    {% if recent %}
-    <div class="list">
-        {% for job in recent %}
-        <a class="list__row" href="/jobs/{{ job.id }}">
-            <span class="list__main">
-                <span class="list__title">{{ job.title }}</span>
-                <span class="list__meta">
-                    {{ job.company.name if job.company else 'Unknown company' }} · {{ job.updated_at[:10] }}
-                </span>
-            </span>
-            <span class="pill pill--{{ status_tone.get(job.status, 'neutral') }}">{{ status_labels.get(job.status, job.status) }}</span>
-        </a>
-        {% endfor %}
-    </div>
-    {% else %}
-    <div class="empty">
-        <span class="empty__icon"><i class="uil uil-briefcase-alt"></i></span>
-        <h3 class="empty__title">No jobs tracked yet</h3>
-        <p class="empty__copy">Your first posting creates a job, a company and a run in one action — no form filling.</p>
-        <div class="empty__actions">
-            <a href="/settings" class="button button--small button--ghost">Check providers</a>
-        </div>
-    </div>
-    {% endif %}
-</section>
+        <section class="panel panel--quiet" aria-labelledby="runtime-title">
+            <div class="panel__head">
+                <div>
+                    <p class="panel__kicker">Under the hood</p>
+                    <h2 class="panel__title" id="runtime-title">Runtime</h2>
+                </div>
+            </div>
+            <dl class="kv">
+                <div class="kv__row"><dt>LLM</dt><dd>{{ llm_provider }}</dd></div>
+                <div class="kv__row"><dt>Model</dt><dd>{{ llm_model }}</dd></div>
+                <div class="kv__row"><dt>Search</dt><dd>{{ search_provider }}</dd></div>
+                <div class="kv__row"><dt>PDF engine</dt><dd>{{ pdf_engine }}</dd></div>
+                <div class="kv__row"><dt>Portfolio chunks</dt><dd>{{ portfolio_chunks }}</dd></div>
+            </dl>
+            <a href="/settings" class="button button--small button--ghost panel__foot-link">
+                Open settings <i class="uil uil-arrow-right button__icon"></i>
+            </a>
+        </section>
+    </aside>
+</div>
 {% endblock %}

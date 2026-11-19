@@ -154,7 +154,7 @@ Estimates assume one engineer who knows Python and FastAPI. A task is done when 
 - `data/portfolio/profile.md`, `experience.md`, `projects.md`, `skills.md`, `writing.md` — human-editable, factual, with metrics in their canonical form.
 - `app/rag/ingest.py` — hash-based incremental ingest through the ORM, heading-aware chunking (~700–900 chars, 120 overlap), FTS5 population via raw SQL (the index is not a mapped entity).
 - `app/rag/retrieve.py` — query builder from a job (title, must-haves, keywords), `bm25` field boosts, top-k, dedupe, context packing to a token budget.
-- `POST /api/portfolio/reindex` + settings page toggle.
+- `POST /api/portfolio/reindex` (CSRF) and the settings-page reindex form; the settings panel shows document and chunk counts and confirms the last rebuild.
 - `tests/fixtures/portfolio/` for deterministic tests.
 
 **Tasks**
@@ -164,6 +164,7 @@ Estimates assume one engineer who knows Python and FastAPI. A task is done when 
 3. Query builder strips stop-words, weights title tokens, OR-joins terms; add exact-match boost for skill names.
 4. Add a `/settings` panel showing document count, chunk count, last index time and a "test retrieval" box.
 5. Add a grounding helper `rag/grounding.py::check_numbers(text, corpus)` returning unmatched numeric tokens for postprocessing.
+6. Reindex on startup when a file hash changed; expose the same sync through `/api/portfolio/reindex` and the settings form.
 
 **Tests**
 

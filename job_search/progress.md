@@ -2,10 +2,10 @@
 
 The build follows [`docs/steps.md`](docs/steps.md). Each phase ends with a working app, a passing test run and (when the repo is committed) a commit.
 
-**Current phase:** 2 complete — provider seams (LLM, search, fetch)
-**Next phase:** 3 — portfolio RAG
+**Current phase:** 3 complete — portfolio RAG
+**Next phase:** 4 — ingestion, extraction and the job page
 **Last updated:** 2026-11-19
-**Suite:** 93 tests passing offline (`python -m pytest -q`)
+**Suite:** 109 tests passing offline (`python -m pytest -q`)
 
 ---
 
@@ -68,11 +68,23 @@ Docs:
 - Providers are constructed once in the app lifespan and exposed as `app.state.llm`, `app.state.search` and `app.state.session_factory`; `/readyz` already reports key configuration.
 - Tests: `test_validation.py`, `test_llm.py`, `test_search.py`, `test_fetch.py` with `httpx.MockTransport`, real pages as fixtures, and no outbound traffic.
 
+### Step 3 — Portfolio RAG
+
+- `app/rag/ingest.py` — SHA-256 per file, so a second run writes nothing; heading-aware sections (`#` sets the title, `##`/`###` become chunk headings); paragraph blocks split at sentence and word boundaries; 700–900 character windows with a ~120 character overlap; FTS5 rows inserted with the chunk id as `rowid`.
+- `app/rag/retrieve.py` — job → query builder (title, seniority, skills, first 600 characters of the description), stop-words and duplicate terms removed, OR-joined quoted terms; SQLite `bm25()` with a 2× heading boost; top-k results packed to a 3,500 character context budget with `doc_title › heading` citations.
+- `app/rag/grounding.py` — `extract_numbers()` understands percentages, `ms`, `GB`, `MB`, `hours`, `voices`, `users`, `creators`, `x` and comma thousands; `check_numbers()` returns unsupported tokens (`35%`) while accepting corpus values (`11.8%`, `1,240`, `310 ms`); `grounding_report()` adds the full checked list.
+- Startup indexing in `app/main.py` (changed documents only, failures logged without taking the app down), `POST /settings/reindex` for the settings page, and `POST /api/portfolio/reindex` returning `{docs_indexed, docs_skipped, docs_removed, chunks, changed}`.
+- Settings page shows document/chunk counts and a reindex form with a post/redirect/get notice; `/readyz` already reports `portfolio_chunks`.
+- Tests: `tests/test_rag.py` — chunk sizes and headings, idempotent re-ingest, doc/chunk counts, the WER query, budget packing, empty queries, number parsing, grounding, settings reindex, CSRF and the JSON API.
+- Measured fresh ingest: **23 ms** for 5 documents / 35 chunks (budget in design §22 is 2 s for the whole cold start).
+
 ### Verification performed
 
-- `python -m pytest -q` → **93 passed**, no network access.
+- `python -m pytest -q` → **109 passed**, no network access.
 - `ruff check app tests` → clean.
-- Server booted on `127.0.0.1:8123`: `/` 200, `/healthz` `{"status":"ok"}`, startup log clean.
+- Server booted on `127.0.0.1:8127`: `/readyz` reports `portfolio_chunks: 35`; startup logs `portfolio index: 5 docs, 35 chunks`.
+- Playwright (Chromium) checks at 1920/1440/768/375/320 px across `/dashboard`, `/jobs`, `/companies`, `/settings` and `/`: zero horizontal overflow, zero console errors. Settings reindex form and counts verified after login.
+- Visual pass on the app shell and settings page: removed a duplicate dashboard render caused by a template block collision, centred a 1240 px content column, rebuilt stat cards and panels, fixed the old two-column `.kv` rule that fought the new row markup, and hid the landing page's scroll-up button inside the app (it overlapped the last card). Screenshots: `var/logs/final-dash-1440.png`, `final-settings2.png`, `settings-375.png`, `landing-1920.png`.
 - Playwright (Chromium) checks at 1440 and 375 px:
   - horizontal overflow `0` on landing and dashboard;
   - no console errors;
@@ -90,7 +102,6 @@ Docs:
 | Thing | Why it is absent | Where it lands |
 | --- | --- | --- |
 | Add-job flow | Requires the ingestion + extraction phase | Phase 4 |
-| RAG ingest/retrieval | Corpus exists; index is created by the RAG module | Phase 3 |
 | Skills, artifacts, document renderers | Depend on providers and RAG | Phases 5–6 |
 | Tracking/status API, company pages | Depend on jobs existing | Phase 7 |
 | Regeneration, resume, cancel | Depend on runs existing | Phase 8 |
@@ -115,18 +126,7 @@ The UI does not pretend: the dashboard, jobs and companies pages show honest emp
 
 ## Next three tasks (pick up here)
 
-### 1. Portfolio RAG (Phase 3)
-
-Files: `app/rag/ingest.py`, `app/rag/retrieve.py`, `app/rag/grounding.py`, `app/routes/pages.py` (reindex endpoint), settings panel.
-
-Acceptance:
-
-- Incremental ingest keyed by file hash; heading-aware chunks (700–900 chars, 120 overlap); FTS5 rebuilt correctly; re-running changes nothing.
-- Query builder from a job; BM25 with heading boost; top-k packed to a token budget.
-- `check_numbers()` flags `35%` but accepts `11.8%`, `1,240`, `310 ms`.
-- Retrieval test for "speech recognition WER Swahili" returns the chunk containing `23.4% → 11.8%`.
-
-### 2. Ingestion + extraction + job page (Phase 4)
+### 1. Ingestion + extraction + job page (Phase 4)
 
 Files: `app/routes/jobs.py`, `app/repositories/*`, `app/skills/job_extraction.py`, `job_summary.py`, `app/jobs/pipeline.py`, `worker.py`, `app/templates/job_detail.html`, `partials/run_progress.html`, `app/static/js/poll.js`, `job_detail.js`.
 
@@ -138,7 +138,7 @@ Acceptance:
 - Job page polls every 1.5 s, backs off, pauses when hidden, and reloads on success.
 - Extraction failure shows which skill failed and offers Retry.
 
-### 3. Skills + application pack (Phase 5)
+### 2. Skills + application pack (Phase 5/6)
 
 Files: `app/skills/base.py`, `registry.py`, the first six skills (summary, research, CV, cover letter, email, spoken answers), `app/jobs/prompts.py`, `app/rag/grounding.py` wiring, `app/templates/partials/artifact_viewer.html`.
 
@@ -148,6 +148,17 @@ Acceptance:
 - Prompts wrap sources in `<untrusted>` and use `<portfolio>` as the only factual source; numeric claims pass `check_numbers()`.
 - A fake-provider run produces all six artifacts with citations; one invalid model response is repaired, not silently dropped.
 - Artifact viewer shows Markdown safely (escaped, allowlisted) with provenance and token cost per step.
+
+### 3. CV documents and artifact storage (Phase 5 docs)
+
+Files: `app/documents/cv_docx.py`, `cv_pdf.py`, `storage.py`, artifact download route, `tests/test_documents.py`.
+
+Acceptance:
+
+- Resume JSON normalises dates, section order and bullet length before rendering.
+- DOCX layout mirrors `cv/_generate_cvs.py`; PDF uses `soffice` with a reportlab fallback, and `/readyz` names the engine.
+- Files are versioned `LYLE-OKOTH-<COMPANY>-<ROLE>-CV-v<n>.<ext>` with hashes, current flag and sanitised names.
+- Download route is session-gated; the artifact viewer previews the PDF and offers both formats.
 
 ---
 
@@ -198,6 +209,11 @@ Database file: `var/skipper.db` (gitignored). Deleting it recreates everything a
 ## Command log (latest first)
 
 ```text
+2026-11-19  python -m pytest -q                                  → 109 passed
+2026-11-19  ruff check app tests                                → clean
+2026-11-19  playwright app pages at 1920–320                    → 0 overflow, 0 console errors
+2026-11-19  fresh portfolio ingest benchmark                    → 23 ms (5 docs, 35 chunks)
+2026-11-19  uvicorn app.main:app --port 8127                     → readyz chunks=35, startup index log
 2026-11-19  python -m pytest -q                                  → 93 passed
 2026-11-19  uvicorn app.main:app --port 8123                     → landing 200, healthz ok
 2026-11-19  playwright landing/dashboard at 1440 / 375           → 0 overflow, 0 console errors

@@ -682,7 +682,7 @@ var/artifacts/<job_id>/
 | `GET` | `/api/companies/{id}` | — | company + jobs + research |
 | `PATCH` | `/api/companies/{id}` | `{notes?, summary?, website?}` | company |
 | `GET` | `/api/dashboard/stats` | — | counters, action list, recent events |
-| `POST` | `/api/portfolio/reindex` | — | `{docs, chunks, changed}` |
+| `POST` | `/api/portfolio/reindex` | CSRF | `{docs_indexed, docs_skipped, docs_removed, chunks, changed}` |
 | `GET` | `/healthz` | — | `{status:"ok"}` (liveness, no DB) |
 | `GET` | `/readyz` | — | DB, provider, portfolio index status |
 
