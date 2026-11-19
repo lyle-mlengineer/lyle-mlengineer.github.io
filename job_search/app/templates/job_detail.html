@@ -46,11 +46,11 @@
                 {% elif run and run.status == 'succeeded' %}
                     Finished in {{ run.steps|length }} steps.
                 {% elif run and run.status == 'failed' %}
-                    Stopped before finishing.
+                    Stopped before finishing.{% if resume_skills %} {{ resume_skills|length }} step{{ '' if resume_skills|length == 1 else 's' }} left to run.{% endif %}
                 {% elif run and run.status == 'cancelled' %}
-                    Cancelled.
+                    Cancelled.{% if resume_skills %} {{ resume_skills|length }} step{{ '' if resume_skills|length == 1 else 's' }} left to run.{% endif %}
                 {% elif run and run.status == 'interrupted' %}
-                    Interrupted by a restart.
+                    Interrupted by a restart.{% if resume_skills %} {{ resume_skills|length }} step{{ '' if resume_skills|length == 1 else 's' }} left to run.{% endif %}
                 {% else %}
                     No run yet.
                 {% endif %}
@@ -59,6 +59,15 @@
         <div class="panel__actions">
             {% if run and run.status in ('queued', 'running') %}
             <button type="button" class="button button--small button--ghost" id="run-cancel">Cancel</button>
+            {% elif resume_skills %}
+            <button type="button" class="button button--small" id="run-resume">
+                <i class="uil uil-play button__icon button__icon--lead"></i>
+                Resume run
+            </button>
+            <button type="button" class="button button--small button--ghost" id="run-retry">
+                <i class="uil uil-redo button__icon button__icon--lead"></i>
+                Start over
+            </button>
             {% elif run %}
             <button type="button" class="button button--small" id="run-retry">
                 <i class="uil uil-redo button__icon button__icon--lead"></i>
@@ -88,6 +97,9 @@
                 {% if step.error %}<span class="steps__error">{{ step.error }}</span>{% endif %}
             </span>
             <span class="steps__meta">
+                {% if step.status == 'failed' and step.skill != 'job_extraction' and run and run.status not in ('queued', 'running') %}
+                <button type="button" class="steps__retry" data-regenerate data-skill="{{ step.skill }}" title="Retry this step only">Retry</button>
+                {% endif %}
                 {% if step.duration_ms %}{{ step.duration_ms }} ms{% endif %}
                 {% if step.tokens_in or step.tokens_out %} · {{ step.tokens_in + step.tokens_out }} tokens{% endif %}
             </span>

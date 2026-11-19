@@ -1032,9 +1032,28 @@ body:has(.app) .scrollup {
 }
 
 .steps__meta {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
     color: var(--text-color-light);
     font-size: var(--smaller-font-size);
     white-space: nowrap;
+}
+
+.steps__retry {
+    padding: .15rem .5rem;
+    border: 1px solid var(--line);
+    border-radius: 99px;
+    background-color: transparent;
+    color: var(--accent-text);
+    font: inherit;
+    font-size: var(--smaller-font-size);
+    font-weight: var(--font-medium);
+    cursor: pointer;
+}
+
+.steps__retry:hover {
+    background-color: hsla(var(--hue-color), 69%, 61%, .12);
 }
 
 .run-error {

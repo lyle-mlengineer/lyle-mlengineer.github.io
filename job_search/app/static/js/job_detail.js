@@ -16,6 +16,7 @@
     const steps = document.getElementById("run-steps");
     const cancel = document.getElementById("run-cancel");
     const retry = document.getElementById("run-retry");
+    const resume = document.getElementById("run-resume");
     const regenerateButtons = document.querySelectorAll("[data-regenerate]");
 
     function update(data) {
@@ -126,6 +127,35 @@
         } finally {
             retry.disabled = false;
             retry.innerHTML = original;
+        }
+    });
+
+    resume?.addEventListener("click", async () => {
+        resume.disabled = true;
+        const original = resume.innerHTML;
+        resume.innerHTML = '<i class="uil uil-spinner-alt button__icon button__icon--lead"></i> Resuming…';
+        try {
+            const response = await fetch(`/api/jobs/${jobId}/resume`, {
+                method: "POST",
+                headers: { "X-CSRF-Token": csrf },
+            });
+            if (response.status === 202) {
+                window.location.reload();
+                return;
+            }
+            const body = await response.json().catch(() => ({}));
+            if (errorBox) {
+                errorBox.textContent = body.error?.message || "The run could not be resumed.";
+                errorBox.hidden = false;
+            }
+        } catch (error) {
+            if (errorBox) {
+                errorBox.textContent = "Lost contact with the server. Try again.";
+                errorBox.hidden = false;
+            }
+        } finally {
+            resume.disabled = false;
+            resume.innerHTML = original;
         }
     });
 })();

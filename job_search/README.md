@@ -40,7 +40,7 @@ The dashboard is deliberately honest about this: it shows what exists and names 
 
 - **Web:** FastAPI, Jinja2 templates, vanilla CSS/JS (no build step)
 - **Data:** SQLAlchemy 2.0 ORM over SQLite in WAL mode, FTS5 for retrieval
-- **Jobs:** FastAPI `BackgroundTasks` writing a run ledger to the database; the UI polls
+- **Jobs:** FastAPI `BackgroundTasks` writing a run ledger to the database; the UI polls. A stopped run (failed, cancelled or interrupted) resumes from its first unfinished step and reuses every output that already succeeded.
 - **LLM:** provider interface with Groq (`openai/gpt-oss-120b` large, `openai/gpt-oss-20b` small), NVIDIA NIM for the hosted DeepSeek V4 models (`deepseek-ai/deepseek-v4-pro` / `-flash`), and a fake provider for tests. A call ledger records every model call and web search with its tokens and cost.
 - **Search:** provider interface with Serper (primary) and DuckDuckGo (no-key fallback)
 - **Documents:** `python-docx` for DOCX, LibreOffice headless for PDF with a `reportlab` fallback
@@ -190,7 +190,7 @@ sqlite3 var/skipper.db ".backup var/backups/skipper-$(date +%F).db"
 tar -czf var/backups/artifacts-$(date +%F).tar.gz var/artifacts
 ```
 
-Restore by putting both back and restarting. Sessions survive a database restore; runs do not — any run that was active becomes `interrupted`, and resume is a planned feature (Phase 8).
+Restore by putting both back and restarting. Sessions survive a database restore; runs do not — any run that was active becomes `interrupted`. Open the job and press **Resume run**: it continues from the first unfinished step and reuses every output that already succeeded, so nothing is paid for twice.
 
 ---
 

@@ -15,6 +15,7 @@ from ..config import get_settings
 from ..db import utcnow
 from ..deps import current_session, get_db
 from ..domain import ACTIVE_JOB_STATUSES, JOB_STATUS_LABELS, JOB_STATUSES
+from ..jobs.pipeline import run_remaining_skills
 from ..jobs.render import markdown_to_html
 from ..models import Artifact, Company, Job, PortfolioChunk, PortfolioDoc, Run, User
 from ..rag.ingest import sync_portfolio
@@ -254,6 +255,11 @@ def job_detail(request: Request, job_id: int, db: Session = Depends(get_db)) -> 
         )
 
     latest_run = job.runs[0] if job.runs else None
+    resume_skills = (
+        list(run_remaining_skills(db, latest_run))
+        if latest_run is not None and latest_run.status not in {"succeeded", "queued", "running"}
+        else []
+    )
     summary = next(
         (artifact for artifact in job.artifacts if artifact.kind == "job_summary" and artifact.is_current),
         None,
@@ -285,6 +291,7 @@ def job_detail(request: Request, job_id: int, db: Session = Depends(get_db)) -> 
             "csrf_token": session["csrf_token"],
             "job": job,
             "latest_run": latest_run,
+            "resume_skills": resume_skills,
             "summary_html": markdown_to_html(summary.content_md) if summary and summary.content_md else None,
             "cv_pdf": current.get("cv_pdf"),
             "cv_docx": current.get("cv_docx"),

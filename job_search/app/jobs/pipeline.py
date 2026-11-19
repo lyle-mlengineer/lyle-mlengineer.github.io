@@ -97,8 +97,13 @@ def create_run(
             from_status=previous_status,
             to_status=job.status,
             note=(
-                "Regeneration queued" if kind == "regenerate"
-                else "Run queued" + (" (resuming earlier outputs)" if seed_prior else "")
+                "Regeneration queued"
+                if kind == "regenerate"
+                else (
+                    "Resume queued — continuing from the first unfinished step"
+                    if kind == "resume"
+                    else "Run queued" + (" (resuming earlier outputs)" if seed_prior else "")
+                )
             ),
             run_id=run.id,
         )
@@ -449,18 +454,36 @@ def _apply_prior(db: Session, job: Job, skill_name: str, payload: dict[str, Any]
 
 
 def _prior_outputs(db: Session, job_id: int, *, exclude_run: int) -> dict[str, dict[str, Any]]:
-    run = db.scalar(
+    """Every output this job has already paid for, newest run first.
+
+    Reads the succeeded steps of the recent runs (a failed or interrupted run
+    still holds the outputs of the steps that did complete), so a resume or
+    retry never re-pays for work already done. The newest run wins; anything it
+    did not produce falls back to whichever older run produced it.
+    """
+    runs = db.scalars(
         select(Run)
-        .where(Run.job_id == job_id, Run.id != exclude_run, Run.status == "succeeded")
+        .where(Run.job_id == job_id, Run.id != exclude_run)
         .order_by(Run.created_at.desc())
-        .limit(1)
-    )
-    if run is None:
-        return {}
-    rows = db.scalars(
-        select(RunStep).where(RunStep.run_id == run.id, RunStep.status == "succeeded")
+        .limit(20)
     ).all()
-    return {row.skill: row.output_json for row in rows if row.output_json}
+    prior: dict[str, dict[str, Any]] = {}
+    for run in runs:
+        rows = db.scalars(
+            select(RunStep).where(RunStep.run_id == run.id, RunStep.status == "succeeded")
+        ).all()
+        for row in rows:
+            if row.output_json and row.skill not in prior:
+                prior[row.skill] = row.output_json
+    return prior
+
+
+def run_remaining_skills(db: Session, run: Run) -> tuple[str, ...]:
+    """Skills still needed after a stopped run, in pipeline order."""
+    steps = db.scalars(
+        select(RunStep).where(RunStep.run_id == run.id).order_by(RunStep.ordinal)
+    ).all()
+    return tuple(step.skill for step in steps if step.status != "succeeded")
 
 
 def _human_error(skill_name: str, exc: Exception) -> str:

@@ -15,7 +15,13 @@ from ..deps import get_db, require_api_user, require_csrf
 from ..documents.storage import artifact_file, download_name
 from ..jobs.discover import default_roles, discover, looks_like_listing
 from ..jobs.ingest import DuplicateJob, IngestError, ingest
-from ..jobs.pipeline import RunError, create_run, execute_run
+from ..jobs.pipeline import (
+    PIPELINE_ORDER,
+    RunError,
+    create_run,
+    execute_run,
+    run_remaining_skills,
+)
 from ..models import Artifact, Job, Run, RunStep
 from ..providers.fetch.http import Fetcher
 from ..skills.registry import SKILL_REGISTRY, get_skill
@@ -180,6 +186,64 @@ def regenerate(
             "run_id": run.id,
             "poll_url": f"/api/runs/{run.id}",
             "skill": skill_name,
+        },
+        status_code=202,
+    )
+
+
+@router.post("/api/jobs/{job_id}/resume", status_code=202)
+def resume_job(
+    job_id: int,
+    request: Request,
+    background: BackgroundTasks,
+    db: Session = Depends(get_db),
+) -> JSONResponse:
+    """Continue a stopped run from its first unfinished step.
+
+    Outputs that already succeeded are reused, so a resume only pays for the
+    steps that failed, were skipped or never started.
+    """
+    session_data = require_api_user(request, db)
+    require_csrf(request, session_data)
+    job = db.get(Job, job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="not_found")
+
+    latest = db.scalar(
+        select(Run)
+        .where(Run.job_id == job.id)
+        .order_by(Run.created_at.desc())
+        .limit(1)
+    )
+    if latest is not None and latest.status in {"queued", "running"}:
+        return _error(409, "conflict", "A run is already in flight for this job.", job_id=job.id)
+    if latest is not None and latest.status == "succeeded":
+        return _error(
+            409,
+            "conflict",
+            "That run already finished. Regenerate an artifact instead.",
+            job_id=job.id,
+            run_id=latest.id,
+            job_url=f"/jobs/{job.id}",
+        )
+
+    remaining = run_remaining_skills(db, latest) if latest is not None else PIPELINE_ORDER
+    if not remaining:
+        return _error(409, "conflict", "That run has no steps left to resume.", job_id=job.id)
+
+    try:
+        run = create_run(db, job, seed_prior=True, skills=remaining, kind="resume")
+    except RunError as exc:
+        return _error(409, "conflict", str(exc), job_id=job.id)
+    db.commit()
+    _schedule(request, background, run.id)
+    return JSONResponse(
+        {
+            "job_id": job.id,
+            "run_id": run.id,
+            "poll_url": f"/api/runs/{run.id}",
+            "resumed_from": latest.id if latest is not None else None,
+            "skills": list(remaining),
         },
         status_code=202,
     )
