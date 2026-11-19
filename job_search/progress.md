@@ -5,7 +5,7 @@ The build follows [`docs/steps.md`](docs/steps.md). Each phase ends with a worki
 **Current phase:** 5 complete — tailored CV as DOCX and PDF
 **Next phase:** 6 — the remaining eight skills and the full application pack
 **Last updated:** 2026-11-19
-**Suite:** 180 tests passing offline (`python -m pytest -q`)
+**Suite:** 181 tests passing offline (`python -m pytest -q`)
 
 ---
 
@@ -121,7 +121,7 @@ Docs:
 ### Step 6 — Application pack, resources dashboard and resume/retry
 
 - **Resume and retry.** `POST /api/jobs/{id}/resume` continues a stopped run (failed, cancelled or interrupted) from its first unfinished step. `run_remaining_skills()` derives the work left, `create_run(..., kind="resume")` queues only those steps, and `_prior_outputs()` now reads the succeeded steps of recent runs — including a failed or interrupted one — so a resume never re-pays for work already done. The job page shows **Resume run** plus **Start over**, a per-step **Retry** for failed optional steps, and the remaining step count in the run hint. Resuming needs login and CSRF, refuses a job with a run in flight, and refuses a run that already succeeded (regenerate an artifact instead).
-- **Resume everywhere it is needed.** The jobs list, the dashboard's Needs action panel and each row of a company's jobs table show a **Resume** chip with `Run stopped · N steps left` for any job whose latest run stopped with steps remaining; the dashboard lists those stopped runs ahead of ordinary follow-ups. `_resume_counts()` in `pages.py` computes the per-job count in one pass from eager-loaded steps, and `jobs.js` posts the resume and hands off to the job page. The chip and its pluralised `N steps left` label live in one place, `app/templates/partials/resume_chip.html`, imported by all three pages. The list row is no longer one big anchor — the title is the link and the actions sit outside it — and below 640 px the actions wrap onto a dashed rule.
+- **Resume everywhere it is needed.** The jobs list, the dashboard's Needs action panel and each row of a company's jobs table show a **Resume** chip with `Run stopped · N steps left` for any job whose latest run stopped with steps remaining; the dashboard lists those stopped runs ahead of ordinary follow-ups. `_resume_counts()` in `pages.py` computes the per-job count in one pass from eager-loaded steps, and `jobs.js` posts the resume and hands off to the job page. Every run action (resume, start over, regenerate) goes through one helper, `app/static/js/run_actions.js`, which posts with the CSRF token and returns `{ok, status, message}`; `job_detail.js` renders that result with one shared `queueRun` button wrapper. The chip and its pluralised `N steps left` label live in one place, `app/templates/partials/resume_chip.html`, imported by all three pages. The list row is no longer one big anchor — the title is the link and the actions sit outside it — and below 640 px the actions wrap onto a dashed rule.
 - **Usage ledger.** Every model call lands in `llm_calls` and every search in `search_calls` (job, run, skill, provider, model, tokens, cost, latency, cache flag), attributed by `call_context()` in the pipeline and wrapped outside the cache so a hit is recorded as free rather than invisible. `app/usage.py` aggregates per job and per day, falls back to run totals for jobs older than the ledger, and feeds `/resources` — stat cards, CSS-only charts, filters (query, status, model, skill, window) and a per-job table.
 - **Providers.** Groq and NVIDIA NIM share one OpenAI-compatible transport (`openai_compat.py`); Groq keeps its exact retry and rate-limit behaviour, NVIDIA adds DeepSeek V4 pro/flash with `max_tokens` and a `reasoning_effort` map that defaults to `none`. Each provider carries its own default model pair, so switching `SKIPPER_LLM_PROVIDER` is enough.
 - **The rest of the pack.** Company research, cover letter, email, three spoken answers and two interview briefs, plus the company detail page (`/companies/{id}`) that previously 404'd. Spoken answers keep their paragraph breaks end to end (`prose_text()`, paragraph-preserving clichés/clipping) and render as scannable blocks with a `+`/`−` collapsible marker.
@@ -130,7 +130,7 @@ Docs:
 
 ### Verification performed
 
-- `python -m pytest -q` → **180 passed**, no network access.
+- `python -m pytest -q` → **181 passed**, no network access.
 - `ruff check app tests` → clean.
 - Server booted on `127.0.0.1:8127` and `:8130`: `/readyz` reports `portfolio_chunks: 35`; a pasted posting ran end to end with the fake provider, reached `reviewing`, and produced the summary artifact.
 - Playwright at 1440/768/375/320 px: add-job dialog centred at every width, zero horizontal overflow on `/jobs` and `/jobs/{id}`, zero console errors; filters return one row for `q=Acme` and the empty state for an unmatched query.
@@ -262,7 +262,7 @@ Database file: `var/skipper.db` (gitignored). Deleting it recreates everything a
 ## Command log (latest first)
 
 ```text
-2026-11-19  python -m pytest                                       → 180 passed
+2026-11-19  python -m pytest                                       → 181 passed
 2026-11-19  ruff check app tests                                   → clean
 2026-11-19  python -m pytest                                       → 176 passed
 2026-11-19  python -m pytest                                       → 146 passed

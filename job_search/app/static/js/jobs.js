@@ -1,6 +1,5 @@
 /* Jobs list: resume a stopped run without opening the job. */
 (function () {
-    const csrf = document.querySelector('meta[name="csrf-token"]')?.content || "";
     const buttons = document.querySelectorAll("[data-resume-job]");
     if (!buttons.length) return;
 
@@ -12,23 +11,15 @@
             button.disabled = true;
             button.innerHTML = '<i class="uil uil-spinner-alt"></i> Resuming';
 
-            try {
-                const response = await fetch(`/api/jobs/${jobId}/resume`, {
-                    method: "POST",
-                    headers: { "X-CSRF-Token": csrf },
-                });
-                if (response.status === 202) {
-                    window.location.href = `/jobs/${jobId}`;
-                    return;
-                }
-                // Anything else (already running, already finished) is explained
-                // on the job page, so send the user there instead of failing here.
+            const result = await window.Skipper.resumeJob(jobId);
+            if (result.ok || result.status !== 0) {
+                // A refusal is explained on the job page; a network failure keeps
+                // the row usable instead of navigating into a dead end.
                 window.location.href = `/jobs/${jobId}`;
-            } catch (error) {
-                button.disabled = false;
-                button.innerHTML = label;
-                window.location.href = `/jobs/${jobId}`;
+                return;
             }
+            button.disabled = false;
+            button.innerHTML = label;
         });
     });
 })();

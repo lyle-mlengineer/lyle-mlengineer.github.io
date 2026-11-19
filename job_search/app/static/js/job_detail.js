@@ -71,91 +71,42 @@
         }
     });
 
-    regenerateButtons.forEach((button) => button.addEventListener("click", async () => {
-        button.disabled = true;
+    function showError(message, fallback) {
+        if (!errorBox) return;
+        errorBox.textContent = message || fallback;
+        errorBox.hidden = false;
+    }
+
+    // One button, one API call, one way of reporting the answer.
+    async function queueRun(button, call, { busy, fallback }) {
         const original = button.innerHTML;
-        button.innerHTML = '<i class="uil uil-spinner-alt button__icon button__icon--lead"></i> Starting…';
-        try {
-            const response = await fetch(`/api/jobs/${jobId}/regenerate`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf },
-                body: JSON.stringify({ skill: button.dataset.skill }),
-            });
-            if (response.status === 202) {
-                window.location.reload();
-                return;
-            }
-            const body = await response.json().catch(() => ({}));
-            if (errorBox) {
-                errorBox.textContent = body.error?.message || "That artifact could not be regenerated.";
-                errorBox.hidden = false;
-            }
-        } catch (error) {
-            if (errorBox) {
-                errorBox.textContent = "Lost contact with the server. Try again.";
-                errorBox.hidden = false;
-            }
-        } finally {
-            button.disabled = false;
-            button.innerHTML = original;
+        button.disabled = true;
+        button.innerHTML = `<i class="uil uil-spinner-alt button__icon button__icon--lead"></i> ${busy}`;
+        const result = await call();
+        if (result.ok) {
+            window.location.reload();
+            return;
         }
-    }));
+        button.disabled = false;
+        button.innerHTML = original;
+        showError(result.status === 0 ? "Lost contact with the server. Try again." : result.message, fallback);
+    }
 
-    retry?.addEventListener("click", async () => {
-        retry.disabled = true;
-        const original = retry.innerHTML;
-        retry.innerHTML = '<i class="uil uil-spinner-alt button__icon button__icon--lead"></i> Starting…';
-        try {
-            const response = await fetch(`/api/jobs/${jobId}/runs`, {
-                method: "POST",
-                headers: { "X-CSRF-Token": csrf },
-            });
-            if (response.status === 202) {
-                window.location.reload();
-                return;
-            }
-            const body = await response.json().catch(() => ({}));
-            if (errorBox) {
-                errorBox.textContent = body.error?.message || "The run could not be started.";
-                errorBox.hidden = false;
-            }
-        } catch (error) {
-            if (errorBox) {
-                errorBox.textContent = "Lost contact with the server. Try again.";
-                errorBox.hidden = false;
-            }
-        } finally {
-            retry.disabled = false;
-            retry.innerHTML = original;
-        }
-    });
+    regenerateButtons.forEach((button) => button.addEventListener("click", () => queueRun(
+        button,
+        () => window.Skipper.regenerateArtifact(jobId, button.dataset.skill),
+        { busy: "Starting…", fallback: "That artifact could not be regenerated." },
+    )));
 
-    resume?.addEventListener("click", async () => {
-        resume.disabled = true;
-        const original = resume.innerHTML;
-        resume.innerHTML = '<i class="uil uil-spinner-alt button__icon button__icon--lead"></i> Resuming…';
-        try {
-            const response = await fetch(`/api/jobs/${jobId}/resume`, {
-                method: "POST",
-                headers: { "X-CSRF-Token": csrf },
-            });
-            if (response.status === 202) {
-                window.location.reload();
-                return;
-            }
-            const body = await response.json().catch(() => ({}));
-            if (errorBox) {
-                errorBox.textContent = body.error?.message || "The run could not be resumed.";
-                errorBox.hidden = false;
-            }
-        } catch (error) {
-            if (errorBox) {
-                errorBox.textContent = "Lost contact with the server. Try again.";
-                errorBox.hidden = false;
-            }
-        } finally {
-            resume.disabled = false;
-            resume.innerHTML = original;
-        }
-    });
+    retry?.addEventListener("click", () => queueRun(
+        retry,
+        () => window.Skipper.runJob(jobId),
+        { busy: "Starting…", fallback: "The run could not be started." },
+    ));
+
+    resume?.addEventListener("click", () => queueRun(
+        resume,
+        () => window.Skipper.resumeJob(jobId),
+        { busy: "Resuming…", fallback: "The run could not be resumed." },
+    ));
 })();

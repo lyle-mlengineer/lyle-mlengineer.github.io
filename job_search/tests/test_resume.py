@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pathlib
+
 from sqlalchemy import select
 
 from app.db import get_session_factory
@@ -212,3 +214,24 @@ def test_resume_partial_is_shared_and_pluralises_steps(client):
     assert 'id="run-resume"' in button
     assert "Resume run" in button
     assert "data-resume-job" not in button
+
+
+def test_run_actions_helper_is_served_and_loaded_by_every_page_that_uses_it(client, settings):
+    helper = client.get("/static/js/run_actions.js")
+    assert helper.status_code == 200
+    assert "resumeJob" in helper.text
+
+    authed = _authed(client)
+    job_id = _fail_run_at(authed, 4)
+    with get_session_factory(settings)() as db:
+        company_id = db.get(Job, job_id).company_id
+
+    for url in ("/jobs", "/dashboard", f"/companies/{company_id}", f"/jobs/{job_id}"):
+        html = authed.get(url).text
+        assert '<script src="/static/js/run_actions.js" defer></script>' in html, url
+
+    # The page scripts delegate rather than each posting their own request.
+    js = pathlib.Path(__file__).resolve().parents[1] / "app" / "static" / "js"
+    for name in ("jobs.js", "job_detail.js"):
+        source = (js / name).read_text(encoding="utf-8")
+        assert "fetch(" not in source.replace('fetch(`/api/runs/${runId}/cancel`', ""), name
