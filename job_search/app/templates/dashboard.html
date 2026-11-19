@@ -71,7 +71,7 @@
                 <div>
                     <p class="panel__kicker">Follow-ups</p>
                     <h2 class="panel__title" id="needs-action-title">Needs action</h2>
-                    <p class="panel__hint">Due follow-ups and jobs that are ready to send.</p>
+                    <p class="panel__hint">Due follow-ups, jobs ready to send, and runs that stopped early.</p>
                 </div>
                 {% if pending_action %}<span class="pill pill--warning">{{ pending_action|length }} waiting</span>{% endif %}
             </div>
@@ -79,17 +79,34 @@
             {% if pending_action %}
             <div class="list">
                 {% for job in pending_action %}
-                <a class="list__row" href="/jobs/{{ job.id }}">
-                    <span class="list__main">
-                        <span class="list__title">{{ job.title }}</span>
-                        <span class="list__meta">
-                            {{ job.company.name if job.company else 'Unknown company' }}
-                            {% if job.next_action_at %} · due {{ job.next_action_at[:10] }}{% endif %}
+                {% set resume_count = resume_counts.get(job.id, 0) %}
+                <div class="list__row">
+                    <a class="list__link" href="/jobs/{{ job.id }}">
+                        <span class="list__main">
+                            <span class="list__title">{{ job.title }}</span>
+                            <span class="list__meta">
+                                {{ job.company.name if job.company else 'Unknown company' }}
+                                {% if job.next_action_at %} · due {{ job.next_action_at[:10] }}{% endif %}
+                            </span>
+                            <span class="list__meta">
+                                {% if resume_count %}
+                                    Run stopped · {{ resume_count }} step{{ '' if resume_count == 1 else 's' }} left
+                                {% else %}
+                                    {{ job.next_action }}
+                                {% endif %}
+                            </span>
                         </span>
-                        <span class="list__meta">{{ job.next_action }}</span>
+                    </a>
+                    <span class="list__side">
+                        {% if resume_count %}
+                        <button type="button" class="list__action" data-resume-job="{{ job.id }}" title="Continue from the first unfinished step">
+                            <i class="uil uil-play"></i>
+                            Resume
+                        </button>
+                        {% endif %}
+                        <span class="pill pill--{{ status_tone.get(job.status, 'neutral') }}">{{ status_labels.get(job.status, job.status) }}</span>
                     </span>
-                    <span class="pill pill--{{ status_tone.get(job.status, 'neutral') }}">{{ status_labels.get(job.status, job.status) }}</span>
-                </a>
+                </div>
                 {% endfor %}
             </div>
             {% else %}
@@ -184,4 +201,8 @@
         </section>
     </aside>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/jobs.js" defer></script>
 {% endblock %}

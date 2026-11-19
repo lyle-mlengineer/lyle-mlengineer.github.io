@@ -39,6 +39,22 @@ from ..usage import (
 
 router = APIRouter()
 
+#: Run states that stopped before finishing and can still be resumed.
+STOPPED_RUN_STATUSES = ("failed", "cancelled", "interrupted")
+
+
+def _resume_counts(jobs) -> dict[int, int]:
+    """How many steps each job has left to run, for jobs with a stopped run."""
+    counts: dict[int, int] = {}
+    for job in jobs:
+        run = job.runs[0] if job.runs else None
+        if run is None or run.status not in STOPPED_RUN_STATUSES:
+            continue
+        left = sum(1 for step in run.steps if step.status != "succeeded")
+        if left:
+            counts[job.id] = left
+    return counts
+
 
 def _templates(request: Request):
     return request.app.state.templates
@@ -161,14 +177,36 @@ def dashboard(request: Request, db: Session = Depends(get_db)) -> Response:
     )
     pending_action = db.execute(
         select(Job)
-        .options(joinedload(Job.company))
+        .options(joinedload(Job.company), selectinload(Job.runs).selectinload(Run.steps))
         .where(Job.status.in_(ACTIVE_JOB_STATUSES), Job.next_action.is_not(None))
         .order_by(Job.next_action_at.asc())
         .limit(5)
-    ).scalars().all()
+    ).unique().scalars().all()
+    stopped = db.execute(
+        select(Job)
+        .options(joinedload(Job.company), selectinload(Job.runs).selectinload(Run.steps))
+        .where(
+            Job.status.in_(ACTIVE_JOB_STATUSES),
+            Job.id.in_(select(Run.job_id).where(Run.status.in_(STOPPED_RUN_STATUSES))),
+        )
+        .order_by(Job.updated_at.desc())
+        .limit(10)
+    ).unique().scalars().all()
     recent = db.execute(
         select(Job).options(joinedload(Job.company)).order_by(Job.updated_at.desc()).limit(5)
     ).scalars().all()
+
+    # A run that stopped is the most urgent thing on this page, so it leads the
+    # follow-ups list; anything else with a next action follows, deduplicated.
+    resume_counts = _resume_counts([*stopped, *pending_action])
+    needs_action: list[Job] = []
+    seen: set[int] = set()
+    for job in [job for job in stopped if job.id in resume_counts] + list(pending_action):
+        if job.id not in seen:
+            seen.add(job.id)
+            needs_action.append(job)
+    needs_action = needs_action[:6]
+
     company_count = db.execute(select(func.count(Company.id))).scalar_one()
     settings = get_settings()
     portfolio_chunks = db.execute(select(func.count(PortfolioChunk.id))).scalar_one()
@@ -185,7 +223,8 @@ def dashboard(request: Request, db: Session = Depends(get_db)) -> Response:
             "total_jobs": sum(counts.values()),
             "active_jobs": sum(counts.get(s, 0) for s in ACTIVE_JOB_STATUSES),
             "company_count": company_count,
-            "pending_action": pending_action,
+            "pending_action": needs_action,
+            "resume_counts": resume_counts,
             "recent": recent,
             "llm_provider": settings.llm_provider,
             "llm_model": settings.resolved_models()["small"]
@@ -219,14 +258,7 @@ def jobs_page(request: Request, db: Session = Depends(get_db)) -> Response:
     jobs = db.execute(stmt.limit(100)).unique().scalars().all()
 
     # A row offers Resume when its latest run stopped with steps left to do.
-    resume_counts: dict[int, int] = {}
-    for job in jobs:
-        run = job.runs[0] if job.runs else None
-        if run is None or run.status in {"succeeded", "queued", "running"}:
-            continue
-        left = sum(1 for step in run.steps if step.status != "succeeded")
-        if left:
-            resume_counts[job.id] = left
+    resume_counts = _resume_counts(jobs)
 
     return _templates(request).TemplateResponse(
         request,

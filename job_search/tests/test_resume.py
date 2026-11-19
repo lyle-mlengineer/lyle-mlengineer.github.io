@@ -150,3 +150,23 @@ def test_jobs_list_offers_resume_only_while_steps_remain(client):
 
     html = authed.get("/jobs").text
     assert f'data-resume-job="{job_id}"' not in html
+
+
+def test_dashboard_lists_a_stopped_run_with_resume(client):
+    authed = _authed(client)
+    job_id = _fail_run_at(authed, 4)
+
+    html = authed.get("/dashboard").text
+    assert "Needs action" in html
+    assert f'data-resume-job="{job_id}"' in html
+    assert "Run stopped" in html
+    assert "step" in html and "left" in html
+    assert "/static/js/jobs.js" in html
+
+    authed.app.state.llm = FakeLLMProvider(FAKE_RESPONSES)
+    resumed = authed.post(f"/api/jobs/{job_id}/resume", headers=headers(authed))
+    assert resumed.status_code == 202
+    assert authed.get(resumed.json()["poll_url"]).json()["status"] == "succeeded"
+
+    html = authed.get("/dashboard").text
+    assert f'data-resume-job="{job_id}"' not in html
