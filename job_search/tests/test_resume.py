@@ -71,6 +71,7 @@ def test_resume_continues_from_the_failed_step_and_reuses_prior_outputs(client, 
 
     page = authed.get(f"/jobs/{job_id}").text
     assert "Resume run" in page
+    assert 'id="run-resume"' in page
     assert "Start over" in page
     assert "steps__retry" in page
 
@@ -204,3 +205,10 @@ def test_resume_partial_is_shared_and_pluralises_steps(client):
     assert "1 step left" in html
     assert "3 steps left" in html
     assert 'data-resume-job="7"' in html
+
+    button = env.from_string(
+        '{% from "partials/resume_chip.html" import resume_chip %}{{ resume_chip(7, "button") }}'
+    ).render()
+    assert 'id="run-resume"' in button
+    assert "Resume run" in button
+    assert "data-resume-job" not in button

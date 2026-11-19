@@ -1,4 +1,5 @@
 {% extends "app_shell.html" %}
+{% from "partials/resume_chip.html" import resume_chip, steps_left %}
 
 {% block title %}{{ job.title }} — Skipper{% endblock %}
 {% block page_title %}{{ job.title }}{% endblock %}
@@ -60,10 +61,7 @@
             {% if run and run.status in ('queued', 'running') %}
             <button type="button" class="button button--small button--ghost" id="run-cancel">Cancel</button>
             {% elif resume_skills %}
-            <button type="button" class="button button--small" id="run-resume">
-                <i class="uil uil-play button__icon button__icon--lead"></i>
-                Resume run
-            </button>
+            {{ resume_chip(job.id, "button") }}
             <button type="button" class="button button--small button--ghost" id="run-retry">
                 <i class="uil uil-redo button__icon button__icon--lead"></i>
                 Start over

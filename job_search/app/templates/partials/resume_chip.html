@@ -1,13 +1,22 @@
 {# Resume affordances for a job whose latest run stopped with steps left.
 
-   Pages that use these need /static/js/jobs.js loaded: it posts
-   /api/jobs/{id}/resume and hands off to the job page. #}
+   ``variant="chip"`` is for list and table rows and needs /static/js/jobs.js
+   on the page: it posts /api/jobs/{id}/resume and hands off to the job page.
+   ``variant="button"`` is the full-size button on the job page, which
+   job_detail.js binds by id. #}
 
-{% macro resume_chip(job_id) -%}
+{% macro resume_chip(job_id, variant="chip") -%}
+{%- if variant == "button" -%}
+<button type="button" class="button button--small" id="run-resume">
+    <i class="uil uil-play button__icon button__icon--lead"></i>
+    Resume run
+</button>
+{%- else -%}
 <button type="button" class="list__action" data-resume-job="{{ job_id }}" title="Continue from the first unfinished step">
     <i class="uil uil-play"></i>
     Resume
 </button>
+{%- endif -%}
 {%- endmacro %}
 
 {% macro steps_left(count) -%}
