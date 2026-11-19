@@ -3,9 +3,9 @@
 The build follows `../docs/steps.md`. Each step ends with a working app, a test run,
 and a commit.
 
-**Current step:** 9 complete — deterministic video
-**Next step:** 10 — copy and alt text
-**Last updated:** 2026-11-18
+**Current step:** 10 complete — copy decks and alt text
+**Next step:** 11 — QA gates
+**Last updated:** 2026-11-19
 
 ---
 
@@ -523,20 +523,70 @@ and a commit.
 
 ---
 
-## Next step
+## Done
 
 ### Step 10 — Copy and alt text
 
-1. `copy/counts.py`: grapheme-aware counters for LinkedIn, X (URL = 23),
-   Instagram, TikTok and WhatsApp.
-2. `copy/deck.py`: one platform-native deck per network with alternatives,
-   thread, short variant and hashtags, validated against tier A/B facts.
-3. `copy/alt.py`: alt text derived from the `LayoutAST`, with spatial hints
-   checked against the AST.
-4. `pack/postmd.py`: the nine-section deck from design §11, including sources
-   and omissions.
-5. WhatsApp message shapes (status, individual, group, broadcast) with no
-   hashtags and no link in a status.
+- **Counters.** `app/copy/counts.py` implements grapheme-aware counting for
+  LinkedIn, Instagram, TikTok and WhatsApp, and X's weighted length (every URL
+  costs 23, wide characters and emoji cost 2). Combining marks, ZWJ emoji,
+  skin-tone modifiers and flags stay one character. The five `PostSpec`s live in
+  the same module: limits, hashtag ranges, link policy and WhatsApp shapes.
+- **Decks.** `app/copy/deck.py` builds a deterministic deck for every platform
+  from the thesis, audience, offerings, projects, tier A/B facts and a derived
+  voice card. It returns `primary`, exactly three alternatives, a thread for X,
+  a short variant, hashtags and WhatsApp's four messages. No deterministic
+  sentence introduces a digit outside the fact set.
+- **Validation.** Every deck is re-counted with the platform's own counter and
+  checked for length, hashtag count and declarations, link placement, banned
+  phrases, em-dash overuse and unsupported digits. Thread numbering (`N/`) and
+  URLs are stripped before digit checks, so structural numbers never fail.
+- **LLM loop.** When `SNAP_LLM_API_KEY` is set, the model drafts against the
+  `PostSpec`, voice card and banned list. A rejected draft gets exactly one
+  regeneration with the issue list attached; if it still fails, the endpoint
+  writes the deterministic deck and reports why in `warnings`. Banned phrases
+  stay in config (`SNAP_COPY_BANNED_PHRASES`), not in the prompt.
+- **Alt text.** `app/copy/alt.py` walks the `LayoutAST`, mentions every visible
+  string in reading order and ignores `tools` and `footnotes` because the card
+  template does not render them. Spatial hints are accepted only when the
+  measured box agrees; a mismatch is dropped with a warning.
+- **`post.md`.** `app/pack/postmd.py` writes the fixed nine sections from design
+  §11: header, recommended copy with counts, thread/carousel/short variant or
+  WhatsApp shapes, video caption, alt text, posting checklist, files table,
+  re-render commands, and sources plus omissions. Tier-B facts appear with
+  their URL and dates; open gaps and disclaimers are listed as omissions.
+- **API and CLI.** `POST /v1/runs/{id}/copy` accepts `{platforms, use_llm}` and
+  writes one `post.md` per platform under
+  `var/media/<tenant>/<site>/<run>/posts/<platform>/post.md`.
+  `python -m app.cli copy --run <id> --platform linkedin --platform x --no-llm`
+  does the same without the API.
+- **Tests.** 215 tests pass and ruff is clean. New coverage: grapheme clusters
+  and X weighting (23-character URL, emoji, combining marks), every platform's
+  deterministic deck and limits, digit/banned/hashtag/link validation, the
+  reject-regenerate-fail loop, LLM fallback and acceptance, alt-text coverage
+  and spatial hints, the nine `post.md` sections with sources and omissions,
+  service output, auth, tenant scoping, the analyse-before-copy 409 and the
+  unknown-platform 422.
+- **Smoke test.** On the real portfolio run, `--no-llm` wrote LinkedIn 1,281
+  characters, an X hook of 170 weighted characters, an Instagram caption of 704
+  characters with five hashtags, and four WhatsApp messages (status 233
+  characters, no hashtags, no link). All four decks validated and the LinkedIn
+  file carried alt text for its four composed cards.
+
+**Commit:** `feat(snaptospot): generate platform copy decks`
+
+---
+
+## Next step
+
+### Step 11 — QA gates
+
+1. `qa/ocr.py`: OCR cross-check with Tesseract/PaddleOCR.
+2. `qa/overflow.py`, `qa/contrast.py`, `qa/safearea.py`: DOM, WCAG and platform
+   mask gates from the AST.
+3. `qa/provenance.py`: join every rendered number to a tier A/B fact.
+4. `qa/report.py`: `qa.json`, per-asset status and retry policy.
+5. Duplicate detection and brand-drift checks.
 
 ---
 
@@ -832,6 +882,38 @@ python -m app.cli video --run $run.id --platform linkedin --workers 4 --force
 - ffmpeg and ffprobe must be on `PATH`; no Python package replaces them.
 - Composing a run is a prerequisite; the endpoint returns 409 otherwise.
 
+### Generate copy decks and alt text
+
+Copy needs the content model, not the rendered files. Composed layouts only add
+alt text; without them the deck still writes and says so in section 5.
+
+```powershell
+$copy = Invoke-RestMethod -Method Post `
+  -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/copy" `
+  -Headers $headers -ContentType 'application/json' `
+  -Body (@{ platforms = @("linkedin", "x", "instagram", "whatsapp"); use_llm = $true } | ConvertTo-Json)
+
+$copy.voice | Format-List person, tense, formality, sentence_length
+$copy.files | Format-Table platform, primary_chars, short_chars, source, validated
+$copy.decks | ForEach-Object { $_.primary; "" }
+```
+
+Or from the CLI, with no model call:
+
+```powershell
+python -m app.cli copy --run $run.id --platform linkedin --platform x --no-llm
+```
+
+- Output: `var/media/<tenant>/<site>/<run>/posts/<platform>/post.md`, one file
+  containing the nine §11 sections.
+- X counts every URL as 23 characters and the hook never contains the link.
+  Instagram and TikTok say "link in bio"; WhatsApp has no hashtags and no link
+  in its status.
+- Banned phrases come from `SNAP_COPY_BANNED_PHRASES` (JSON list), not from the
+  prompt, so they can change without a prompt version bump.
+- A model draft gets one regeneration. If both drafts fail, the deterministic
+  deck is written and the response lists the rejection reasons in `warnings`.
+
 ### Optional LLM understanding and extraction
 
 Any OpenAI-compatible endpoint works:
@@ -853,6 +935,7 @@ python -m app.cli ingest https://lyle-mlengineer.github.io --out var\profile.jso
 python -m app.cli extract https://lyle-mlengineer.github.io --out var\content.json
 python -m app.cli render --run <run-id> --platform linkedin
 python -m app.cli video --run <run-id> --platform linkedin --platform whatsapp
+python -m app.cli copy --run <run-id> --platform linkedin --platform x --no-llm
 ```
 
 ### Useful settings

@@ -34,6 +34,19 @@ class Settings(BaseSettings):
     # URIs; turn this off to guarantee a render never touches the network.
     render_fetch_remote: bool = True
 
+    # Copy rules. Banned phrases live here, not in the prompt, so they can be
+    # changed without changing a prompt version or invalidating cached decks.
+    copy_banned_phrases: list[str] = [
+        "excited to announce",
+        "game-changer",
+        "game changer",
+        "revolutionary",
+        "unlock",
+        "synergy",
+        "disrupt",
+    ]
+    copy_max_em_dashes: int = 3
+
     # LLM enrichment (any OpenAI-compatible endpoint)
     llm_api_key: str | None = None
     llm_base_url: str = "https://api.openai.com/v1"

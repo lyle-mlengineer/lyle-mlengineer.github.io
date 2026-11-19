@@ -18,8 +18,16 @@ SourceType = Literal["site", "user_answer", "document", "web", "inference"]
 _NUMBER = re.compile(r"\d[\d,]*(?:\.\d+)?")
 
 
-def _numbers(text: str) -> set[str]:
+def numbers_in(text: str) -> set[str]:
+    """Return normalised Arabic digit sequences (commas removed).
+
+    Copy validation uses the same normalisation as the content model, so a
+    figure that passed extraction is not rejected for a comma later.
+    """
     return {match.group(0).replace(",", "") for match in _NUMBER.finditer(text)}
+
+
+_numbers = numbers_in
 
 
 class Fact(BaseModel):

@@ -179,6 +179,42 @@ def _video(
     return 0
 
 
+def _copy(run_id: str, platforms: list[str], use_llm: bool) -> int:
+    from sqlalchemy import select
+
+    from app.copy.deck import CopyValidationError
+    from app.copy.service import CopyError, copy_run
+    from app.db import SessionLocal
+    from app.models import Run
+    from app.schemas.copy import CopyIn
+
+    with SessionLocal() as db:
+        run = db.scalar(select(Run).where(Run.id == run_id))
+        if run is None:
+            print(f"run not found: {run_id}", file=sys.stderr)
+            return 1
+        try:
+            report = copy_run(
+                db,
+                run,
+                CopyIn(platforms=platforms, use_llm=use_llm),
+            )
+        except (CopyError, CopyValidationError) as exc:
+            print(f"copy failed: {exc}", file=sys.stderr)
+            return 1
+        db.commit()
+
+    for item in report.files:
+        print(
+            f"{item.platform}/post.md -> {item.path} "
+            f"({item.primary_chars} chars, {len(item.hashtags)} hashtags, "
+            f"{item.source}, {item.sha256[:12]})"
+        )
+    for warning in report.warnings:
+        print(f"warning: {warning}", file=sys.stderr)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="snaptospot", description="SnapToSpot tools")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -247,6 +283,24 @@ def main(argv: list[str] | None = None) -> int:
         help="parallel frame-capture workers (default 2)",
     )
 
+    copy = sub.add_parser(
+        "copy", help="write validated post.md decks for a run's platforms"
+    )
+    copy.add_argument("--run", required=True, help="run id")
+    copy.add_argument(
+        "--platform",
+        dest="platforms",
+        action="append",
+        default=None,
+        help="platform name or id; repeatable (default linkedin, x, instagram, whatsapp)",
+    )
+    copy.add_argument(
+        "--no-llm",
+        dest="use_llm",
+        action="store_false",
+        help="use only the deterministic builder",
+    )
+
     args = parser.parse_args(argv)
     if args.command == "ingest":
         return _ingest(args.url, args.out, args.max_pages)
@@ -267,6 +321,12 @@ def main(argv: list[str] | None = None) -> int:
             args.platforms or ["linkedin"],
             args.force,
             args.workers,
+        )
+    if args.command == "copy":
+        return _copy(
+            args.run,
+            args.platforms or ["linkedin", "x", "instagram", "whatsapp"],
+            args.use_llm,
         )
     return 2
 

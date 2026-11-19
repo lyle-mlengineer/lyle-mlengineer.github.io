@@ -350,6 +350,51 @@ The LinkedIn and X last line is the URL; Instagram points at the bio, TikTok
 asks for a follow, and WhatsApp asks for a reply. Composing a run is a
 prerequisite; the endpoint returns 409 until it exists.
 
+## Step 10 — copy and alt text
+
+Copy is generated from the content model, not from screenshots. Each platform
+has a `PostSpec` with its own hard limit, hashtag range and link policy. X
+counts every URL as 23 characters and wide emoji as 2; the other platforms count
+grapheme clusters, so a combining accent or a ZWJ emoji stays one character.
+
+```powershell
+$copy = Invoke-RestMethod -Method Post `
+  -Uri "http://127.0.0.1:8000/v1/runs/$($run.id)/copy" `
+  -Headers $headers -ContentType 'application/json' `
+  -Body (@{ platforms = @("linkedin", "x", "instagram", "whatsapp"); use_llm = $true } | ConvertTo-Json)
+
+$copy.voice | Format-List person, tense, formality, sentence_length
+$copy.files | Format-Table platform, primary_chars, short_chars, source, validated
+$copy.decks | ForEach-Object { $_.primary; "" }
+```
+
+The CLI works offline:
+
+```powershell
+python -m app.cli copy --run $run.id --platform linkedin --platform x --no-llm
+```
+
+```text
+var/media/<tenant>/<site>/<run>/posts/<platform>/post.md
+```
+
+- Each `post.md` has the nine §11 sections: header, recommended copy with
+  counts, thread/carousel/short variant (or the four WhatsApp shapes), video
+  caption, alt text, checklist, files, re-render commands, and sources plus
+  omissions.
+- The deck is always eight fields: `primary`, exactly three `alternatives`, a
+  `thread` for X, `short_variant`, `hashtags`, `alt_text` and WhatsApp
+  `messages`.
+- Every number must appear in a tier A/B fact. URLs and `N/` thread numbers are
+  stripped before the digit check. Banned phrases live in
+  `SNAP_COPY_BANNED_PHRASES`, so changing them does not change the prompt.
+- A model draft gets one correction attempt. If it still fails the hard rules,
+  the deterministic deck is written and the reasons are returned in `warnings`.
+- Alt text walks the `LayoutAST` and mentions every visible string. Spatial
+  hints ("portrait on the right") are used only when the measured box agrees.
+- WhatsApp status has no hashtags and no link; the individual, group and
+  broadcast messages carry the URL where a message can.
+
 ## Test
 
 ```powershell
