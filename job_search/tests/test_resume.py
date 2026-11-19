@@ -132,3 +132,21 @@ def test_resume_requires_login_and_csrf(client):
 def test_resume_404s_for_an_unknown_job(client):
     authed = _authed(client)
     assert authed.post("/api/jobs/999999/resume", headers=headers(authed)).status_code == 404
+
+def test_jobs_list_offers_resume_only_while_steps_remain(client):
+    authed = _authed(client)
+    job_id = _fail_run_at(authed, 4)
+
+    html = authed.get("/jobs").text
+    assert f'data-resume-job="{job_id}"' in html
+    assert "steps left" in html
+    assert "/static/js/jobs.js" in html
+    assert 'class="list__link"' in html
+
+    authed.app.state.llm = FakeLLMProvider(FAKE_RESPONSES)
+    resumed = authed.post(f"/api/jobs/{job_id}/resume", headers=headers(authed))
+    assert resumed.status_code == 202
+    assert authed.get(resumed.json()["poll_url"]).json()["status"] == "succeeded"
+
+    html = authed.get("/jobs").text
+    assert f'data-resume-job="{job_id}"' not in html

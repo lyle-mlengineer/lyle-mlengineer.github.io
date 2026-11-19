@@ -206,7 +206,10 @@ def jobs_page(request: Request, db: Session = Depends(get_db)) -> Response:
 
     status_filter = request.query_params.get("status", "").strip()
     query = request.query_params.get("q", "").strip()[:120]
-    stmt = select(Job).options(joinedload(Job.company), selectinload(Job.runs)).order_by(Job.updated_at.desc())
+    stmt = select(Job).options(
+        joinedload(Job.company),
+        selectinload(Job.runs).selectinload(Run.steps),
+    ).order_by(Job.updated_at.desc())
     if status_filter in JOB_STATUSES:
         stmt = stmt.where(Job.status == status_filter)
     if query:
@@ -214,6 +217,16 @@ def jobs_page(request: Request, db: Session = Depends(get_db)) -> Response:
             or_(Job.title.ilike(f"%{query}%"), Company.name.ilike(f"%{query}%"))
         )
     jobs = db.execute(stmt.limit(100)).unique().scalars().all()
+
+    # A row offers Resume when its latest run stopped with steps left to do.
+    resume_counts: dict[int, int] = {}
+    for job in jobs:
+        run = job.runs[0] if job.runs else None
+        if run is None or run.status in {"succeeded", "queued", "running"}:
+            continue
+        left = sum(1 for step in run.steps if step.status != "succeeded")
+        if left:
+            resume_counts[job.id] = left
 
     return _templates(request).TemplateResponse(
         request,
@@ -226,6 +239,7 @@ def jobs_page(request: Request, db: Session = Depends(get_db)) -> Response:
             "status_labels": JOB_STATUS_LABELS,
             "status_filter": status_filter,
             "query": query,
+            "resume_counts": resume_counts,
         },
     )
 

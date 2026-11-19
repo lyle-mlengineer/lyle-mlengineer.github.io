@@ -35,27 +35,40 @@
 {% if jobs %}
 <div class="list">
     {% for job in jobs %}
-    <a class="list__row" href="/jobs/{{ job.id }}">
-        <span class="list__main">
-            <span class="list__title">{{ job.title }}</span>
-            <span class="list__meta">
-                {{ job.company.name if job.company else 'Company pending' }}
-                {% if job.location %} · {{ job.location }}{% endif %}
-                {% if job.work_mode %} · {{ job.work_mode }}{% endif %}
+    {% set run = job.runs[0] if job.runs else None %}
+    {% set resume_count = resume_counts.get(job.id, 0) %}
+    <div class="list__row">
+        <a class="list__link" href="/jobs/{{ job.id }}">
+            <span class="list__main">
+                <span class="list__title">{{ job.title }}</span>
+                <span class="list__meta">
+                    {{ job.company.name if job.company else 'Company pending' }}
+                    {% if job.location %} · {{ job.location }}{% endif %}
+                    {% if job.work_mode %} · {{ job.work_mode }}{% endif %}
+                </span>
+                <span class="list__meta">
+                    {% if run and run.status in ('queued', 'running') %}
+                        Working · {{ run.progress_pct }}%
+                    {% elif run and run.status in ('failed', 'cancelled', 'interrupted') and resume_count %}
+                        {{ 'Interrupted' if run.status == 'interrupted' else ('Cancelled' if run.status == 'cancelled' else 'Last run failed') }} · {{ resume_count }} step{{ '' if resume_count == 1 else 's' }} left
+                    {% elif run and run.status == 'failed' %}
+                        Last run failed · retry available
+                    {% else %}
+                        Updated {{ job.updated_at[:10] }}
+                    {% endif %}
+                </span>
             </span>
-            <span class="list__meta">
-                {% set run = job.runs[0] if job.runs else None %}
-                {% if run and run.status in ('queued', 'running') %}
-                    Working · {{ run.progress_pct }}%
-                {% elif run and run.status == 'failed' %}
-                    Last run failed · retry available
-                {% else %}
-                    Updated {{ job.updated_at[:10] }}
-                {% endif %}
-            </span>
+        </a>
+        <span class="list__side">
+            {% if resume_count %}
+            <button type="button" class="list__action" data-resume-job="{{ job.id }}" title="Continue from the first unfinished step">
+                <i class="uil uil-play"></i>
+                Resume
+            </button>
+            {% endif %}
+            <span class="pill pill--{{ status_tone.get(job.status, 'neutral') }}">{{ status_labels.get(job.status, job.status) }}</span>
         </span>
-        <span class="pill pill--{{ status_tone.get(job.status, 'neutral') }}">{{ status_labels.get(job.status, job.status) }}</span>
-    </a>
+    </div>
     {% endfor %}
 </div>
 {% elif query or status_filter %}
@@ -144,4 +157,5 @@
 
 {% block scripts %}
 <script src="/static/js/add_job.js" defer></script>
+<script src="/static/js/jobs.js" defer></script>
 {% endblock %}

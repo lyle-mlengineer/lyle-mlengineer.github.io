@@ -487,10 +487,60 @@ body.dark-theme .pill--danger { color: hsl(0, 75%, 78%); }
     transition: border-color .2s, transform .2s, box-shadow .2s;
 }
 
-a.list__row:hover {
+a.list__row:hover,
+.list__row:hover {
     border-color: var(--first-color-lighter);
     transform: translateY(-1px);
     box-shadow: 0 .45rem 1.1rem hsla(var(--hue-color), 40%, 25%, .06);
+}
+
+/* A row whose whole left side is the link, with actions kept outside it. */
+.list__link {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    color: inherit;
+    text-decoration: none;
+}
+
+.list__link:focus-visible {
+    outline: 2px solid var(--accent-text);
+    outline-offset: 3px;
+    border-radius: .4rem;
+}
+
+.list__side {
+    display: inline-flex;
+    flex: none;
+    align-self: center;
+    align-items: center;
+    gap: .5rem;
+}
+
+.list__action {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .2rem .6rem;
+    border: 1px solid var(--line);
+    border-radius: 99px;
+    background-color: transparent;
+    color: var(--accent-text);
+    font: inherit;
+    font-size: var(--smaller-font-size);
+    font-weight: var(--font-medium);
+    cursor: pointer;
+    transition: background-color .2s, border-color .2s;
+}
+
+.list__action:hover {
+    background-color: hsla(var(--hue-color), 69%, 61%, .12);
+    border-color: var(--first-color-lighter);
+}
+
+.list__action:disabled {
+    opacity: .6;
+    cursor: progress;
 }
 
 .list__main {
@@ -1284,6 +1334,16 @@ body:has(.app) .scrollup {
     }
     .cv-panel .panel__actions .button {
         flex: 1 1 auto;
+    }
+    /* Row actions drop under the title instead of squeezing it. */
+    .list__row {
+        flex-wrap: wrap;
+    }
+    .list__side {
+        width: 100%;
+        justify-content: space-between;
+        padding-top: .35rem;
+        border-top: 1px dashed var(--line);
     }
 }
 
