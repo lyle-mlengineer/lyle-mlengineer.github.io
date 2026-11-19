@@ -1,4 +1,5 @@
 {% extends "app_shell.html" %}
+{% from "partials/resume_chip.html" import resume_chip, steps_left %}
 
 {% block title %}Dashboard — Skipper{% endblock %}
 {% block page_title %}Dashboard{% endblock %}
@@ -90,7 +91,7 @@
                             </span>
                             <span class="list__meta">
                                 {% if resume_count %}
-                                    Run stopped · {{ resume_count }} step{{ '' if resume_count == 1 else 's' }} left
+                                    Run stopped · {{ steps_left(resume_count) }}
                                 {% else %}
                                     {{ job.next_action }}
                                 {% endif %}
@@ -98,12 +99,7 @@
                         </span>
                     </a>
                     <span class="list__side">
-                        {% if resume_count %}
-                        <button type="button" class="list__action" data-resume-job="{{ job.id }}" title="Continue from the first unfinished step">
-                            <i class="uil uil-play"></i>
-                            Resume
-                        </button>
-                        {% endif %}
+                        {% if resume_count %}{{ resume_chip(job.id) }}{% endif %}
                         <span class="pill pill--{{ status_tone.get(job.status, 'neutral') }}">{{ status_labels.get(job.status, job.status) }}</span>
                     </span>
                 </div>

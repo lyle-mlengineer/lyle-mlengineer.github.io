@@ -191,3 +191,16 @@ def test_company_page_offers_resume_for_a_stopped_job(client, settings):
 
     html = authed.get(f"/companies/{company_id}").text
     assert f'data-resume-job="{job_id}"' not in html
+
+
+def test_resume_partial_is_shared_and_pluralises_steps(client):
+    env = client.app.state.templates.env
+    template = env.from_string(
+        '{% from "partials/resume_chip.html" import resume_chip, steps_left %}'
+        "{{ steps_left(1) }}|{{ steps_left(3) }}|{{ resume_chip(7) }}"
+    )
+    html = template.render()
+
+    assert "1 step left" in html
+    assert "3 steps left" in html
+    assert 'data-resume-job="7"' in html

@@ -1,4 +1,5 @@
 {% extends "app_shell.html" %}
+{% from "partials/resume_chip.html" import resume_chip, steps_left %}
 
 {% block title %}Jobs — Skipper{% endblock %}
 {% block page_title %}Jobs{% endblock %}
@@ -50,7 +51,7 @@
                     {% if run and run.status in ('queued', 'running') %}
                         Working · {{ run.progress_pct }}%
                     {% elif run and run.status in ('failed', 'cancelled', 'interrupted') and resume_count %}
-                        {{ 'Interrupted' if run.status == 'interrupted' else ('Cancelled' if run.status == 'cancelled' else 'Last run failed') }} · {{ resume_count }} step{{ '' if resume_count == 1 else 's' }} left
+                        {{ 'Interrupted' if run.status == 'interrupted' else ('Cancelled' if run.status == 'cancelled' else 'Last run failed') }} · {{ steps_left(resume_count) }}
                     {% elif run and run.status == 'failed' %}
                         Last run failed · retry available
                     {% else %}
@@ -60,12 +61,7 @@
             </span>
         </a>
         <span class="list__side">
-            {% if resume_count %}
-            <button type="button" class="list__action" data-resume-job="{{ job.id }}" title="Continue from the first unfinished step">
-                <i class="uil uil-play"></i>
-                Resume
-            </button>
-            {% endif %}
+            {% if resume_count %}{{ resume_chip(job.id) }}{% endif %}
             <span class="pill pill--{{ status_tone.get(job.status, 'neutral') }}">{{ status_labels.get(job.status, job.status) }}</span>
         </span>
     </div>

@@ -1,0 +1,15 @@
+{# Resume affordances for a job whose latest run stopped with steps left.
+
+   Pages that use these need /static/js/jobs.js loaded: it posts
+   /api/jobs/{id}/resume and hands off to the job page. #}
+
+{% macro resume_chip(job_id) -%}
+<button type="button" class="list__action" data-resume-job="{{ job_id }}" title="Continue from the first unfinished step">
+    <i class="uil uil-play"></i>
+    Resume
+</button>
+{%- endmacro %}
+
+{% macro steps_left(count) -%}
+{{ count }} step{{ '' if count == 1 else 's' }} left
+{%- endmacro %}

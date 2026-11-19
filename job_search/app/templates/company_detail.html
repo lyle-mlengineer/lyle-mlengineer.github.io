@@ -1,4 +1,5 @@
 {% extends "app_shell.html" %}
+{% from "partials/resume_chip.html" import resume_chip, steps_left %}
 
 {% macro num(value) %}{{ '{:,}'.format(value or 0) }}{% endmacro %}
 {% macro usd(value) %}${{ '%.4f'|format(value or 0) }}{% endmacro %}
@@ -103,18 +104,13 @@
                         <span class="usage-table__meta">
                             {% if job.location %}{{ job.location }}{% endif %}
                             {% if job.work_mode %} · {{ job.work_mode }}{% endif %}
-                            {% if resume_count %} · {{ resume_count }} step{{ '' if resume_count == 1 else 's' }} left{% endif %}
+                            {% if resume_count %} · {{ steps_left(resume_count) }}{% endif %}
                         </span>
                     </td>
                     <td>
                         <span class="usage-table__cell-actions">
                             <span class="pill pill--{{ status_tone.get(job.status, 'neutral') }}">{{ status_labels.get(job.status, job.status) }}</span>
-                            {% if resume_count %}
-                            <button type="button" class="list__action" data-resume-job="{{ job.id }}" title="Continue from the first unfinished step">
-                                <i class="uil uil-play"></i>
-                                Resume
-                            </button>
-                            {% endif %}
+                            {% if resume_count %}{{ resume_chip(job.id) }}{% endif %}
                         </span>
                     </td>
                     <td class="num">
