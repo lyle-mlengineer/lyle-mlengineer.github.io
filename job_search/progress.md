@@ -2,10 +2,10 @@
 
 The build follows [`docs/steps.md`](docs/steps.md). Each phase ends with a working app, a passing test run and (when the repo is committed) a commit.
 
-**Current phase:** 4 complete — ingestion, extraction and the job page
-**Next phase:** 5 — CV pipeline and document storage
+**Current phase:** 5 complete — tailored CV as DOCX and PDF
+**Next phase:** 6 — the remaining eight skills and the full application pack
 **Last updated:** 2026-11-19
-**Suite:** 125 tests passing offline (`python -m pytest -q`)
+**Suite:** 134 tests passing offline (`python -m pytest -q`)
 
 ---
 
@@ -93,12 +93,26 @@ Docs:
 - Hero fix: the SVG `<image>` was sized in user units by `.home__blob-img { width: 26rem }`, rendering it 865 px wide inside a 416 px blob. It now fills the viewBox with `xMidYMin slice` and uses a pre-cropped 832×778 asset (`lyle-hero-2x.jpg`, 107 KB) so the browser is not downscaling a 1792×2400 JPEG through SVG.
 - Tests: `tests/test_jobs.py` — text and URL ingestion, short/both-input rejection, auth/CSRF, duplicate + attach, source provenance, unreadable page, failed extraction and retry, cancel, single-flight, resume without new tokens, URL canonicalisation, fingerprinting and Markdown escaping.
 
+### Step 5 — Tailored CV, DOCX and PDF
+
+- `app/skills/cv_writing.py` — resume schema and prompt (headline, summary, four skill groups, five roles max, three projects), with dates normalised to `2024 – Present`, bullets clamped to five per role, duplicate bullets removed, and section order fixed for ATS readers. The prompt receives the job, its extraction and the portfolio corpus (profile, experience, skills, projects) wrapped as untrusted data.
+- Numeric grounding runs in postprocessing, not just in the prompt: `check_numbers()` compares every claim with the corpus and unsupported tokens are replaced with "measurably" and logged. The fixture CV therefore keeps 23.4%, 11.8%, 1,240 hours, 310 ms and 42 voices, and cannot carry a dimension the portfolio does not state.
+- `app/documents/resume.py` — canonical identity and ATS-safe names: `LYLE-OKOTH-ACME-SPEECH-SENIOR-MACHINE-LEARNING-ENGINEER-CV-v1.pdf`, company/role slugged, capped at 90 characters.
+- `app/documents/cv_docx.py` — one-column Calibri A4, 0.45–0.5" margins, name 18 pt, ruled section headings, right-aligned dates, real hyperlinks, no tables or text boxes. Compact spacing keeps the fixture to two pages.
+- `app/documents/cv_pdf.py` — LibreOffice `soffice` conversion with an isolated profile, 60 s timeout and temp-dir cleanup; isolating the profile stops a running desktop LibreOffice from deadlocking it. The reportlab fallback renders the same model with A4 margins, rules and bullets, and is the deterministic path used by the suite. `pdf_page_count()` reads page objects without an extra dependency.
+- `app/documents/storage.py` — renders both formats at one shared version, writes bytes to `var/artifacts/job-<id>/`, stores sha256/bytes/download name plus the resume JSON and page count, flips `is_current` for the pair, and logs an event. Path resolution refuses anything outside `SKIPPER_ARTIFACTS_DIR`.
+- `app/jobs/pipeline.py` — CV is step 3 of the full run (`job_extraction` → `job_summary` → `cv_writing`), required, weight 3.0. Failure marks the run failed; the completed brief stays current. Regeneration runs only the target skill but keeps its dependency outputs, so the extraction prompt is still available.
+- `app/routes/jobs.py` — `POST /api/jobs/{id}/regenerate {skill}` (single skill, 409 when extraction is missing), session-gated `GET /api/artifacts/{id}/download` with a filename and attachment header, and `GET /api/artifacts/{id}/preview` for the embedded viewer.
+- `app/templates/job_detail.html` + CSS — CV panel with PDF frame, PDF/DOCX downloads, Regenerate, version/page/engine metadata and an honest empty state. The CSP stays `frame-ancestors 'none'` everywhere except the preview response, which allows same-origin framing only.
+- Tests: `tests/test_documents.py` — DOCX text contains the name, headline, employers, bullets and section order; fallback PDF is `%PDF-`, two pages; filenames are sanitised; unsupported numbers are scrubbed; pipeline CV is grounded, downloadable and framed; regeneration creates v2 while v1 stays downloadable; download is session-gated and regenerating needs CSRF.
+
 ### Verification performed
 
-- `python -m pytest -q` → **125 passed**, no network access.
+- `python -m pytest -q` → **134 passed**, no network access.
 - `ruff check app tests` → clean.
 - Server booted on `127.0.0.1:8127` and `:8130`: `/readyz` reports `portfolio_chunks: 35`; a pasted posting ran end to end with the fake provider, reached `reviewing`, and produced the summary artifact.
 - Playwright at 1440/768/375/320 px: add-job dialog centred at every width, zero horizontal overflow on `/jobs` and `/jobs/{id}`, zero console errors; filters return one row for `q=Acme` and the empty state for an unmatched query.
+- Phase 5 browser check at 1440 and 375 px: CV panel shows PDF/DOCX/Regenerate, preview frame is 1082 px on desktop and 290 px on mobile, zero horizontal overflow, zero console errors. Headed Chromium renders the two-page PDF viewer inside the frame; headless Chromium leaves the PDF plugin area blank, so the visual check used a headed browser.
 - Playwright (Chromium) checks at 1920/1440/768/375/320 px across `/dashboard`, `/jobs`, `/companies`, `/settings` and `/`: zero horizontal overflow, zero console errors. Settings reindex form and counts verified after login.
 - Visual pass on the app shell and settings page: removed a duplicate dashboard render caused by a template block collision, centred a 1240 px content column, rebuilt stat cards and panels, fixed the old two-column `.kv` rule that fought the new row markup, and hid the landing page's scroll-up button inside the app (it overlapped the last card). Screenshots: `var/logs/final-dash-1440.png`, `final-settings2.png`, `settings-375.png`, `landing-1920.png`.
 - Playwright (Chromium) checks at 1440 and 375 px:
@@ -117,9 +131,9 @@ Docs:
 
 | Thing | Why it is absent | Where it lands |
 | --- | --- | --- |
-| Skills, artifacts, document renderers | Depend on providers and RAG | Phases 5–6 |
-| Status controls, company research pages | Depend on the remaining skills | Phase 7 |
-| Regeneration, resume, cancel | Depend on runs existing | Phase 8 |
+| Cover letter, research, email, spoken and interview skills | Need their schemas and renderers | Phase 6 |
+| Status controls and company detail pages | Depend on the remaining skills | Phase 7 |
+| Artifact editing and version switching | Regeneration exists for CV; editing is Phase 8 | Phase 8 |
 | Alembic | `create_all` is acceptable pre-release; no deployed schema yet | Before first deploy |
 
 The UI does not pretend: empty states name the next real action, `/settings` lists what is still pending, and a failed run keeps its artifacts and offers a retry instead of showing a success.
@@ -137,24 +151,15 @@ The UI does not pretend: empty states name the next real action, `/settings` lis
 7. **Dev default password is explicit.** `skipper-dev` is logged loudly at first boot; production refuses to seed without `SKIPPER_ADMIN_PASSWORD`.
 8. **Course-corrected after visual review**: both skills cards open on the landing page, footer links `white-space: nowrap`, footer grid aligned to start, hero top padding reduced, social rail pulled closer.
 9. **Source-stable fingerprints, not extracted-field fingerprints.** Extraction can rename `title` and fill `company`, so the duplicate key must be fixed at creation. See Step 4 above; design §11.2 carries the same note.
-10. **The job page stops at `reviewing` after extraction + summary.** `ready` is reserved for when a full application pack exists, so the status never overstates what the app has produced.
+10. **The job page stops at `reviewing` after extraction + summary + CV.** `ready` is reserved for when the full application pack exists, so the status never overstates what the app has produced.
+11. **Numeric grounding is enforced after generation.** `cv_writing` scrubs any number absent from the portfolio and logs it; a prompt instruction alone would not survive a creative model.
+12. **CV artifacts share one version across PDF and DOCX.** Regenerating writes v2 for both and flips v1 to non-current, so the pair never disagrees.
 
 ---
 
 ## Next three tasks (pick up here)
 
-### 1. CV pipeline (Phase 5)
-
-Files: `app/skills/cv_writing.py`, `app/documents/cv_docx.py`, `cv_pdf.py`, `storage.py`, artifact download route, `tests/test_documents.py`.
-
-Acceptance:
-
-- The resume JSON postprocessor normalises dates, section order and bullet length.
-- DOCX layout mirrors `cv/_generate_cvs.py`; PDF uses `soffice` with a reportlab fallback, and `/readyz` names the engine.
-- Files are versioned `LYLE-OKOTH-<COMPANY>-<ROLE>-CV-v<n>.<ext>` with hashes, current flag and sanitised names.
-- Download route is session-gated; the job page previews the PDF and offers both formats.
-
-### 2. Remaining skills and the application pack (Phase 6)
+### 1. Remaining skills and the application pack (Phase 6)
 
 Files: `app/skills/company_research.py`, `cover_letter.py`, `email_writing.py`, the spoken and interview skills, `app/jobs/prompts.py`, `app/rag/grounding.py` wiring, `app/templates/partials/artifact_viewer.html`.
 
@@ -165,7 +170,7 @@ Acceptance:
 - A fake-provider run produces all eleven artifacts; one invalid model response is repaired, not silently dropped.
 - The pack only marks a job `ready` when its required artifacts exist.
 
-### 3. Tracking, status controls and company pages (Phase 7)
+### 2. Tracking, status controls and company pages (Phase 7)
 
 Files: `app/routes/jobs.py` (PATCH/DELETE), `app/routes/companies.py`, company detail template, status control, `tests/test_tracking.py`.
 
@@ -176,13 +181,23 @@ Acceptance:
 - Company cards show research, jobs and notes; archive is reversible and never deletes artifacts.
 - Filtering, sorting and pagination stay responsive at 320 px with the mobile card layout.
 
+### 3. Deployment and hand-off (Phase 9)
+
+Files: `Dockerfile`, README deploy section, backup/restore drill. The portfolio's Skipper link currently points at the source folder; replace it with the hosted URL on the root `index.html` once deployed.
+
+Acceptance:
+
+- One command builds an image with LibreOffice and the app starts with `/readyz` green.
+- A backup/restore drill reproduces the same job and artifact counts.
+- Root portfolio link opens the hosted Skipper; HTTPS, real password, single worker documented.
+
 ---
 
 ## How to resume
 
 ```bash
 cd job_search
-python -m pytest -q                       # 125 passing now
+python -m pytest -q                       # 134 passing now
 python -m uvicorn app.main:app --reload --port 8000
 ```
 
@@ -211,24 +226,25 @@ Database file: `var/skipper.db` (gitignored). Deleting it recreates everything a
 
 ## Known issues / caveats
 
-- `/jobs` and `/companies` render empty states only; `/companies/{id}` and `/jobs/{id}` routes do not exist yet (Phase 4/7). The dashboard links to `/jobs/{id}` only when rows exist, so nothing 404s today.
-- `Add job` is a disabled-looking control on purpose; it becomes a modal in Phase 4.
+- `/companies` is still a list/empty state; `/companies/{id}` lands in Phase 7.
 - No Alembic yet: `create_all` will not alter existing tables. When the first post-v1 schema change is needed, add Alembic before touching models (design §24).
 - `login_attempts` grows to one day of failures; cleaned on each failure write.
 - LibreOffice is not required for tests; `/readyz` reports `pdf_engine: reportlab` when `soffice` is absent.
 - No CSRF token on the HTML login form: it is protected by same-site cookies and an origin check on the JSON endpoint. Revisit if the form ever accepts cross-site posts (it does not by design).
 - CV PDFs under `app/static/cv/` are copies of `../cv/*.pdf`. Re-copy them whenever the CV generator runs; the dashboard-generated CVs are separate artifacts.
-- The first two skills are wired; the remaining nine are still planned. A fake run produces the brief but not the full application pack.
-- CV PDFs under `app/static/cv/` are copies of `../cv/*.pdf`; dashboard-generated CVs will be separate artifacts.
+- Three skills are wired (`job_extraction`, `job_summary`, `cv_writing`); the remaining eight are Phase 6. A fake run produces the brief and CV, not the full pack.
+- CV PDFs under `app/static/cv/` are copies of `../cv/*.pdf`; generated CVs live under `var/artifacts/job-<id>/`.
 
 ---
 
 ## Command log (latest first)
 
 ```text
-2026-11-19  python -m pytest -q                                  → 125 passed
+2026-11-19  python -m pytest -q                                  → 134 passed
+2026-11-19  playwright headed CV preview 1440 / 375              → PDF renders, 0 overflow, 0 console errors
+2026-11-19  fallback CV benchmark                                 → 2 pages, 14.4 KB, reportlab
 2026-11-19  playwright jobs/detail/modal at 1440–320             → 0 overflow, 0 console errors
-2026-11-19  fake end-to-end paste                               → reviewing, summary artifact, 2/2 steps
+2026-11-19  fake end-to-end paste                               → reviewing, summary + CV, 3/3 steps
 2026-11-19  python -m pytest -q                                  → 109 passed
 2026-11-19  ruff check app tests                                → clean
 2026-11-19  playwright app pages at 1920–320                    → 0 overflow, 0 console errors

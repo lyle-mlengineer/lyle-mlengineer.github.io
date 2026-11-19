@@ -620,10 +620,10 @@ Execution is a topological pass with a deterministic order (`PIPELINE_ORDER`). v
 
 The CV content model (§15.2) is rendered twice from the same JSON:
 
-- **DOCX** — `python-docx`, A4, 0.6" margins, Poppins-like fallback (Calibri), name at 20 pt, section rules, role headers with right-aligned dates, bullets at 10.5 pt. Layout primitives are mirrors of `cv/_generate_cvs.py` (`header`, `section_heading`, `job_header`, `bullet`) so generated CVs match the existing hand-built ones visually.
-- **PDF** — preferred: LibreOffice headless conversion of the DOCX (`soffice --headless --convert-to pdf --outdir <dir> <docx>`, 60 s timeout). Fallback (no LibreOffice): `reportlab` platypus render of the same content model with a compact style sheet. Both paths are covered by a test that asserts the output starts with `%PDF-` and is > 20 KB.
+- **DOCX** — `python-docx`, A4, 0.45–0.5" margins, Calibri fallback (no web font in the document), name at 18 pt, section rules, role headers with right-aligned dates, bullets at 10 pt. Layout primitives mirror `cv/_generate_cvs.py` (`header`, `section_heading`, `job_header`, `bullet`) so generated CVs match the existing hand-built ones visually.
+- **PDF** — preferred: LibreOffice headless conversion of the DOCX (`soffice --headless --convert-to pdf --outdir <dir> <docx>`, 60 s timeout). Fallback (no LibreOffice): `reportlab` platypus render of the same content model with a compact style sheet. Both paths are covered by tests that assert the output starts with `%PDF-`, has at most two pages, and that the job page embeds a preview. Missing LibreOffice is reported as `pdf_engine=reportlab` in `/readyz`.
 
-File names: `LYLE-OKOTH-<COMPANY>-<ROLE>-CV-v<n>.pdf|docx`, sanitised, stored in `var/artifacts/<job_id>/`.
+File names: `LYLE-OKOTH-<COMPANY>-<ROLE>-CV-v<n>.pdf|docx`, sanitised, stored in `var/artifacts/job-<id>/`. PDF and DOCX share the version number and are flipped together.
 
 ### 16.2 Cover letter and email
 
@@ -632,14 +632,13 @@ Cover letter renders to DOCX + PDF via the same pipeline (a one-page letter temp
 ### 16.3 Artifact storage
 
 ```
-var/artifacts/<job_id>/
-  cv-v1.docx  cv-v1.pdf
-  cover-letter-v1.docx  cover-letter-v1.pdf
-  technical-interview-v1.md
+var/artifacts/job-<id>/
+  LYLE-OKOTH-<COMPANY>-<ROLE>-CV-v1.docx
+  LYLE-OKOTH-<COMPANY>-<ROLE>-CV-v1.pdf
   ...
 ```
 
-`documents/storage.py::write_artifact` computes the sha256 of the markdown/JSON source, writes the file, inserts the row, and flips `is_current`. Downloads stream from disk with an explicit `Content-Disposition` filename and `X-Content-Type-Options: nosniff`. Edits from the UI (`PATCH /api/artifacts/{id}` with markdown) create a new version, never mutate the old file.
+`documents/storage.py` writes the rendered bytes, stores their sha256, bytes, download name and content metadata, inserts the row, and flips `is_current`. Downloads stream from disk with an explicit `Content-Disposition` filename and `X-Content-Type-Options: nosniff`. Edits from the UI (`PATCH /api/artifacts/{id}` with markdown) create a new version, never mutate the old file.
 
 ---
 
@@ -677,7 +676,8 @@ var/artifacts/<job_id>/
 | `GET` | `/api/jobs/{id}/artifacts` | `kind?` | `{items[]}` |
 | `GET` | `/api/artifacts/{id}` | — | artifact incl. markdown |
 | `PATCH` | `/api/artifacts/{id}` | `{content_md}` | new version |
-| `GET` | `/api/artifacts/{id}/download` | — | file stream |
+| `GET` | `/api/artifacts/{id}/download` | — | attachment stream |
+| `GET` | `/api/artifacts/{id}/preview` | — | inline stream, same-origin framing only |
 | `GET` | `/api/companies` | `q?` | `{items[]}` |
 | `GET` | `/api/companies/{id}` | — | company + jobs + research |
 | `PATCH` | `/api/companies/{id}` | `{notes?, summary?, website?}` | company |

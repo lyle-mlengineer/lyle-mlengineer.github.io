@@ -83,7 +83,7 @@ def test_text_ingestion_runs_extraction_and_summary(authed, settings):
     run = authed.get(body["poll_url"]).json()
     assert run["status"] == "succeeded"
     assert run["progress_pct"] == 100
-    assert [step["skill"] for step in run["steps"]] == ["job_extraction", "job_summary"]
+    assert [step["skill"] for step in run["steps"]] == ["job_extraction", "job_summary", "cv_writing"]
     assert all(step["status"] == "succeeded" for step in run["steps"])
 
     detail = authed.get(body["job_url"])
@@ -101,8 +101,9 @@ def test_text_ingestion_runs_extraction_and_summary(authed, settings):
         assert job.company.name == "Acme Speech"
         assert job.summary_md.startswith("# Senior Machine Learning Engineer at Acme Speech")
         assert db.scalar(select(func.count(Company.id))) == 1
-        artifact = db.scalar(select(Artifact).where(Artifact.job_id == job.id))
-        assert artifact.kind == "job_summary" and artifact.is_current
+        artifacts = db.scalars(select(Artifact).where(Artifact.job_id == job.id)).all()
+        kinds = {artifact.kind for artifact in artifacts if artifact.is_current}
+        assert {"job_summary", "cv_pdf", "cv_docx"} <= kinds
 
 
 def test_duplicate_text_returns_409_and_attach_starts_another_run(authed):

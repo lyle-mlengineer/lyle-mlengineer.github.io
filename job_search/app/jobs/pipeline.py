@@ -29,7 +29,7 @@ from ..utils import slugify
 
 logger = logging.getLogger("skipper.jobs")
 
-PIPELINE_ORDER: tuple[str, ...] = ("job_extraction", "job_summary")
+PIPELINE_ORDER: tuple[str, ...] = ("job_extraction", "job_summary", "cv_writing")
 RUN_KIND = "prepare"
 
 
@@ -37,7 +37,14 @@ class RunError(RuntimeError):
     pass
 
 
-def create_run(db: Session, job: Job, *, seed_prior: bool = False) -> Run:
+def create_run(
+    db: Session,
+    job: Job,
+    *,
+    seed_prior: bool = False,
+    skills: tuple[str, ...] | None = None,
+    kind: str = RUN_KIND,
+) -> Run:
     """Create a queued run and its steps; caller commits and schedules it."""
     active = db.scalar(
         select(Run.id).where(Run.job_id == job.id, Run.status.in_(("queued", "running"))).limit(1)
@@ -45,10 +52,10 @@ def create_run(db: Session, job: Job, *, seed_prior: bool = False) -> Run:
     if active:
         raise RunError("This job already has a run in flight.")
 
-    steps = [get_skill(name) for name in PIPELINE_ORDER]
+    steps = [get_skill(name) for name in (skills or PIPELINE_ORDER)]
     run = Run(
         job_id=job.id,
-        kind=RUN_KIND,
+        kind=kind,
         status="queued",
         total_steps=len(steps),
         completed_steps=0,
@@ -76,7 +83,10 @@ def create_run(db: Session, job: Job, *, seed_prior: bool = False) -> Run:
             event_type="run",
             from_status=previous_status,
             to_status=job.status,
-            note="Run queued" + (" (resuming earlier outputs)" if seed_prior else ""),
+            note=(
+                "Regeneration queued" if kind == "regenerate"
+                else "Run queued" + (" (resuming earlier outputs)" if seed_prior else "")
+            ),
             run_id=run.id,
         )
     )
@@ -125,6 +135,10 @@ def _run_steps(db: Session, run_id: int, settings: Settings, llm: LLMProvider) -
 
     steps = db.scalars(select(RunStep).where(RunStep.run_id == run.id).order_by(RunStep.ordinal)).all()
     prior = _prior_outputs(db, job.id, exclude_run=run.id)
+    if run.kind == "regenerate":
+        # Keep dependency outputs, but never skip the artifacts being regenerated.
+        for target in {step.skill for step in steps}:
+            prior.pop(target, None)
 
     for step in steps:
         skill = get_skill(step.skill)
@@ -175,6 +189,10 @@ def _run_steps(db: Session, run_id: int, settings: Settings, llm: LLMProvider) -
 
         try:
             result = skill.execute(ctx)
+            if skill.name == "cv_writing":
+                from ..documents.storage import save_cv_bundle
+
+                save_cv_bundle(db, job, run, result.payload, settings)
         except (SkillValidationError, LLMProviderError) as exc:
             message = _human_error(skill.name, exc)
             _finish_step(db, run, step, "failed", error=message)
@@ -217,14 +235,22 @@ def _run_steps(db: Session, run_id: int, settings: Settings, llm: LLMProvider) -
     job.updated_at = utcnow()
     previous = job.status
     job.status = "reviewing"
-    job.next_action = "Review the brief and continue the application pack"
+    has_cv = db.scalar(
+        select(func.count(Artifact.id)).where(
+            Artifact.job_id == job.id, Artifact.kind == "cv_pdf", Artifact.is_current.is_(True)
+        )
+    )
+    job.next_action = (
+        "Review the tailored CV and download the PDF" if has_cv
+        else "Review the brief and continue the application pack"
+    )
     db.add(
         JobEvent(
             job_id=job.id,
             event_type="status",
             from_status=previous,
             to_status=job.status,
-            note="Extraction and summary finished",
+            note="Brief and tailored CV finished" if has_cv else "Extraction and summary finished",
             run_id=run.id,
         )
     )

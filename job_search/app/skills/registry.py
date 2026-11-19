@@ -3,11 +3,13 @@ from __future__ import annotations
 import json
 
 from .base import Skill
+from .cv_writing import CVWritingSkill
+from .fixtures import FAKE_CV
 from .job_extraction import JobExtractionSkill
 from .job_summary import JobSummarySkill
 
 SKILL_REGISTRY: dict[str, Skill] = {
-    skill.name: skill for skill in (JobExtractionSkill(), JobSummarySkill())
+    skill.name: skill for skill in (JobExtractionSkill(), JobSummarySkill(), CVWritingSkill())
 }
 
 
@@ -67,4 +69,5 @@ FAKE_RESPONSES: dict[str, str] = {
             "gaps": ["The posting does not state team size or on-call expectations."],
         }
     ),
+    "cv_writing": json.dumps(FAKE_CV),
 }

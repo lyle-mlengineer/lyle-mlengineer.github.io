@@ -24,6 +24,7 @@ def app_env(tmp_path, monkeypatch):
     monkeypatch.setenv("SKIPPER_ADMIN_PASSWORD", "test-password-123")
     monkeypatch.setenv("SKIPPER_LLM_PROVIDER", "fake")
     monkeypatch.setenv("SKIPPER_SEARCH_PROVIDER", "duckduckgo")
+    monkeypatch.setenv("SKIPPER_SOFFICE_PATH", "skipper-no-libreoffice-installed")
     monkeypatch.setenv("SKIPPER_SECRET_KEY", "test-secret-key-not-for-production")
 
     get_settings.cache_clear()

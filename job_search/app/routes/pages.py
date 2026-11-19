@@ -248,6 +248,7 @@ def job_detail(request: Request, job_id: int, db: Session = Depends(get_db)) -> 
         (artifact for artifact in job.artifacts if artifact.kind == "job_summary" and artifact.is_current),
         None,
     )
+    current = {artifact.kind: artifact for artifact in job.artifacts if artifact.is_current}
     return _templates(request).TemplateResponse(
         request,
         "job_detail.html",
@@ -258,6 +259,8 @@ def job_detail(request: Request, job_id: int, db: Session = Depends(get_db)) -> 
             "job": job,
             "latest_run": latest_run,
             "summary_html": markdown_to_html(summary.content_md) if summary and summary.content_md else None,
+            "cv_pdf": current.get("cv_pdf"),
+            "cv_docx": current.get("cv_docx"),
             "events": job.events[:8],
         },
     )

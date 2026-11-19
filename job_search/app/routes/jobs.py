@@ -5,17 +5,19 @@ from __future__ import annotations
 from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session, selectinload
 
 from ..config import get_settings
 from ..db import utcnow
 from ..deps import get_db, require_api_user, require_csrf
+from ..documents.storage import artifact_file, download_name
 from ..jobs.ingest import DuplicateJob, IngestError, ingest
 from ..jobs.pipeline import RunError, create_run, execute_run
-from ..models import Job, Run, RunStep
+from ..models import Artifact, Job, Run, RunStep
 from ..providers.fetch.http import Fetcher
+from ..skills.registry import SKILL_REGISTRY, get_skill
 
 router = APIRouter(tags=["jobs"])
 
@@ -64,6 +66,82 @@ def retry_job(
         {"job_id": job.id, "run_id": run.id, "poll_url": f"/api/runs/{run.id}"},
         status_code=202,
     )
+
+
+@router.post("/api/jobs/{job_id}/regenerate", status_code=202)
+def regenerate(
+    job_id: int,
+    request: Request,
+    background: BackgroundTasks,
+    body: dict[str, Any] | None = Body(default=None),
+    db: Session = Depends(get_db),
+) -> JSONResponse:
+    session_data = require_api_user(request, db)
+    require_csrf(request, session_data)
+    job = db.get(Job, job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="not_found")
+    skill_name = str((body or {}).get("skill") or "").strip()
+    if skill_name not in SKILL_REGISTRY:
+        return _error(422, "validation_error", "Unknown skill.", skills=sorted(SKILL_REGISTRY))
+    if skill_name not in {"job_summary", "cv_writing"}:
+        return _error(422, "validation_error", "That skill cannot be regenerated yet.", skill=skill_name)
+    if "job_extraction" in get_skill(skill_name).requires and not job.extract_json:
+        return _error(409, "conflict", "Finish the first run before regenerating this artifact.")
+
+    try:
+        run = create_run(db, job, skills=(skill_name,), kind="regenerate")
+    except RunError as exc:
+        return _error(409, "conflict", str(exc), job_id=job.id)
+    db.commit()
+    _schedule(request, background, run.id)
+    return JSONResponse(
+        {
+            "job_id": job.id,
+            "run_id": run.id,
+            "poll_url": f"/api/runs/{run.id}",
+            "skill": skill_name,
+        },
+        status_code=202,
+    )
+
+
+@router.get("/api/artifacts/{artifact_id}/download")
+def download_artifact(artifact_id: int, request: Request, db: Session = Depends(get_db)) -> FileResponse:
+    require_api_user(request, db)
+    artifact = db.get(Artifact, artifact_id)
+    path = artifact_file(artifact, get_settings()) if artifact else None
+    if artifact is None or path is None:
+        raise HTTPException(status_code=404, detail="not_found")
+    return FileResponse(
+        path,
+        media_type=_media_type(artifact.format),
+        filename=download_name(artifact),
+        content_disposition_type="attachment",
+    )
+
+
+@router.get("/api/artifacts/{artifact_id}/preview")
+def preview_artifact(artifact_id: int, request: Request, db: Session = Depends(get_db)) -> FileResponse:
+    require_api_user(request, db)
+    artifact = db.get(Artifact, artifact_id)
+    path = artifact_file(artifact, get_settings()) if artifact else None
+    if artifact is None or path is None:
+        raise HTTPException(status_code=404, detail="not_found")
+    return FileResponse(
+        path,
+        media_type=_media_type(artifact.format),
+        filename=download_name(artifact),
+        content_disposition_type="inline",
+    )
+
+
+def _media_type(fmt: str) -> str:
+    return {
+        "pdf": "application/pdf",
+        "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "md": "text/markdown; charset=utf-8",
+    }.get(fmt, "application/octet-stream")
 
 
 def _create(

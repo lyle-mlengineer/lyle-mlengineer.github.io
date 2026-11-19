@@ -1,0 +1,254 @@
+"""DOCX → PDF with LibreOffice, plus a deterministic reportlab fallback."""
+
+from __future__ import annotations
+
+import html
+import logging
+import re
+import shutil
+import subprocess
+import tempfile
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER, TA_RIGHT
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.lib.units import inch
+from reportlab.platypus import (
+    HRFlowable,
+    KeepTogether,
+    Paragraph,
+    SimpleDocTemplate,
+    Spacer,
+    Table,
+    TableStyle,
+)
+
+from .resume import CONTACT_LINE, LINKS, NAME
+
+logger = logging.getLogger("skipper.documents.pdf")
+DARK = colors.HexColor("#1F2A37")
+
+
+@dataclass(frozen=True)
+class PdfResult:
+    content: bytes
+    engine: str
+    pages: int
+
+
+def render_pdf(docx_bytes: bytes, resume: dict[str, Any], *, soffice_path: str = "soffice") -> PdfResult:
+    """Prefer LibreOffice (matches the DOCX exactly), fall back to reportlab."""
+    if _soffice(soffice_path):
+        converted = _convert_with_soffice(docx_bytes, soffice_path)
+        if converted is not None:
+            return PdfResult(converted, "libreoffice", pdf_page_count(converted))
+        logger.warning("LibreOffice conversion failed; using the reportlab fallback")
+    content = _reportlab_pdf(resume)
+    return PdfResult(content, "reportlab", pdf_page_count(content))
+
+
+def pdf_page_count(content: bytes) -> int:
+    return len(re.findall(rb"/Type\s*/Page[^s]", content))
+
+
+def _soffice(path: str) -> str | None:
+    if not path:
+        return None
+    found = shutil.which(path)
+    if found:
+        return found
+    candidate = Path(path)
+    return str(candidate) if candidate.is_file() else None
+
+
+def _convert_with_soffice(docx_bytes: bytes, soffice: str) -> bytes | None:
+    with tempfile.TemporaryDirectory(prefix="skipper-cv-") as temp:
+        root = Path(temp)
+        source = root / "resume.docx"
+        source.write_bytes(docx_bytes)
+        profile = (root / "profile").as_uri()
+        command = [
+            soffice,
+            f"-env:UserInstallation={profile}",
+            "--headless",
+            "--norestore",
+            "--convert-to",
+            "pdf",
+            "--outdir",
+            str(root),
+            str(source),
+        ]
+        try:
+            result = subprocess.run(command, capture_output=True, timeout=60, check=False)
+        except (OSError, subprocess.TimeoutExpired):
+            logger.exception("soffice did not finish")
+            return None
+        target = root / "resume.pdf"
+        if result.returncode != 0 or not target.is_file():
+            logger.warning("soffice returned %s: %s", result.returncode, result.stderr[-400:])
+            return None
+        content = target.read_bytes()
+        return content if content.startswith(b"%PDF-") else None
+
+
+def _reportlab_pdf(resume: dict[str, Any]) -> bytes:
+    from io import BytesIO
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        leftMargin=0.5 * inch,
+        rightMargin=0.5 * inch,
+        topMargin=0.45 * inch,
+        bottomMargin=0.45 * inch,
+        title=f"{NAME} — {resume.get('headline', '')}".strip(" —"),
+        author=NAME,
+        pageCompression=0,
+    )
+    styles = _styles()
+    story: list[Any] = [
+        Paragraph(_safe(NAME), styles["name"]),
+        Paragraph(_safe(str(resume.get("headline") or "")), styles["headline"]),
+        Paragraph(_safe(CONTACT_LINE), styles["contact"]),
+        Paragraph(
+            _safe("  |  ".join(label for label, _url in LINKS)),
+            styles["links"],
+        ),
+        Spacer(1, 5),
+    ]
+
+    _section(story, "Professional Summary", styles)
+    story.append(Paragraph(_safe(str(resume.get("summary") or "")), styles["body"]))
+
+    groups = resume.get("skill_groups") or []
+    if groups:
+        _section(story, "Core Competencies", styles)
+        for group in groups:
+            story.append(
+                Paragraph(
+                    f"<b>{_safe(str(group['name']))}:</b> {_safe(', '.join(group['items']))}",
+                    styles["body"],
+                )
+            )
+
+    jobs = resume.get("experience") or []
+    if jobs:
+        _section(story, "Professional Experience", styles)
+        for job in jobs:
+            story.append(_role_table(str(job["title"]), str(job["company"]), str(job["dates"]), styles))
+            for text in job["bullets"]:
+                story.append(Paragraph(_safe(str(text)), styles["bullet"], bulletText="•"))
+
+    projects = resume.get("projects") or []
+    if projects:
+        _section(story, "Selected Projects", styles)
+        for project in projects:
+            label = _safe(str(project["name"]))
+            if project.get("meta"):
+                label += f" <font size=8.5>— {_safe(str(project['meta']))}</font>"
+            story.append(Paragraph(label, styles["project"]))
+            for text in project["bullets"]:
+                story.append(Paragraph(_safe(str(text)), styles["bullet"], bulletText="•"))
+
+    education = resume.get("education") or []
+    if education:
+        _section(story, "Education", styles)
+        for row in education:
+            story.append(
+                _role_table(
+                    str(row["credential"]),
+                    str(row["institution"]),
+                    str(row.get("dates") or ""),
+                    styles,
+                )
+            )
+
+    if resume.get("certifications"):
+        _section(story, "Certifications", styles)
+        story.append(Paragraph(_safe(str(resume["certifications"])), styles["body"]))
+
+    doc.build(story)
+    return buffer.getvalue()
+
+
+def _styles() -> dict[str, ParagraphStyle]:
+    base = getSampleStyleSheet()
+    return {
+        "name": ParagraphStyle(
+            "CvName", parent=base["Normal"], fontName="Helvetica-Bold", fontSize=18,
+            leading=21, alignment=TA_CENTER, textColor=DARK, spaceAfter=1,
+        ),
+        "headline": ParagraphStyle(
+            "CvHeadline", parent=base["Normal"], fontName="Helvetica-Bold", fontSize=10.5,
+            leading=13, alignment=TA_CENTER, spaceAfter=1,
+        ),
+        "contact": ParagraphStyle(
+            "CvContact", parent=base["Normal"], fontSize=8.5, leading=11, alignment=TA_CENTER,
+            spaceAfter=1,
+        ),
+        "links": ParagraphStyle(
+            "CvLinks", parent=base["Normal"], fontSize=8, leading=10, alignment=TA_CENTER,
+            textColor=colors.HexColor("#1F6FB2"), spaceAfter=2,
+        ),
+        "section": ParagraphStyle(
+            "CvSection", parent=base["Normal"], fontName="Helvetica-Bold", fontSize=9.5,
+            leading=12, textColor=DARK, spaceBefore=5, spaceAfter=1,
+        ),
+        "body": ParagraphStyle(
+            "CvBody", parent=base["Normal"], fontSize=9, leading=11.4, spaceAfter=1.5,
+        ),
+        "role": ParagraphStyle(
+            "CvRole", parent=base["Normal"], fontName="Helvetica-Bold", fontSize=9.5, leading=11.5,
+        ),
+        "dates": ParagraphStyle(
+            "CvDates", parent=base["Normal"], fontSize=8.5, leading=11.5, alignment=TA_RIGHT,
+        ),
+        "bullet": ParagraphStyle(
+            "CvBullet", parent=base["Normal"], fontSize=9, leading=11.2, leftIndent=12,
+            bulletIndent=3, spaceAfter=0.8,
+        ),
+        "project": ParagraphStyle(
+            "CvProject", parent=base["Normal"], fontName="Helvetica-Bold", fontSize=9.2, leading=11.4,
+            spaceBefore=2, spaceAfter=0.5,
+        ),
+    }
+
+
+def _section(story: list[Any], title: str, styles: dict[str, ParagraphStyle]) -> None:
+    story.append(
+        KeepTogether(
+            [
+                Paragraph(_safe(title.upper()), styles["section"]),
+                HRFlowable(width="100%", thickness=0.7, color=DARK, spaceBefore=0, spaceAfter=3),
+            ]
+        )
+    )
+
+
+def _role_table(title: str, company: str, dates: str, styles: dict[str, ParagraphStyle]) -> Table:
+    left = f"{_safe(title)} — {_safe(company)}" if company else _safe(title)
+    table = Table(
+        [[Paragraph(f"<b>{left}</b>", styles["role"]), Paragraph(_safe(dates), styles["dates"])]],
+        colWidths=[5.65 * inch, 1.65 * inch],
+    )
+    table.setStyle(
+        TableStyle(
+            [
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 0),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+                ("TOPPADDING", (0, 0), (-1, -1), 2),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+            ]
+        )
+    )
+    return table
+
+
+def _safe(value: str) -> str:
+    return html.escape(value or "", quote=False)

@@ -98,6 +98,63 @@
     <p class="run-error" id="run-error" role="alert" {% if not (run and run.error) %}hidden{% endif %}>{{ run.error if run else '' }}</p>
 </section>
 
+<section class="panel cv-panel" id="cv-panel"{% if cv_pdf %} data-cv-version="{{ cv_pdf.version }}"{% endif %}>
+    <div class="panel__head">
+        <div>
+            <p class="panel__kicker">Artifact</p>
+            <h2 class="panel__title">Tailored CV</h2>
+            <p class="panel__hint">
+                {% if cv_pdf %}
+                    Version {{ cv_pdf.version }}, built for {{ job.title }}{% if job.company %} at {{ job.company.name }}{% endif %}.
+                    ATS-safe, two pages maximum.
+                {% else %}
+                    Appears when the CV step finishes.
+                {% endif %}
+            </p>
+        </div>
+        <div class="panel__actions">
+            {% if cv_pdf %}
+            <a class="button button--small" href="/api/artifacts/{{ cv_pdf.id }}/download">
+                <i class="uil uil-file-download-alt button__icon button__icon--lead"></i>
+                PDF
+            </a>
+            {% if cv_docx %}
+            <a class="button button--small button--ghost" href="/api/artifacts/{{ cv_docx.id }}/download">
+                <i class="uil uil-file-alt button__icon button__icon--lead"></i>
+                DOCX
+            </a>
+            {% endif %}
+            <button type="button" class="button button--small button--ghost" id="cv-regenerate" data-skill="cv_writing">
+                <i class="uil uil-redo button__icon button__icon--lead"></i>
+                Regenerate
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if cv_pdf %}
+    <div class="cv-viewer">
+        <iframe
+            class="cv-viewer__frame"
+            src="/api/artifacts/{{ cv_pdf.id }}/preview"
+            title="Tailored CV for {{ job.title }}"
+            loading="lazy"
+        ></iframe>
+    </div>
+    <p class="panel__hint cv-panel__meta">
+        {{ cv_pdf.meta_json.get('pages') or '—' }} page{{ '' if cv_pdf.meta_json.get('pages') == 1 else 's' }}
+        · rendered with {{ cv_pdf.meta_json.get('pdf_engine') or 'reportlab' }}
+        · {{ '{:,}'.format(cv_pdf.bytes or 0) }} bytes
+    </p>
+    {% else %}
+    <div class="empty">
+        <span class="empty__icon"><i class="uil uil-file-contract"></i></span>
+        <h3 class="empty__title">No CV yet</h3>
+        <p class="empty__copy">The pipeline writes one resume for this role, then renders it as PDF and DOCX.</p>
+    </div>
+    {% endif %}
+</section>
+
 <div class="dash-grid">
     <div class="dash-grid__main">
         <section class="panel" aria-labelledby="brief-title">

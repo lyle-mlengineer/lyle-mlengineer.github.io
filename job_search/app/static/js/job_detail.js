@@ -69,6 +69,37 @@
         }
     });
 
+    document.getElementById("cv-regenerate")?.addEventListener("click", async (event) => {
+        const button = event.currentTarget;
+        button.disabled = true;
+        const original = button.innerHTML;
+        button.innerHTML = '<i class="uil uil-spinner-alt button__icon button__icon--lead"></i> Starting…';
+        try {
+            const response = await fetch(`/api/jobs/${jobId}/regenerate`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf },
+                body: JSON.stringify({ skill: button.dataset.skill }),
+            });
+            if (response.status === 202) {
+                window.location.reload();
+                return;
+            }
+            const body = await response.json().catch(() => ({}));
+            if (errorBox) {
+                errorBox.textContent = body.error?.message || "The CV could not be regenerated.";
+                errorBox.hidden = false;
+            }
+        } catch (error) {
+            if (errorBox) {
+                errorBox.textContent = "Lost contact with the server. Try again.";
+                errorBox.hidden = false;
+            }
+        } finally {
+            button.disabled = false;
+            button.innerHTML = original;
+        }
+    });
+
     retry?.addEventListener("click", async () => {
         retry.disabled = true;
         const original = retry.innerHTML;

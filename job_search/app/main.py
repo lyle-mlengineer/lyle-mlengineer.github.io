@@ -145,7 +145,9 @@ def create_app() -> FastAPI:
         duration_ms = int((time.perf_counter() - started) * 1000)
         response.headers["X-Request-Id"] = request_id
         response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["X-Frame-Options"] = "DENY"
+        preview = request.url.path.startswith("/api/artifacts/") and request.url.path.endswith("/preview")
+        frame_ancestors = "frame-ancestors 'self'; " if preview else "frame-ancestors 'none'; "
+        response.headers["X-Frame-Options"] = "SAMEORIGIN" if preview else "DENY"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
@@ -154,8 +156,8 @@ def create_app() -> FastAPI:
             "font-src 'self' https://fonts.gstatic.com https://unicons.iconscout.com data:; "
             "script-src 'self'; "
             "connect-src 'self'; "
-            "frame-ancestors 'none'; "
-            "base-uri 'self'"
+            + frame_ancestors
+            + "base-uri 'self'"
         )
         if duration_ms > 500:
             logger.warning("slow request %s %s %sms", request.method, request.url.path, duration_ms)
