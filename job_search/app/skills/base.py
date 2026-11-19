@@ -11,11 +11,15 @@ from __future__ import annotations
 import hashlib
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from ..config import Settings
 from ..models import Company, Job
 from ..providers.llm.base import ChatMessage, LLMProvider, LLMResponse
+
+if TYPE_CHECKING:
+    from ..providers.fetch.http import Fetcher
+    from ..providers.search.base import SearchProvider
 
 GROUND_RULES = """\
 You are helping Lyle Okoth apply for a specific job.
@@ -38,6 +42,9 @@ class SkillContext:
     llm: LLMProvider
     prior: dict[str, dict] = field(default_factory=dict)
     run_id: int | None = None
+    portfolio_text: str = ""
+    search: SearchProvider | None = None
+    fetcher: Fetcher | None = None
 
 
 @dataclass
@@ -50,6 +57,7 @@ class SkillResult:
 
 class Skill(ABC):
     name: str
+    version = "1"
     tier: Literal["large", "small"] = "large"
     output_kind: str = "internal"
     requires: tuple[str, ...] = ()

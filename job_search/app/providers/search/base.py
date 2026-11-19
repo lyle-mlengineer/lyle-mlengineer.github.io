@@ -20,6 +20,8 @@ class SearchResult:
     snippet: str
     provider: str
     rank: int = 0
+    #: True when served from the 24-hour cache (costs nothing, no network).
+    cached: bool = False
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -32,6 +34,7 @@ class SearchResult:
             snippet=data.get("snippet", ""),
             provider=data.get("provider", ""),
             rank=int(data.get("rank", 0)),
+            cached=bool(data.get("cached", False)),
         )
 
 

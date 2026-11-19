@@ -1,0 +1,353 @@
+{% extends "app_shell.html" %}
+
+{% block title %}Resources — Skipper{% endblock %}
+{% block page_title %}Resources{% endblock %}
+{% block eyebrow %}LLM calls, tokens and spend{% endblock %}
+
+{% macro num(value) %}{{ '{:,}'.format(value or 0) }}{% endmacro %}
+{% macro usd(value) %}${{ '%.4f'|format(value or 0) }}{% endmacro %}
+
+{% block topbar_actions %}
+<a href="/jobs" class="button button--small button--link">
+    <i class="uil uil-briefcase-alt button__icon button__icon--lead"></i>
+    Jobs
+</a>
+{% endblock %}
+
+{% block app_content %}
+{% if report.legacy_jobs %}
+<div class="notice" role="status">
+    <i class="uil uil-history"></i>
+    <span>
+        <strong>{{ report.legacy_jobs }}</strong> job{{ '' if report.legacy_jobs == 1 else 's' }}
+        ran before the call ledger existed. Their totals come from run records, so they have no
+        per-model or per-skill split.
+    </span>
+</div>
+{% endif %}
+
+{% if not report.has_any_data %}
+<section class="panel">
+    <div class="empty">
+        <span class="empty__icon"><i class="uil uil-chart-line"></i></span>
+        <h2 class="empty__title">Nothing has been generated yet</h2>
+        <p class="empty__copy">
+            Every model call and web search is recorded here with its tokens and cost. Add a job and run the
+            pipeline; the totals, charts and the per-job table fill in as it works.
+        </p>
+        <div class="empty__actions">
+            <a href="/jobs" class="button button--small">
+                <i class="uil uil-briefcase-alt button__icon button__icon--lead"></i>
+                Go to jobs
+            </a>
+        </div>
+    </div>
+</section>
+{% elif not report.has_data %}
+<section class="panel">
+    <div class="empty">
+        <span class="empty__icon"><i class="uil uil-search"></i></span>
+        <h2 class="empty__title">No usage matches these filters</h2>
+        <p class="empty__copy">
+            Widen the window or clear the search to see the jobs you have run.
+        </p>
+        <div class="empty__actions">
+            <a href="/resources" class="button button--small button--ghost">Clear filters</a>
+        </div>
+    </div>
+</section>
+{% else %}
+
+<div class="stat-grid">
+    <div class="stat">
+        <span class="stat__icon stat__icon--pink"><i class="uil uil-processor"></i></span>
+        <span class="stat__body">
+            <span class="stat__label">LLM calls</span>
+            <span class="stat__value">{{ num(report.totals.calls) }}</span>
+            <span class="stat__hint">
+                {% if report.totals.cached %}{{ num(report.totals.cached) }} served from cache{% else %}no cache hits{% endif %}
+            </span>
+        </span>
+    </div>
+    <div class="stat">
+        <span class="stat__icon stat__icon--blue"><i class="uil uil-bolt"></i></span>
+        <span class="stat__body">
+            <span class="stat__label">Tokens</span>
+            <span class="stat__value">{{ num(report.totals.tokens) }}</span>
+            <span class="stat__hint">{{ num(report.totals.tokens_in) }} in · {{ num(report.totals.tokens_out) }} out</span>
+        </span>
+    </div>
+    <div class="stat">
+        <span class="stat__icon stat__icon--green"><i class="uil uil-coins"></i></span>
+        <span class="stat__body">
+            <span class="stat__label">Estimated spend</span>
+            <span class="stat__value">{{ usd(report.totals.total_cost) }}</span>
+            <span class="stat__hint">LLM {{ usd(report.totals.cost_usd) }} · search {{ usd(report.totals.search_cost_usd) }}</span>
+        </span>
+    </div>
+    <div class="stat">
+        <span class="stat__icon stat__icon--amber"><i class="uil uil-search"></i></span>
+        <span class="stat__body">
+            <span class="stat__label">Web searches</span>
+            <span class="stat__value">{{ num(report.totals.search_calls) }}</span>
+            <span class="stat__hint">
+                {% if report.totals.cached_searches %}{{ num(report.totals.cached_searches) }} from cache{% else %}{{ usd(report.totals.search_cost_usd) }}{% endif %}
+            </span>
+        </span>
+    </div>
+</div>
+
+<div class="chart-grid">
+    <section class="panel chart-panel chart-panel--wide" aria-labelledby="spend-title">
+        <div class="panel__head">
+            <div>
+                <p class="panel__kicker">Over time</p>
+                <h2 class="panel__title" id="spend-title">Spend per day</h2>
+                <p class="panel__hint">
+                    {{ report.filters.window_label|capitalize }} · {{ usd(report.totals.total_cost) }} across
+                    {{ num(report.totals.calls) }} model calls and {{ num(report.totals.search_calls) }} searches.
+                    Bars scale to the busiest day.
+                </p>
+            </div>
+            <span class="pill pill--neutral">{{ report.daily|length }} day{{ '' if report.daily|length == 1 else 's' }}</span>
+        </div>
+
+        {% if report.daily %}
+        <div class="chart chart--columns" role="img" aria-label="Estimated spend per day">
+            {% for point in report.daily %}
+            <span class="chart__col" title="{{ point.label }} · {{ usd(point.cost_usd) }} · {{ num(point.calls) }} calls · {{ num(point.searches) }} searches · {{ num(point.tokens) }} tokens">
+                <span class="chart__bar{% if point.cost_usd %} chart__bar--filled{% endif %}" style="height: {{ [point.width, 2]|max if point.cost_usd else 0 }}%"></span>
+            </span>
+            {% endfor %}
+        </div>
+        {% set step = ((report.daily|length) // 6) or 1 %}
+        <div class="chart__axis" aria-hidden="true">
+            {% for point in report.daily %}
+            <span class="chart__tick">{% if loop.index0 % step == 0 or loop.last %}{{ point.label.split(' ')[0] }}{% endif %}</span>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="panel__hint">No calls in this window.</p>
+        {% endif %}
+    </section>
+
+    <section class="panel chart-panel" aria-labelledby="skill-title">
+        <div class="panel__head">
+            <div>
+                <p class="panel__kicker">Where it goes</p>
+                <h2 class="panel__title" id="skill-title">Cost by skill</h2>
+                <p class="panel__hint">The expensive step is usually the interview pack.</p>
+            </div>
+        </div>
+
+        {% if report.skills %}
+        <ul class="bars">
+            {% for item in report.skills %}
+            <li class="bars__row">
+                <span class="bars__label">{{ item.label }}</span>
+                <span class="bars__track"><span class="bars__fill" style="width: {{ [item.width, 1]|max }}%"></span></span>
+                <span class="bars__value">{{ usd(item.cost_usd) }}</span>
+                <span class="bars__meta">{{ num(item.calls) }} calls · {{ num(item.tokens) }} tokens</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="panel__hint">No call-level data for this window.</p>
+        {% endif %}
+    </section>
+
+    <section class="panel chart-panel" aria-labelledby="model-title">
+        <div class="panel__head">
+            <div>
+                <p class="panel__kicker">Who answered</p>
+                <h2 class="panel__title" id="model-title">Tokens by model</h2>
+                <p class="panel__hint">Large models write; small models summarise.</p>
+            </div>
+        </div>
+
+        {% if report.models %}
+        <ul class="bars">
+            {% for item in report.models %}
+            <li class="bars__row">
+                <span class="bars__label">{{ item.label }}<span class="bars__sub">{{ item.sub }}</span></span>
+                <span class="bars__track"><span class="bars__fill bars__fill--alt" style="width: {{ [item.width, 1]|max }}%"></span></span>
+                <span class="bars__value">{{ num(item.tokens) }}</span>
+                <span class="bars__meta">{{ num(item.calls) }} calls · {{ usd(item.cost_usd) }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="panel__hint">No call-level data for this window.</p>
+        {% endif %}
+    </section>
+    <section class="panel chart-panel" aria-labelledby="search-title">
+        <div class="panel__head">
+            <div>
+                <p class="panel__kicker">Research</p>
+                <h2 class="panel__title" id="search-title">Web searches by provider</h2>
+                <p class="panel__hint">Serper bills per query; DuckDuckGo is free.</p>
+            </div>
+        </div>
+
+        {% if report.searches %}
+        <ul class="bars">
+            {% for item in report.searches %}
+            <li class="bars__row">
+                <span class="bars__label">{{ item.label }}</span>
+                <span class="bars__track"><span class="bars__fill bars__fill--alt" style="width: {{ [item.width, 1]|max }}%"></span></span>
+                <span class="bars__value">{{ num(item.calls) }}</span>
+                <span class="bars__meta">queries · {{ usd(item.cost_usd) }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="panel__hint">No searches in this window.</p>
+        {% endif %}
+    </section>
+</div>
+
+<form class="filters filters--wide" method="get" action="/resources" role="search">
+    <label class="field field--inline">
+        <span class="field__label">Search</span>
+        <input class="input" type="search" name="q" value="{{ filters.query }}" placeholder="Job title or company">
+    </label>
+    <label class="field field--inline">
+        <span class="field__label">Status</span>
+        <select class="input" name="status">
+            <option value="">Any status</option>
+            {% for status in status_order %}
+            <option value="{{ status }}" {% if filters.status == status %}selected{% endif %}>{{ status_labels.get(status, status) }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label class="field field--inline">
+        <span class="field__label">Model</span>
+        <select class="input" name="model">
+            <option value="">Any model</option>
+            {% for model in report.model_options %}
+            <option value="{{ model }}" {% if filters.model == model %}selected{% endif %}>{{ model }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label class="field field--inline">
+        <span class="field__label">Skill</span>
+        <select class="input" name="skill">
+            <option value="">Every skill</option>
+            {% for skill in report.skill_options %}
+            <option value="{{ skill }}" {% if filters.skill == skill %}selected{% endif %}>{{ skill_labels.get(skill, skill) }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label class="field field--inline">
+        <span class="field__label">Window</span>
+        <select class="input" name="days">
+            {% for option in windows %}
+            <option value="{{ option }}" {% if filters.days == option %}selected{% endif %}>
+                {% if option == 0 %}All time{% else %}Last {{ option }} days{% endif %}
+            </option>
+            {% endfor %}
+        </select>
+    </label>
+    <button type="submit" class="button button--small button--ghost">Apply</button>
+    {% if filters.is_filtered %}
+    <a href="/resources" class="button button--small button--link">Clear</a>
+    {% endif %}
+</form>
+
+<section class="panel" aria-labelledby="per-job-title">
+    <div class="panel__head">
+        <div>
+            <p class="panel__kicker">Per job</p>
+            <h2 class="panel__title" id="per-job-title">Calls, tokens and cost for each job</h2>
+            <p class="panel__hint">
+                {{ report.filters.window_label|capitalize }}, sorted by cost. Open a job for its call-by-call ledger.
+                {% if report.idle_jobs %}
+                {{ report.idle_jobs }} job{{ '' if report.idle_jobs == 1 else 's' }} with no usage in this window
+                {{ 'is' if report.idle_jobs == 1 else 'are' }} hidden.
+                {% endif %}
+            </p>
+        </div>
+        <span class="pill pill--neutral">{{ report.totals.jobs }} job{{ '' if report.totals.jobs == 1 else 's' }}</span>
+    </div>
+
+    {% if report.totals.jobs %}
+    <div class="table-wrap">
+        <table class="usage-table">
+            <caption class="visually-hidden">LLM usage per job</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Job</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="num">Runs</th>
+                    <th scope="col" class="num">Calls</th>
+                    <th scope="col" class="num">Tokens in</th>
+                    <th scope="col" class="num">Tokens out</th>
+                    <th scope="col" class="num">Searches</th>
+                    <th scope="col" class="num">Cost</th>
+                    <th scope="col" class="share-col">Share</th>
+                    <th scope="col" class="num">Last call</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in report.rows if row.calls or row.tokens %}
+                <tr>
+                    <td>
+                        <a class="usage-table__title" href="/jobs/{{ row.job.id }}">{{ row.job.title }}</a>
+                        <span class="usage-table__meta">{{ row.job.company.name if row.job.company else 'Company pending' }}</span>
+                    </td>
+                    <td>
+                        <span class="pill pill--{{ status_tone.get(row.job.status, 'neutral') }}">{{ status_labels.get(row.job.status, row.job.status) }}</span>
+                    </td>
+                    <td class="num">{{ num(row.runs) }}</td>
+                    <td class="num">
+                        {% if row.from_ledger %}
+                        {{ num(row.calls) }}{% if row.cached %}<span class="usage-table__meta">{{ num(row.cached) }} cached</span>{% endif %}
+                        {% elif row.tokens %}
+                        <span class="usage-table__flag" title="Recorded before the call ledger existed; totals come from run records">run totals</span>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td class="num">{{ num(row.tokens_in) }}</td>
+                    <td class="num">{{ num(row.tokens_out) }}</td>
+                    <td class="num">{{ num(row.search_calls) }}</td>
+                    <td class="num usage-table__cost">{{ usd(row.total_cost) }}</td>
+                    <td class="share-col">
+                        <span class="bars__track bars__track--inline"><span class="bars__fill" style="width: {{ [row.width, 1]|max if row.cost_usd or row.tokens else 0 }}%"></span></span>
+                    </td>
+                    <td class="num">{{ row.last_at[:10] if row.last_at else '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th scope="row">Total</th>
+                    <td></td>
+                    <td class="num">{{ num(report.totals.runs) }}</td>
+                    <td class="num">{{ num(report.totals.calls) }}</td>
+                    <td class="num">{{ num(report.totals.tokens_in) }}</td>
+                    <td class="num">{{ num(report.totals.tokens_out) }}</td>
+                    <td class="num">{{ num(report.totals.search_calls) }}</td>
+                    <td class="num usage-table__cost">{{ usd(report.totals.total_cost) }}</td>
+                    <td class="share-col"></td>
+                    <td class="num"></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty">
+        <span class="empty__icon"><i class="uil uil-search"></i></span>
+        <h3 class="empty__title">No usage matches these filters</h3>
+        <p class="empty__copy">Widen the window or clear the search to see the jobs you have run.</p>
+        <a href="/resources" class="button button--small button--ghost">Clear filters</a>
+    </div>
+    {% endif %}
+
+    <p class="panel__hint usage-foot">
+        Costs are estimates from published prices
+        (<code>app/providers/llm/pricing.py</code>, <code>app/providers/search/pricing.py</code>), not a bill.
+        {{ usd(report.totals.cost_per_call) }} per model call, {{ usd(report.totals.cost_per_job) }} per job,
+        {{ report.totals.avg_latency_ms }} ms average latency.
+    </p>
+</section>
+{% endif %}
+{% endblock %}

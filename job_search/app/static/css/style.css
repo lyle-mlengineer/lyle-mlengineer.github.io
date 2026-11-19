@@ -23,6 +23,10 @@
     --scroll-bar-color: hsl(var(--hue-color), 12%, 90%);
     --scroll-thumb-color: hsl(var(--hue-color), 12%, 80%);
     --border-color: hsl(var(--hue-color), 8%, 90%);
+    /* App-chrome aliases: borders, secondary text and radii used by the dashboard UI */
+    --line: var(--border-color);
+    --text-muted: var(--text-color-light);
+    --radius-sm: .5rem;
     --chip-bg: var(--first-color-lighter);
     --chip-text: hsl(var(--hue-color), 65%, 34%);
     --accent-text: hsl(var(--hue-color), 57%, 48%);

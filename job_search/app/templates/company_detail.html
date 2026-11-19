@@ -1,0 +1,209 @@
+{% extends "app_shell.html" %}
+
+{% macro num(value) %}{{ '{:,}'.format(value or 0) }}{% endmacro %}
+{% macro usd(value) %}${{ '%.4f'|format(value or 0) }}{% endmacro %}
+
+{% block title %}{{ company.name }} — Skipper{% endblock %}
+{% block page_title %}{{ company.name }}{% endblock %}
+{% block eyebrow %}{{ company.industry or company.domain or 'Company' }}{% endblock %}
+
+{% block topbar_actions %}
+<a href="/companies" class="button button--small button--link">
+    <i class="uil uil-arrow-left button__icon button__icon--lead"></i>
+    All companies
+</a>
+{% endblock %}
+
+{% block app_content %}
+<div class="job-head">
+    <div class="job-head__meta">
+        {% if company.industry %}<span class="chip">{{ company.industry }}</span>{% endif %}
+        {% if company.hq %}<span class="chip">{{ company.hq }}</span>{% endif %}
+        {% if company.headcount %}<span class="chip">{{ company.headcount }} people</span>{% endif %}
+        {% if company.founded %}<span class="chip">Founded {{ company.founded }}</span>{% endif %}
+        {% if company.domain %}<span class="chip">{{ company.domain }}</span>{% endif %}
+    </div>
+    {% if company.website %}
+    <a class="button button--small button--link" href="{{ company.website }}" target="_blank" rel="noopener noreferrer">
+        Website <i class="uil uil-external-link-alt button__icon"></i>
+    </a>
+    {% endif %}
+</div>
+
+<div class="stat-grid">
+    <div class="stat">
+        <span class="stat__icon stat__icon--pink"><i class="uil uil-briefcase-alt"></i></span>
+        <span class="stat__body">
+            <span class="stat__label">Jobs tracked</span>
+            <span class="stat__value">{{ jobs|length }}</span>
+            <span class="stat__hint">{{ active_jobs }} still active</span>
+        </span>
+    </div>
+    <div class="stat">
+        <span class="stat__icon stat__icon--blue"><i class="uil uil-processor"></i></span>
+        <span class="stat__body">
+            <span class="stat__label">LLM calls</span>
+            <span class="stat__value">{{ num(usage.totals.calls) }}</span>
+            <span class="stat__hint">{{ num(usage.totals.tokens) }} tokens</span>
+        </span>
+    </div>
+    <div class="stat">
+        <span class="stat__icon stat__icon--green"><i class="uil uil-coins"></i></span>
+        <span class="stat__body">
+            <span class="stat__label">Estimated spend</span>
+            <span class="stat__value">{{ usd(usage.totals.total_cost) }}</span>
+            <span class="stat__hint">{{ num(usage.totals.search_calls) }} web searches · all time</span>
+        </span>
+    </div>
+    <div class="stat">
+        <span class="stat__icon stat__icon--amber"><i class="uil uil-file-alt"></i></span>
+        <span class="stat__body">
+            <span class="stat__label">Research brief</span>
+            <span class="stat__value">{{ 'Ready' if research_html else 'None' }}</span>
+            <span class="stat__hint">
+                {% if company.researched_at %}updated {{ company.researched_at[:10] }}{% else %}from the latest run{% endif %}
+            </span>
+        </span>
+    </div>
+</div>
+
+<section class="panel" aria-labelledby="jobs-title">
+    <div class="panel__head">
+        <div>
+            <p class="panel__kicker">Pipeline</p>
+            <h2 class="panel__title" id="jobs-title">Roles at {{ company.name }}</h2>
+            <p class="panel__hint">Research is reused across every role here instead of being paid for twice.</p>
+        </div>
+        <a href="/resources?q={{ company.name|urlencode }}" class="button button--small button--link">
+            Usage for this company <i class="uil uil-arrow-right button__icon"></i>
+        </a>
+    </div>
+
+    {% if jobs %}
+    <div class="table-wrap">
+        <table class="usage-table usage-table--compact">
+            <caption class="visually-hidden">Jobs at {{ company.name }}</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Job</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="num">Calls</th>
+                    <th scope="col" class="num">Tokens</th>
+                    <th scope="col" class="num">Cost</th>
+                    <th scope="col" class="num">Updated</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                {% set row = usage_by_job.get(job.id) %}
+                <tr>
+                    <td>
+                        <a class="usage-table__title" href="/jobs/{{ job.id }}">{{ job.title }}</a>
+                        <span class="usage-table__meta">
+                            {% if job.location %}{{ job.location }}{% endif %}
+                            {% if job.work_mode %} · {{ job.work_mode }}{% endif %}
+                        </span>
+                    </td>
+                    <td><span class="pill pill--{{ status_tone.get(job.status, 'neutral') }}">{{ status_labels.get(job.status, job.status) }}</span></td>
+                    <td class="num">
+                        {% if row and row.from_ledger %}{{ num(row.calls) }}
+                        {% elif row %}<span class="usage-table__flag" title="Totals come from run records">run totals</span>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td class="num">{{ num(row.tokens) if row else 0 }}</td>
+                    <td class="num">{{ usd(row.total_cost) if row else usd(0) }}</td>
+                    <td class="num">{{ job.updated_at[:10] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th scope="row">Total</th>
+                    <td></td>
+                    <td class="num">{{ num(usage.totals.calls) }}</td>
+                    <td class="num">{{ num(usage.totals.tokens) }}</td>
+                    <td class="num">{{ usd(usage.totals.total_cost) }}</td>
+                    <td class="num"></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty">
+        <span class="empty__icon"><i class="uil uil-briefcase-alt"></i></span>
+        <h3 class="empty__title">No jobs at this company yet</h3>
+        <p class="empty__copy">Add a posting and its brief, research and application pack appear here.</p>
+        <div class="empty__actions">
+            <a href="/jobs" class="button button--small button--ghost">Go to jobs</a>
+        </div>
+    </div>
+    {% endif %}
+</section>
+
+<section class="panel{% if research_html %} panel--dossier{% endif %}" aria-labelledby="research-title">
+    <div class="panel__head">
+        <div>
+            <p class="panel__kicker">Research</p>
+            <h2 class="panel__title" id="research-title">Company brief</h2>
+            <p class="panel__hint">Public pages only, with citations. Unsupported claims are left out.</p>
+        </div>
+        {% if research_artifact %}
+        <span class="pill pill--success">Version {{ research_artifact.version }}</span>
+        {% endif %}
+    </div>
+
+    {% if research_html %}
+    <div class="prose{% if research_html %} prose--dossier{% endif %}">{{ research_html|safe }}</div>
+    {% else %}
+    <div class="empty">
+        <span class="empty__icon"><i class="uil uil-search-alt"></i></span>
+        <h3 class="empty__title">The brief appears after the first run</h3>
+        <p class="empty__copy">
+            Skipper searches public sources, keeps the ones it can cite and writes a one-screen brief
+            for this company.
+        </p>
+    </div>
+    {% endif %}
+</section>
+
+{% if company.notes or company.sources %}
+<div class="dash-grid">
+    {% if company.notes %}
+    <div class="dash-grid__main">
+        <section class="panel" aria-labelledby="notes-title">
+            <div class="panel__head">
+                <div>
+                    <p class="panel__kicker">Notes</p>
+                    <h2 class="panel__title" id="notes-title">Your notes</h2>
+                </div>
+            </div>
+            <div class="prose">{{ company.notes }}</div>
+        </section>
+    </div>
+    {% endif %}
+
+    {% if company.sources %}
+    <aside class="dash-grid__side">
+        <section class="panel panel--quiet" aria-labelledby="sources-title">
+            <div class="panel__head">
+                <div>
+                    <p class="panel__kicker">Provenance</p>
+                    <h2 class="panel__title" id="sources-title">Sources</h2>
+                </div>
+            </div>
+            <ul class="list list--tight">
+                {% for source in company.sources[:10] %}
+                <li class="list__row list__row--plain">
+                    <span class="list__main">
+                        <a class="list__title" href="{{ source.url }}" target="_blank" rel="noopener noreferrer">{{ source.title or source.url }}</a>
+                        <span class="list__meta">{{ source.fetched_at[:10] }}{% if source.http_status %} · HTTP {{ source.http_status }}{% endif %}</span>
+                    </span>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+    </aside>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

@@ -53,7 +53,8 @@ class FakeLLMProvider(LLMProvider):
             }
         )
 
-        text = self._match(convo)
+        system = next((message.content for message in messages if message.role == "system"), "")
+        text = self._match(system) or self._match(convo)
         if text is None:
             text = json.dumps(self.default_json) if response_format == "json" else self.default_text
 

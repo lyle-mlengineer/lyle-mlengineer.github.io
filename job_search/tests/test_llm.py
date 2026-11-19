@@ -16,6 +16,7 @@ from app.providers.llm.base import (
 from app.providers.llm.cache import CachingLLMProvider
 from app.providers.llm.fake import FakeLLMProvider
 from app.providers.llm.groq import GroqProvider
+from app.providers.llm.nvidia import NvidiaProvider
 from app.providers.llm.pricing import estimate_cost
 from app.providers.llm.registry import build_llm_provider
 
@@ -265,3 +266,137 @@ def test_llm_cache_key_includes_temperature(client, settings):
     cached.complete(MESSAGES, temperature=0.9)
 
     assert len(stub.calls) == 2
+
+# ---------------------------------------------------------------- nvidia deepseek
+
+
+def _nvidia_response(content: str = '{"name": "Skipper"}', model: str = "deepseek-ai/deepseek-v4-pro"):
+    return httpx.Response(
+        200,
+        json={
+            "id": "chatcmpl-nv1",
+            "model": model,
+            "choices": [
+                {"message": {"role": "assistant", "content": content}, "finish_reason": "stop"}
+            ],
+            "usage": {"prompt_tokens": 400, "completion_tokens": 120},
+        },
+    )
+
+
+def _nvidia(handler, sleeps=None, **kwargs) -> NvidiaProvider:
+    return NvidiaProvider(
+        "test-nvidia-key",
+        client=httpx.Client(transport=httpx.MockTransport(handler)),
+        sleep=(sleeps.append if sleeps is not None else (lambda _s: None)),
+        jitter=lambda: 0.0,
+        tpm=1_000_000,
+        **kwargs,
+    )
+
+
+def test_nvidia_sends_deepseek_payload_with_thinking_off():
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return _nvidia_response()
+
+    response = _nvidia(handler).complete(MESSAGES, response_format="json")
+
+    payload = json.loads(seen[0].content)
+    assert seen[0].url.host == "integrate.api.nvidia.com"
+    assert seen[0].url.path == "/v1/chat/completions"
+    assert seen[0].headers["authorization"] == "Bearer test-nvidia-key"
+    assert payload["model"] == "deepseek-ai/deepseek-v4-pro"
+    assert payload["max_tokens"] == 4096
+    assert "max_completion_tokens" not in payload
+    assert payload["reasoning_effort"] == "none"
+    assert payload["response_format"] == {"type": "json_object"}
+    assert response.tokens_in == 400
+    assert response.tokens_out == 120
+    assert response.model == "deepseek-ai/deepseek-v4-pro"
+
+
+def test_nvidia_maps_reasoning_effort_onto_deepseek_modes():
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return _nvidia_response()
+
+    provider = _nvidia(handler)
+    for effort, expected in (("max", "max"), ("high", "high"), ("medium", "high"), ("low", "none")):
+        provider.complete(MESSAGES, reasoning_effort=effort)
+        assert json.loads(seen[-1].content)["reasoning_effort"] == expected
+
+
+def test_nvidia_retries_without_json_mode_when_the_endpoint_rejects_it():
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        if len(seen) == 1:
+            return httpx.Response(400, text="unsupported parameter: response_format")
+        return _nvidia_response()
+
+    response = _nvidia(handler).complete(MESSAGES, response_format="json")
+
+    assert response.text.startswith("{")
+    assert len(seen) == 2
+    first = json.loads(seen[0].content)
+    second = json.loads(seen[1].content)
+    assert "response_format" in first
+    assert "response_format" not in second
+
+
+def test_nvidia_rejects_empty_completions_with_a_reasoning_hint():
+    provider = _nvidia(lambda request: _nvidia_response("   "))
+    with pytest.raises(LLMProviderError) as excinfo:
+        provider.complete(MESSAGES)
+    assert "reasoning" in str(excinfo.value)
+
+
+def test_nvidia_requires_a_key():
+    with pytest.raises(LLMProviderError):
+        NvidiaProvider("")
+
+
+def test_registry_builds_nvidia_with_its_own_deepseek_models(settings):
+    settings.llm_provider = "nvidia"
+    settings.nvidia_api_key = "nvidia-key"
+    settings.llm_model_large = ""
+    settings.llm_model_small = ""
+    provider = build_llm_provider(settings)
+
+    assert provider.name == "nvidia"
+    assert provider.model_for("large") == "deepseek-ai/deepseek-v4-pro"
+    assert provider.model_for("small") == "deepseek-ai/deepseek-v4-flash"
+
+
+def test_registry_requires_a_key_for_nvidia(settings):
+    settings.llm_provider = "nvidia"
+    settings.nvidia_api_key = ""
+    with pytest.raises(LLMProviderError):
+        build_llm_provider(settings)
+
+
+def test_resolved_models_follow_the_provider_and_allow_overrides(settings):
+    settings.llm_model_large = ""
+    settings.llm_model_small = ""
+    settings.llm_provider = "groq"
+    assert settings.resolved_models() == {
+        "large": "openai/gpt-oss-120b",
+        "small": "openai/gpt-oss-20b",
+    }
+
+    settings.llm_provider = "nvidia"
+    assert settings.resolved_models()["small"] == "deepseek-ai/deepseek-v4-flash"
+
+    settings.llm_model_large = "deepseek-ai/deepseek-v4-flash-0731"
+    assert settings.resolved_models()["large"] == "deepseek-ai/deepseek-v4-flash-0731"
+
+
+def test_nvidia_pricing_is_listed_for_the_ui():
+    assert estimate_cost("deepseek-ai/deepseek-v4-flash", 1_000_000, 0) == 0.14
+    assert estimate_cost("deepseek-ai/deepseek-v4-pro", 0, 1_000_000) == 3.96

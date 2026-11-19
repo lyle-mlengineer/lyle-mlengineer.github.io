@@ -98,6 +98,110 @@
     <p class="run-error" id="run-error" role="alert" {% if not (run and run.error) %}hidden{% endif %}>{{ run.error if run else '' }}</p>
 </section>
 
+<section class="panel" id="calls-panel">
+    <div class="panel__head">
+        <div>
+            <p class="panel__kicker">Resources</p>
+            <h2 class="panel__title">LLM calls</h2>
+            <p class="panel__hint">
+                {% if call_totals.calls or call_totals.search_calls %}
+                    {{ call_totals.calls }} call{{ '' if call_totals.calls == 1 else 's' }}
+                    · {{ '{:,}'.format(call_totals.tokens_in + call_totals.tokens_out) }} tokens
+                    · {{ call_totals.search_calls }} web search{{ '' if call_totals.search_calls == 1 else 'es' }}
+                    · ${{ '%.4f'|format(call_totals.total_cost) }} estimated
+                    {% if call_totals.cached %} · {{ call_totals.cached }} served from cache{% endif %}
+                {% else %}
+                    No calls recorded for this job yet. Run it again and every call, its model and its cost land here.
+                {% endif %}
+            </p>
+        </div>
+        <a href="/resources?q={{ job.title|urlencode }}" class="button button--small button--link">
+            All resources <i class="uil uil-arrow-right button__icon"></i>
+        </a>
+    </div>
+
+    {% if calls %}
+    <div class="table-wrap">
+        <table class="usage-table usage-table--compact">
+            <caption class="visually-hidden">LLM calls for this job</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Skill</th>
+                    <th scope="col">Model</th>
+                    <th scope="col" class="num">Tokens in</th>
+                    <th scope="col" class="num">Tokens out</th>
+                    <th scope="col" class="num">Cost</th>
+                    <th scope="col" class="num">Latency</th>
+                    <th scope="col" class="num">When</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for call in calls %}
+                <tr>
+                    <td>{{ skill_labels.get(call.skill, call.skill) if call.skill else '—' }}</td>
+                    <td><span class="mono">{{ call.model }}</span></td>
+                    <td class="num">{{ '{:,}'.format(call.tokens_in) }}</td>
+                    <td class="num">{{ '{:,}'.format(call.tokens_out) }}</td>
+                    <td class="num">{{ '$%.5f'|format(call.cost_usd) }}</td>
+                    <td class="num">{{ call.latency_ms }} ms{% if call.cached %} · cache{% endif %}</td>
+                    <td class="num">{{ call.created_at[:16].replace('T', ' ') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th scope="row">Total</th>
+                    <td></td>
+                    <td class="num">{{ '{:,}'.format(call_totals.tokens_in) }}</td>
+                    <td class="num">{{ '{:,}'.format(call_totals.tokens_out) }}</td>
+                    <td class="num">{{ '$%.4f'|format(call_totals.cost_usd) }}</td>
+                    <td class="num">{{ call_totals.avg_latency_ms }} ms avg</td>
+                    <td class="num"></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if searches %}
+    <h3 class="chips__title">Web searches</h3>
+    <div class="table-wrap">
+        <table class="usage-table usage-table--compact">
+            <caption class="visually-hidden">Web searches for this job</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Query</th>
+                    <th scope="col">Provider</th>
+                    <th scope="col" class="num">Results</th>
+                    <th scope="col" class="num">Cost</th>
+                    <th scope="col" class="num">When</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for search in searches %}
+                <tr>
+                    <td class="usage-table__title">{{ search.query or '—' }}</td>
+                    <td>{{ search.provider }}{% if search.cached %} <span class="usage-table__flag">cache</span>{% endif %}</td>
+                    <td class="num">{{ search.results }}</td>
+                    <td class="num">{{ '$%.5f'|format(search.cost_usd) }}</td>
+                    <td class="num">{{ search.created_at[:16].replace('T', ' ') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th scope="row">Total</th>
+                    <td></td>
+                    <td class="num"></td>
+                    <td class="num">{{ '$%.5f'|format(call_totals.search_cost_usd) }}</td>
+                    <td class="num"></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    {% endif %}
+</section>
+
 <section class="panel cv-panel" id="cv-panel"{% if cv_pdf %} data-cv-version="{{ cv_pdf.version }}"{% endif %}>
     <div class="panel__head">
         <div>
@@ -124,7 +228,7 @@
                 DOCX
             </a>
             {% endif %}
-            <button type="button" class="button button--small button--ghost" id="cv-regenerate" data-skill="cv_writing">
+            <button type="button" class="button button--small button--ghost" id="cv-regenerate" data-regenerate data-skill="cv_writing">
                 <i class="uil uil-redo button__icon button__icon--lead"></i>
                 Regenerate
             </button>
@@ -155,9 +259,159 @@
     {% endif %}
 </section>
 
+<section class="panel cv-panel" id="cover-panel"{% if cover_pdf %} data-cv-version="{{ cover_pdf.version }}"{% endif %}>
+    <div class="panel__head">
+        <div>
+            <p class="panel__kicker">Artifact</p>
+            <h2 class="panel__title">Cover letter</h2>
+            <p class="panel__hint">
+                {% if cover_pdf %}
+                    Version {{ cover_pdf.version }}, addressed to {{ job.company.name if job.company else 'the company' }} for {{ job.title }}.
+                    One page, grounded in the portfolio.
+                {% else %}
+                    Appears when the cover-letter step finishes.
+                {% endif %}
+            </p>
+        </div>
+        <div class="panel__actions">
+            {% if cover_pdf %}
+            <a class="button button--small" href="/api/artifacts/{{ cover_pdf.id }}/download">
+                <i class="uil uil-file-download-alt button__icon button__icon--lead"></i>
+                PDF
+            </a>
+            {% if cover_docx %}
+            <a class="button button--small button--ghost" href="/api/artifacts/{{ cover_docx.id }}/download">
+                <i class="uil uil-file-alt button__icon button__icon--lead"></i>
+                DOCX
+            </a>
+            {% endif %}
+            <button type="button" class="button button--small button--ghost" data-regenerate data-skill="cover_letter">
+                <i class="uil uil-redo button__icon button__icon--lead"></i>
+                Regenerate
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if cover_pdf %}
+    <div class="cv-viewer cv-viewer--letter">
+        <iframe
+            class="cv-viewer__frame"
+            src="/api/artifacts/{{ cover_pdf.id }}/preview"
+            title="Cover letter for {{ job.title }}"
+            loading="lazy"
+        ></iframe>
+    </div>
+    {% else %}
+    <div class="empty">
+        <span class="empty__icon"><i class="uil uil-envelope-open"></i></span>
+        <h3 class="empty__title">No cover letter yet</h3>
+        <p class="empty__copy">The pipeline writes one letter for this role and renders it as PDF and DOCX.</p>
+    </div>
+    {% endif %}
+</section>
+
+<section class="panel" id="email-panel">
+    <div class="panel__head">
+        <div>
+            <p class="panel__kicker">Artifact</p>
+            <h2 class="panel__title">Application email</h2>
+            <p class="panel__hint">
+                {% if email_artifact %}
+                    Version {{ email_artifact.version }}. Copy it into your mail client with the CV and cover letter attached.
+                {% else %}
+                    Appears when the email step finishes.
+                {% endif %}
+            </p>
+        </div>
+        <div class="panel__actions">
+            {% if email_artifact %}
+            <button type="button" class="button button--small button--ghost" data-copy="#email-body">
+                <i class="uil uil-copy button__icon button__icon--lead"></i>
+                Copy body
+            </button>
+            <button type="button" class="button button--small button--ghost" data-regenerate data-skill="email_writing">
+                <i class="uil uil-redo button__icon button__icon--lead"></i>
+                Regenerate
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if email_artifact %}
+    <p class="email-subject"><span>Subject</span>{{ email_subject or 'Application' }}</p>
+    <div class="email-preview" id="email-body">{{ email_body }}</div>
+    {% else %}
+    <div class="empty">
+        <span class="empty__icon"><i class="uil uil-message"></i></span>
+        <h3 class="empty__title">No email yet</h3>
+        <p class="empty__copy">The pipeline writes a short subject and body once the letter exists.</p>
+    </div>
+    {% endif %}
+</section>
+
+{% if extras.company_research %}
+<section class="panel panel--dossier" id="research-panel">
+    <div class="panel__head">
+        <div>
+            <p class="panel__kicker">Research</p>
+            <h2 class="panel__title">Company brief</h2>
+            <p class="panel__hint">Public pages only, with citations. Unsupported claims are left out.</p>
+        </div>
+        <button type="button" class="button button--small button--ghost" data-regenerate data-skill="company_research">
+            <i class="uil uil-redo button__icon button__icon--lead"></i>
+            Regenerate
+        </button>
+    </div>
+    <div class="prose prose--dossier">{{ extras.company_research|safe }}</div>
+</section>
+{% endif %}
+
+{% set spoken_docs = [
+    ('tell_me_about_yourself', 'Tell me about yourself'),
+    ('work_history', 'Work history'),
+    ('proud_project', 'A project I am proud of'),
+    ('technical_interview', 'Technical interview'),
+    ('behavioral_interview', 'Behavioural interview'),
+] %}
+<section class="panel" id="interview-panel">
+    <div class="panel__head">
+        <div>
+            <p class="panel__kicker">Interview pack</p>
+            <h2 class="panel__title">What to say out loud</h2>
+            <p class="panel__hint">Spoken answers and interview briefs, all grounded in the portfolio.</p>
+        </div>
+        <button type="button" class="button button--small button--ghost" data-regenerate data-skill="technical_interview">
+            <i class="uil uil-redo button__icon button__icon--lead"></i>
+            Regenerate technical
+        </button>
+    </div>
+    <div class="interview-pack">
+        {% for kind, title in spoken_docs %}
+        {% if extras.get(kind) %}
+        <details class="interview-doc"{% if loop.first %} open{% endif %}>
+            <summary>
+                <span class="interview-doc__title">{{ title }}</span>
+            </summary>
+            <div class="interview-doc__body">
+                <div class="prose prose--spoken">{{ extras[kind]|safe }}</div>
+            </div>
+        </details>
+        {% endif %}
+        {% endfor %}
+        {% if not extras.get('tell_me_about_yourself') and not extras.get('technical_interview') %}
+        <div class="empty">
+            <span class="empty__icon"><i class="uil uil-comments-alt"></i></span>
+            <h3 class="empty__title">The interview pack is still being written</h3>
+            <p class="empty__copy">It appears as the last pipeline steps finish.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
 <div class="dash-grid">
     <div class="dash-grid__main">
-        <section class="panel" aria-labelledby="brief-title">
+        <section class="panel panel--brief" id="brief-panel" aria-labelledby="brief-title">
             <div class="panel__head">
                 <div>
                     <p class="panel__kicker">Brief</p>
@@ -168,7 +422,7 @@
             </div>
 
             {% if summary_html %}
-            <div class="prose" id="summary-md">{{ summary_html|safe }}</div>
+            <div class="prose prose--brief" id="summary-md">{{ summary_html|safe }}</div>
             {% else %}
             <div class="empty">
                 <span class="empty__icon"><i class="uil uil-file-alt"></i></span>
@@ -227,19 +481,34 @@
                     <h2 class="panel__title" id="timeline-title">Timeline</h2>
                 </div>
             </div>
-            <div class="list list--tight">
+            {% set event_icons = {
+                'run': 'uil-play-circle',
+                'artifact': 'uil-file-alt',
+                'status': 'uil-exchange-alt',
+                'created': 'uil-plus-circle',
+                'note': 'uil-comment-alt-message'
+            } %}
+            <ol class="timeline">
                 {% for event in events %}
-                <div class="list__row list__row--plain">
-                    <span class="list__main">
-                        <span class="list__title">{{ event.event_type|capitalize }}</span>
-                        <span class="list__meta">{{ event.note or (status_labels.get(event.to_status) if event.to_status else '') }}</span>
-                        <span class="list__meta">{{ event.created_at[:16].replace('T', ' ') }} UTC</span>
+                <li class="timeline__item timeline__item--{{ event.event_type }}">
+                    <span class="timeline__dot" aria-hidden="true">
+                        <i class="uil {{ event_icons.get(event.event_type, 'uil-circle') }}"></i>
                     </span>
-                </div>
+                    <div class="timeline__body">
+                        <p class="timeline__title">
+                            {{ event.event_type|capitalize }}
+                            {% if event.to_status %}
+                            <span class="pill pill--{{ status_tone.get(event.to_status, 'neutral') }}">{{ status_labels.get(event.to_status, event.to_status) }}</span>
+                            {% endif %}
+                        </p>
+                        {% if event.note %}<p class="timeline__note">{{ event.note }}</p>{% endif %}
+                        <p class="timeline__time">{{ event.created_at[:16].replace('T', ' ') }} UTC</p>
+                    </div>
+                </li>
                 {% else %}
-                <p class="panel__hint">Nothing recorded yet.</p>
+                <li class="timeline__empty">Nothing recorded yet.</li>
                 {% endfor %}
-            </div>
+            </ol>
         </section>
 
         <section class="panel panel--quiet" aria-labelledby="run-stats-title">
@@ -253,7 +522,9 @@
                 <div class="kv__row"><dt>Status</dt><dd id="run-stat-status">{{ run_status_labels.get(run.status, run.status) if run else '—' }}</dd></div>
                 <div class="kv__row"><dt>Tokens in</dt><dd id="run-stat-in">{{ run.tokens_in if run else 0 }}</dd></div>
                 <div class="kv__row"><dt>Tokens out</dt><dd id="run-stat-out">{{ run.tokens_out if run else 0 }}</dd></div>
-                <div class="kv__row"><dt>Cost</dt><dd id="run-stat-cost">${{ '%.4f'|format(run.cost_usd) if run else '0.0000' }}</dd></div>
+                <div class="kv__row"><dt>LLM calls</dt><dd id="run-stat-calls">{{ call_totals.calls }}</dd></div>
+                <div class="kv__row"><dt>Web searches</dt><dd id="run-stat-searches">{{ call_totals.search_calls }}</dd></div>
+                <div class="kv__row"><dt>Cost (all runs)</dt><dd id="run-stat-cost">${{ '%.4f'|format(call_totals.total_cost) if call_totals.calls or call_totals.search_calls else ('%.4f'|format(run.cost_usd) if run else '0.0000') }}</dd></div>
             </dl>
         </section>
     </aside>

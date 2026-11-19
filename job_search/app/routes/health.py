@@ -6,14 +6,13 @@
 
 from __future__ import annotations
 
-import shutil
-
 from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
 from ..config import get_settings
 from ..deps import get_db
+from ..documents.cv_pdf import find_soffice
 from ..models import PortfolioChunk
 from ..security import user_count
 
@@ -42,7 +41,7 @@ def readyz(response: Response, db: Session = Depends(get_db)) -> dict:
         components["account"] = False
 
     components["llm"] = (
-        settings.llm_provider == "fake" or bool(settings.groq_api_key)
+        settings.llm_provider == "fake" or bool(settings.llm_api_key)
     )
     components["search"] = (
         settings.search_provider == "duckduckgo" or bool(settings.serper_api_key)
@@ -55,7 +54,7 @@ def readyz(response: Response, db: Session = Depends(get_db)) -> dict:
     except Exception:
         components["portfolio_chunks"] = 0
     components["pdf_engine"] = (
-        "libreoffice" if shutil.which(settings.soffice_path) else "reportlab"
+        "libreoffice" if find_soffice(settings.soffice_path) else "reportlab"
     )
 
     ready = bool(components["database"]) and bool(components["account"])

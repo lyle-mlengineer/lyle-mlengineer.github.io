@@ -33,7 +33,18 @@ def app_env(tmp_path, monkeypatch):
     from app.main import create_app
 
     application = create_app()
+
+    class NoopSearch:
+        name = "noop"
+
+        def search(self, query, *, limit=5, recency_days=None):
+            return []
+
+        def health(self):
+            return True
+
     with TestClient(application, raise_server_exceptions=True) as client:
+        application.state.search = NoopSearch()
         yield client
 
     dispose_engines()

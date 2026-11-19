@@ -22,6 +22,10 @@
                 <i class="uil uil-briefcase-alt"></i>
                 Jobs
             </a>
+            <a href="/resources" class="rail__link {% if page == 'resources' %}rail__link--active{% endif %}">
+                <i class="uil uil-chart-line"></i>
+                Resources
+            </a>
             <a href="/companies" class="rail__link {% if page == 'companies' %}rail__link--active{% endif %}">
                 <i class="uil uil-building"></i>
                 Companies
@@ -35,7 +39,7 @@
         <div class="rail__foot">
             <span class="rail__badge">
                 <i class="uil uil-processor"></i>
-                {{ settings.llm_provider }} · {{ settings.llm_model_small }}
+                {{ settings.llm_provider }} · {{ llm_models.small }}
             </span>
             <form method="post" action="/logout">
                 <button type="submit" class="rail__signout">
@@ -68,6 +72,10 @@
         <a href="/jobs" class="app__tab {% if page == 'jobs' %}app__tab--active{% endif %}">
             <i class="uil uil-briefcase-alt"></i>
             Jobs
+        </a>
+        <a href="/resources" class="app__tab {% if page == 'resources' %}app__tab--active{% endif %}">
+            <i class="uil uil-chart-line"></i>
+            Usage
         </a>
         <a href="/companies" class="app__tab {% if page == 'companies' %}app__tab--active{% endif %}">
             <i class="uil uil-building"></i>

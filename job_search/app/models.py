@@ -159,6 +159,12 @@ class Job(Base):
     artifacts: Mapped[list[Artifact]] = relationship(
         back_populates="job", cascade="all, delete-orphan", passive_deletes=True,
     )
+    calls: Mapped[list[LlmCall]] = relationship(
+        back_populates="job", cascade="all, delete-orphan", passive_deletes=True,
+    )
+    searches: Mapped[list[SearchCall]] = relationship(
+        back_populates="job", cascade="all, delete-orphan", passive_deletes=True,
+    )
     sources: Mapped[list[Source]] = relationship(
         back_populates="job", cascade="all, delete-orphan", passive_deletes=True,
     )
@@ -249,6 +255,74 @@ class RunStep(Base):
     __table_args__ = (
         UniqueConstraint("run_id", "skill", name="uq_run_steps_run_skill"),
         Index("idx_run_steps_run", "run_id", "ordinal"),
+    )
+
+
+# ---------------------------------------------------------------- LLM calls
+
+
+class LlmCall(Base):
+    """One chat-completion call, for the resources dashboard.
+
+    Runs and steps keep rolling totals; this is the per-call ledger behind them:
+    which model answered, what it cost, how long it took, and whether the exact
+    match cache served it for free. `skill` and `run_id` are soft references (no
+    FK) so a call survives a deleted run and still counts against its job.
+    """
+
+    __tablename__ = "llm_calls"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    job_id: Mapped[int | None] = mapped_column(ForeignKey("jobs.id", ondelete="CASCADE"))
+    run_id: Mapped[int | None] = mapped_column(Integer)
+    skill: Mapped[str | None] = mapped_column(String(60))
+    provider: Mapped[str] = mapped_column(String(40), nullable=False)
+    model: Mapped[str] = mapped_column(String(120), nullable=False)
+    tokens_in: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    tokens_out: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    cost_usd: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
+    latency_ms: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    cached: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    finish_reason: Mapped[str | None] = mapped_column(String(24))
+    created_at: Mapped[str] = mapped_column(String(32), default=utcnow, nullable=False)
+
+    job: Mapped[Job | None] = relationship(back_populates="calls")
+
+    __table_args__ = (
+        Index("idx_llm_calls_job", "job_id", "created_at"),
+        Index("idx_llm_calls_run", "run_id"),
+        Index("idx_llm_calls_created", "created_at"),
+    )
+
+
+class SearchCall(Base):
+    """One web search, for the resources dashboard.
+
+    Serper bills per query, so the query, the provider that answered and whether
+    the 24-hour cache served it are the whole cost story. DuckDuckGo is free and
+    is recorded anyway: "how much research did this job take" is a useful number
+    even when the answer is zero dollars.
+    """
+
+    __tablename__ = "search_calls"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    job_id: Mapped[int | None] = mapped_column(ForeignKey("jobs.id", ondelete="CASCADE"))
+    run_id: Mapped[int | None] = mapped_column(Integer)
+    skill: Mapped[str | None] = mapped_column(String(60))
+    provider: Mapped[str] = mapped_column(String(40), nullable=False)
+    query: Mapped[str | None] = mapped_column(String(500))
+    results: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    cost_usd: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
+    cached: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    duration_ms: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    created_at: Mapped[str] = mapped_column(String(32), default=utcnow, nullable=False)
+
+    job: Mapped[Job | None] = relationship(back_populates="searches")
+
+    __table_args__ = (
+        Index("idx_search_calls_job", "job_id", "created_at"),
+        Index("idx_search_calls_created", "created_at"),
     )
 
 

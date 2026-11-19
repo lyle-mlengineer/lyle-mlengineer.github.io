@@ -83,7 +83,19 @@ def test_text_ingestion_runs_extraction_and_summary(authed, settings):
     run = authed.get(body["poll_url"]).json()
     assert run["status"] == "succeeded"
     assert run["progress_pct"] == 100
-    assert [step["skill"] for step in run["steps"]] == ["job_extraction", "job_summary", "cv_writing"]
+    assert [step["skill"] for step in run["steps"]] == [
+        "job_extraction",
+        "job_summary",
+        "company_research",
+        "cv_writing",
+        "cover_letter",
+        "email_writing",
+        "tell_me_about_yourself",
+        "work_history",
+        "proud_project",
+        "technical_interview",
+        "behavioral_interview",
+    ]
     assert all(step["status"] == "succeeded" for step in run["steps"])
 
     detail = authed.get(body["job_url"])
@@ -91,19 +103,22 @@ def test_text_ingestion_runs_extraction_and_summary(authed, settings):
     assert "Senior Machine Learning Engineer" in detail.text
     assert "Acme Speech" in detail.text
     assert "What the posting asks for" in detail.text
-    assert "Reviewing" in detail.text
+    assert "Ready" in detail.text
 
     factory = get_session_factory(settings)
     with factory() as db:
         job = db.get(Job, body["job_id"])
-        assert job.status == "reviewing"
+        assert job.status == "ready"
         assert job.extract_json["company_name"] == "Acme Speech"
         assert job.company.name == "Acme Speech"
         assert job.summary_md.startswith("# Senior Machine Learning Engineer at Acme Speech")
         assert db.scalar(select(func.count(Company.id))) == 1
         artifacts = db.scalars(select(Artifact).where(Artifact.job_id == job.id)).all()
         kinds = {artifact.kind for artifact in artifacts if artifact.is_current}
-        assert {"job_summary", "cv_pdf", "cv_docx"} <= kinds
+        assert {
+            "job_summary", "cv_pdf", "cv_docx", "cover_letter_pdf",
+            "cover_letter_docx", "email", "technical_interview",
+        } <= kinds
 
 
 def test_duplicate_text_returns_409_and_attach_starts_another_run(authed):
@@ -256,5 +271,37 @@ def test_markdown_renderer_escapes_model_output():
     html = markdown_to_html("# Title\n\n- <script>alert(1)</script>\n\n**bold** text")
     assert "<script>" not in html
     assert "&lt;script&gt;" in html
-    assert "<h2>Title</h2>" in html
+    assert '<h2 class="prose-h prose-h--title">Title</h2>' in html
     assert "<strong>bold</strong>" in html
+
+
+def test_markdown_renderer_labels_sections_for_styling():
+    html = markdown_to_html("## Delivery\n\n- Pause after the second sentence")
+    assert '<h3 class="prose-h prose-h--delivery">Delivery</h3>' in html
+    assert "<h3 class=\"prose-h prose-h--\">" not in html
+
+
+def test_markdown_renderer_links_only_http_urls():
+    html = markdown_to_html("- [News](https://example.com/a?b=1) and [bad](javascript:alert(1))")
+    assert '<a href="https://example.com/a?b=1" target="_blank" rel="noopener noreferrer">News</a>' in html
+    assert 'href="javascript' not in html.lower()
+    assert "[bad](javascript:alert(1))" in html
+    assert html.count("<a ") == 1
+
+
+def test_markdown_renderer_escapes_link_text():
+    html = markdown_to_html("[<img src=x onerror=alert(1)>](https://example.com)")
+    assert "<img" not in html
+    assert "&lt;img" in html
+    assert 'href="https://example.com"' in html
+
+
+def test_prose_helpers_keep_paragraph_breaks():
+    from app.skills.text import clip_words, prose_text, strip_cliches
+
+    assert prose_text("one  two\n\nthree\tfour") == "one two\n\nthree four"
+    assert prose_text("a\n\n\n\nb") == "a\n\nb"
+    assert strip_cliches("I am passionate about speech.\n\n  Then  more.  ") == (
+        "I am about speech.\n\nThen more."
+    )
+    assert clip_words("One. Two.\n\nThree.", 10) == "One. Two.\n\nThree."

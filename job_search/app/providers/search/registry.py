@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
@@ -17,6 +18,7 @@ from .base import (
     query_hash,
 )
 from .duckduckgo import DuckDuckGoProvider
+from .ledger import LedgerSearchProvider
 from .serper import SerperProvider
 
 
@@ -86,7 +88,10 @@ class CachedSearchProvider(SearchProvider):
                 )
             )
             if row and row.expires_at > now:
-                return [SearchResult.from_dict(item) for item in row.results_json]
+                return [
+                    replace(SearchResult.from_dict(item), cached=True)
+                    for item in row.results_json
+                ]
 
         results = self.inner.search(query, limit=limit, recency_days=recency_days)
         expires_at = _plus_hours(now, self.ttl_hours)
@@ -162,4 +167,8 @@ def build_search_provider(
             session_factory,
             ttl_hours=settings.search_cache_ttl_hours,
         )
+
+    if session_factory is not None:
+        # Outside the cache, so cache hits are recorded as free searches.
+        provider = LedgerSearchProvider(provider, session_factory)
     return provider

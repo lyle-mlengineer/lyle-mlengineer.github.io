@@ -25,10 +25,10 @@ LINK = "1F6FB2"
 def build_cv_docx(resume: dict[str, Any]) -> bytes:
     doc = Document()
     _base_styles(doc)
-    _header(doc, str(resume.get("headline") or ""))
+    identity_header(doc, str(resume.get("headline") or ""))
 
     _section(doc, "Professional Summary")
-    _para(doc, str(resume.get("summary") or ""), space_after=4)
+    _para(doc, str(resume.get("summary") or ""), size=10.5, space_after=5)
 
     groups = resume.get("skill_groups") or []
     if groups:
@@ -57,8 +57,9 @@ def build_cv_docx(resume: dict[str, Any]) -> bytes:
             if project.get("meta"):
                 meta = p.add_run(f" — {project['meta']}")
                 meta.font.size = Pt(9.5)
-            for text in project["bullets"]:
-                _bullet(doc, text)
+            description = " ".join(str(item).strip() for item in project.get("bullets") or [])
+            if description:
+                _para(doc, description[:420], size=10.5, space_after=4)
 
     education = resume.get("education") or []
     if education:
@@ -70,7 +71,6 @@ def build_cv_docx(resume: dict[str, Any]) -> bytes:
         _section(doc, "Certifications")
         _para(doc, str(resume["certifications"]), space_after=4)
 
-    _compact(doc)
     doc.core_properties.title = f"{NAME} — {resume.get('headline', '')}".strip(" —")
     doc.core_properties.author = NAME
     buffer = BytesIO()
@@ -80,14 +80,14 @@ def build_cv_docx(resume: dict[str, Any]) -> bytes:
 
 def _base_styles(doc: Document) -> None:
     doc.styles["Normal"].font.name = "Calibri"
-    doc.styles["Normal"].font.size = Pt(10)
+    doc.styles["Normal"].font.size = Pt(10.5)
     doc.styles["List Bullet"].font.name = "Calibri"
-    doc.styles["List Bullet"].font.size = Pt(10)
+    doc.styles["List Bullet"].font.size = Pt(10.5)
     for section in doc.sections:
-        section.top_margin = Inches(0.45)
-        section.bottom_margin = Inches(0.45)
-        section.left_margin = Inches(0.5)
-        section.right_margin = Inches(0.5)
+        section.top_margin = Inches(0.55)
+        section.bottom_margin = Inches(0.55)
+        section.left_margin = Inches(0.6)
+        section.right_margin = Inches(0.6)
 
 
 def _compact(doc: Document) -> None:
@@ -123,7 +123,11 @@ def _add_hyperlink(paragraph, url: str, text: str, size: float = 9) -> None:
     paragraph._p.append(hyperlink)
 
 
-def _header(doc: Document, headline: str) -> None:
+def identity_header(doc: Document, headline: str, *, rule: bool = False) -> None:
+    """Portfolio CV letterhead: centred name, role tagline, contact line and links.
+
+    Shared with the cover letter so generated documents keep one visual identity.
+    """
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p.paragraph_format.space_after = Pt(0)
@@ -133,7 +137,7 @@ def _header(doc: Document, headline: str) -> None:
     run.font.color.rgb = DARK
 
     _para(doc, headline, bold=True, size=11.5, space_after=1, align=WD_ALIGN_PARAGRAPH.CENTER)
-    _para(doc, CONTACT_LINE, size=9.5, space_after=1, align=WD_ALIGN_PARAGRAPH.CENTER)
+    _para(doc, CONTACT_LINE, size=10, space_after=1, align=WD_ALIGN_PARAGRAPH.CENTER)
 
     links = doc.add_paragraph()
     links.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -141,8 +145,28 @@ def _header(doc: Document, headline: str) -> None:
     for index, (label, url) in enumerate(LINKS):
         if index:
             separator = links.add_run("  |  ")
-            separator.font.size = Pt(8.5)
-        _add_hyperlink(links, url, label, size=8.5)
+            separator.font.size = Pt(9)
+        _add_hyperlink(links, url, label, size=9)
+
+    if rule:
+        _rule(doc)
+
+
+def _rule(doc: Document, *, space_before: float = 6, space_after: float = 8) -> None:
+    """Hairline below the letterhead, matching the CV section rules."""
+    p = doc.add_paragraph()
+    p.paragraph_format.space_before = Pt(space_before)
+    p.paragraph_format.space_after = Pt(space_after)
+    props = p._p.get_or_add_pPr()
+    border = OxmlElement("w:pBdr")
+    bottom = OxmlElement("w:bottom")
+    bottom.set(qn("w:val"), "single")
+    bottom.set(qn("w:sz"), "6")
+    bottom.set(qn("w:space"), "1")
+    bottom.set(qn("w:color"), "1F2A37")
+    border.append(bottom)
+    props.append(border)
+    return
 
 
 def _section(doc: Document, text: str):
@@ -166,7 +190,7 @@ def _section(doc: Document, text: str):
     return p
 
 
-def _para(doc: Document, text: str, *, bold: bool = False, size: float = 10,
+def _para(doc: Document, text: str, *, bold: bool = False, size: float = 10.5,
           space_after: float = 3, align=None):
     p = doc.add_paragraph()
     p.paragraph_format.space_after = Pt(space_after)
@@ -184,9 +208,9 @@ def _labeled(doc: Document, label: str, text: str) -> None:
     p.paragraph_format.space_after = Pt(2)
     lead = p.add_run(f"{label}: ")
     lead.bold = True
-    lead.font.size = Pt(10)
+    lead.font.size = Pt(10.5)
     body = p.add_run(text)
-    body.font.size = Pt(10)
+    body.font.size = Pt(10.5)
 
 
 def _role_header(doc: Document, title: str, company: str, dates: str) -> None:
@@ -197,13 +221,15 @@ def _role_header(doc: Document, title: str, company: str, dates: str) -> None:
     p.paragraph_format.tab_stops.add_tab_stop(Inches(7.3), WD_TAB_ALIGNMENT.RIGHT)
     lead = p.add_run(f"{title} — {company}" if company else title)
     lead.bold = True
-    lead.font.size = Pt(10.5)
+    lead.font.size = Pt(11)
     tail = p.add_run("\t" + dates)
-    tail.font.size = Pt(10)
+    tail.font.size = Pt(10.5)
 
 
-def _bullet(doc: Document, text: str) -> None:
+def _bullet(doc: Document, text: str, *, keep_with_next: bool = False) -> None:
     p = doc.add_paragraph(style="List Bullet")
-    p.paragraph_format.space_after = Pt(1)
+    p.paragraph_format.space_after = Pt(2)
+    p.paragraph_format.keep_together = True
+    p.paragraph_format.keep_with_next = keep_with_next
     run = p.add_run(text)
-    run.font.size = Pt(10)
+    run.font.size = Pt(10.5)

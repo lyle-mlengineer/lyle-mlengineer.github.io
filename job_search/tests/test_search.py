@@ -16,6 +16,7 @@ from app.providers.search.base import (
     SearchResult,
 )
 from app.providers.search.duckduckgo import DuckDuckGoProvider, parse_results, unwrap_redirect
+from app.providers.search.ledger import LedgerSearchProvider
 from app.providers.search.registry import (
     AutoSearchProvider,
     CachedSearchProvider,
@@ -232,5 +233,7 @@ def test_cache_hits_do_not_consume_the_budget(client, settings):
 
 def test_registry_defaults_to_duckduckgo_without_a_serper_key(client, settings):
     provider = build_search_provider(settings, session_factory=get_session_factory(settings))
-    assert isinstance(provider, CachedSearchProvider)
+    # The ledger is the outermost wrapper so every search, cached or not, is recorded.
+    assert isinstance(provider, LedgerSearchProvider)
+    assert isinstance(provider.inner, CachedSearchProvider)
     assert provider.name == "duckduckgo"

@@ -16,7 +16,7 @@ from ..db import utcnow
 from ..deps import current_session, get_db
 from ..domain import ACTIVE_JOB_STATUSES, JOB_STATUS_LABELS, JOB_STATUSES
 from ..jobs.render import markdown_to_html
-from ..models import Company, Job, PortfolioChunk, PortfolioDoc, Run, User
+from ..models import Artifact, Company, Job, PortfolioChunk, PortfolioDoc, Run, User
 from ..rag.ingest import sync_portfolio
 from ..security import (
     clear_login_failures,
@@ -26,6 +26,14 @@ from ..security import (
     record_login_failure,
     revoke_session,
     verify_password,
+)
+from ..usage import (
+    DEFAULT_WINDOW,
+    WINDOWS,
+    UsageFilters,
+    build_report,
+    job_resources,
+    parse_filters,
 )
 
 router = APIRouter()
@@ -179,7 +187,9 @@ def dashboard(request: Request, db: Session = Depends(get_db)) -> Response:
             "pending_action": pending_action,
             "recent": recent,
             "llm_provider": settings.llm_provider,
-            "llm_model": settings.llm_model_small if settings.llm_provider != "fake" else "fake (offline)",
+            "llm_model": settings.resolved_models()["small"]
+            if settings.llm_provider != "fake"
+            else "fake (offline)",
             "search_provider": settings.search_provider,
             "pdf_engine": "libreoffice" if shutil.which(settings.soffice_path) else "reportlab",
             "portfolio_chunks": portfolio_chunks,
@@ -249,6 +259,23 @@ def job_detail(request: Request, job_id: int, db: Session = Depends(get_db)) -> 
         None,
     )
     current = {artifact.kind: artifact for artifact in job.artifacts if artifact.is_current}
+    markdown_kinds = (
+        "company_research",
+        "email",
+        "tell_me_about_yourself",
+        "work_history",
+        "proud_project",
+        "technical_interview",
+        "behavioral_interview",
+    )
+    extras = {
+        kind: markdown_to_html(current[kind].content_md)
+        for kind in markdown_kinds
+        if kind in current and current[kind].content_md
+    }
+    email_artifact = current.get("email")
+    email_payload = (email_artifact.meta_json or {}).get("payload") if email_artifact else None
+    call_totals, calls, searches = job_resources(db, job.id)
     return _templates(request).TemplateResponse(
         request,
         "job_detail.html",
@@ -261,7 +288,40 @@ def job_detail(request: Request, job_id: int, db: Session = Depends(get_db)) -> 
             "summary_html": markdown_to_html(summary.content_md) if summary and summary.content_md else None,
             "cv_pdf": current.get("cv_pdf"),
             "cv_docx": current.get("cv_docx"),
+            "cover_pdf": current.get("cover_letter_pdf"),
+            "cover_docx": current.get("cover_letter_docx"),
+            "email_artifact": email_artifact,
+            "email_subject": (email_payload or {}).get("subject", ""),
+            "email_body": (email_payload or {}).get("body", ""),
+            "extras": extras,
             "events": job.events[:8],
+            "calls": calls,
+            "searches": searches,
+            "call_totals": call_totals,
+        },
+    )
+
+
+@router.get("/resources", response_class=HTMLResponse)
+def resources_page(request: Request, db: Session = Depends(get_db)) -> Response:
+    """LLM calls, tokens and spend per job, with charts and filters."""
+    session = current_session(request, db)
+    if session is None:
+        return RedirectResponse("/login?next=/resources", status_code=303)
+
+    filters = parse_filters(request.query_params)
+    report = build_report(db, filters)
+    return _templates(request).TemplateResponse(
+        request,
+        "resources.html",
+        {
+            "page": "resources",
+            "session": session,
+            "csrf_token": session["csrf_token"],
+            "report": report,
+            "filters": filters,
+            "windows": WINDOWS,
+            "default_window": DEFAULT_WINDOW,
         },
     )
 
@@ -282,6 +342,61 @@ def companies_page(request: Request, db: Session = Depends(get_db)) -> Response:
             "session": session,
             "csrf_token": session["csrf_token"],
             "companies": companies,
+        },
+    )
+
+
+@router.get("/companies/{company_id}", response_class=HTMLResponse)
+def company_detail(request: Request, company_id: int, db: Session = Depends(get_db)) -> Response:
+    """One company: its research brief, its jobs, and what they cost to generate."""
+    session = current_session(request, db)
+    if session is None:
+        return RedirectResponse(f"/login?next=/companies/{company_id}", status_code=303)
+
+    company = db.scalar(
+        select(Company)
+        .options(selectinload(Company.jobs), selectinload(Company.sources))
+        .where(Company.id == company_id)
+    )
+    if company is None:
+        return _templates(request).TemplateResponse(
+            request,
+            "error.html",
+            {"status": 404, "message": "That company does not exist."},
+            status_code=404,
+        )
+
+    research = db.scalar(
+        select(Artifact)
+        .join(Job, Artifact.job_id == Job.id)
+        .where(
+            Job.company_id == company.id,
+            Artifact.kind == "company_research",
+            Artifact.is_current.is_(True),
+        )
+        .order_by(Artifact.created_at.desc())
+        .limit(1)
+    )
+    report = build_report(db, UsageFilters(company_id=company.id, days=0))
+    usage_by_job = {row.job.id: row for row in report.rows}
+    jobs = sorted(company.jobs, key=lambda job: job.updated_at, reverse=True)
+
+    return _templates(request).TemplateResponse(
+        request,
+        "company_detail.html",
+        {
+            "page": "companies",
+            "session": session,
+            "csrf_token": session["csrf_token"],
+            "company": company,
+            "jobs": jobs,
+            "active_jobs": sum(1 for job in jobs if job.status in ACTIVE_JOB_STATUSES),
+            "usage_by_job": usage_by_job,
+            "usage": report,
+            "research_html": markdown_to_html(research.content_md)
+            if research and research.content_md
+            else None,
+            "research_artifact": research,
         },
     )
 

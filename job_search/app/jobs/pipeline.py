@@ -21,6 +21,7 @@ from ..config import Settings
 from ..db import session_scope
 from ..domain import SKILL_LABELS
 from ..models import Artifact, Company, Job, JobEvent, Run, RunStep, utcnow
+from ..providers.call_context import call_context
 from ..providers.llm.base import LLMProvider, LLMProviderError, SkillValidationError
 from ..providers.llm.pricing import estimate_cost
 from ..skills.base import SkillContext
@@ -29,7 +30,19 @@ from ..utils import slugify
 
 logger = logging.getLogger("skipper.jobs")
 
-PIPELINE_ORDER: tuple[str, ...] = ("job_extraction", "job_summary", "cv_writing")
+PIPELINE_ORDER: tuple[str, ...] = (
+    "job_extraction",
+    "job_summary",
+    "company_research",
+    "cv_writing",
+    "cover_letter",
+    "email_writing",
+    "tell_me_about_yourself",
+    "work_history",
+    "proud_project",
+    "technical_interview",
+    "behavioral_interview",
+)
 RUN_KIND = "prepare"
 
 
@@ -94,7 +107,7 @@ def create_run(
     return run
 
 
-def execute_run(run_id: int, settings: Settings, llm: LLMProvider) -> None:
+def execute_run(run_id: int, settings: Settings, llm: LLMProvider, search=None, fetcher=None) -> None:
     """Run a queued pipeline. Safe to call twice: only one caller wins the claim."""
     try:
         with session_scope(settings) as db:
@@ -113,7 +126,7 @@ def execute_run(run_id: int, settings: Settings, llm: LLMProvider) -> None:
             if claimed.rowcount == 0:
                 logger.info("run %s was already claimed", run_id)
                 return
-            _run_steps(db, run_id, settings, llm)
+            _run_steps(db, run_id, settings, llm, search=search, fetcher=fetcher)
     except Exception:
         logger.exception("run %s crashed before it could record a failure", run_id)
         with session_scope(settings) as db:
@@ -123,7 +136,7 @@ def execute_run(run_id: int, settings: Settings, llm: LLMProvider) -> None:
                 db.commit()
 
 
-def _run_steps(db: Session, run_id: int, settings: Settings, llm: LLMProvider) -> None:
+def _run_steps(db: Session, run_id: int, settings: Settings, llm: LLMProvider, *, search=None, fetcher=None) -> None:
     run = db.get(Run, run_id)
     if run is None:
         return
@@ -185,17 +198,40 @@ def _run_steps(db: Session, run_id: int, settings: Settings, llm: LLMProvider) -
             llm=llm,
             prior=prior,
             run_id=run.id,
+            portfolio_text="\n\n".join(
+                path.read_text(encoding="utf-8", errors="ignore")
+                for path in sorted(settings.portfolio_dir.glob("*.md"))
+            ),
+            search=search,
+            fetcher=fetcher,
         )
 
         try:
-            result = skill.execute(ctx)
+            with call_context(job_id=job.id, run_id=run.id, skill=skill.name):
+                result = skill.execute(ctx)
             if skill.name == "cv_writing":
                 from ..documents.storage import save_cv_bundle
 
                 save_cv_bundle(db, job, run, result.payload, settings)
+            elif skill.name == "cover_letter":
+                from ..documents.storage import save_letter_bundle
+
+                save_letter_bundle(db, job, run, result.payload, settings)
         except (SkillValidationError, LLMProviderError) as exc:
             message = _human_error(skill.name, exc)
             _finish_step(db, run, step, "failed", error=message)
+            if skill.optional:
+                db.add(
+                    JobEvent(
+                        job_id=job.id,
+                        event_type="run",
+                        note=f"Optional step failed: {message}"[:1000],
+                        run_id=run.id,
+                    )
+                )
+                db.commit()
+                logger.warning("optional skill %s failed: %s", skill.name, message)
+                continue
             _fail(db, run, message)
             db.commit()
             logger.warning("run %s failed at %s: %s", run.id, skill.name, message)
@@ -220,9 +256,10 @@ def _run_steps(db: Session, run_id: int, settings: Settings, llm: LLMProvider) -
         if skill.name == "job_extraction":
             _apply_extraction(db, job, result.payload)
             ctx.company = db.get(Company, job.company_id) if job.company_id else None
-        elif skill.name == "job_summary" and result.markdown:
+        elif result.markdown and skill.output_kind not in {"cv_pdf", "cv_docx", "cover_letter_pdf", "cover_letter_docx"}:
             _save_markdown(db, job, run, skill.output_kind, result.markdown, result.payload)
-            job.summary_md = result.markdown
+            if skill.name == "job_summary":
+                job.summary_md = result.markdown
 
         run.completed_steps += 1
         _recompute_progress(db, run)
@@ -234,15 +271,17 @@ def _run_steps(db: Session, run_id: int, settings: Settings, llm: LLMProvider) -
     run.progress_pct = 100
     job.updated_at = utcnow()
     previous = job.status
-    job.status = "reviewing"
-    has_cv = db.scalar(
-        select(func.count(Artifact.id)).where(
-            Artifact.job_id == job.id, Artifact.kind == "cv_pdf", Artifact.is_current.is_(True)
-        )
+    kinds = set(
+        db.scalars(
+            select(Artifact.kind).where(Artifact.job_id == job.id, Artifact.is_current.is_(True))
+        ).all()
     )
+    full_pack = {"cv_pdf", "cover_letter_pdf", "email"} <= kinds
+    job.status = "ready" if full_pack else "reviewing"
     job.next_action = (
-        "Review the tailored CV and download the PDF" if has_cv
-        else "Review the brief and continue the application pack"
+        "Review the pack and apply"
+        if full_pack
+        else "Review the brief and retry the missing artifacts"
     )
     db.add(
         JobEvent(
@@ -250,7 +289,7 @@ def _run_steps(db: Session, run_id: int, settings: Settings, llm: LLMProvider) -
             event_type="status",
             from_status=previous,
             to_status=job.status,
-            note="Brief and tailored CV finished" if has_cv else "Extraction and summary finished",
+            note="Application pack ready" if full_pack else "Brief finished; some artifacts are missing",
             run_id=run.id,
         )
     )
@@ -341,7 +380,7 @@ def _save_markdown(
             is_current=True,
             format="md",
             content_md=content,
-            meta_json={"extraction": payload},
+            meta_json={"extraction": payload, "payload": payload},
         )
     )
     db.add(JobEvent(job_id=job.id, event_type="artifact", note=f"Created {kind} v{version}", run_id=run.id))

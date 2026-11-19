@@ -120,6 +120,7 @@ def create_app() -> FastAPI:
         year=time.gmtime().tm_year,
         portfolio_url="https://lyle-mlengineer.github.io/",
         settings=settings,
+        llm_models=settings.resolved_models(),
         status_labels=JOB_STATUS_LABELS,
         status_tone=STATUS_TONE,
         status_order=JOB_STATUSES,

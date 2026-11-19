@@ -16,6 +16,7 @@
     const steps = document.getElementById("run-steps");
     const cancel = document.getElementById("run-cancel");
     const retry = document.getElementById("run-retry");
+    const regenerateButtons = document.querySelectorAll("[data-regenerate]");
 
     function update(data) {
         if (bar) bar.style.width = `${data.progress_pct || 0}%`;
@@ -69,8 +70,7 @@
         }
     });
 
-    document.getElementById("cv-regenerate")?.addEventListener("click", async (event) => {
-        const button = event.currentTarget;
+    regenerateButtons.forEach((button) => button.addEventListener("click", async () => {
         button.disabled = true;
         const original = button.innerHTML;
         button.innerHTML = '<i class="uil uil-spinner-alt button__icon button__icon--lead"></i> Starting…';
@@ -86,7 +86,7 @@
             }
             const body = await response.json().catch(() => ({}));
             if (errorBox) {
-                errorBox.textContent = body.error?.message || "The CV could not be regenerated.";
+                errorBox.textContent = body.error?.message || "That artifact could not be regenerated.";
                 errorBox.hidden = false;
             }
         } catch (error) {
@@ -98,7 +98,7 @@
             button.disabled = false;
             button.innerHTML = original;
         }
-    });
+    }));
 
     retry?.addEventListener("click", async () => {
         retry.disabled = true;

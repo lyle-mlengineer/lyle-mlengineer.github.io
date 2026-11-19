@@ -9,10 +9,12 @@ from __future__ import annotations
 
 import html
 import re
+from urllib.parse import urlparse
 
 _BOLD = re.compile(r"\*\*(.+?)\*\*")
 _HEADING = re.compile(r"^(#{1,4})\s+(.+)$")
 _BULLET = re.compile(r"^[-*]\s+(.+)$")
+_LINK = re.compile(r"\[([^\]]+)\]\(([^)\s]+)\)")
 
 
 def markdown_to_html(markdown: str) -> str:
@@ -45,7 +47,7 @@ def markdown_to_html(markdown: str) -> str:
             flush_paragraph()
             flush_bullets()
             level = min(6, len(heading.group(1)) + 1)
-            blocks.append(f"<h{level}>{_inline(heading.group(2))}</h{level}>")
+            blocks.append(f"<h{level}{_heading_class(heading.group(2))}>{_inline(heading.group(2))}</h{level}>")
             continue
         bullet = _BULLET.match(line)
         if bullet:
@@ -60,5 +62,37 @@ def markdown_to_html(markdown: str) -> str:
     return "\n".join(blocks)
 
 
+def _heading_class(text: str) -> str:
+    """A slug class per heading so CSS can style known sections (Delivery, Anchors)."""
+    slug = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:40]
+    return f' class="prose-h prose-h--{slug}"' if slug else ""
+
+
 def _inline(value: str) -> str:
-    return _BOLD.sub(r"<strong>\1</strong>", html.escape(value, quote=True))
+    """Bold and http(s) links, with everything else escaped first."""
+    links: list[str] = []
+
+    def stash(match: re.Match[str]) -> str:
+        label, href = match.group(1), match.group(2)
+        if not _safe_url(href):
+            return match.group(0)
+        safe_href = html.escape(href, quote=True)
+        links.append(
+            f'<a href="{safe_href}" target="_blank" rel="noopener noreferrer">{_bold(html.escape(label, quote=True))}</a>'
+        )
+        return f"\x00{len(links) - 1}\x00"
+
+    text = _LINK.sub(stash, value)
+    text = _bold(html.escape(text, quote=True))
+    for index, markup in enumerate(links):
+        text = text.replace(f"\x00{index}\x00", markup)
+    return text
+
+
+def _bold(value: str) -> str:
+    return _BOLD.sub(r"<strong>\1</strong>", value)
+
+
+def _safe_url(value: str) -> bool:
+    parsed = urlparse(value)
+    return parsed.scheme in {"http", "https"} and bool(parsed.netloc)

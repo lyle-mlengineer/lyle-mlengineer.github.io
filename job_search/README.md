@@ -41,7 +41,7 @@ The dashboard is deliberately honest about this: it shows what exists and names 
 - **Web:** FastAPI, Jinja2 templates, vanilla CSS/JS (no build step)
 - **Data:** SQLAlchemy 2.0 ORM over SQLite in WAL mode, FTS5 for retrieval
 - **Jobs:** FastAPI `BackgroundTasks` writing a run ledger to the database; the UI polls
-- **LLM:** provider interface, Groq (`openai/gpt-oss-120b` large, `openai/gpt-oss-20b` small) as the v1 implementation, a fake provider for tests
+- **LLM:** provider interface with Groq (`openai/gpt-oss-120b` large, `openai/gpt-oss-20b` small), NVIDIA NIM for the hosted DeepSeek V4 models (`deepseek-ai/deepseek-v4-pro` / `-flash`), and a fake provider for tests. A call ledger records every model call and web search with its tokens and cost.
 - **Search:** provider interface with Serper (primary) and DuckDuckGo (no-key fallback)
 - **Documents:** `python-docx` for DOCX, LibreOffice headless for PDF with a `reportlab` fallback
 
@@ -82,6 +82,9 @@ Open <http://127.0.0.1:8000/>:
 - `/` — the landing page (public)
 - `/login` — dashboard sign-in
 - `/dashboard` — the app (session required)
+- `/jobs` — tracked jobs
+- `/resources` — LLM calls, tokens, and spend per job, with charts and filters
+- `/companies` — companies and their research
 - `/readyz` — component readiness as JSON
 
 ### First sign-in
@@ -116,13 +119,21 @@ Every setting is read from the environment with the `SKIPPER_` prefix; `.env` is
 | `SKIPPER_DB_PATH` | `var/skipper.db` | SQLite file |
 | `SKIPPER_ARTIFACTS_DIR` | `var/artifacts` | Generated CVs, letters and briefs |
 | `SKIPPER_PORTFOLIO_DIR` | `data/portfolio` | RAG corpus (source of truth) |
-| `SKIPPER_LLM_PROVIDER` | `fake` | `fake` or `groq` |
+| `SKIPPER_LLM_PROVIDER` | `fake` | `fake`, `groq` or `nvidia` |
 | `SKIPPER_GROQ_API_KEY` | — | Required for `groq` |
-| `SKIPPER_LLM_MODEL_LARGE` | `openai/gpt-oss-120b` | Extraction, research, CV, interviews |
-| `SKIPPER_LLM_MODEL_SMALL` | `openai/gpt-oss-20b` | Summaries, email, spoken answers |
+| `SKIPPER_GROQ_BASE_URL` | Groq API | `https://api.groq.com/openai/v1` |
+| `SKIPPER_GROQ_TPM` | `30000` | Groq rate-limit bucket (tokens/min) |
+| `SKIPPER_NVIDIA_API_KEY` | — | Required for `nvidia` (build.nvidia.com) |
+| `SKIPPER_NVIDIA_BASE_URL` | NVIDIA NIM | `https://integrate.api.nvidia.com/v1` |
+| `SKIPPER_NVIDIA_TPM` | `40000` | NVIDIA rate-limit bucket |
+| `SKIPPER_NVIDIA_REASONING_EFFORT` | `none` | `none`\|`high`\|`max` — DeepSeek thinking mode |
+| `SKIPPER_LLM_MODEL_LARGE` | provider default | Override the "large" tier model (e.g. `deepseek-ai/deepseek-v4-pro`) |
+| `SKIPPER_LLM_MODEL_SMALL` | provider default | Override the "small" tier model |
 | `SKIPPER_SEARCH_PROVIDER` | `auto` | `serper`, `duckduckgo` or `auto` |
 | `SKIPPER_SERPER_API_KEY` | — | Enables Serper; DDG works without a key |
 | `SKIPPER_SOFFICE_PATH` | `soffice` | LibreOffice binary for PDF |
+
+Each provider ships its own default model pair, so `SKIPPER_LLM_MODEL_LARGE`/`SMALL` are only needed to override them (empty means "the selected provider's default"). If you switch providers, clear those two variables.
 
 ---
 

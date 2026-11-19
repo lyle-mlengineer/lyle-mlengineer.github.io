@@ -5,7 +5,7 @@ The build follows [`docs/steps.md`](docs/steps.md). Each phase ends with a worki
 **Current phase:** 5 complete — tailored CV as DOCX and PDF
 **Next phase:** 6 — the remaining eight skills and the full application pack
 **Last updated:** 2026-11-19
-**Suite:** 134 tests passing offline (`python -m pytest -q`)
+**Suite:** 146 tests passing offline (`python -m pytest -q`)
 
 ---
 
@@ -106,9 +106,21 @@ Docs:
 - `app/templates/job_detail.html` + CSS — CV panel with PDF frame, PDF/DOCX downloads, Regenerate, version/page/engine metadata and an honest empty state. The CSP stays `frame-ancestors 'none'` everywhere except the preview response, which allows same-origin framing only.
 - Tests: `tests/test_documents.py` — DOCX text contains the name, headline, employers, bullets and section order; fallback PDF is `%PDF-`, two pages; filenames are sanitised; unsupported numbers are scrubbed; pipeline CV is grounded, downloadable and framed; regeneration creates v2 while v1 stays downloadable; download is session-gated and regenerating needs CSRF.
 
+### Step 5.1 — Regenerate fix, job-page polish and document parity
+
+- **CV Regenerate was dead in the browser.** The button carried `id="cv-regenerate"` but not the `data-regenerate` attribute that `job_detail.js` delegates from, so clicking it did nothing. It now carries both; a regression test asserts the hook is in the rendered page, and a Playwright click took a live job from CV v1 to v2 with v1 still downloadable.
+- `app/jobs/render.py` now understands `[label](url)` links, which company research emits for news and sources. Only `http`/`https` URLs become anchors (`target="_blank" rel="noopener noreferrer"`); anything else stays literal escaped text. Link text is escaped before markup, so a prompt-injected `<img onerror>` cannot survive. Two tests cover the allowlist and the escaping.
+- Job page sections restyled on the existing tokens:
+  - **Company brief** — `.panel--dossier` with an accent top border, a soft corner glow, uppercase section rules with a colour chip, a lead paragraph, pink bullet markers and linked citations.
+  - **Brief** — `.panel--brief` with a tinted header wash; the posting's deck line becomes an accent heading, the one-liner sits on a left accent rule, and each section heading carries a gradient rule with arrow bullets.
+  - **Timeline** — replaced the stacked list rows with `.timeline`: hairline rail, iconised dots per event type, status pills, note and tabular-figure timestamp.
+- **CV and cover letter now share one letterhead.** `identity_header()` in `cv_docx.py` is public and used by `letters.py`: centred name 18 pt, uppercase role tagline 11.5 pt, contact 10 pt, real hyperlinks 9 pt, navy hairline. The cover letter gains a rule and a date line and stays one page; CV role headers moved to 11 pt / 10.5 pt dates to match `cv/_generate_cvs.py`. Rendered with LibreOffice: CV 2 pages, letter 1 page.
+- `/readyz` now reports the PDF engine the renderer will actually use. It called `shutil.which()` only, so a Windows LibreOffice install (found by `find_soffice()` in the standard paths) was reported as `reportlab` while every CV rendered through LibreOffice. Both now share `find_soffice()`.
+- Verified in a browser at 320, 375 and 1440 px: zero horizontal overflow, zero console errors, 8 timeline entries with rails and dots, `data-regenerate` present, and the Regenerate click produced CV v2 (`libreoffice`, 2 pages) with v1 kept in history. Screenshots: `var/logs/styled-job-1440.png`, `styled-job-375.png`, `styled-job-after-regen.png`, `section-research.png`, `section-brief.png`, `section-timeline.png`.
+
 ### Verification performed
 
-- `python -m pytest -q` → **134 passed**, no network access.
+- `python -m pytest -q` → **146 passed**, no network access.
 - `ruff check app tests` → clean.
 - Server booted on `127.0.0.1:8127` and `:8130`: `/readyz` reports `portfolio_chunks: 35`; a pasted posting ran end to end with the fake provider, reached `reviewing`, and produced the summary artifact.
 - Playwright at 1440/768/375/320 px: add-job dialog centred at every width, zero horizontal overflow on `/jobs` and `/jobs/{id}`, zero console errors; filters return one row for `q=Acme` and the empty state for an unmatched query.
@@ -240,6 +252,9 @@ Database file: `var/skipper.db` (gitignored). Deleting it recreates everything a
 ## Command log (latest first)
 
 ```text
+2026-11-19  python -m pytest                                       → 146 passed
+2026-11-19  playwright CV regenerate click, 3 widths                → v1 → v2, 0 overflow, 0 console errors
+2026-11-19  libreoffice CV / letter render                          → 2 pages / 1 page
 2026-11-19  python -m pytest -q                                  → 134 passed
 2026-11-19  playwright headed CV preview 1440 / 375              → PDF renders, 0 overflow, 0 console errors
 2026-11-19  fallback CV benchmark                                 → 2 pages, 14.4 KB, reportlab

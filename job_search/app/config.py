@@ -16,6 +16,14 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 
+#: Model names per provider, used when SKIPPER_LLM_MODEL_LARGE/SMALL are unset.
+#: Groq hosts gpt-oss; NVIDIA NIM hosts DeepSeek V4.
+DEFAULT_LLM_MODELS: dict[str, dict[str, str]] = {
+    "groq": {"large": "openai/gpt-oss-120b", "small": "openai/gpt-oss-20b"},
+    "nvidia": {"large": "deepseek-ai/deepseek-v4-pro", "small": "deepseek-ai/deepseek-v4-flash"},
+    "fake": {"large": "fake-large", "small": "fake-small"},
+}
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -38,8 +46,13 @@ class Settings(BaseSettings):
     groq_api_key: str = ""
     groq_base_url: str = "https://api.groq.com/openai/v1"
     groq_tpm: int = 30_000
-    llm_model_large: str = "openai/gpt-oss-120b"
-    llm_model_small: str = "openai/gpt-oss-20b"
+    nvidia_api_key: str = ""
+    nvidia_base_url: str = "https://integrate.api.nvidia.com/v1"
+    nvidia_tpm: int = 40_000
+    nvidia_reasoning_effort: str = "none"
+    # Empty means "this provider's default" (see DEFAULT_LLM_MODELS).
+    llm_model_large: str = ""
+    llm_model_small: str = ""
     llm_timeout_s: float = 120.0
     llm_max_retries: int = 3
     llm_cache_enabled: bool = True
@@ -71,8 +84,16 @@ class Settings(BaseSettings):
     @classmethod
     def _valid_llm(cls, value: str) -> str:
         value = value.lower().strip()
-        if value not in {"groq", "fake"}:
-            raise ValueError("SKIPPER_LLM_PROVIDER must be 'groq' or 'fake'")
+        if value not in {"groq", "nvidia", "fake"}:
+            raise ValueError("SKIPPER_LLM_PROVIDER must be 'groq', 'nvidia' or 'fake'")
+        return value
+
+    @field_validator("nvidia_reasoning_effort")
+    @classmethod
+    def _valid_effort(cls, value: str) -> str:
+        value = value.lower().strip()
+        if value not in {"none", "high", "max"}:
+            raise ValueError("SKIPPER_NVIDIA_REASONING_EFFORT must be 'none', 'high' or 'max'")
         return value
 
     @field_validator("search_provider")
@@ -86,6 +107,24 @@ class Settings(BaseSettings):
     @property
     def is_prod(self) -> bool:
         return self.env == "prod"
+
+    @property
+    def llm_api_key(self) -> str:
+        return {"groq": self.groq_api_key, "nvidia": self.nvidia_api_key}.get(
+            self.llm_provider, ""
+        )
+
+    def resolved_models(self) -> dict[str, str]:
+        """The model names this process will actually call.
+
+        The two settings are empty by default so switching provider switches models;
+        setting either one overrides that tier for whatever provider is configured.
+        """
+        defaults = DEFAULT_LLM_MODELS.get(self.llm_provider, DEFAULT_LLM_MODELS["fake"])
+        return {
+            "large": self.llm_model_large or defaults["large"],
+            "small": self.llm_model_small or defaults["small"],
+        }
 
     @property
     def session_cookie(self) -> str:

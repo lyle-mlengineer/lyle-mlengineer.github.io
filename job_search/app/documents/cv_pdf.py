@@ -42,8 +42,9 @@ class PdfResult:
 
 def render_pdf(docx_bytes: bytes, resume: dict[str, Any], *, soffice_path: str = "soffice") -> PdfResult:
     """Prefer LibreOffice (matches the DOCX exactly), fall back to reportlab."""
-    if _soffice(soffice_path):
-        converted = _convert_with_soffice(docx_bytes, soffice_path)
+    soffice = find_soffice(soffice_path)
+    if soffice:
+        converted = _convert_with_soffice(docx_bytes, soffice)
         if converted is not None:
             return PdfResult(converted, "libreoffice", pdf_page_count(converted))
         logger.warning("LibreOffice conversion failed; using the reportlab fallback")
@@ -55,14 +56,38 @@ def pdf_page_count(content: bytes) -> int:
     return len(re.findall(rb"/Type\s*/Page[^s]", content))
 
 
-def _soffice(path: str) -> str | None:
-    if not path:
-        return None
-    found = shutil.which(path)
-    if found:
-        return found
-    candidate = Path(path)
-    return str(candidate) if candidate.is_file() else None
+def find_soffice(path: str = "soffice") -> str | None:
+    """Find LibreOffice on PATH or in the usual install locations.
+
+    Windows installs do not add ``soffice`` to PATH, which used to leave every
+    CV on the plainer reportlab fallback. A configured absolute path still wins.
+    """
+    if path:
+        found = shutil.which(path)
+        if found:
+            return found
+        candidate = Path(path)
+        if candidate.is_file():
+            return str(candidate)
+        if path != "soffice":
+            return None
+    for candidate in (
+        Path(r"C:/Program Files/LibreOffice/program/soffice.exe"),
+        Path(r"C:/Program Files (x86)/LibreOffice/program/soffice.exe"),
+        Path("/Applications/LibreOffice.app/Contents/MacOS/soffice"),
+        Path("/usr/bin/libreoffice"),
+        Path("/usr/bin/soffice"),
+        Path("/usr/local/bin/soffice"),
+    ):
+        if candidate.is_file():
+            return str(candidate)
+    return None
+
+
+def convert_docx_to_pdf(docx_bytes: bytes, soffice_path: str) -> bytes | None:
+    """Public seam for any DOCX→PDF caller; returns None when LibreOffice cannot help."""
+    soffice = find_soffice(soffice_path)
+    return _convert_with_soffice(docx_bytes, soffice) if soffice else None
 
 
 def _convert_with_soffice(docx_bytes: bytes, soffice: str) -> bytes | None:

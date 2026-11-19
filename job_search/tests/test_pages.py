@@ -190,3 +190,20 @@ def test_hero_uses_a_precropped_retina_asset(client):
     assert image.status_code == 200
     assert image.headers["content-type"] == "image/jpeg"
     assert len(image.content) < 400_000
+
+
+def test_css_custom_properties_are_all_defined():
+    import re
+    from pathlib import Path
+
+    css_dir = Path(__file__).resolve().parent.parent / "app" / "static" / "css"
+    app_css = (css_dir / "app.css").read_text(encoding="utf-8")
+    style_css = (css_dir / "style.css").read_text(encoding="utf-8")
+
+    pattern = r"^\s*(--[a-z0-9-]+)\s*:"
+    defined = set(re.findall(pattern, style_css, re.M)) | set(re.findall(pattern, app_css, re.M))
+    used = set(re.findall(r"var\((--[a-z0-9-]+)", app_css))
+
+    # An undefined custom property silently voids the whole declaration (a lost
+    # border or radius), so catch it here rather than in a screenshot.
+    assert not used - defined, f"undefined CSS variables: {sorted(used - defined)}"

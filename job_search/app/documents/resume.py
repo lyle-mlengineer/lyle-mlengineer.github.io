@@ -27,3 +27,13 @@ def artifact_filename(company: str | None, role: str | None, version: int, exten
     slug = re.sub(r"[^A-Z0-9]+", "-", slug).strip("-")[:90].strip("-")
     extension = extension.lstrip(".").lower()
     return f"LYLE-OKOTH-{slug}-CV-v{version}.{extension}"
+
+
+def letter_filename(company: str | None, role: str | None, version: int, extension: str) -> str:
+    """LYLE-OKOTH-<COMPANY>-<ROLE>-COVER-LETTER-v<n>.<ext>."""
+    parts = [part for part in (company or "", role or "") if part.strip()]
+    middle = "-".join(parts) or "APPLICATION"
+    slug = slugify(middle, fallback="APPLICATION").upper()
+    slug = re.sub(r"[^A-Z0-9]+", "-", slug).strip("-")[:80].strip("-")
+    extension = extension.lstrip(".").lower()
+    return f"LYLE-OKOTH-{slug}-COVER-LETTER-v{version}.{extension}"

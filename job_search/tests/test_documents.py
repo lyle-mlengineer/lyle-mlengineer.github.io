@@ -138,6 +138,8 @@ def test_pipeline_cv_is_grounded_and_downloadable(authed, settings):
     assert "Tailored CV" in page.text
     assert f"/api/artifacts/{pdf_id}/preview" in page.text
     assert "Regenerate" in page.text
+    # The CV button must carry the delegated hook the page script binds to.
+    assert 'data-regenerate data-skill="cv_writing"' in page.text
 
 
 def test_regenerate_creates_v2_and_keeps_v1_downloadable(authed, settings):

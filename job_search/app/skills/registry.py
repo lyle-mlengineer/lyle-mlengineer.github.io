@@ -3,13 +3,41 @@ from __future__ import annotations
 import json
 
 from .base import Skill
+from .company_research import CompanyResearchSkill
+from .cover_letter import CoverLetterSkill
 from .cv_writing import CVWritingSkill
-from .fixtures import FAKE_CV
+from .email_writing import EmailWritingSkill
+from .fixtures import (
+    FAKE_BEHAVIORAL,
+    FAKE_COVER,
+    FAKE_CV,
+    FAKE_EMAIL,
+    FAKE_PROUD,
+    FAKE_RESEARCH,
+    FAKE_TECH,
+    FAKE_TELL,
+    FAKE_WORK,
+)
+from .interviews import BehavioralInterviewSkill, TechnicalInterviewSkill
 from .job_extraction import JobExtractionSkill
 from .job_summary import JobSummarySkill
+from .spoken import ProudProjectSkill, TellMeAboutYourselfSkill, WorkHistorySkill
 
 SKILL_REGISTRY: dict[str, Skill] = {
-    skill.name: skill for skill in (JobExtractionSkill(), JobSummarySkill(), CVWritingSkill())
+    skill.name: skill
+    for skill in (
+        JobExtractionSkill(),
+        JobSummarySkill(),
+        CompanyResearchSkill(),
+        CVWritingSkill(),
+        CoverLetterSkill(),
+        EmailWritingSkill(),
+        TellMeAboutYourselfSkill(),
+        WorkHistorySkill(),
+        ProudProjectSkill(),
+        TechnicalInterviewSkill(),
+        BehavioralInterviewSkill(),
+    )
 }
 
 
@@ -70,4 +98,12 @@ FAKE_RESPONSES: dict[str, str] = {
         }
     ),
     "cv_writing": json.dumps(FAKE_CV),
+    "company_research": json.dumps(FAKE_RESEARCH),
+    "cover_letter": json.dumps(FAKE_COVER),
+    "email_writing": json.dumps(FAKE_EMAIL),
+    "tell_me_about_yourself": json.dumps(FAKE_TELL),
+    "work_history": json.dumps(FAKE_WORK),
+    "proud_project": json.dumps(FAKE_PROUD),
+    "technical_interview": json.dumps(FAKE_TECH),
+    "behavioral_interview": json.dumps(FAKE_BEHAVIORAL),
 }
