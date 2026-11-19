@@ -2153,6 +2153,13 @@ body.dark-theme .bars__fill--alt {
     white-space: nowrap;
 }
 
+.usage-table__cell-actions {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .35rem;
+}
+
 .share-col {
     min-width: 4.5rem;
 }

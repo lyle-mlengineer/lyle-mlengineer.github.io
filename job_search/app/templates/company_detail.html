@@ -96,15 +96,27 @@
             <tbody>
                 {% for job in jobs %}
                 {% set row = usage_by_job.get(job.id) %}
+                {% set resume_count = resume_counts.get(job.id, 0) %}
                 <tr>
                     <td>
                         <a class="usage-table__title" href="/jobs/{{ job.id }}">{{ job.title }}</a>
                         <span class="usage-table__meta">
                             {% if job.location %}{{ job.location }}{% endif %}
                             {% if job.work_mode %} · {{ job.work_mode }}{% endif %}
+                            {% if resume_count %} · {{ resume_count }} step{{ '' if resume_count == 1 else 's' }} left{% endif %}
                         </span>
                     </td>
-                    <td><span class="pill pill--{{ status_tone.get(job.status, 'neutral') }}">{{ status_labels.get(job.status, job.status) }}</span></td>
+                    <td>
+                        <span class="usage-table__cell-actions">
+                            <span class="pill pill--{{ status_tone.get(job.status, 'neutral') }}">{{ status_labels.get(job.status, job.status) }}</span>
+                            {% if resume_count %}
+                            <button type="button" class="list__action" data-resume-job="{{ job.id }}" title="Continue from the first unfinished step">
+                                <i class="uil uil-play"></i>
+                                Resume
+                            </button>
+                            {% endif %}
+                        </span>
+                    </td>
                     <td class="num">
                         {% if row and row.from_ledger %}{{ num(row.calls) }}
                         {% elif row %}<span class="usage-table__flag" title="Totals come from run records">run totals</span>
@@ -206,4 +218,8 @@
     {% endif %}
 </div>
 {% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/jobs.js" defer></script>
 {% endblock %}

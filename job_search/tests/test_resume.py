@@ -6,7 +6,7 @@ from sqlalchemy import select
 
 from app.db import get_session_factory
 from app.jobs.pipeline import PIPELINE_ORDER, _prior_outputs, run_remaining_skills
-from app.models import Artifact, Run
+from app.models import Artifact, Job, Run
 from app.providers.llm.base import LLMProviderError
 from app.providers.llm.fake import FakeLLMProvider
 from app.skills.registry import FAKE_RESPONSES
@@ -169,4 +169,25 @@ def test_dashboard_lists_a_stopped_run_with_resume(client):
     assert authed.get(resumed.json()["poll_url"]).json()["status"] == "succeeded"
 
     html = authed.get("/dashboard").text
+    assert f'data-resume-job="{job_id}"' not in html
+
+
+def test_company_page_offers_resume_for_a_stopped_job(client, settings):
+    authed = _authed(client)
+    job_id = _fail_run_at(authed, 4)
+
+    with get_session_factory(settings)() as db:
+        company_id = db.get(Job, job_id).company_id
+
+    html = authed.get(f"/companies/{company_id}").text
+    assert f'data-resume-job="{job_id}"' in html
+    assert "steps left" in html
+    assert "/static/js/jobs.js" in html
+
+    authed.app.state.llm = FakeLLMProvider(FAKE_RESPONSES)
+    resumed = authed.post(f"/api/jobs/{job_id}/resume", headers=headers(authed))
+    assert resumed.status_code == 202
+    assert authed.get(resumed.json()["poll_url"]).json()["status"] == "succeeded"
+
+    html = authed.get(f"/companies/{company_id}").text
     assert f'data-resume-job="{job_id}"' not in html

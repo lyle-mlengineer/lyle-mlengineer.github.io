@@ -408,7 +408,10 @@ def company_detail(request: Request, company_id: int, db: Session = Depends(get_
 
     company = db.scalar(
         select(Company)
-        .options(selectinload(Company.jobs), selectinload(Company.sources))
+        .options(
+            selectinload(Company.jobs).selectinload(Job.runs).selectinload(Run.steps),
+            selectinload(Company.sources),
+        )
         .where(Company.id == company_id)
     )
     if company is None:
@@ -433,6 +436,7 @@ def company_detail(request: Request, company_id: int, db: Session = Depends(get_
     report = build_report(db, UsageFilters(company_id=company.id, days=0))
     usage_by_job = {row.job.id: row for row in report.rows}
     jobs = sorted(company.jobs, key=lambda job: job.updated_at, reverse=True)
+    resume_counts = _resume_counts(jobs)
 
     return _templates(request).TemplateResponse(
         request,
@@ -445,6 +449,7 @@ def company_detail(request: Request, company_id: int, db: Session = Depends(get_
             "jobs": jobs,
             "active_jobs": sum(1 for job in jobs if job.status in ACTIVE_JOB_STATUSES),
             "usage_by_job": usage_by_job,
+            "resume_counts": resume_counts,
             "usage": report,
             "research_html": markdown_to_html(research.content_md)
             if research and research.content_md
