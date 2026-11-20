@@ -11,13 +11,27 @@ from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session, joinedload, selectinload
 
+from ..audio_takes import latest_take, take_payload
 from ..config import get_settings
 from ..db import utcnow
 from ..deps import current_session, get_db
+from ..documents.email import format_email
 from ..domain import ACTIVE_JOB_STATUSES, JOB_STATUS_LABELS, JOB_STATUSES
+from ..interview.sources import question_payload, source_payload
 from ..jobs.pipeline import run_remaining_skills
 from ..jobs.render import markdown_to_html
-from ..models import Artifact, Company, Job, PortfolioChunk, PortfolioDoc, Run, User
+from ..models import (
+    Artifact,
+    Company,
+    InterviewQuestion,
+    InterviewSource,
+    Job,
+    PortfolioChunk,
+    PortfolioDoc,
+    Run,
+    User,
+)
+from ..providers.tts.registry import PROVIDER_LABELS, PROVIDER_NOTES
 from ..rag.ingest import sync_portfolio
 from ..security import (
     clear_login_failures,
@@ -318,16 +332,65 @@ def job_detail(request: Request, job_id: int, db: Session = Depends(get_db)) -> 
         "work_history",
         "proud_project",
         "technical_interview",
+        "system_design",
+        "low_level_design",
+        "coding",
         "behavioral_interview",
     )
     extras = {
-        kind: markdown_to_html(current[kind].content_md)
+        kind: markdown_to_html(
+            current[kind].content_md,
+            paragraph_chars=340 if kind in {
+                "tell_me_about_yourself",
+                "work_history",
+                "proud_project",
+                "technical_interview",
+                "system_design",
+                "low_level_design",
+                "coding",
+                "behavioral_interview",
+            } else 0,
+            collapsible_sections=kind in {"system_design", "low_level_design", "coding"},
+        )
         for kind in markdown_kinds
         if kind in current and current[kind].content_md
     }
     email_artifact = current.get("email")
     email_payload = (email_artifact.meta_json or {}).get("payload") if email_artifact else None
+    email_view = (
+        format_email(
+            str((email_payload or {}).get("body") or ""),
+            subject=str((email_payload or {}).get("subject") or ""),
+            attachments=list((email_payload or {}).get("attachment_names") or []),
+            company=str((email_payload or {}).get("company") or (job.company.name if job.company else "")),
+        )
+        if email_payload
+        else None
+    )
     call_totals, calls, searches = job_resources(db, job.id)
+    tts = getattr(request.app.state, "tts", None)
+    audio_take = latest_take(db, job.id)
+
+    interview_sources = db.scalars(
+        select(InterviewSource).order_by(InterviewSource.created_at.desc()).limit(50)
+    ).all()
+    source_question_counts = dict(
+        db.execute(
+            select(InterviewQuestion.source_id, func.count(InterviewQuestion.id))
+            .where(InterviewQuestion.source_id.is_not(None))
+            .group_by(InterviewQuestion.source_id)
+        ).all()
+    )
+    practice_rows = db.scalars(
+        select(InterviewQuestion)
+        .options(selectinload(InterviewQuestion.source))
+        .where(
+            InterviewQuestion.job_id == job.id,
+            InterviewQuestion.origin.in_(("practice", "resource")),
+        )
+        .order_by(InterviewQuestion.created_at.desc())
+        .limit(24)
+    ).all()
     return _templates(request).TemplateResponse(
         request,
         "job_detail.html",
@@ -346,11 +409,77 @@ def job_detail(request: Request, job_id: int, db: Session = Depends(get_db)) -> 
             "email_artifact": email_artifact,
             "email_subject": (email_payload or {}).get("subject", ""),
             "email_body": (email_payload or {}).get("body", ""),
+            "email_view": email_view,
             "extras": extras,
             "events": job.events[:8],
             "calls": calls,
             "searches": searches,
             "call_totals": call_totals,
+            "tts_label": PROVIDER_LABELS.get(tts.name, tts.name) if tts else None,
+            "tts_note": PROVIDER_NOTES.get(tts.name, "") if tts else "",
+            "tts_supports_clone": bool(tts and tts.supports_clone),
+            "audio_take": take_payload(audio_take) if audio_take else None,
+            "audio_defaults": {
+                "interviewer": get_settings().tts_voice_interviewer,
+                "interviewee": get_settings().tts_voice_interviewee,
+            },
+            "interview_sources": [
+                source_payload(source, question_count=source_question_counts.get(source.id, 0))
+                for source in interview_sources
+            ],
+            "practice_questions": [question_payload(question) for question in practice_rows],
+            "practice_defaults": {
+                "count": get_settings().interview_practice_questions,
+            },
+        },
+    )
+
+
+@router.get("/study", response_class=HTMLResponse)
+def study_page(request: Request, db: Session = Depends(get_db)) -> Response:
+    """Job-independent study workspace: documents, generated questions and audio."""
+    session = current_session(request, db)
+    if session is None:
+        return RedirectResponse("/login?next=/study", status_code=303)
+
+    sources = db.scalars(
+        select(InterviewSource).order_by(InterviewSource.created_at.desc())
+    ).all()
+    counts = dict(
+        db.execute(
+            select(InterviewQuestion.source_id, func.count(InterviewQuestion.id))
+            .where(InterviewQuestion.source_id.is_not(None))
+            .group_by(InterviewQuestion.source_id)
+        ).all()
+    )
+    questions = db.scalars(
+        select(InterviewQuestion)
+        .options(selectinload(InterviewQuestion.source))
+        .where(InterviewQuestion.job_id.is_(None))
+        .order_by(InterviewQuestion.created_at.desc())
+        .limit(60)
+    ).all()
+    settings = get_settings()
+    tts = getattr(request.app.state, "tts", None)
+    return _templates(request).TemplateResponse(
+        request,
+        "study.html",
+        {
+            "page": "study",
+            "session": session,
+            "csrf_token": session["csrf_token"],
+            "sources": [
+                source_payload(source, question_count=counts.get(source.id, 0))
+                for source in sources
+            ],
+            "questions": [question_payload(question) for question in questions],
+            "tts_label": PROVIDER_LABELS.get(tts.name, tts.name) if tts else None,
+            "tts_note": PROVIDER_NOTES.get(tts.name, "") if tts else "",
+            "defaults": {
+                "count": settings.interview_practice_questions,
+                "interviewer": settings.tts_voice_interviewer,
+                "interviewee": settings.tts_voice_interviewee,
+            },
         },
     )
 

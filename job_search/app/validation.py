@@ -55,6 +55,39 @@ def is_valid(payload: Any, schema: dict) -> bool:
         return False
 
 
+def clamp_lengths(value: Any, schema: dict) -> Any:
+    """Trim strings that overshoot ``max_len`` instead of failing validation.
+
+    Models regularly run a sentence past a character ceiling. Nothing downstream
+    depends on the tail (every skill postprocessor clips again), so the cheapest
+    repair is to cut it once at a word boundary. Every other violation still
+    reaches the repair prompt.
+    """
+    if isinstance(value, str):
+        limit = schema.get("max_len")
+        if isinstance(limit, int) and limit >= 0 and len(value) > limit:
+            return _clip_chars(value, limit)
+        return value
+    if isinstance(value, list) and isinstance(schema.get("items"), dict):
+        return [clamp_lengths(item, schema["items"]) for item in value]
+    if isinstance(value, dict):
+        properties = schema.get("properties") or {}
+        return {
+            key: clamp_lengths(child, properties[key]) if key in properties else child
+            for key, child in value.items()
+        }
+    return value
+
+
+def _clip_chars(value: str, limit: int) -> str:
+    if limit <= 0:
+        return ""
+    cut = value[:limit]
+    if " " in cut:
+        cut = cut[: cut.rfind(" ")]
+    return cut.rstrip(" ,;:-")
+
+
 def _validate(value: Any, schema: dict, path: str, errors: list[str]) -> None:
     if value is None and schema.get("nullable"):
         return

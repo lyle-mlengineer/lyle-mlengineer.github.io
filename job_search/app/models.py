@@ -168,6 +168,10 @@ class Job(Base):
     sources: Mapped[list[Source]] = relationship(
         back_populates="job", cascade="all, delete-orphan", passive_deletes=True,
     )
+    takes: Mapped[list[AudioTake]] = relationship(
+        back_populates="job", cascade="all, delete-orphan", passive_deletes=True,
+        order_by="AudioTake.created_at.desc()",
+    )
 
     __table_args__ = (
         Index("idx_jobs_status", "status", "updated_at"),
@@ -326,6 +330,42 @@ class SearchCall(Base):
     )
 
 
+# ---------------------------------------------------------------- audio takes
+
+
+class AudioTake(Base):
+    """One narrated pass over the interview pack.
+
+    ``turns_json`` is the whole plan and its result in one column: role, text,
+    delivery direction, and the file written for that turn. A take can therefore
+    be shown while it is still being written, and a failure keeps whatever
+    already exists instead of discarding paid audio.
+    """
+
+    __tablename__ = "audio_takes"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    job_id: Mapped[int] = mapped_column(ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False)
+    provider: Mapped[str] = mapped_column(String(40), nullable=False)
+    status: Mapped[str] = mapped_column(String(16), default="queued", nullable=False)
+    interviewer_voice: Mapped[str | None] = mapped_column(String(120))
+    interviewee_voice: Mapped[str | None] = mapped_column(String(120))
+    reference_voice: Mapped[str | None] = mapped_column(String(120))
+    turns_json: Mapped[list | None] = mapped_column(JSON)
+    chars: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    cost_usd: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
+    error: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[str] = mapped_column(String(32), default=utcnow, nullable=False)
+    finished_at: Mapped[str | None] = mapped_column(String(32))
+
+    job: Mapped[Job] = relationship(back_populates="takes")
+
+    __table_args__ = (
+        Index("idx_audio_takes_job", "job_id", "created_at"),
+        Index("idx_audio_takes_status", "status"),
+    )
+
+
 # ---------------------------------------------------------------- artifacts
 
 
@@ -441,10 +481,107 @@ class PortfolioChunk(Base):
     )
     ordinal: Mapped[int] = mapped_column(Integer, nullable=False)
     heading: Mapped[str | None] = mapped_column(String(240))
+    doc_title: Mapped[str | None] = mapped_column(String(240))
     text: Mapped[str] = mapped_column(Text, nullable=False)
     est_tokens: Mapped[int | None] = mapped_column(Integer)
 
     doc: Mapped[PortfolioDoc] = relationship(back_populates="chunks")
+
+
+# ---------------------------------------------------------------- interview study
+
+
+class InterviewSource(Base):
+    """One uploaded interview resource: a PDF, DOCX, article, Markdown or pasted text.
+
+    The extracted text is the source of truth for practice-question generation and
+    answer lookup. The original file, when there is one, is kept under
+    ``var/artifacts/interview_sources`` so a source can be audited or re-read.
+    """
+
+    __tablename__ = "interview_sources"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(240), nullable=False)
+    kind: Mapped[str] = mapped_column(String(20), nullable=False)  # pdf|docx|markdown|text|article
+    filename: Mapped[str | None] = mapped_column(String(255))
+    mime: Mapped[str | None] = mapped_column(String(120))
+    source_url: Mapped[str | None] = mapped_column(String(2048))
+    path: Mapped[str | None] = mapped_column(String(500))
+    sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    bytes: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    char_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    chunk_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[str] = mapped_column(String(32), default=utcnow, nullable=False)
+    updated_at: Mapped[str] = mapped_column(String(32), default=utcnow, onupdate=utcnow, nullable=False)
+
+    chunks: Mapped[list[InterviewSourceChunk]] = relationship(
+        back_populates="source", cascade="all, delete-orphan", passive_deletes=True,
+        order_by="InterviewSourceChunk.ordinal",
+    )
+    questions: Mapped[list[InterviewQuestion]] = relationship(
+        back_populates="source", passive_deletes=True,
+    )
+
+    __table_args__ = (Index("idx_interview_sources_created", "created_at"),)
+
+
+class InterviewSourceChunk(Base):
+    """Heading-aware chunks of one interview source, indexed in ``interview_source_fts``."""
+
+    __tablename__ = "interview_source_chunks"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    source_id: Mapped[int] = mapped_column(
+        ForeignKey("interview_sources.id", ondelete="CASCADE"), nullable=False
+    )
+    ordinal: Mapped[int] = mapped_column(Integer, nullable=False)
+    heading: Mapped[str | None] = mapped_column(String(240))
+    doc_title: Mapped[str | None] = mapped_column(String(240))
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    est_tokens: Mapped[int | None] = mapped_column(Integer)
+
+    source: Mapped[InterviewSource] = relationship(back_populates="chunks")
+
+    __table_args__ = (Index("idx_interview_source_chunks_source", "source_id", "ordinal"),)
+
+
+class InterviewQuestion(Base):
+    """A practice question and its model answer.
+
+    ``origin`` says where it came from: a generated practice set (``practice``),
+    a single uploaded source (``resource``), or an answer lookup (``answer``).
+    ``job_id`` is optional so a source can generate questions with no job open.
+    """
+
+    __tablename__ = "interview_questions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    job_id: Mapped[int | None] = mapped_column(ForeignKey("jobs.id", ondelete="CASCADE"))
+    source_id: Mapped[int | None] = mapped_column(
+        ForeignKey("interview_sources.id", ondelete="SET NULL")
+    )
+    origin: Mapped[str] = mapped_column(String(20), default="practice", nullable=False)
+    topic: Mapped[str] = mapped_column(String(120), default="General", nullable=False)
+    difficulty: Mapped[str] = mapped_column(String(20), default="core", nullable=False)
+    #: Optional target role and seniority for a job-independent study set.
+    role: Mapped[str | None] = mapped_column(String(120))
+    level: Mapped[str | None] = mapped_column(String(40))
+    question: Mapped[str] = mapped_column(Text, nullable=False)
+    answer: Mapped[str] = mapped_column(Text, nullable=False)
+    follow_ups_json: Mapped[list | None] = mapped_column(JSON)
+    follow_up_answers_json: Mapped[list | None] = mapped_column(JSON)
+    citations_json: Mapped[list | None] = mapped_column(JSON)
+    model: Mapped[str | None] = mapped_column(String(120))
+    created_at: Mapped[str] = mapped_column(String(32), default=utcnow, nullable=False)
+
+    source: Mapped[InterviewSource | None] = relationship(back_populates="questions")
+
+    __table_args__ = (
+        Index("idx_interview_questions_job", "job_id", "origin", "created_at"),
+        Index("idx_interview_questions_source", "source_id"),
+    )
 
 
 # ---------------------------------------------------------------- settings

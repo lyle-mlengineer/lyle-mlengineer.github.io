@@ -33,7 +33,12 @@ Rules:
 3. Use the real company and role names. No placeholders like [Company] or [Role].
 4. No emoji, no clichés ("passionate", "rockstar", "synergy", "dynamic self-starter").
 5. Write directly, in the first person when Lyle is speaking, otherwise plainly.
-6. Reply with one JSON object that matches the schema. No markdown fences, no commentary.
+6. Use the portfolio voice notes: lead with the verb or the fact, one claim and one proof,
+   exact numbers, and name the constraint or trade-off. Confidence comes from shipped
+   work, never from adjectives.
+7. No generic openings ("I am writing to apply", "I hope this finds you well"), no
+   restating the CV, and no sentence that would fit any candidate.
+8. Reply with one JSON object that matches the schema. No markdown fences, no commentary.
 """
 
 

@@ -31,6 +31,7 @@ from .providers.fetch.http import Fetcher
 from .providers.llm.base import LLMProviderError
 from .providers.llm.registry import build_llm_provider
 from .providers.search.registry import build_search_provider
+from .providers.tts.registry import build_tts_provider
 from .rag.ingest import reindex
 from .routes import API_ROUTERS, PAGE_ROUTER
 from .security import seed_admin
@@ -64,6 +65,11 @@ async def lifespan(app: FastAPI):
         logger.warning("LLM provider unavailable: %s", exc)
         app.state.llm = None
     app.state.search = build_search_provider(settings, session_factory=factory)
+    try:
+        app.state.tts = build_tts_provider(settings)
+    except Exception as exc:  # a missing key leaves the audio tab disabled
+        logger.warning("TTS provider unavailable: %s", exc)
+        app.state.tts = None
     app.state.fetcher = Fetcher(
         max_bytes=settings.fetch_max_bytes,
         timeout_s=settings.fetch_timeout_s,
@@ -83,10 +89,11 @@ async def lifespan(app: FastAPI):
         logger.exception("portfolio indexing failed; the corpus is unchanged")
 
     logger.info(
-        "Skipper ready (env=%s, llm=%s, search=%s)",
+        "Skipper ready (env=%s, llm=%s, search=%s, tts=%s)",
         settings.env,
         settings.llm_provider,
         settings.search_provider,
+        getattr(app.state.tts, "name", "none"),
     )
     yield
 

@@ -27,10 +27,30 @@ logger = logging.getLogger("skipper.db")
 
 SCHEMA_VERSION = 1
 
+# ``create_all`` creates missing tables but never alters existing ones. Additive
+# columns are applied here so a running database keeps its rows when a new
+# optional field is introduced. Destructive changes still need a migration.
+ADDITIVE_COLUMNS: dict[str, tuple[tuple[str, str], ...]] = {
+    "interview_questions": (
+        ("role", "VARCHAR(120)"),
+        ("level", "VARCHAR(40)"),
+        ("follow_up_answers_json", "JSON"),
+    ),
+    "portfolio_chunks": (("doc_title", "VARCHAR(240)"),),
+}
+
 FTS_DDL = """
 CREATE VIRTUAL TABLE IF NOT EXISTS portfolio_fts USING fts5(
   text, heading, doc_title,
   content='portfolio_chunks', content_rowid='id', tokenize='porter unicode61'
+);
+"""
+
+# Interview sources are written and deleted by ``app.interview.sources``; the
+# index is contentless because the source title lives on the parent row.
+INTERVIEW_FTS_DDL = """
+CREATE VIRTUAL TABLE IF NOT EXISTS interview_source_fts USING fts5(
+  text, heading, source_title, tokenize='porter unicode61'
 );
 """
 
@@ -85,11 +105,49 @@ def session_scope(settings: Settings) -> Iterator[Session]:
         session.close()
 
 
+def _add_missing_columns(engine: Engine) -> None:
+    """Apply additive column changes to a database created by an older build."""
+    with engine.begin() as conn:
+        for table, columns in ADDITIVE_COLUMNS.items():
+            existing = {
+                str(row[1]) for row in conn.exec_driver_sql(f"PRAGMA table_info({table})")
+            }
+            if not existing:
+                continue
+            for name, ddl in columns:
+                if name not in existing:
+                    conn.exec_driver_sql(f"ALTER TABLE {table} ADD COLUMN {name} {ddl}")
+
+
+def _rebuild_changed_fts(engine: Engine) -> None:
+    """Drop derived FTS tables whose columns changed; they are rebuilt at startup.
+
+    ``CREATE VIRTUAL TABLE IF NOT EXISTS`` silently keeps an older layout, which
+    then fails every insert with "no such column". The index is derived data, so
+    dropping it is safe: ``reindex()`` repopulates it on the next startup.
+    """
+    expected = {
+        "portfolio_fts": ("text", "heading", "doc_title"),
+        "interview_source_fts": ("text", "heading", "source_title"),
+    }
+    with engine.begin() as conn:
+        for table, columns in expected.items():
+            existing = tuple(
+                str(row[1]) for row in conn.exec_driver_sql(f"PRAGMA table_info({table})")
+            )
+            if existing and existing != columns:
+                conn.exec_driver_sql(f"DROP TABLE {table}")
+                logger.warning("Rebuilding %s: schema changed from %s", table, existing)
+
+
 def init_db(settings: Settings) -> None:
     engine = get_engine(settings)
     Base.metadata.create_all(engine)
+    _add_missing_columns(engine)
+    _rebuild_changed_fts(engine)
     with engine.begin() as conn:
         conn.exec_driver_sql(FTS_DDL)
+        conn.exec_driver_sql(INTERVIEW_FTS_DDL)
     with session_scope(settings) as session:
         latest = session.execute(select(SchemaVersion).order_by(SchemaVersion.version.desc())).scalars().first()
         if latest is None:

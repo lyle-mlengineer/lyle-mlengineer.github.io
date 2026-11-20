@@ -208,6 +208,7 @@ def sync_portfolio(session: Session, settings: Settings) -> IngestReport:
                 doc_id=doc.id,
                 ordinal=chunk.ordinal,
                 heading=chunk.heading[:240] if chunk.heading else None,
+                doc_title=title,
                 text=chunk.text,
                 est_tokens=max(1, len(chunk.text) // 4),
             )
@@ -242,6 +243,16 @@ def sync_portfolio(session: Session, settings: Settings) -> IngestReport:
             session.delete(doc)
             report.docs_removed += 1
 
+    # The index is derived, so reconcile it once per sync: this repairs rows
+    # written before ``doc_title`` existed and drops entries for deleted chunks.
+    session.execute(
+        sql_text(
+            "UPDATE portfolio_chunks SET doc_title = "
+            "(SELECT title FROM portfolio_docs WHERE portfolio_docs.id = portfolio_chunks.doc_id) "
+            "WHERE doc_title IS NULL"
+        )
+    )
+    session.execute(sql_text("INSERT INTO portfolio_fts(portfolio_fts) VALUES('rebuild')"))
     session.commit()
     return report
 

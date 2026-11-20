@@ -49,7 +49,7 @@ def test_resources_page_shows_job_totals_from_the_ledger(client, settings):
 
     with factory() as db:
         calls = db.scalars(select(LlmCall).where(LlmCall.job_id == job_id)).all()
-        assert len(calls) == 11  # every pipeline step makes one call
+        assert len(calls) == 14  # every pipeline step makes one call
         assert {call.skill for call in calls} >= {"job_extraction", "cv_writing"}
         assert all(call.job_id == job_id for call in calls)
         tokens = sum(call.tokens_in + call.tokens_out for call in calls)
@@ -58,7 +58,7 @@ def test_resources_page_shows_job_totals_from_the_ledger(client, settings):
     html = client.get("/resources").text
     assert "Resources" in html
     assert "Senior Machine Learning Engineer" in html
-    assert "11" in html  # LLM calls card
+    assert "13" in html  # LLM calls card
     assert "Estimated spend" in html
 
 

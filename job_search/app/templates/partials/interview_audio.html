@@ -1,0 +1,266 @@
+{# The Audio tab of the interview pack.
+
+   Two voices read the pack as a conversation: the interviewer asks each question,
+   the interviewee answers it. Voices come from the active TTS provider's
+   catalogue (fetched by interview_audio.js so the picker can search and filter
+   without a round trip), and a reference recording of the candidate's own voice
+   can be uploaded to answer with. #}
+<div class="studio"
+     data-audio-studio
+     data-job="{{ job.id }}"
+     data-clone="{{ 'true' if tts_supports_clone else 'false' }}"
+     data-default-interviewer="{{ audio_defaults.interviewer }}"
+     data-default-interviewee="{{ audio_defaults.interviewee }}"
+     data-take-scope="{{ audio_take.scope if audio_take else '' }}"
+     data-reference="{{ 'true' if audio_take and audio_take.reference else 'false' }}">
+    <div class="studio__head">
+        <div>
+            <h3 class="studio__title">Hear the interview</h3>
+            <p class="studio__hint">
+                The interviewer reads each question; the answer is read back in your voice or one you
+                pick. Delivery follows the notes in the pack.
+            </p>
+        </div>
+        {% if tts_label %}
+        <span class="pill pill--info">{{ tts_label }}</span>
+        {% else %}
+        <span class="pill">No speech provider</span>
+        {% endif %}
+    </div>
+
+    {% if tts_label %}
+    <p class="studio__note">{{ tts_note }}</p>
+    {% else %}
+    <p class="studio__note">
+        Speech is switched off until an API key is configured. Set
+        <code>SKIPPER_TTS_PROVIDER</code> to <code>fake</code> to preview the flow offline.
+    </p>
+    {% endif %}
+
+    {% if tts_label %}
+    <div class="studio__scopes" role="group" aria-label="Which part of the interview pack">
+        <span class="studio__scopes-label">Read out</span>
+        <button class="scope-chip is-active" type="button" data-audio-scope=""
+                data-scope-title="the whole pack" aria-pressed="true">Whole pack</button>
+        {% for kind, title in spoken_docs %}
+        {% if extras.get(kind) %}
+        <button class="scope-chip" type="button" data-audio-scope="{{ kind }}"
+                data-scope-title="{{ title }}" aria-pressed="false">{{ title }}</button>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if tts_label %}
+    <div class="voice-summary" data-voice-summary>
+        <div class="voice-summary__cards">
+            <div class="voice-summary__card" data-summary="interviewer">
+                <span class="voice-summary__role">
+                    <i class="uil uil-microphone"></i>
+                    Interviewer
+                </span>
+                <p class="voice-summary__name" data-summary-name>Loading voices…</p>
+                <p class="voice-summary__facts" data-summary-facts></p>
+            </div>
+            <div class="voice-summary__card" data-summary="interviewee">
+                <span class="voice-summary__role">
+                    <i class="uil uil-user"></i>
+                    Interviewee
+                </span>
+                <p class="voice-summary__name" data-summary-name>Loading voices…</p>
+                <p class="voice-summary__facts" data-summary-facts></p>
+            </div>
+        </div>
+        <button class="button button--small" type="button" data-voice-open>
+            <i class="uil uil-sliders-v-alt button__icon button__icon--lead"></i>
+            Change voices
+        </button>
+    </div>
+
+    <dialog class="job-modal voice-modal" data-voice-modal aria-labelledby="voice-modal-title">
+        <div class="modal__body">
+            <div class="modal__head">
+                <h2 class="modal__title" id="voice-modal-title">Choose the voices</h2>
+                <button type="button" class="modal__close" data-voice-close aria-label="Close">
+                    <i class="uil uil-times"></i>
+                </button>
+            </div>
+            <p class="voice-modal__hint">
+                The interviewer reads the questions; the interviewee reads your answers. Search and
+                filter the catalogue, audition a voice, then use the pair you like.
+            </p>
+
+            <div class="voice-modal__grid">
+                <fieldset class="voice-picker" data-picker="interviewer">
+                    <legend class="voice-picker__legend">Interviewer</legend>
+                    <p class="voice-picker__hint">Reads the questions, one at a time.</p>
+                    <label class="visually-hidden" for="voice-search-interviewer">Search interviewer voices</label>
+                    <input class="input input--compact" id="voice-search-interviewer" type="search"
+                           placeholder="Search by name, accent or tone" data-voice-search>
+                    <div class="voice-picker__filters">
+                        <label class="voice-picker__field">
+                            <span>Gender</span>
+                            <select class="input input--compact" data-voice-gender>
+                                <option value="">Any</option>
+                            </select>
+                        </label>
+                        <label class="voice-picker__field">
+                            <span>Ethnicity</span>
+                            <select class="input input--compact" data-voice-ethnicity>
+                                <option value="">Any</option>
+                            </select>
+                        </label>
+                    </div>
+                    <label class="visually-hidden" for="voice-select-interviewer">Interviewer voice</label>
+                    <select class="voice-picker__list" id="voice-select-interviewer" data-voice-select size="6"></select>
+                    <div class="voice-picker__preview" id="voice-preview-interviewer" data-voice-preview>
+                        <p class="voice-picker__empty">Loading the voice catalogue…</p>
+                    </div>
+                    <button class="button button--small button--ghost" type="button" data-voice-sample>
+                        <i class="uil uil-play button__icon button__icon--lead"></i>
+                        Hear a sample
+                    </button>
+                </fieldset>
+
+                <fieldset class="voice-picker" data-picker="interviewee">
+                    <legend class="voice-picker__legend">Interviewee</legend>
+                    <p class="voice-picker__hint">Reads your answers. Upload your own voice to sound like you.</p>
+                    <label class="visually-hidden" for="voice-search-interviewee">Search interviewee voices</label>
+                    <input class="input input--compact" id="voice-search-interviewee" type="search"
+                           placeholder="Search by name, accent or tone" data-voice-search>
+                    <div class="voice-picker__filters">
+                        <label class="voice-picker__field">
+                            <span>Gender</span>
+                            <select class="input input--compact" data-voice-gender>
+                                <option value="">Any</option>
+                            </select>
+                        </label>
+                        <label class="voice-picker__field">
+                            <span>Ethnicity</span>
+                            <select class="input input--compact" data-voice-ethnicity>
+                                <option value="">Any</option>
+                            </select>
+                        </label>
+                    </div>
+                    <label class="visually-hidden" for="voice-select-interviewee">Interviewee voice</label>
+                    <select class="voice-picker__list" id="voice-select-interviewee" data-voice-select size="6"></select>
+                    <div class="voice-picker__preview" id="voice-preview-interviewee" data-voice-preview>
+                        <p class="voice-picker__empty">Loading the voice catalogue…</p>
+                    </div>
+                    <button class="button button--small button--ghost" type="button" data-voice-sample>
+                        <i class="uil uil-play button__icon button__icon--lead"></i>
+                        Hear a sample
+                    </button>
+                </fieldset>
+            </div>
+        </div>
+
+        <div class="modal__foot voice-modal__foot">
+            <button class="button button--small" type="button" data-voice-apply>
+                <i class="uil uil-check button__icon button__icon--lead"></i>
+                Use these voices
+            </button>
+            <button class="button button--small button--ghost" type="button" data-voice-close>Cancel</button>
+        </div>
+    </dialog>
+    {% endif %}
+
+    <details class="studio__reference" data-reference-block>
+        <summary>
+            <span class="studio__reference-title">Use my own voice for the answers</span>
+            <span class="studio__reference-state" data-reference-state>
+                {% if audio_take and audio_take.reference %}Reference ready{% else %}No recording yet{% endif %}
+            </span>
+        </summary>
+        <div class="studio__reference-body">
+            <p class="studio__reference-copy">
+                Upload one clean minute of yourself speaking. The answer turns are then read in a
+                voice cloned from that recording.
+            </p>
+            <div class="studio__reference-row">
+                <span class="file-field">
+                    <input class="file-field__input" id="reference-file" type="file"
+                           accept="audio/*" data-reference-file>
+                    <label class="button button--small button--ghost" for="reference-file">
+                        <i class="uil uil-folder-open button__icon button__icon--lead"></i>
+                        Choose recording
+                    </label>
+                    <span class="file-field__name" data-reference-name>No file chosen</span>
+                </span>
+                <button class="button button--small" type="button" data-reference-upload>
+                    <i class="uil uil-upload button__icon button__icon--lead"></i>
+                    Upload voice
+                </button>
+            </div>
+            <p class="studio__reference-note" data-reference-note>
+                {% if tts_supports_clone %}
+                WAV, MP3, M4A, FLAC or OGG, up to 5 MB.
+                {% else %}
+                {{ tts_label or 'This provider' }} cannot clone a recording, so pick a catalogue voice
+                for the answers instead.
+                {% endif %}
+            </p>
+        </div>
+    </details>
+
+    <div class="studio__actions">
+        <button class="button" type="button" data-audio-generate{% if not tts_label %} disabled{% endif %}>
+            <i class="uil uil-microphone button__icon button__icon--lead"></i>
+            <span data-generate-label>Generate audio</span>
+        </button>
+        <p class="studio__meta" data-audio-meta>
+            {% if audio_take %}
+            {{ audio_take.turns|length }} turns · about {{ audio_take.seconds // 60 }}:{{
+            '%02d' % (audio_take.seconds % 60) }} of audio · ~${{ '%.4f' % audio_take.cost_usd }} of speech
+            {% else %}
+            Pick two voices, then generate. Nothing is spent until you press the button.
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="studio__status" data-audio-status role="status" aria-live="polite">
+        {% if audio_take and audio_take.status == 'failed' %}
+        <p class="studio__status-error">{{ audio_take.error }}</p>
+        {% endif %}
+    </div>
+
+    <ol class="turns" data-audio-turns>
+        {% for turn in audio_take.turns if audio_take %}
+        <li class="turn turn--{{ turn.role }}" data-turn="{{ turn.index }}" data-turn-kind="{{ turn.kind }}">
+            <header class="turn__head">
+                <span class="turn__role">
+                    <i class="uil {{ 'uil-microphone' if turn.role == 'interviewer' else 'uil-user' }}"></i>
+                    {{ 'Interviewer' if turn.role == 'interviewer' else 'You' }}
+                </span>
+                <span class="turn__section">{{ turn.section }}</span>
+                {% if turn.direction %}
+                <span class="turn__tones">
+                    {% for tone in turn.direction %}<span class="turn__tone">{{ tone }}</span>{% endfor %}
+                </span>
+                {% endif %}
+            </header>
+            <div class="turn__body">
+                {% for paragraph in turn.paragraphs %}
+                <p class="turn__text">{{ paragraph }}</p>
+                {% endfor %}
+            </div>
+            {% if turn.audio_url %}
+            <div class="turn__player" data-player>
+                <audio class="turn__audio" preload="metadata" src="{{ turn.audio_url }}"></audio>
+                <button class="audio-player__toggle" type="button" data-audio-toggle aria-label="Play">
+                    <i class="uil uil-play"></i>
+                </button>
+                <div class="audio-player__track" data-audio-track role="slider" tabindex="0"
+                     aria-label="Seek through this turn" aria-valuemin="0" aria-valuemax="100"
+                     aria-valuenow="0">
+                    <span class="audio-player__fill" data-audio-fill></span>
+                </div>
+                <span class="audio-player__time" data-audio-time>0:00 / 0:00</span>
+            </div>
+            {% elif turn.error %}
+            <p class="turn__error">{{ turn.error }}</p>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ol>
+</div>

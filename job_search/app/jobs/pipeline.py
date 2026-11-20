@@ -41,6 +41,9 @@ PIPELINE_ORDER: tuple[str, ...] = (
     "work_history",
     "proud_project",
     "technical_interview",
+    "system_design",
+    "low_level_design",
+    "coding",
     "behavioral_interview",
 )
 RUN_KIND = "prepare"

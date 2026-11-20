@@ -8,17 +8,28 @@ from .cover_letter import CoverLetterSkill
 from .cv_writing import CVWritingSkill
 from .email_writing import EmailWritingSkill
 from .fixtures import (
+    FAKE_ANSWER,
     FAKE_BEHAVIORAL,
+    FAKE_CODING,
     FAKE_COVER,
     FAKE_CV,
     FAKE_EMAIL,
+    FAKE_LOW_LEVEL_DESIGN,
+    FAKE_PRACTICE,
     FAKE_PROUD,
     FAKE_RESEARCH,
+    FAKE_SYSTEM_DESIGN,
     FAKE_TECH,
     FAKE_TELL,
     FAKE_WORK,
 )
-from .interviews import BehavioralInterviewSkill, TechnicalInterviewSkill
+from .interviews import (
+    BehavioralInterviewSkill,
+    CodingInterviewSkill,
+    LowLevelDesignInterviewSkill,
+    SystemDesignInterviewSkill,
+    TechnicalInterviewSkill,
+)
 from .job_extraction import JobExtractionSkill
 from .job_summary import JobSummarySkill
 from .spoken import ProudProjectSkill, TellMeAboutYourselfSkill, WorkHistorySkill
@@ -36,6 +47,9 @@ SKILL_REGISTRY: dict[str, Skill] = {
         WorkHistorySkill(),
         ProudProjectSkill(),
         TechnicalInterviewSkill(),
+        SystemDesignInterviewSkill(),
+        LowLevelDesignInterviewSkill(),
+        CodingInterviewSkill(),
         BehavioralInterviewSkill(),
     )
 }
@@ -52,6 +66,10 @@ def get_skill(name: str) -> Skill:
 # first real pipeline run work end to end without a key, and give tests a
 # deterministic extraction to assert on.
 FAKE_RESPONSES: dict[str, str] = {
+    # Practice calls are the most specific marker; keep them ahead of the pipeline
+    # skills so a source or posting that mentions "coding" cannot shadow them.
+    "interview_practice": json.dumps(FAKE_PRACTICE),
+    "interview_answer": json.dumps(FAKE_ANSWER),
     "job_extraction": json.dumps(
         {
             "title": "Senior Machine Learning Engineer",
@@ -105,5 +123,8 @@ FAKE_RESPONSES: dict[str, str] = {
     "work_history": json.dumps(FAKE_WORK),
     "proud_project": json.dumps(FAKE_PROUD),
     "technical_interview": json.dumps(FAKE_TECH),
+    "system_design": json.dumps(FAKE_SYSTEM_DESIGN),
+    "low_level_design": json.dumps(FAKE_LOW_LEVEL_DESIGN),
+    "coding": json.dumps(FAKE_CODING),
     "behavioral_interview": json.dumps(FAKE_BEHAVIORAL),
 }

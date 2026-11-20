@@ -16,6 +16,7 @@ from app.providers.search.base import (
     SearchResult,
 )
 from app.providers.search.duckduckgo import DuckDuckGoProvider, parse_results, unwrap_redirect
+from app.providers.search.exa import ExaProvider
 from app.providers.search.ledger import LedgerSearchProvider
 from app.providers.search.registry import (
     AutoSearchProvider,
@@ -118,6 +119,78 @@ def test_serper_raises_on_http_errors():
 def test_serper_requires_a_key():
     with pytest.raises(SearchProviderError):
         SerperProvider("")
+
+
+# ---------------------------------------------------------------- exa
+
+
+def test_exa_maps_results_and_requests_page_text():
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return httpx.Response(
+            200,
+            json={
+                "results": [
+                    {
+                        "title": "Acme Voice",
+                        "url": "https://acme.example/product",
+                        "text": "Acme Voice builds speech tools for call centres.  ",
+                        "publishedDate": "2025-01-02",
+                    },
+                    {"title": "No URL", "url": ""},
+                ]
+            },
+        )
+
+    provider = ExaProvider("exa-key", client=httpx.Client(transport=httpx.MockTransport(handler)))
+    results = provider.search("Acme Voice product", limit=2, recency_days=30)
+
+    payload = json.loads(seen[0].content)
+    assert payload["query"] == "Acme Voice product"
+    assert payload["numResults"] == 2
+    assert payload["contents"]["text"]["maxCharacters"] > 0
+    assert payload["startPublishedDate"].endswith("Z")
+    assert seen[0].headers["x-api-key"] == "exa-key"
+    assert [result.url for result in results] == ["https://acme.example/product"]
+    assert results[0].provider == "exa"
+    assert results[0].snippet == "Acme Voice builds speech tools for call centres."
+    assert results[0].rank == 1
+
+
+def test_exa_prefers_highlights_over_full_text():
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={
+                "results": [
+                    {
+                        "title": "Acme news",
+                        "url": "https://news.example/acme",
+                        "text": "Long page text",
+                        "highlights": ["Acme raised a seed round.", "Hiring in Nairobi."],
+                    }
+                ]
+            },
+        )
+
+    provider = ExaProvider("exa-key", client=httpx.Client(transport=httpx.MockTransport(handler)))
+    result = provider.search("Acme funding")[0]
+    assert result.snippet == "Acme raised a seed round. Hiring in Nairobi."
+
+
+def test_exa_raises_on_http_errors_and_requires_a_key():
+    provider = ExaProvider(
+        "exa-key",
+        client=httpx.Client(transport=httpx.MockTransport(lambda request: httpx.Response(401, text="no"))),
+    )
+    with pytest.raises(SearchProviderError) as excinfo:
+        provider.search("anything")
+    assert excinfo.value.status == 401
+
+    with pytest.raises(SearchProviderError):
+        ExaProvider("")
 
 
 # ---------------------------------------------------------------- duckduckgo
@@ -237,3 +310,16 @@ def test_registry_defaults_to_duckduckgo_without_a_serper_key(client, settings):
     assert isinstance(provider, LedgerSearchProvider)
     assert isinstance(provider.inner, CachedSearchProvider)
     assert provider.name == "duckduckgo"
+
+
+def test_registry_builds_exa_and_uses_it_in_auto_when_keyed(client, settings):
+    settings.search_provider = "exa"
+    settings.exa_api_key = "exa-key"
+    provider = build_search_provider(settings, session_factory=get_session_factory(settings))
+    assert provider.name == "exa"
+
+    settings.search_provider = "auto"
+    settings.serper_api_key = ""
+    auto = build_search_provider(settings, session_factory=get_session_factory(settings))
+    assert auto.name == "auto"
+    assert auto.inner.inner.providers[0].name == "exa"

@@ -1,0 +1,140 @@
+{% macro practice_card(q) -%}
+{% set tone = {'warm-up': 'success', 'core': 'info', 'deep': 'warning'}.get(q.difficulty, 'neutral') %}
+<article class="practice-card" data-question-id="{{ q.id }}" data-origin="{{ q.origin }}">
+    <header class="practice-card__head">
+        <span class="chip">{{ q.topic }}</span>
+        <span class="pill pill--{{ tone }}">{{ q.difficulty }}</span>
+        {% if q.source_title %}<span class="practice-card__source">{{ q.source_title }}</span>{% endif %}
+        <button class="practice-card__remove" type="button" data-question-delete
+                title="Remove this question" aria-label="Remove this question">
+            <i class="uil uil-times"></i>
+        </button>
+    </header>
+    <p class="practice-card__question">{{ q.question }}</p>
+    <details class="practice-card__answer">
+        <summary>Show answer</summary>
+        <div class="practice-card__body">
+            <p>{{ q.answer }}</p>
+            {% if q.follow_ups %}
+            <p class="practice-card__label">Follow-ups</p>
+            <ul class="practice-card__list">
+                {% for item in q.follow_ups %}<li>{{ item }}</li>{% endfor %}
+            </ul>
+            <details class="followup-answers" data-followup-answers{% if q.follow_up_answers %} data-loaded="true"{% endif %}>
+                <summary>Suggested answers</summary>
+                <div class="followup-answers__body" data-followup-body>
+                    {% if q.follow_up_answers %}
+                    {% for item in q.follow_up_answers %}
+                    <div class="followup-answer">
+                        <p class="followup-answer__question">{{ item.question }}</p>
+                        <p class="followup-answer__text">{{ item.answer }}</p>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="followup-answers__hint">Open to write one answer for each follow-up.</p>
+                    {% endif %}
+                </div>
+            </details>
+            {% endif %}
+            {% if q.citations %}
+            <p class="practice-card__label">Grounded in</p>
+            <ul class="practice-card__list practice-card__list--cite">
+                {% for item in q.citations %}<li>{{ item }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+    </details>
+</article>
+{%- endmacro %}
+
+<div class="practice" data-practice data-job="{{ job.id }}"
+     data-default-count="{{ practice_defaults.count }}">
+    <div class="practice__intro">
+        <div>
+            <h3 class="practice__title">Random drills</h3>
+            <p class="practice__hint">
+                Questions are sampled from your uploaded sources, the posting and the portfolio.
+                Each one comes with a model answer you can reveal, and different seeds ask
+                different angles of the same material.
+            </p>
+        </div>
+        <button class="button button--small button--ghost" type="button" data-reveal-all>
+            <i class="uil uil-eye button__icon button__icon--lead"></i>
+            Reveal all
+        </button>
+    </div>
+
+    <div class="practice__controls">
+        <label class="practice__field">
+            <span>Questions</span>
+            <select class="input input--compact" data-practice-count>
+                {% for value in (4, 6, 8, 10, 12) %}
+                <option value="{{ value }}"{% if value == practice_defaults.count %} selected{% endif %}>{{ value }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label class="practice__field">
+            <span>Level</span>
+            <select class="input input--compact" data-practice-difficulty>
+                <option value="mixed">Mixed</option>
+                <option value="warm-up">Warm-up</option>
+                <option value="core">Core</option>
+                <option value="deep">Deep</option>
+            </select>
+        </label>
+        <label class="practice__field practice__field--wide">
+            <span>Angle <em>optional</em></span>
+            <input class="input input--compact" type="text" maxlength="120" data-practice-focus
+                   placeholder="e.g. evaluation, backpressure, data modelling">
+        </label>
+        <button class="button button--small" type="button" data-practice-generate>
+            <i class="uil uil-bolt button__icon button__icon--lead"></i>
+            Generate set
+        </button>
+    </div>
+
+    <p class="practice__status" data-practice-status role="status" aria-live="polite"></p>
+
+    <div class="practice__list" data-practice-list>
+        {% for q in practice_questions %}
+        {{ practice_card(q) }}
+        {% else %}
+        <div class="empty" data-practice-empty>
+            <span class="empty__icon"><i class="uil uil-bolt"></i></span>
+            <h3 class="empty__title">No practice questions yet</h3>
+            <p class="empty__copy">Generate a set now, or add a source and generate from it. Nothing is spent until you ask.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <section class="answer-finder" aria-labelledby="answer-finder-title">
+        <div class="answer-finder__head">
+            <h3 class="practice__title" id="answer-finder-title">Find an answer</h3>
+            <p class="practice__hint">Ask a question and Skipper answers from the matching parts of your sources.</p>
+        </div>
+        <form class="answer-finder__form" data-answer-form>
+            <label class="visually-hidden" for="answer-question">Question to answer</label>
+            <input class="input" id="answer-question" type="text" maxlength="600" data-answer-question
+                   placeholder="e.g. How would you design backpressure for a streaming ASR session?">
+            <button class="button button--small" type="submit" data-answer-submit>
+                <i class="uil uil-search button__icon button__icon--lead"></i>
+                Find answer
+            </button>
+        </form>
+        <p class="practice__status" data-answer-status role="status" aria-live="polite"></p>
+        <article class="answer-card" data-answer-result hidden>
+            <p class="answer-card__question" data-answer-question-text></p>
+            <p class="answer-card__body" data-answer-body></p>
+            <p class="practice-card__label" data-answer-followups-label hidden>Follow-ups</p>
+            <ul class="practice-card__list" data-answer-followups hidden></ul>
+            <p class="practice-card__label" data-answer-cites-label hidden>Grounded in</p>
+            <ul class="practice-card__list practice-card__list--cite" data-answer-cites hidden></ul>
+            <div class="answer-card__actions">
+                <button class="button button--small button--ghost" type="button" data-answer-copy>
+                    <i class="uil uil-copy button__icon button__icon--lead"></i>
+                    Copy answer
+                </button>
+            </div>
+        </article>
+    </section>
+</div>

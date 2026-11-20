@@ -20,6 +20,8 @@ from .resume import CONTACT_LINE, LINKS, NAME
 
 DARK = RGBColor(0x1F, 0x2A, 0x37)
 LINK = "1F6FB2"
+MAX_PROJECT_BULLET_CHARS = 260
+MAX_PROJECT_CHARS = 900
 
 
 def build_cv_docx(resume: dict[str, Any]) -> bytes:
@@ -36,6 +38,12 @@ def build_cv_docx(resume: dict[str, Any]) -> bytes:
         for group in groups:
             _labeled(doc, str(group["name"]), ", ".join(group["items"]))
 
+    tech_groups = resume.get("tech_groups") or []
+    if tech_groups:
+        _section(doc, "Technical Skills")
+        for group in tech_groups:
+            _labeled(doc, str(group["name"]), ", ".join(group["items"]))
+
     jobs = resume.get("experience") or []
     if jobs:
         _section(doc, "Professional Experience")
@@ -48,18 +56,17 @@ def build_cv_docx(resume: dict[str, Any]) -> bytes:
     if projects:
         _section(doc, "Selected Projects")
         for project in projects:
+            description = " ".join(
+                str(text).strip() for text in (project.get("bullets") or [])[:3] if str(text).strip()
+            )
             p = doc.add_paragraph()
             p.paragraph_format.space_after = Pt(1)
-            p.paragraph_format.keep_with_next = True
-            run = p.add_run(str(project["name"]))
+            run = p.add_run(str(project["name"]) + " — ")
             run.bold = True
             run.font.size = Pt(10.5)
-            if project.get("meta"):
-                meta = p.add_run(f" — {project['meta']}")
-                meta.font.size = Pt(9.5)
-            description = " ".join(str(item).strip() for item in project.get("bullets") or [])
-            if description:
-                _para(doc, description[:420], size=10.5, space_after=4)
+            body = p.add_run(description[:MAX_PROJECT_CHARS])
+            body.font.size = Pt(10.5)
+            _project_links(doc, project.get("links") or [])
 
     education = resume.get("education") or []
     if education:
@@ -71,6 +78,11 @@ def build_cv_docx(resume: dict[str, Any]) -> bytes:
         _section(doc, "Certifications")
         _para(doc, str(resume["certifications"]), space_after=4)
 
+    references = _para(doc, "References available on request.", size=9.5, space_after=0)
+    references.runs[0].italic = True
+    references.paragraph_format.space_before = Pt(6)
+
+    _compact(doc)
     doc.core_properties.title = f"{NAME} — {resume.get('headline', '')}".strip(" —")
     doc.core_properties.author = NAME
     buffer = BytesIO()
@@ -91,7 +103,18 @@ def _base_styles(doc: Document) -> None:
 
 
 def _compact(doc: Document) -> None:
+    """Apply the portfolio CVs' compact pass: 10 pt body, tighter margins and spacing."""
+    for style_name in ("Normal", "List Bullet"):
+        doc.styles[style_name].font.size = Pt(10)
+    for section in doc.sections:
+        section.top_margin = Inches(0.45)
+        section.bottom_margin = Inches(0.45)
+        section.left_margin = Inches(0.5)
+        section.right_margin = Inches(0.5)
     for paragraph in doc.paragraphs:
+        for run in paragraph.runs:
+            if run.font.size:
+                run.font.size = Pt(max(8.5, run.font.size.pt - 0.5))
         fmt = paragraph.paragraph_format
         if fmt.space_before is not None:
             fmt.space_before = Pt(fmt.space_before.pt * 0.75)
@@ -201,6 +224,25 @@ def _para(doc: Document, text: str, *, bold: bool = False, size: float = 10.5,
     run.bold = bold
     run.font.size = Pt(size)
     return p
+
+
+def _link_label(url: str) -> str:
+    label = url.removeprefix("https://").removeprefix("http://").removeprefix("www.")
+    return label.rstrip("/")
+
+
+def _project_links(doc: Document, links: list[Any]) -> None:
+    if not links:
+        return
+    p = doc.add_paragraph()
+    p.paragraph_format.space_after = Pt(3)
+    p.paragraph_format.space_before = Pt(0)
+    for index, raw in enumerate(links[:2]):
+        url = str(raw)
+        if index:
+            separator = p.add_run("  ·  ")
+            separator.font.size = Pt(9)
+        _add_hyperlink(p, url, _link_label(url), size=9)
 
 
 def _labeled(doc: Document, label: str, text: str) -> None:

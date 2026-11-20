@@ -288,14 +288,21 @@ All settings come from environment with the `SKIPPER_` prefix (`.env` supported 
 | `SKIPPER_DB_PATH` | `var/skipper.db` | SQLite file |
 | `SKIPPER_ARTIFACTS_DIR` | `var/artifacts` | Generated files |
 | `SKIPPER_PORTFOLIO_DIR` | `data/portfolio` | RAG corpus |
-| `SKIPPER_LLM_PROVIDER` | `groq` | `groq` \| `fake` |
+| `SKIPPER_LLM_PROVIDER` | `groq` | `groq` \| `nvidia` \| `fake` |
 | `SKIPPER_GROQ_API_KEY` | — | Required when provider is groq |
-| `SKIPPER_LLM_MODEL_LARGE` | `openai/gpt-oss-120b` | Extraction, research, CV, interviews |
-| `SKIPPER_LLM_MODEL_SMALL` | `openai/gpt-oss-20b` | Summary, email, spoken answers |
+| `SKIPPER_NVIDIA_API_KEY` | — | Required when provider is nvidia |
+| `SKIPPER_NVIDIA_MODEL_LARGE` | `moonshotai/kimi-k3.1-pro` | NVIDIA large tier |
+| `SKIPPER_NVIDIA_MODEL_SMALL` | `nvidia/nemotron-3.5-lightning-30b-a3b` | NVIDIA small tier |
+| `SKIPPER_NVIDIA_MODEL_FALLBACKS` | built-in chain | Ids tried, in order, after a 404/410 retirement |
+| `SKIPPER_LLM_FALLBACKS` | `auto` | Hosted providers tried after 429/5xx |
+| `SKIPPER_LLM_MODEL_LARGE` | provider default | Extraction, research, CV, interviews |
+| `SKIPPER_LLM_MODEL_SMALL` | provider default | Summary, email, spoken answers |
 | `SKIPPER_LLM_TIMEOUT_S` | `120` | Per-call timeout |
-| `SKIPPER_SEARCH_PROVIDER` | `auto` | `auto` \| `serper` \| `duckduckgo` |
+| `SKIPPER_SEARCH_PROVIDER` | `auto` | `auto` \| `serper` \| `exa` \| `duckduckgo` |
 | `SKIPPER_SERPER_API_KEY` | — | Enables Serper |
+| `SKIPPER_EXA_API_KEY` | — | Enables Exa semantic search |
 | `SKIPPER_SEARCH_MAX_QUERIES` | `8` | Per-run web search budget |
+| `SKIPPER_RESEARCH_TTL_DAYS` | `30` | Reuse a company brief while younger than this; `0` always researches |
 | `SKIPPER_FETCH_MAX_BYTES` | `3000000` | Scrape size cap |
 | `SKIPPER_FETCH_TIMEOUT_S` | `20` | Scrape timeout |
 | `SKIPPER_RUN_MAX_MINUTES` | `25` | Hard run ceiling |
@@ -437,7 +444,7 @@ A `complete_json(messages, schema, ...)` helper lives beside the ABC (not in pro
 1. Append `Respond with a single JSON object and nothing else.` plus a compact schema description.
 2. Call with `response_format="json"` (wire-level JSON mode when supported; otherwise prompt-enforced).
 3. `json.loads` with fence stripping; on failure, one **repair turn**: send back the raw output plus the parse error and request only a corrected JSON object.
-4. Validate with `app/validation.py::validate(payload, schema)` — a small, dependency-free validator supporting `type`, `required`, `properties`, `items`, `enum`, `min_len`, `nullable`.
+4. `json.loads` with fence stripping; clamp any string that overshoots its `max_len` at a word boundary (`validation.py::clamp_lengths`) so a sentence-long closing is normalised rather than failed; then validate with `app/validation.py::validate(payload, schema)` — a small, dependency-free validator supporting `type`, `required`, `properties`, `items`, `enum`, `min_len`, `max_len`, `nullable`.
 5. On validation failure: one repair turn naming the offending paths; then raise `SkillValidationError` (recorded on the step, not the whole run).
 
 ### 12.2 Groq implementation
@@ -467,6 +474,8 @@ payload = {
 - Cache key: `sha256(provider|model|temperature|response_format|messages)`; hits return the cached response and record `tokens_in=0`. Entries are exact-match and never expire automatically; they make retries after a crash free and keep development from paying twice for an identical prompt.
 - Every call writes tokens into the current `run_steps` row; runs roll up into `runs.tokens_*`. `cost_usd` uses a static price table in `providers/llm/pricing.py` (Groq list prices; zero for `fake`).
 - Per-run budget guard: if tokens exceed `SKIPPER_RUN_TOKEN_BUDGET` (default 120k), remaining optional steps are skipped with a clear reason.
+- **Failover:** `registry.py` wraps the primary provider and every other hosted provider with a key in a `FallbackLLMProvider` (`SKIPPER_LLM_FALLBACKS=auto` by default; `none` disables). A retryable failure (`429`, `402`, `5xx`, exhausted retries) moves to the next provider for that call and stays there for the rest of the process, so a run does not pay the retry window on every step. The wrapper translates the requested tier back to the next vendor's model id. `fake` never joins a real chain, and the tests pin `none` so the suite stays offline. The ledger and cache read the active provider name on every call, so switched calls are attributed to the provider that answered.
+- **Retired model swap:** NVIDIA free endpoints die with a `410 Gone` (future-timestamped detail) or a `404`. `NvidiaProvider.complete` treats both as permanent, moves the tier to the next id in `SKIPPER_NVIDIA_MODEL_FALLBACKS`, updates `models[tier]` and remembers the dead id so every later step skips it. If the chain is exhausted the error names the env vars to edit instead of repeating the provider's opaque body. `400`/`422` responses still get one relaxed retry that drops `response_format` and/or `reasoning_effort`, because not every hosted model accepts both.
 
 ### 12.4 Prompt-injection and grounding
 
@@ -499,8 +508,9 @@ class SearchProvider(ABC):
 ```
 
 - **SerperProvider** — `POST https://google.serper.dev/search`, `X-API-KEY`, `{"q": query, "num": limit, "tbs": "qdr:m" if recency}`; maps `organic[]` → results.
+- **ExaProvider** — `POST https://api.exa.ai/search`, `x-api-key`, `{"query", "type": "auto", "numResults", "contents": {"text": ...}}`; maps `results[]` → results, using `highlights` when present.
 - **DuckDuckGoProvider** — `GET https://html.duckduckgo.com/html/?q=...`, parse `.result` blocks (`.result__a`, `.result__snippet`, unwrap `uddg=` redirect); falls back to `lite.duckduckgo.com/lite/`. No key required.
-- **Registry/router** — `auto` prefers Serper when a key exists, falls back to DDG when Serper errors or returns empty. Failures degrade the research skill (fewer citations) rather than failing the run.
+- **Registry/router** — `auto` tries Serper, then Exa (when keyed), then DuckDuckGo; it moves on when a provider errors or returns empty. Failures degrade the research skill (fewer citations) rather than failing the run.
 - **Cache** 24 h in `search_cache`, keyed by provider+query hash, so re-runs and company pages cost nothing.
 - **Budget** `SKIPPER_SEARCH_MAX_QUERIES` per run (default 8, research uses ≤ 5: company overview, engineering blog, recent news, interview process, tech stack).
 
@@ -516,7 +526,7 @@ The corpus is versioned Markdown in `data/portfolio/` — plain files a human ca
 - **Index** `portfolio_fts` (FTS5, porter + unicode61). Rebuilt per changed document; `INSERT INTO portfolio_fts(portfolio_fts) VALUES('rebuild')` after bulk changes.
 - **Retrieval** builds a query from the job's must-have skills, title, seniority and 6 extracted keywords (stop-words removed, OR-joined, field boosts via `bm25(portfolio_fts, 1.0, 2.0, 0.5)` favouring heading matches). Top 8 chunks, deduped by `(doc_id, heading)`, truncated to ~3,500 tokens for the prompt.
 - **Why not embeddings:** the corpus is ~20 KB; lexical retrieval with headings is precise, debuggable and gives exact provenance for "no invented numbers". Embeddings can be added behind `rag/retrieve.py` later if the corpus grows.
-- **Company RAG reuses the same tables** (`sources` + a company-scoped FTS query) so a second job at the same company retrieves the earlier research instead of searching again.
+- **Company research is cached on the company row** (`companies.research_json` + `researched_at`), not in the per-job artifact table. A new job at the same company reuses that brief while it is younger than `SKIPPER_RESEARCH_TTL_DAYS` (default 30, `0` disables reuse); the skill still saves a per-job `company_research` artifact so each pack is self-contained. A brief with no timestamp or malformed JSON is treated as stale and researched again.
 
 ---
 
@@ -561,14 +571,21 @@ class Skill(ABC):
 | 1 | `job_extraction` | large | posting text, URL, page title | `{title, company_name, company_domain, location, work_mode, employment_type, seniority, salary{min,max,currency,period}, responsibilities[], must_have[], nice_to_have[], keywords[], benefits[], deadline, summary_one_line, red_flags[]}` → internal |
 | 2 | `job_summary` | small | extraction + raw text | `{one_liner, what_you_do[], what_they_want[], why_it_matters, fit_signals[], gaps[]}` → `job_summary` md |
 | 3 | `company_research` | large | company name/domain, 3–5 search queries, fetched pages | `{summary, industry, size, founded, hq, products[], tech_stack[], culture[], news[{headline,date,url}], interview_style, talking_points[], open_questions[], sources[{title,url,grade}]}` → `company_research` md + JSON |
-| 4 | `cv_writing` | large | extraction, portfolio chunks, prior extraction | resume model `{headline, summary, skill_groups[{name, items[]}], experience[{company,title,start,end,location,bullets[]}], projects[{name,bullets[]}], education[], certifications[]}` → DOCX + PDF |
-| 5 | `cover_letter` | small→large repair | extraction, research summary, portfolio | `{greeting, paragraphs[], closing, word_count}` → PDF + DOCX + md |
-| 6 | `email_writing` | small | extraction, cover letter, research | `{subject, body, attachment_names[]}` → `email` md |
+| 4 | `cv_writing` | large | extraction, portfolio chunks, prior extraction | resume model `{headline, summary, skill_groups[{name, items[]}], tech_groups[{name, items[]}], experience[{company,title,start,end,location,bullets[]}], projects[{name, meta, bullets[], links[]}], education[], certifications[]}` → DOCX + PDF |
+
+CV writing also receives the closest of the six portfolio CV templates (`data/cv_templates.json`, extracted from `cv/_generate_cvs.py`): its structure, competency naming and metric-bearing bullets are the quality bar, and the model tailors that template rather than inventing a resume shape.
+| 5 | `cover_letter` | large | extraction, research summary, portfolio | `{greeting, paragraphs[], closing, word_count}` → PDF + DOCX + md |
+| 6 | `email_writing` | large | extraction, cover letter, research | `{subject, body, attachment_names[]}` → `email` md |
 | 7 | `tell_me_about_yourself` | small | job, company, portfolio | `{answer, delivery_notes[], anchor_points[]}` → md |
 | 8 | `work_history` | small | job, company, portfolio | `{answer, timeline[{company,role,years,proof}], delivery_notes[]}` → md |
 | 9 | `proud_project` | small | job, company, portfolio | `{projects[{name, why, what_i_built, impact, stack[]}], answer}` → md |
 | 10 | `technical_interview` | large | extraction, research, portfolio | `{questions[{topic, difficulty, question, answer, follow_ups[], grounded_in}]}` (10–14) → md |
 | 11 | `behavioral_interview` | large | extraction, research, portfolio | `{questions[{competency, question, star{situation,task,action,result}, answer}]}` (8–10) → md |
+| 12 | `system_design` | large | extraction, research, portfolio | `{questions[{topic, difficulty, question, answer, requirements{functional[],non_functional[]}, core_entities[{name,fields[],notes}], api_design[{method,path,purpose}], data_flow[], high_level[], deep_dives[{title,detail}], diagram, trade_offs[], interviewer_questions[], questions_to_ask[], follow_ups[], grounded_in}]}` (6–8) → md |
+| 13 | `low_level_design` | large | extraction, research, portfolio | `{questions[{topic, difficulty, question, answer, requirements{functional[],non_functional[]}, core_entities[{name,fields[],notes}], class_design[{name,responsibility,interfaces[],collaborators[]}], implementation[{title,detail}], extensibility[], diagram, data_structures[], trade_offs[], interviewer_questions[], questions_to_ask[], follow_ups[]}]}` — requirements → entities → class design → implementation → extensibility (5–7) → md |
+| 14 | `coding` | large | extraction, research, portfolio | `{problems[{..., requirements, core_entities, api_design (signature), data_flow, high_level (solution outline), deep_dives, diagram, slow_approach, slow_code, slow_time_complexity, slow_space_complexity, approach, code, time_complexity, space_complexity, language, edge_cases, interviewer_questions[], questions_to_ask[], follow_ups[]}]}` (6–8) → md |
+
+`system_design`, `low_level_design` and `coding` share one interview flow: requirements (functional and non-functional), core entities, API design, data flow, high-level or component design, then two or three deep dives. Each answer opens with a short spoken walkthrough (120–180 words) and the structured sections carry the detail, so the brief works both as a script and as a whiteboard plan. ML and data designs add what is trained or ingested, how the offline path differs from online, and where quality is measured. Diagrams are plain ASCII in a `text` code fence because the Markdown renderer supports headings, lists, emphasis and fenced code; it does not run Mermaid. Every design ends with trade-offs, the questions the interviewer is likely to ask, targeted questions the candidate can ask the interviewer, and follow-ups. Coding briefs show the obvious slow solution first with its own code and complexity, then the optimised solution with runtime and storage stated separately.
 
 Shared rules baked into every system prompt (`jobs/prompts.py`):
 
@@ -668,9 +685,10 @@ var/artifacts/job-<id>/
 | `GET` | `/api/jobs` | `status, company_id, q, limit, offset` | `{items[], total}` |
 | `GET` | `/api/jobs/{id}` | — | job + company + current artifacts + latest run |
 | `PATCH` | `/api/jobs/{id}` | `{status?, priority?, notes?, next_action?, next_action_at?}` | job · `422` invalid transition |
-| `DELETE` | `/api/jobs/{id}` | — | `204` (archive, not hard delete) |
+| `DELETE` | `/api/jobs/{id}` | — | `200 {deleted}`; refuses while a run is in flight |
 | `POST` | `/api/jobs/{id}/runs` | `{kind}` | `202 {run_id}` · `409` already running |
 | `POST` | `/api/jobs/{id}/regenerate` | `{skill}` | `202 {run_id}` |
+| `POST` | `/api/jobs/{id}/backfill` | — | `202 {run_id, skills}` for artifacts the job is missing |
 | `GET` | `/api/runs/{id}` | — | run + steps (poll target) |
 | `POST` | `/api/runs/{id}/cancel` | — | `202` |
 | `GET` | `/api/jobs/{id}/artifacts` | `kind?` | `{items[]}` |

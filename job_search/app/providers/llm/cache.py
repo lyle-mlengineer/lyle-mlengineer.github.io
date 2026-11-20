@@ -41,9 +41,15 @@ def cache_key(
 class CachingLLMProvider(LLMProvider):
     def __init__(self, inner: LLMProvider, session_factory) -> None:
         self.inner = inner
-        self.name = inner.name
-        self.models = inner.models
         self._session_factory = session_factory
+
+    @property
+    def name(self) -> str:
+        return self.inner.name
+
+    @property
+    def models(self) -> dict[str, str]:
+        return self.inner.models
 
     def model_for(self, tier: str) -> str:
         return self.inner.model_for(tier)

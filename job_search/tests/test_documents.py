@@ -13,7 +13,8 @@ from app.documents.cv_pdf import pdf_page_count, render_pdf
 from app.documents.resume import artifact_filename
 from app.models import Artifact, Job
 from app.rag.grounding import check_numbers
-from app.skills.cv_writing import _corpus, _scrub
+from app.skills.cv_templates import choose_template
+from app.skills.cv_writing import CVWritingSkill, _corpus, _scrub
 from app.skills.fixtures import FAKE_CV
 from tests.conftest import login
 
@@ -59,6 +60,11 @@ def test_docx_contains_the_whole_resume():
             assert bullet[:60] in text
     for group in FAKE_CV["skill_groups"]:
         assert group["name"] in text
+    assert "TECHNICAL SKILLS" in text
+    for group in FAKE_CV["tech_groups"]:
+        assert group["name"] in text
+    for link in FAKE_CV["projects"][0]["links"]:
+        assert link.removeprefix("https://").removeprefix("http://") in text
     assert "EDUCATION" in text and "CERTIFICATIONS" in text
 
 
@@ -194,3 +200,28 @@ def test_regenerate_requires_csrf_and_known_skill(authed):
         f"/api/jobs/{job_id}/regenerate", json={"skill": "job_extraction"}, headers=headers(authed)
     )
     assert extraction.status_code == 422
+
+
+def test_cv_prompt_uses_the_closest_portfolio_template(settings):
+    from types import SimpleNamespace
+
+    portfolio = Path(__file__).resolve().parents[1] / "data" / "portfolio"
+    assert choose_template(portfolio, "Data Engineer")[0] == "data_engineer"
+    assert choose_template(portfolio, "AI/ML Engineer")[0] == "ai_ml_engineer"
+    assert choose_template(portfolio, "Machine Learning Engineer")[0] == "ml_engineer"
+
+    ctx = SimpleNamespace(
+        job=SimpleNamespace(
+            title="Data Engineer",
+            source_type="text",
+            source_url=None,
+            raw_text="Data Engineer wanted.",
+        ),
+        company=None,
+        settings=settings,
+        prior={"job_extraction": {"must_have": ["Python"]}},
+    )
+    messages = CVWritingSkill().build_messages(ctx)
+    assert "<cv_template>" in messages[1].content
+    assert '"template": "data_engineer"' in messages[1].content
+    assert "Reproduce its structure" in messages[1].content

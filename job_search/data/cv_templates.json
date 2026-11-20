@@ -1,0 +1,765 @@
+{
+ "ai_engineer": {
+  "headline": "AI ENGINEER | APPLIED AI, AGENTS & SPEECH",
+  "summary": "AI Engineer with four years of experience taking applied AI products from prototype to production — LLM agents, retrieval, speech and voice systems, and the backend, evaluation and deployment work around them. Built and shipped coAgent (a private coding agent for Colab), Docent (an AI product guide), Suraya (a diffusion model for Kenyan faces) and Vocalis (a voice-design studio). At SautiFlow Labs builds the agent layer behind AI podcast production, plus voice design, TTS, cloning and speech-to-text for Kenyan languages.",
+  "competencies": [
+   {
+    "name": "Applied AI & Agents",
+    "items": "LLM agents, tool use and function calling, planning / verification loops, retrieval augmented generation (BM25 + vector search), prompt design, evaluation harnesses, guardrails, human approval, secret redaction"
+   },
+   {
+    "name": "Voice & Podcast Agents",
+    "items": "Agent orchestration for podcast production (research → script → casting → render → master → show notes), source-span provenance, voice persona design, pronunciation lexicons, loudness mastering and publish packs"
+   },
+   {
+    "name": "Speech & Multimodal",
+    "items": "ASR, speaker diarisation and embeddings, TTS and voice design, diffusion image generation (Stable Diffusion, SDXL, NVIDIA Flux), face detection and alignment, quality gates and content provenance"
+   },
+   {
+    "name": "Modelling & Optimisation",
+    "items": "PyTorch training and fine-tuning, LoRA / QLoRA, NF4 and int8 quantisation, ONNX Runtime, TensorRT, KV caching, batching, KID / FID, WER / CER / MOS, latency and cost profiling"
+   },
+   {
+    "name": "AI Platform & Product",
+    "items": "FastAPI model services, PostgreSQL, Redis, Celery, Docker, Kubernetes, GitHub Actions, Render, AWS / GCP, credit ledgers, idempotent M-Pesa and Stripe payments, technical writing and handover"
+   }
+  ],
+  "tech": [
+   {
+    "name": "Languages",
+    "items": "Python, TypeScript/JavaScript, SQL, C++"
+   },
+   {
+    "name": "AI & ML",
+    "items": "PyTorch, Hugging Face Transformers, PEFT, Diffusers, scikit-learn, Whisper, Qwen2.5-Coder, NVIDIA Flux, Stable Diffusion / SDXL"
+   },
+   {
+    "name": "Inference & Evaluation",
+    "items": "bitsandbytes NF4, int8 / FP16 quantisation, ONNX Runtime, TensorRT, Triton, vLLM, KV caching, KID / FID, WER / CER / MOS, offline and online evaluation"
+   },
+   {
+    "name": "Backend, Data & Cloud",
+    "items": "FastAPI, Jinja2, PostgreSQL, Redis, Celery, Elasticsearch, Spark, Kafka, Docker, Kubernetes, Render, AWS, GCP, Weights & Biases, MLflow, DVC"
+   }
+  ],
+  "jobs": [
+   {
+    "title": "Freelance AI Engineer",
+    "company": "Independent, Remote",
+    "dates": "2026 – Present",
+    "bullets": [
+     "Partner with founders and product teams to scope, build and ship AI features end to end — data, model selection, evaluation, inference, UI and deployment — leaving behind runbooks the client's team can own.",
+     "Built coAgent, a private coding agent for Google Colab's free T4: local Qwen2.5-Coder-7B inference at NF4, a survey → plan → act → verify loop, tree-sitter and BM25 repository retrieval, Ruff + pytest verification and git-backed checkpoints; published 0.2.1 to PyPI as co-agent-coder.",
+     "Shipped Docent's public front door — FastAPI, PostgreSQL, Jinja2 and vanilla JavaScript — with a durable waitlist, contact inbox, protected admin surface, CSV export, rate limits and a strict CSP.",
+     "Built Suraya, an audit-driven latent-diffusion pipeline for Kenyan faces: a compact 66M UNet on a frozen SD VAE, face-detect/align preprocessing and KID-led evaluation; pipeline complete and tested."
+    ]
+   },
+   {
+    "title": "Machine Learning Engineer",
+    "company": "SautiFlow Labs, Nairobi",
+    "dates": "2024 – Present",
+    "bullets": [
+     "Cut Swahili and Sheng ASR word error rate from 23.4% to 11.8% by LoRA fine-tuning Whisper-large-v3 on 1,240 hours of in-house audio.",
+     "Shipped streaming speech synthesis for voice agents at 310 ms median / 780 ms p95 first-audio latency across Swahili, Sheng, Luo and Kikuyu, down from a 1.4 s batch baseline.",
+     "Compressed a 1.6 GB TTS checkpoint to 480 MB with int8 quantisation and KV caching: 42 concurrent voices per GPU, 3.1x throughput and 58% lower inference cost.",
+     "Designed 12 Kenyan-language voice personas and built the agentic podcast pipeline — research, scripting, casting, render, mastering and show-notes agents — behind a source ledger and human approval gates.",
+     "Built the evaluation harness — WER, CER, MOS and CI regression gates — which blocked 9 model regressions from release in two quarters."
+    ]
+   },
+   {
+    "title": "Data Engineer",
+    "company": "SautiFlow Labs, Nairobi",
+    "dates": "2023 – 2024",
+    "bullets": [
+     "Designed batch and streaming pipelines (Airflow, Kafka, Spark) processing 6 TB / 38,000 hours of raw audio a year into training-ready datasets.",
+     "Automated transcription alignment and diarisation pre-labelling, cutting human labelling from 11 to 3.5 minutes per hour of audio — a 68% saving adopted as the platform default."
+    ]
+   },
+   {
+    "title": "Software Engineer",
+    "company": "SautiFlow Labs, Nairobi",
+    "dates": "2022 – 2023",
+    "bullets": [
+     "Shipped 5 production features for an IVR and WhatsApp voice assistant serving 40,000+ monthly users, with REST and WebSocket APIs in Django and Node.js at p95 latency under 140 ms.",
+     "Introduced Docker deploys and GitHub Actions CI/CD — release cadence monthly to weekly, lead time 3 weeks to 2 days — and took front-end test coverage from 0 to 71%."
+    ]
+   }
+  ],
+  "projects": [
+   {
+    "name": "coAgent — Private Coding Agent for Colab",
+    "description": "Python coding agent for Google Colab's free T4: Qwen2.5-Coder-7B runs locally at NF4, plans inside the repository, edits with a tree-sitter map and BM25 retrieval, verifies with Ruff and pytest, and commits every checkpoint to an isolated git branch. Published on PyPI as co-agent-coder 0.2.1 — no API keys or per-token cost.",
+    "links": [
+     "https://github.com/lyle-mlengineer/coagent",
+     "https://pypi.org/project/co-agent-coder/"
+    ]
+   },
+   {
+    "name": "Docent — AI Product Guide",
+    "description": "Pre-launch AI product guide: explore a site, build an evidence-backed model of its workflows, narrate a walkthrough and guide users live. Shipped the public front door — FastAPI, PostgreSQL and Jinja2 with a durable waitlist, contact inbox, protected admin, CSV export, rate limits and a strict CSP.",
+    "links": [
+     "https://docent-9a62.onrender.com/",
+     "https://github.com/lyle-mlengineer/docent"
+    ]
+   },
+   {
+    "name": "Suraya — Diffusion Model for Kenyan Faces",
+    "description": "Audit-driven latent diffusion model for photorealistic 256×256 Kenyan faces: a compact 66M-parameter UNet on a frozen SD VAE, face-detect/align preprocessing, a VAE quality gate and KID-led evaluation, with an SDXL LoRA track for comparison. Pipeline complete and tested; training runs in Colab.",
+    "links": [
+     "https://github.com/lyle-mlengineer/suraya"
+    ]
+   }
+  ],
+  "education": [
+   {
+    "credential": "BSc, Computer Security and Forensics (in progress)",
+    "institution": "JOOUST",
+    "dates": "2024 – 2028"
+   },
+   {
+    "credential": "Diploma, Mechatronics Engineering (Upper Second Class)",
+    "institution": "JKUAT, Juja, Kenya",
+    "dates": "2016 – 2019"
+   },
+   {
+    "credential": "Kenya Certificate of Secondary Education",
+    "institution": "Friends School Kamusinga",
+    "dates": "2012 – 2015"
+   }
+  ],
+  "certifications": "DeepLearning.AI, NVIDIA Deep Learning Institute, AWS and Google Cloud — 14 credentials (2021 – 2025)."
+ },
+ "ml_engineer": {
+  "headline": "MACHINE LEARNING ENGINEER | KENYAN-LANGUAGE SPEECH & VOICE AI",
+  "summary": "Machine Learning Engineer at SautiFlow Labs with four years of experience building Kenyan-language voice technology end to end — voice design, text-to-speech, voice cloning, speech-to-text and AI-agent podcast production. Owns the full model lifecycle from data and evaluation to deployment: cut Swahili and Sheng ASR error rate from 23.4% to 11.8%, designed and shipped 12 voice personas at 4.1/5 MOS, and raised TTS capacity to 42 concurrent voices per GPU. Builds the evaluation gates that keep regressions out of release.",
+  "competencies": [
+   {
+    "name": "Speech & Voice AI",
+    "items": "ASR and speech-to-text (Whisper, wav2vec 2.0, NeMo), voice design and persona direction (prosody, pronunciation lexicons, SSML), TTS and voice cloning (VITS, XTTS-v2, Fish Audio, Breeze), real-time synthesis and streaming voice services (WebSocket / gRPC), diarisation and VAD"
+   },
+   {
+    "name": "AI Podcast Production",
+    "items": "Multi-agent orchestration (research → outline → script → casting → render → master → show notes), retrieval with source-span provenance, human approval gates, loudness mastering and publish packs"
+   },
+   {
+    "name": "Vision & Generative Models",
+    "items": "Latent diffusion and flow matching, Stable Diffusion / SDXL, LoRA and DreamBooth, NVIDIA Flux, face detection and alignment, content provenance"
+   },
+   {
+    "name": "Modelling & Evaluation",
+    "items": "PyTorch training and distributed runs, LoRA / QLoRA fine-tuning, WER / CER / MOS evaluation, KID / FID, blind listening panels, experiment tracking (Weights & Biases, MLflow, Optuna)"
+   },
+   {
+    "name": "MLOps & Serving",
+    "items": "int8 / FP16 / NF4 quantisation, ONNX Runtime, TensorRT, Triton Inference Server, vLLM, KV caching, continuous batching, CI regression gates, Docker, Kubernetes"
+   }
+  ],
+  "tech": [
+   {
+    "name": "Languages",
+    "items": "Python, C++, JavaScript/TypeScript, SQL"
+   },
+   {
+    "name": "Speech & ML",
+    "items": "PyTorch 2.x, Hugging Face Transformers, PEFT, Accelerate, Diffusers, ESPnet, Coqui TTS, XTTS-v2, Fish Audio, Breeze, LangGraph, pyannote.audio, scikit-learn, Optuna"
+   },
+   {
+    "name": "Serving & Infra",
+    "items": "FastAPI, Triton Inference Server, ONNX Runtime, TensorRT, vLLM, gRPC / WebSocket streaming, Redis, Celery, Docker, Kubernetes"
+   },
+   {
+    "name": "Data & MLOps",
+    "items": "Apache Spark, Kafka, Airflow, dbt, DVC, Great Expectations, Weights & Biases, MLflow, PostgreSQL, Render"
+   }
+  ],
+  "jobs": [
+   {
+    "title": "Freelance AI Engineer",
+    "company": "Independent, Remote",
+    "dates": "2026 – Present",
+    "bullets": [
+     "Built Suraya, an audit-driven latent-diffusion pipeline for photoreal Kenyan faces: 889-image data audit, face detect and align, a compact 66M UNet on a frozen SD VAE, and KID-led evaluation.",
+     "Shipped Vocalis and EchoID with provider-agnostic voice and transcription adapters, credit ledgers and idempotent M-Pesa / Stripe settlement, evaluating provider output before release.",
+     "Wrote the evaluation and guardrail patterns clients keep using: offline quality gates, latency and cost budgets, secret redaction and human approval for sensitive actions."
+    ]
+   },
+   {
+    "title": "Machine Learning Engineer",
+    "company": "SautiFlow Labs, Nairobi",
+    "dates": "2024 – Present",
+    "bullets": [
+     "Cut Swahili and Sheng ASR word error rate from 23.4% to 11.8% by LoRA fine-tuning Whisper-large-v3 on 1,240 hours of in-house audio.",
+     "Shipped streaming speech synthesis for voice agents at 310 ms median / 780 ms p95 first-audio latency across Swahili, Sheng, Luo and Kikuyu, down from a 1.4 s batch baseline.",
+     "Compressed a 1.6 GB TTS checkpoint to 480 MB with int8 quantisation and KV caching: 42 concurrent voices per GPU, 3.1x throughput and 58% lower inference cost.",
+     "Designed and shipped 12 Kenyan-language voice personas across Swahili, Sheng, Luo and Kikuyu — persona bibles, pronunciation lexicons and MOS panels with native listeners — scoring 4.1/5.",
+     "Built the agentic podcast pipeline — research, scripting, casting, render, mastering and show-notes agents — with a source ledger and human approval gates before publish.",
+     "Built the evaluation harness — WER, CER, MOS and CI regression gates — which blocked 9 model regressions from release in two quarters."
+    ]
+   },
+   {
+    "title": "Data Engineer",
+    "company": "SautiFlow Labs, Nairobi",
+    "dates": "2023 – 2024",
+    "bullets": [
+     "Designed batch and streaming pipelines (Airflow, Kafka, Spark) processing 6 TB / 38,000 hours of raw audio a year into training-ready datasets.",
+     "Automated transcription alignment and diarisation pre-labelling, cutting human labelling from 11 to 3.5 minutes per hour of audio — a 68% saving adopted as the platform default.",
+     "Introduced DVC versioning with content hashing so every model release traces to an exact data snapshot; consolidated 14 schemas into a dbt warehouse, cutting compute spend 23%."
+    ]
+   },
+   {
+    "title": "Software Engineer",
+    "company": "SautiFlow Labs, Nairobi",
+    "dates": "2022 – 2023",
+    "bullets": [
+     "Shipped 5 production features for an IVR and WhatsApp voice assistant serving 40,000+ monthly users, with REST and WebSocket APIs in Django and Node.js at p95 latency under 140 ms.",
+     "Introduced Docker deploys and GitHub Actions CI/CD — release cadence monthly to weekly, lead time 3 weeks to 2 days — and took front-end test coverage from 0 to 71%."
+    ]
+   }
+  ],
+  "projects": [
+   {
+    "name": "Vocalis — Voice Design Studio",
+    "description": "Brief-to-voice studio: describe a voice, design and audition it, refine the brief, organize albums and synthesize narration with rate, volume and style controls. Provider-agnostic Breeze and Fish Audio adapters, a credit ledger, idempotent M-Pesa and Stripe settlement, and a FastAPI + Jinja2 monolith.",
+    "links": [
+     "https://github.com/lyle-mlengineer/vocalis",
+     "https://vocalis-rvcw.onrender.com"
+    ]
+   },
+   {
+    "name": "EchoID — Speaker-Aware Transcription Studio",
+    "description": "Upload → diarise → review → export. Speaker-labelled transcripts with timestamps, reusable speaker profiles, search and filters, and JSON, TXT or branded PDF exports. A pluggable transcription provider behind one JSON contract, credit billing with M-Pesa and Stripe, and a domain-driven FastAPI monolith.",
+    "links": [
+     "https://github.com/lyle-mlengineer/echoid",
+     "https://echoid.onrender.com"
+    ]
+   },
+   {
+    "name": "Suraya — Diffusion Model for Kenyan Faces",
+    "description": "Audit-driven latent diffusion model for photorealistic 256×256 Kenyan faces: a compact 66M-parameter UNet on a frozen SD VAE, face-detect/align preprocessing, a VAE quality gate and KID-led evaluation, with an SDXL LoRA track for comparison. Pipeline complete and tested; training runs in Colab.",
+    "links": [
+     "https://github.com/lyle-mlengineer/suraya"
+    ]
+   }
+  ],
+  "education": [
+   {
+    "credential": "BSc, Computer Security and Forensics (in progress)",
+    "institution": "JOOUST",
+    "dates": "2024 – 2028"
+   },
+   {
+    "credential": "Diploma, Mechatronics Engineering (Upper Second Class)",
+    "institution": "JKUAT, Juja, Kenya",
+    "dates": "2016 – 2019"
+   },
+   {
+    "credential": "Kenya Certificate of Secondary Education",
+    "institution": "Friends School Kamusinga",
+    "dates": "2012 – 2015"
+   }
+  ],
+  "certifications": "DeepLearning.AI, NVIDIA Deep Learning Institute, AWS and Google Cloud — 14 credentials (2021 – 2025)."
+ },
+ "ml_researcher": {
+  "headline": "MACHINE LEARNING RESEARCHER | SPEECH, GENERATIVE MODELS & EVALUATION",
+  "summary": "Machine Learning Researcher with four years of experience designing experiments, curating low-resource datasets and evaluating speech and generative models. Designed an audit-driven diffusion study for Kenyan faces — a compact 66M UNet against an SDXL LoRA baseline, with KID-led evaluation and a VAE quality gate — and built the 1,240-hour Swahili and Sheng corpus behind a Whisper-large-v3 fine-tune that cut WER from 23.4% to 11.8%. Established the team's evaluation harness and published 3 datasets and 2 fine-tuned models on Hugging Face. Extended that discipline to voice design and agentic podcast production: MOS panels with native listeners for 12 Kenyan-language personas, and scripts whose factual claims must trace to a retrieved source.",
+  "competencies": [
+   {
+    "name": "Research Areas",
+    "items": "Multilingual and low-resource ASR, speech synthesis and voice design, podcast production agents, streaming synthesis, speaker diarisation, latent diffusion and flow matching, evaluation methodology and efficient inference"
+   },
+   {
+    "name": "Experimental Method",
+    "items": "Controlled ablations against strong baselines, held-out and noisy out-of-domain test sets, WER / CER / MOS and KID / FID comparison, error analysis, reproducibility checklists and dataset documentation"
+   },
+   {
+    "name": "Modelling",
+    "items": "PyTorch, Hugging Face Transformers and Diffusers, LoRA / QLoRA and DreamBooth, Whisper, wav2vec 2.0, NVIDIA NeMo, VITS, XTTS-v2, Fish Audio, pyannote.audio, scikit-learn"
+   },
+   {
+    "name": "Compute & Tooling",
+    "items": "Distributed training (DDP / FSDP), mixed precision (FP16 / BF16), Colab T4 and cloud GPUs, ONNX Runtime, TensorRT, Triton, vLLM, Weights & Biases, MLflow, Optuna, DVC, technical writing"
+   }
+  ],
+  "tech": [
+   {
+    "name": "Languages",
+    "items": "Python, C++, SQL, JavaScript/TypeScript"
+   },
+   {
+    "name": "Frameworks",
+    "items": "PyTorch 2.x, Hugging Face Transformers, Diffusers, PEFT, Accelerate, ESPnet, NeMo, Coqui TTS, pyannote.audio, torchaudio, librosa, scikit-learn"
+   },
+   {
+    "name": "Training & Evaluation",
+    "items": "DDP / FSDP, AMP (FP16 / BF16), LoRA / QLoRA, DreamBooth, Optuna, Weights & Biases, MLflow, DVC, WER / CER / MOS, KID / FID, blind listening panels"
+   },
+   {
+    "name": "Serving & Data",
+    "items": "ONNX Runtime, TensorRT, Triton, vLLM, int8 / FP16 / NF4, KV caching, Spark, Kafka, Airflow, dbt, PostgreSQL, Docker, Kubernetes, AWS, GCP"
+   }
+  ],
+  "jobs": [
+   {
+    "title": "Independent Researcher & AI Engineer",
+    "company": "Freelance, Remote",
+    "dates": "2026 – Present",
+    "bullets": [
+     "Designed Suraya, a data-scale study of Kenyan face generation: an 889-image audit that set resolution, crop and augmentation policy, a compact 66M UNet on a frozen SD VAE, a paired SDXL LoRA track, and a VAE quality gate with KID-led comparison, so the comparison is the deliverable.",
+     "Built LabelSet, a dataset platform covering 11 speech task types — transcription, translation, diarisation, voice design and cloning, speech description, benchmarks and RL environments — with 16 kHz preprocessing, review and JSONL export.",
+     "Shipped Vocalis and EchoID on provider-agnostic voice and transcription adapters, so competing models can be compared under one contract, and published the resulting datasets and checkpoints."
+    ]
+   },
+   {
+    "title": "Machine Learning Engineer",
+    "company": "SautiFlow Labs, Nairobi",
+    "dates": "2024 – Present",
+    "bullets": [
+     "Cut Swahili and Sheng ASR word error rate from 23.4% to 11.8% by LoRA fine-tuning Whisper-large-v3 on 1,240 curated hours, comparing held-out and noisy field sets before promoting a checkpoint.",
+     "Designed the evaluation protocol the team now uses — WER, CER, MOS and CI regression gates across 5 ASR models — which blocked 9 model regressions from release in two quarters.",
+     "Benchmarked streaming speech synthesis to 310 ms median / 780 ms p95 first-audio latency across Swahili, Sheng, Luo and Kikuyu on a single T4, against a 1.4 s batch baseline.",
+     "Studied compression trade-offs for TTS: int8 quantisation and KV caching took a 1.6 GB checkpoint to 480 MB at 42 concurrent voices per GPU and 3.1x throughput, checked against the float baseline.",
+     "Designed the MOS protocol and native-listener panels behind 12 Kenyan-language voice personas, and defined the provenance checks the agentic podcast pipeline uses to block unsourced claims."
+    ]
+   },
+   {
+    "title": "Data Engineer",
+    "company": "SautiFlow Labs, Nairobi",
+    "dates": "2023 – 2024",
+    "bullets": [
+     "Built the corpus behind the research programme: Spark, Airflow and Kafka pipelines turning 6 TB / 38,000 hours of raw audio a year into training-ready ASR, TTS and voice-design datasets, versioned with DVC content hashing.",
+     "Ran the pre-labelling study behind a 68% labelling reduction — alignment and diarisation models took human effort from 11 to 3.5 minutes per audio hour — and shipped it as the platform default."
+    ]
+   },
+   {
+    "title": "Software Engineer",
+    "company": "SautiFlow Labs, Nairobi",
+    "dates": "2022 – 2023",
+    "bullets": [
+     "Trained the team's first model — a scikit-learn intent classifier that deflected 28% of support chats — and instrumented the telemetry later used to evaluate model and product changes.",
+     "Shipped 5 production features for an IVR and WhatsApp assistant serving 40,000+ monthly users, and introduced Docker deploys and GitHub Actions CI/CD, moving releases from monthly to weekly."
+    ]
+   }
+  ],
+  "projects": [
+   {
+    "name": "Suraya — Diffusion Model for Kenyan Faces",
+    "description": "Audit-driven latent diffusion model for photorealistic 256×256 Kenyan faces: a compact 66M-parameter UNet on a frozen SD VAE, face-detect/align preprocessing, a VAE quality gate and KID-led evaluation, with an SDXL LoRA track for comparison. Pipeline complete and tested; training runs in Colab.",
+    "links": [
+     "https://github.com/lyle-mlengineer/suraya"
+    ]
+   },
+   {
+    "name": "LabelSet — Audio Data Platform",
+    "description": "Audio-first sourcing and labelling platform: organizations, projects, tasks and a labeler marketplace across 11 speech task types, with background preprocessing into 60-second mono 16 kHz clips, review, KES billing and JSONL dataset export. FastAPI, PostgreSQL, SQLAlchemy and Jinja2.",
+    "links": [
+     "https://github.com/lyle-mlengineer/labelset",
+     "https://labelset.onrender.com"
+    ]
+   }
+  ],
+  "education": [
+   {
+    "credential": "BSc, Computer Security and Forensics (in progress)",
+    "institution": "JOOUST",
+    "dates": "2024 – 2028"
+   },
+   {
+    "credential": "Diploma, Mechatronics Engineering (Upper Second Class)",
+    "institution": "JKUAT, Juja, Kenya",
+    "dates": "2016 – 2019"
+   },
+   {
+    "credential": "Kenya Certificate of Secondary Education",
+    "institution": "Friends School Kamusinga",
+    "dates": "2012 – 2015"
+   }
+  ],
+  "certifications": "DeepLearning.AI, NVIDIA Deep Learning Institute, AWS and Google Cloud — 14 credentials (2021 – 2025)."
+ },
+ "data_engineer": {
+  "headline": "DATA ENGINEER | AUDIO & MULTIMODAL ML DATA",
+  "summary": "Data Engineer with four years of experience building the ingestion, alignment, labelling and versioning path that turns raw audio and images into training-ready datasets — including the consented voice and podcast corpora behind SautiFlow's Kenyan-language models. Designed LabelSet, an audio-first sourcing and labelling platform with 11 speech task types and KES billing; built pipelines processing 6 TB / 38,000 hours of raw audio a year; and cut manual labelling time 68%. Owns data quality, consent, retention and PII redaction, with the software background (APIs at 1.2M requests a day) to keep pipelines operable in production.",
+  "competencies": [
+   {
+    "name": "Pipeline Engineering",
+    "items": "Batch ETL / ELT, streaming and event-driven jobs, Spark tuning for audio shards, Parquet / Arrow data lakes, Delta Lake, Airflow and Kafka orchestration, dbt and DuckDB modelling"
+   },
+   {
+    "name": "Data Quality & Governance",
+    "items": "Great Expectations checks, DVC versioning with content hashing, dataset cards and lineage from raw file to training shard, speaker consent, retention and PII-redaction flows"
+   },
+   {
+    "name": "ML Data Support",
+    "items": "Transcription alignment, diarisation pre-labelling, forced alignment, human + AI collaborative annotation, voice-design reference sets and podcast corpora, synthetic data generation, dataset tuning for ASR, TTS and voice-design training"
+   },
+   {
+    "name": "Platform & Reliability",
+    "items": "PostgreSQL, S3-compatible object storage, Redis, Terraform, Docker, Kubernetes, FFmpeg pipelines, on-call observability: monthly restores replaced by daily automated checks"
+   }
+  ],
+  "tech": [
+   {
+    "name": "Languages",
+    "items": "Python, SQL, JavaScript/TypeScript, C++"
+   },
+   {
+    "name": "Processing",
+    "items": "Apache Spark, Kafka, Airflow, dbt, DuckDB, Polars / Pandas, Celery, FFmpeg"
+   },
+   {
+    "name": "Storage & Warehousing",
+    "items": "PostgreSQL, BigQuery, AWS S3, GCS, Parquet / Arrow, Delta Lake, Elasticsearch, Redis"
+   },
+   {
+    "name": "Quality & Versioning",
+    "items": "Great Expectations, DVC, data contracts, dataset cards and lineage"
+   },
+   {
+    "name": "Infrastructure",
+    "items": "Docker, Kubernetes, Terraform, GitHub Actions CI/CD, AWS, GCP, Render"
+   }
+  ],
+  "jobs": [
+   {
+    "title": "Freelance AI Engineer",
+    "company": "Independent, Remote",
+    "dates": "2026 – Present",
+    "bullets": [
+     "Built LabelSet's audio-first data platform: organizations, projects, tasks and a labeler marketplace, with background preprocessing into 60-second mono 16 kHz clips and JSONL dataset export.",
+     "Implemented KES billing for organizations and labelers, with provider-confirmed top-ups, atomic task settlement and signed payment webhooks.",
+     "Built SnapToSpot's fact-grounded pipeline: crawl → site profile → facts and conflicts → deterministic render, with a source span behind every number.",
+     "Built Suraya's dataset audit and preprocessing: an 889-image audit, face detect and align, 256 px crops, a VAE quality gate and reproducible dataset versioning."
+    ]
+   },
+   {
+    "title": "Machine Learning Engineer",
+    "company": "SautiFlow Labs, Nairobi",
+    "dates": "2024 – Present",
+    "bullets": [
+     "Own the speech model lifecycle end to end; the data foundation built in this role feeds all model training — 1,240 curated hours drove a Whisper ASR fine-tune that cut WER from 23.4% to 11.8%.",
+     "Built the audio collection, editing and annotation platform with AI-assisted pre-labelling, and published 3 open datasets to Hugging Face (18,000+ downloads).",
+     "Built the consented reference-audio and podcast corpora behind 12 voice personas and the agentic podcast pipeline, with provenance from raw recording to training or retrieval shard.",
+     "Run one evaluation harness across 5 ASR models, processing an hour of four-speaker audio in 4 minutes on a single GPU and 40,000 hours indexed for production tenants."
+    ]
+   },
+   {
+    "title": "Data Engineer",
+    "company": "SautiFlow Labs, Nairobi",
+    "dates": "2023 – 2024",
+    "bullets": [
+     "Designed batch and streaming pipelines with Apache Spark, Airflow and Kafka processing 6 TB / 38,000 hours of raw audio a year into training-ready datasets for ASR, TTS and voice-design models.",
+     "Automated transcription alignment and diarisation pre-labelling, cutting human labelling time from 11 to 3.5 minutes per hour of audio — a 68% saving adopted as the platform's default workflow.",
+     "Introduced dataset versioning with DVC and content hashing so every model release traces to an exact data snapshot, eliminating reproducibility disputes across the ML team.",
+     "Consolidated 14 scattered schemas into a single dbt-modelled warehouse, reducing pipeline failures 41% and monthly compute spend 23%."
+    ]
+   },
+   {
+    "title": "Software Engineer",
+    "company": "SautiFlow Labs, Nairobi",
+    "dates": "2022 – 2023",
+    "bullets": [
+     "Built and maintained REST and WebSocket APIs in Django and Node.js serving 1.2M requests a day at p95 latency under 140 ms, with PostgreSQL, Redis and Twilio voice/SMS integrations.",
+     "Introduced Docker deployments and a GitHub Actions CI/CD pipeline: release cadence moved from monthly to weekly and lead time dropped from 3 weeks to 2 days."
+    ]
+   }
+  ],
+  "projects": [
+   {
+    "name": "LabelSet — Audio Data Platform",
+    "description": "Audio-first sourcing and labelling platform: organizations, projects, tasks and a labeler marketplace across 11 speech task types, with background preprocessing into 60-second mono 16 kHz clips, review, KES billing and JSONL dataset export. FastAPI, PostgreSQL, SQLAlchemy and Jinja2.",
+    "links": [
+     "https://github.com/lyle-mlengineer/labelset",
+     "https://labelset.onrender.com"
+    ]
+   },
+   {
+    "name": "SautiFlow — Kenyan-Language Voice & Podcast Studio",
+    "description": "Voice platform for local Kenyan languages: voice design with persona bibles and pronunciation lexicons, text-to-speech, voice cloning from consented reference audio, speech-to-text with diarisation, and AI-agent podcast production — research, script, casting, render, master and show notes behind human approval gates. FastAPI studio, account and voice libraries, credit-pack checkout and reproducible renders.",
+    "links": [
+     "https://www.sautiflow.co.ke/"
+    ]
+   },
+   {
+    "name": "Suraya — Diffusion Model for Kenyan Faces",
+    "description": "Audit-driven latent diffusion model for photorealistic 256×256 Kenyan faces: a compact 66M-parameter UNet on a frozen SD VAE, face-detect/align preprocessing, a VAE quality gate and KID-led evaluation, with an SDXL LoRA track for comparison. Pipeline complete and tested; training runs in Colab.",
+    "links": [
+     "https://github.com/lyle-mlengineer/suraya"
+    ]
+   }
+  ],
+  "education": [
+   {
+    "credential": "BSc, Computer Security and Forensics (in progress)",
+    "institution": "JOOUST",
+    "dates": "2024 – 2028"
+   },
+   {
+    "credential": "Diploma, Mechatronics Engineering (Upper Second Class)",
+    "institution": "JKUAT, Juja, Kenya",
+    "dates": "2016 – 2019"
+   },
+   {
+    "credential": "Kenya Certificate of Secondary Education",
+    "institution": "Friends School Kamusinga",
+    "dates": "2012 – 2015"
+   }
+  ],
+  "certifications": "DeepLearning.AI, NVIDIA Deep Learning Institute, AWS and Google Cloud — 14 credentials (2021 – 2025)."
+ },
+ "software_engineer": {
+  "headline": "SOFTWARE ENGINEER | FULL-STACK & AI PRODUCTS",
+  "summary": "Software Engineer with four years of experience shipping voice-first and AI-native products end to end — requirement framing, UI/UX, backend APIs, deployment and iteration. Built IVR and WhatsApp assistants serving 40,000+ monthly users, REST and WebSocket APIs handling 1.2M requests a day at p95 latency under 140 ms, and Docker + GitHub Actions CI/CD that moved releases from monthly to weekly. Now builds multi-tenant FastAPI products with credit ledgers, M-Pesa / Stripe billing, LLM and agent features, and the voice design and AI-agent podcast studio used by SautiFlow's Kenyan-language creators.",
+  "competencies": [
+   {
+    "name": "Backend",
+    "items": "REST and WebSocket APIs, FastAPI / Django / Flask / Node.js, OAuth2 and PKCE, payment webhooks, idempotent settlement, USSD menus, Twilio voice and SMS, real-time streaming services"
+   },
+   {
+    "name": "Frontend & Product",
+    "items": "Server-rendered Jinja2 and React interfaces, UI/UX design, AI-assisted onboarding, responsive studios and dashboards, documentation that speeds up onboarding"
+   },
+   {
+    "name": "Platform & Reliability",
+    "items": "Docker, GitHub Actions CI/CD, Kubernetes, Render deployments, Postgres and Redis, logging, tracing and cost monitoring, CSP and rate-limiting defaults"
+   },
+   {
+    "name": "AI Integration",
+    "items": "Model services behind FastAPI, provider-agnostic voice and transcription adapters, credit ledgers, LLM and agent workflows, agentic podcast pipelines, retrieval, evaluation hooks and human approval"
+   }
+  ],
+  "tech": [
+   {
+    "name": "Languages",
+    "items": "Python, JavaScript/TypeScript, C++, SQL"
+   },
+   {
+    "name": "Frameworks",
+    "items": "FastAPI, Django, Flask, Node.js, React, Next.js, Jinja2"
+   },
+   {
+    "name": "Data & Messaging",
+    "items": "PostgreSQL, SQLite, Redis, Elasticsearch, Apache Kafka, Celery, Alembic"
+   },
+   {
+    "name": "DevOps & Cloud",
+    "items": "Docker, Kubernetes, GitHub Actions CI/CD, Render, AWS, GCP"
+   },
+   {
+    "name": "Other",
+    "items": "Twilio, M-Pesa Daraja, Stripe, WebSocket streaming, scikit-learn, Hugging Face, NVIDIA Flux"
+   }
+  ],
+  "jobs": [
+   {
+    "title": "Freelance AI Engineer",
+    "company": "Independent, Remote",
+    "dates": "2026 – Present",
+    "bullets": [
+     "Built coAgent Web and Docent: FastAPI + Jinja2 front doors with Postgres-backed waitlists, GitHub OAuth / PKCE, rate limits, CSP, honeypots and graceful database failure.",
+     "Built SnapToSpot: a multi-tenant FastAPI service with OAuth2, tenant-scoped sites, Alembic migrations and a background pipeline that turns a URL into a reviewed campaign kit.",
+     "Shipped Vocalis, EchoID and FaceForm: server-rendered studios, credit ledgers, M-Pesa and Stripe checkout, and provider adapters behind one typed contract.",
+     "Built PlusOne's product shell — studio, photo feed, albums, credits — and its rendering agent with content-addressed dedupe and partial-run recovery."
+    ]
+   },
+   {
+    "title": "Machine Learning Engineer (full-stack responsibilities)",
+    "company": "SautiFlow Labs, Nairobi",
+    "dates": "2024 – Present",
+    "bullets": [
+     "Designed and shipped the studio surfaces for voice design, TTS, cloning, speech-to-text and agentic podcast production — persona bibles, auditioning, casting sheets and approval gates; SautiFlow now serves 2,100 monthly creators at 61% week-four retention.",
+     "Deployed model services (FastAPI, Triton, Kubernetes) serving streaming speech at 310 ms median first-audio latency; instrumented logging and tracing to monitor token usage and detect model drift.",
+     "Built authentication and authorisation controls that blocked bot API misuse without adding friction for real users, and wrote the guardrail specs now used across model endpoints."
+    ]
+   },
+   {
+    "title": "Data Engineer",
+    "company": "SautiFlow Labs, Nairobi",
+    "dates": "2023 – 2024",
+    "bullets": [
+     "Built a fast, scalable synchronous and asynchronous backend for real-time and batch processing of user requests, plus the data studio for human + AI collaborative data collection and annotation.",
+     "Designed pipelines (Airflow, Kafka, Spark) processing 6 TB of audio a year and wrote the documentation that made onboarding new hires easier."
+    ]
+   },
+   {
+    "title": "Software Engineer",
+    "company": "SautiFlow Labs, Nairobi",
+    "dates": "2022 – 2023",
+    "bullets": [
+     "Shipped 5 production features for an IVR and WhatsApp voice assistant serving 40,000+ monthly users, from requirement framing with non-technical clients through design, build and iteration.",
+     "Built REST and WebSocket APIs in Django and Node.js handling 1.2M requests a day at p95 latency under 140 ms, and introduced Docker deployments with GitHub Actions CI/CD.",
+     "Took front-end test coverage from 0 to 71%, reported production bugs fell 34%, and trained the team's first model — a scikit-learn intent classifier that deflected 28% of support chats."
+    ]
+   }
+  ],
+  "projects": [
+   {
+    "name": "SautiFlow — Kenyan-Language Voice & Podcast Studio",
+    "description": "Voice platform for local Kenyan languages: voice design with persona bibles and pronunciation lexicons, text-to-speech, voice cloning from consented reference audio, speech-to-text with diarisation, and AI-agent podcast production — research, script, casting, render, master and show notes behind human approval gates. FastAPI studio, account and voice libraries, credit-pack checkout and reproducible renders.",
+    "links": [
+     "https://www.sautiflow.co.ke/"
+    ]
+   },
+   {
+    "name": "Docent — AI Product Guide",
+    "description": "Pre-launch AI product guide: explore a site, build an evidence-backed model of its workflows, narrate a walkthrough and guide users live. Shipped the public front door — FastAPI, PostgreSQL and Jinja2 with a durable waitlist, contact inbox, protected admin, CSV export, rate limits and a strict CSP.",
+    "links": [
+     "https://docent-9a62.onrender.com/",
+     "https://github.com/lyle-mlengineer/docent"
+    ]
+   },
+   {
+    "name": "PlusOne — Personal AI Photography",
+    "description": "Builds a photo story from an event brief, the people in it and a few reference photos, keeping identities consistent across every shot. Studio, photo feed, albums and a credit ledger, backed by an agent pipeline with content-addressed dedupe, budget guards and partial-run recovery.",
+    "links": [
+     "https://github.com/lyle-mlengineer/pigamagic-agent",
+     "https://pigamagic.onrender.com"
+    ]
+   }
+  ],
+  "education": [
+   {
+    "credential": "BSc, Computer Security and Forensics (in progress)",
+    "institution": "JOOUST",
+    "dates": "2024 – 2028"
+   },
+   {
+    "credential": "Diploma, Mechatronics Engineering (Upper Second Class)",
+    "institution": "JKUAT, Juja, Kenya",
+    "dates": "2016 – 2019"
+   },
+   {
+    "credential": "Kenya Certificate of Secondary Education",
+    "institution": "Friends School Kamusinga",
+    "dates": "2012 – 2015"
+   }
+  ],
+  "certifications": "DeepLearning.AI, NVIDIA Deep Learning Institute, AWS and Google Cloud — 14 credentials (2021 – 2025)."
+ },
+ "ai_ml_engineer": {
+  "headline": "AI/ML ENGINEER | LLM AGENTS, RAG & PRODUCTION PLATFORMS",
+  "summary": "AI/ML Engineer with four years of experience shipping LLM agents and AI products end to end. Built coAgent, a private coding agent with a five-phase tool loop, repository retrieval and test-driven verification, published on PyPI; SnapToSpot, a multi-tenant pipeline that grounds every generated claim in a retrieved source; and PlusOne, an agent pipeline with budget guards and partial-run recovery. At SautiFlow Labs built the agentic podcast pipeline and the voice design, TTS, cloning and speech-to-text services behind local Kenyan languages. Strong Python, FastAPI and PostgreSQL, with hands-on RAG, evaluation and deployment on AWS, GCP and Render.",
+  "competencies": [
+   {
+    "name": "LLM Agents & Orchestration",
+    "items": "Planning and verification loops, tool and function calling, structured outputs, RAG with BM25 and vector search, agent state machines, human approval and guardrails; podcast production agents (research → script → casting → render → master → show notes)"
+   },
+   {
+    "name": "Python Backend & APIs",
+    "items": "FastAPI, Django and Flask services, REST and WebSocket APIs, OAuth2 / JWT and Pydantic contracts, SQLAlchemy and Alembic, multi-tenant isolation, background jobs, idempotent webhooks and payment settlement"
+   },
+   {
+    "name": "Evaluation & Experimentation",
+    "items": "Offline and online evaluation, task-success and regression suites, WER / CER / MOS and KID / FID, latency and cost budgets, prompt and model comparisons, CI quality gates and experiment tracking"
+   },
+   {
+    "name": "Production & Cloud",
+    "items": "Docker, Kubernetes, GitHub Actions, Render, AWS and GCP, PostgreSQL, Redis and Celery, observability for token usage and drift, rate limits, CSP, caching and graceful degradation"
+   }
+  ],
+  "tech": [
+   {
+    "name": "Languages",
+    "items": "Python, TypeScript/JavaScript, SQL, C++"
+   },
+   {
+    "name": "LLM & Agents",
+    "items": "OpenAI-compatible APIs, Qwen2.5-Coder, Hugging Face Transformers, LangChain / LangGraph / LlamaIndex (working knowledge), tool calling, RAG, pgvector, BM25"
+   },
+   {
+    "name": "Backend & Data",
+    "items": "FastAPI, Django, Flask, Pydantic, SQLAlchemy, Alembic, PostgreSQL, Redis, Celery, Elasticsearch"
+   },
+   {
+    "name": "MLOps & Cloud",
+    "items": "PyTorch, PEFT / LoRA, bitsandbytes NF4, ONNX Runtime, TensorRT, Triton, vLLM, MLflow, Weights & Biases, Docker, Kubernetes, AWS, GCP"
+   }
+  ],
+  "jobs": [
+   {
+    "title": "Freelance AI Engineer",
+    "company": "Independent, Remote",
+    "dates": "2026 – Present",
+    "bullets": [
+     "Built coAgent, a private coding agent for Colab's free T4: a survey → plan → act → verify → report loop, Qwen2.5-Coder-7B at NF4, tree-sitter and BM25 retrieval, Ruff and pytest verification, and a git checkpoint per verified step; published 0.2.1 to PyPI.",
+     "Built SnapToSpot, a multi-tenant FastAPI service (OAuth2, Alembic, PostgreSQL/pgvector) that turns a website into a campaign kit, rendering only facts that trace to an accepted source.",
+     "Built PlusOne's agent pipeline: typed event stream, content-addressed photo store, budget-aware orchestration and resumable runs that return completed work with refunds instead of losing it.",
+     "Shipped Vocalis, EchoID and FaceForm with provider-agnostic model adapters, credit ledgers, idempotent M-Pesa and Stripe settlement, and evaluation of provider output before release."
+    ]
+   },
+   {
+    "title": "Machine Learning Engineer",
+    "company": "SautiFlow Labs, Nairobi",
+    "dates": "2024 – Present",
+    "bullets": [
+     "Cut Swahili and Sheng ASR word error rate from 23.4% to 11.8% by LoRA fine-tuning Whisper-large-v3 on 1,240 curated hours, comparing runs on held-out and noisy field sets before promotion.",
+     "Built the evaluation harness — WER, CER, MOS and CI regression gates — which blocked 9 model regressions from release in two quarters and set the experiment-tracking standard across 60+ runs a month.",
+     "Shipped streaming speech synthesis at 310 ms median / 780 ms p95 first-audio latency across Swahili, Sheng, Luo and Kikuyu, deploying model services on FastAPI, Triton and Kubernetes.",
+     "Compressed a 1.6 GB TTS checkpoint to 480 MB with int8 quantisation and KV caching: 42 concurrent voices per GPU, 3.1x throughput and 58% lower inference cost.",
+     "Built the agentic podcast pipeline — research, script, casting, render, mastering and show-notes agents — with source-span provenance and human approval gates, alongside 12 Kenyan-language voice personas and cloning from 3 – 5 minutes of consented audio."
+    ]
+   },
+   {
+    "title": "Data Engineer",
+    "company": "SautiFlow Labs, Nairobi",
+    "dates": "2023 – 2024",
+    "bullets": [
+     "Designed batch and streaming pipelines (Airflow, Kafka, Spark) processing 6 TB / 38,000 hours of raw audio a year into training-ready datasets.",
+     "Introduced DVC versioning with content hashing so every model release traces to an exact data snapshot; consolidated 14 schemas into a dbt warehouse, cutting compute spend 23%."
+    ]
+   },
+   {
+    "title": "Software Engineer",
+    "company": "SautiFlow Labs, Nairobi",
+    "dates": "2022 – 2023",
+    "bullets": [
+     "Built REST and WebSocket APIs in Django and Node.js handling 1.2M requests a day at p95 latency under 140 ms, and introduced Docker deploys with GitHub Actions CI/CD.",
+     "Took front-end test coverage from 0 to 71% and cut reported production bugs 34% by adding regression tests around the payment and voice flows."
+    ]
+   }
+  ],
+  "projects": [
+   {
+    "name": "coAgent — Private Coding Agent for Colab",
+    "description": "Python coding agent for Google Colab's free T4: Qwen2.5-Coder-7B runs locally at NF4, plans inside the repository, edits with a tree-sitter map and BM25 retrieval, verifies with Ruff and pytest, and commits every checkpoint to an isolated git branch. Published on PyPI as co-agent-coder 0.2.1 — no API keys or per-token cost.",
+    "links": [
+     "https://github.com/lyle-mlengineer/coagent",
+     "https://pypi.org/project/co-agent-coder/"
+    ]
+   },
+   {
+    "name": "SnapToSpot — Website-to-Campaign Pipeline",
+    "description": "Turns a website into a five-platform campaign kit — stills, video, poster and copy deck — built only from facts the site can support. The model writes the words and structure, a deterministic renderer sets the type, and every number traces to a source span. FastAPI, PostgreSQL/pgvector, Alembic and OAuth2; in active development.",
+    "links": [
+     "https://github.com/lyle-mlengineer/Snap2Spot"
+    ]
+   },
+   {
+    "name": "PlusOne — Personal AI Photography",
+    "description": "Builds a photo story from an event brief, the people in it and a few reference photos, keeping identities consistent across every shot. Studio, photo feed, albums and a credit ledger, backed by an agent pipeline with content-addressed dedupe, budget guards and partial-run recovery.",
+    "links": [
+     "https://github.com/lyle-mlengineer/pigamagic-agent",
+     "https://pigamagic.onrender.com"
+    ]
+   }
+  ],
+  "education": [
+   {
+    "credential": "BSc, Computer Security and Forensics (in progress)",
+    "institution": "JOOUST",
+    "dates": "2024 – 2028"
+   },
+   {
+    "credential": "Diploma, Mechatronics Engineering (Upper Second Class)",
+    "institution": "JKUAT, Juja, Kenya",
+    "dates": "2016 – 2019"
+   },
+   {
+    "credential": "Kenya Certificate of Secondary Education",
+    "institution": "Friends School Kamusinga",
+    "dates": "2012 – 2015"
+   }
+  ],
+  "certifications": "DeepLearning.AI, NVIDIA Deep Learning Institute, AWS and Google Cloud — 14 credentials (2021 – 2025)."
+ }
+}

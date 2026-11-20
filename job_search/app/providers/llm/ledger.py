@@ -36,9 +36,15 @@ __all__ = [
 class LedgerLLMProvider(LLMProvider):
     def __init__(self, inner: LLMProvider, session_factory) -> None:
         self.inner = inner
-        self.name = inner.name
-        self.models = inner.models
         self._session_factory = session_factory
+
+    @property
+    def name(self) -> str:
+        return self.inner.name
+
+    @property
+    def models(self) -> dict[str, str]:
+        return self.inner.models
 
     def model_for(self, tier: str) -> str:
         return self.inner.model_for(tier)
@@ -75,7 +81,7 @@ class LedgerLLMProvider(LLMProvider):
             job_id=context.job_id,
             run_id=context.run_id,
             skill=context.skill,
-            provider=self.name,
+            provider=self.inner.name,
             model=response.model,
             tokens_in=response.tokens_in,
             tokens_out=response.tokens_out,

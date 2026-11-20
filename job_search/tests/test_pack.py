@@ -79,12 +79,18 @@ def test_full_pack_creates_cover_email_and_interview_artifacts(client, settings)
             "work_history",
             "proud_project",
             "technical_interview",
+            "system_design",
+            "low_level_design",
+            "coding",
             "behavioral_interview",
         } <= set(current)
         assert current["cover_letter_pdf"].version == current["cover_letter_docx"].version == 1
         assert current["email"].meta_json["payload"]["subject"]
         assert "Acme Speech" in current["cover_letter_pdf"].meta_json["letter"]["greeting"]
         assert current["technical_interview"].meta_json["payload"]["questions"]
+        assert current["system_design"].meta_json["payload"]["questions"]
+        assert current["low_level_design"].meta_json["payload"]["questions"]
+        assert current["coding"].meta_json["payload"]["problems"]
         cover_id = current["cover_letter_pdf"].id
         email_id = current["email"].id
 
@@ -95,6 +101,26 @@ def test_full_pack_creates_cover_email_and_interview_artifacts(client, settings)
     assert f"/api/artifacts/{cover_id}/preview" in page.text
     assert "Copy body" in page.text
     assert "Interview pack" in page.text
+    assert "System design" in page.text
+    assert "Low-level design" in page.text
+    assert "Coding interview" in page.text
+    assert "Requirements" in page.text
+    assert "Core entities" in page.text
+    assert "Data flow" in page.text
+    assert "Deep dives" in page.text
+    assert "Class design" in page.text
+    assert "Implementation" in page.text
+    assert "Extensibility" in page.text
+    assert "Questions the interviewer may ask" in page.text
+    assert "Questions to ask the interviewer" in page.text
+    assert "Obvious solution" in page.text
+    assert "Optimised solution" in page.text
+    assert "Runtime:" in page.text
+    assert "Storage:" in page.text
+    assert "Diagram" in page.text
+    assert page.text.count('<details class="design-section">') >= 6
+    assert '<summary class="design-section__title">Requirements</summary>' in page.text
+    assert 'class="prose-code"' in page.text
 
     assert client.get(f"/api/artifacts/{cover_id}/download").status_code == 200
     assert client.get(f"/api/artifacts/{email_id}/download").status_code == 200
@@ -129,3 +155,37 @@ def test_cover_letter_regenerates_independently(client, settings):
         ).all()
         assert [row.version for row in rows] == [1, 2]
         assert rows[0].is_current is False and rows[1].is_current is True
+
+
+def test_overlong_cover_letter_closing_is_clipped_not_failed(client, settings):
+    """Regression: the model's closing can exceed the schema cap by a sentence."""
+    import json
+
+    login(client)
+    long_closing = (
+        "I would welcome the chance to talk through how my evaluation and speech work could help "
+        "your team ship better models across every language and every release, and I am happy to "
+        "walk through the trade-offs in detail."
+    )
+    assert len(long_closing) > 120
+    client.app.state.llm = FakeLLMProvider(
+        {**FAKE_RESPONSES, "cover_letter": json.dumps({**FAKE_COVER, "closing": long_closing})}
+    )
+
+    response = client.post("/api/jobs", json={"source_text": TEXT}, headers=headers(client))
+    assert response.status_code == 202, response.text
+    run = client.get(response.json()["poll_url"]).json()
+    assert run["status"] == "succeeded"
+    cover = next(step for step in run["steps"] if step["skill"] == "cover_letter")
+    assert cover["status"] == "succeeded"
+
+    with get_session_factory(settings)() as db:
+        artifact = db.scalar(
+            select(Artifact).where(
+                Artifact.job_id == response.json()["job_id"],
+                Artifact.kind == "cover_letter_pdf",
+                Artifact.is_current.is_(True),
+            )
+        )
+        assert artifact is not None
+        assert len(artifact.meta_json["letter"]["closing"]) <= 120

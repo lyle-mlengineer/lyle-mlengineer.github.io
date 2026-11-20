@@ -15,6 +15,7 @@ from app.providers.llm.base import (
 )
 from app.providers.llm.cache import CachingLLMProvider
 from app.providers.llm.fake import FakeLLMProvider
+from app.providers.llm.fallback import FallbackLLMProvider
 from app.providers.llm.groq import GroqProvider
 from app.providers.llm.nvidia import NvidiaProvider
 from app.providers.llm.pricing import estimate_cost
@@ -71,6 +72,37 @@ def test_complete_json_accepts_fenced_output():
     assert payload["name"] == "Skipper"
     assert len(stub.calls) == 1
     assert "Schema:" in stub.calls[0][-1].content
+
+
+class TruncatedStub(LLMProvider):
+    name = "stub"
+    models = {"large": "stub-large", "small": "stub-small"}
+
+    def __init__(self, texts: list[str]) -> None:
+        self._texts = list(texts)
+        self.budgets: list[int] = []
+
+    def complete(self, messages, **kwargs) -> LLMResponse:
+        self.budgets.append(int(kwargs.get("max_tokens") or 0))
+        text = self._texts.pop(0) if self._texts else ""
+        return LLMResponse(
+            text=text,
+            model=kwargs.get("model") or "stub-large",
+            tokens_in=10,
+            tokens_out=5,
+            finish_reason="length" if len(self._texts) else "stop",
+        )
+
+    def health(self) -> bool:
+        return True
+
+
+def test_complete_json_grows_the_budget_when_a_completion_was_cut_off():
+    stub = TruncatedStub(['{"name": "Skip', '{"name": "Skipper"}'])
+    payload, _ = stub.complete_json(MESSAGES, SCHEMA, max_tokens=4096)
+
+    assert payload["name"] == "Skipper"
+    assert stub.budgets == [4096, 6144]
 
 
 def test_complete_json_repairs_once_and_names_the_errors():
@@ -147,6 +179,44 @@ def test_groq_sends_the_expected_payload_and_reads_usage():
     assert response.tokens_in == 120
     assert response.tokens_out == 30
     assert response.finish_reason == "stop"
+
+
+def test_groq_retries_a_truncated_json_answer_with_a_larger_budget():
+    seen: list[dict] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(json.loads(request.content))
+        if len(seen) == 1:
+            return httpx.Response(
+                400,
+                json={
+                    "error": {
+                        "message": "Failed to generate JSON. See failed_generation.",
+                        "type": "invalid_request_error",
+                        "code": "json_validate_failed",
+                    }
+                },
+            )
+        return _groq_response()
+
+    response = _groq(handler).complete(MESSAGES, response_format="json", max_tokens=6_000)
+
+    assert response.text.startswith("{")
+    assert len(seen) == 2
+    assert seen[1]["max_completion_tokens"] > seen[0]["max_completion_tokens"]
+    assert "closing brace" in seen[1]["messages"][-1]["content"]
+
+
+def test_groq_marks_an_exhausted_json_retry_as_retryable():
+    provider = _groq(
+        lambda request: httpx.Response(400, text='{"code": "json_validate_failed"}'),
+        max_retries=1,
+    )
+    with pytest.raises(LLMProviderError) as excinfo:
+        provider.complete(MESSAGES, response_format="json", max_tokens=6_000)
+
+    assert excinfo.value.retryable is True
+    assert "json_validate_failed" in str(excinfo.value)
 
 
 def test_groq_honours_retry_after_on_429():
@@ -267,10 +337,10 @@ def test_llm_cache_key_includes_temperature(client, settings):
 
     assert len(stub.calls) == 2
 
-# ---------------------------------------------------------------- nvidia deepseek
+# ---------------------------------------------------------------- nvidia models
 
 
-def _nvidia_response(content: str = '{"name": "Skipper"}', model: str = "deepseek-ai/deepseek-v4-pro"):
+def _nvidia_response(content: str = '{"name": "Skipper"}', model: str = "moonshotai/kimi-k3.1-pro"):
     return httpx.Response(
         200,
         json={
@@ -295,7 +365,7 @@ def _nvidia(handler, sleeps=None, **kwargs) -> NvidiaProvider:
     )
 
 
-def test_nvidia_sends_deepseek_payload_with_thinking_off():
+def test_nvidia_sends_the_kimi_payload_with_thinking_off():
     seen: list[httpx.Request] = []
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -308,14 +378,14 @@ def test_nvidia_sends_deepseek_payload_with_thinking_off():
     assert seen[0].url.host == "integrate.api.nvidia.com"
     assert seen[0].url.path == "/v1/chat/completions"
     assert seen[0].headers["authorization"] == "Bearer test-nvidia-key"
-    assert payload["model"] == "deepseek-ai/deepseek-v4-pro"
+    assert payload["model"] == "moonshotai/kimi-k3.1-pro"
     assert payload["max_tokens"] == 4096
     assert "max_completion_tokens" not in payload
     assert payload["reasoning_effort"] == "none"
     assert payload["response_format"] == {"type": "json_object"}
     assert response.tokens_in == 400
     assert response.tokens_out == 120
-    assert response.model == "deepseek-ai/deepseek-v4-pro"
+    assert response.model == "moonshotai/kimi-k3.1-pro"
 
 
 def test_nvidia_maps_reasoning_effort_onto_deepseek_modes():
@@ -362,7 +432,7 @@ def test_nvidia_requires_a_key():
         NvidiaProvider("")
 
 
-def test_registry_builds_nvidia_with_its_own_deepseek_models(settings):
+def test_registry_builds_nvidia_with_the_current_free_models(settings):
     settings.llm_provider = "nvidia"
     settings.nvidia_api_key = "nvidia-key"
     settings.llm_model_large = ""
@@ -370,8 +440,8 @@ def test_registry_builds_nvidia_with_its_own_deepseek_models(settings):
     provider = build_llm_provider(settings)
 
     assert provider.name == "nvidia"
-    assert provider.model_for("large") == "deepseek-ai/deepseek-v4-pro"
-    assert provider.model_for("small") == "deepseek-ai/deepseek-v4-flash"
+    assert provider.model_for("large") == "moonshotai/kimi-k3.1-pro"
+    assert provider.model_for("small") == "nvidia/nemotron-3.5-lightning-30b-a3b"
 
 
 def test_registry_requires_a_key_for_nvidia(settings):
@@ -391,12 +461,210 @@ def test_resolved_models_follow_the_provider_and_allow_overrides(settings):
     }
 
     settings.llm_provider = "nvidia"
-    assert settings.resolved_models()["small"] == "deepseek-ai/deepseek-v4-flash"
+    assert settings.resolved_models()["small"] == "nvidia/nemotron-3.5-lightning-30b-a3b"
 
-    settings.llm_model_large = "deepseek-ai/deepseek-v4-flash-0731"
-    assert settings.resolved_models()["large"] == "deepseek-ai/deepseek-v4-flash-0731"
+    settings.llm_model_large = "deepseek-ai/deepseek-v4.1-flash"
+    assert settings.resolved_models()["large"] == "deepseek-ai/deepseek-v4.1-flash"
 
 
 def test_nvidia_pricing_is_listed_for_the_ui():
     assert estimate_cost("deepseek-ai/deepseek-v4-flash", 1_000_000, 0) == 0.14
     assert estimate_cost("deepseek-ai/deepseek-v4-pro", 0, 1_000_000) == 3.96
+
+
+# ---------------------------------------------------------------- oversized strings
+
+
+def test_complete_json_clamps_an_overlong_string_instead_of_failing():
+    schema = {
+        "type": "object",
+        "required": ["closing"],
+        "properties": {"closing": {"type": "string", "max_len": 120}},
+    }
+    stub = StubLLM([json.dumps({"closing": "I look forward to discussing how my work maps to your team. " * 8})])
+    payload, _ = stub.complete_json(MESSAGES, schema)
+
+    assert len(payload["closing"]) <= 120
+    assert not payload["closing"].endswith(" ")
+    assert len(stub.calls) == 1
+
+
+# ---------------------------------------------------------------- fallback chain
+
+
+class FailingLLM(LLMProvider):
+    name = "primary"
+    models = {"large": "primary-large", "small": "primary-small"}
+
+    def __init__(self, status: int = 429, *, retryable: bool = True) -> None:
+        self.status = status
+        self.retryable = retryable
+        self.calls = 0
+
+    def complete(self, messages, **kwargs) -> LLMResponse:
+        self.calls += 1
+        raise LLMProviderError("rate limited", status=self.status, retryable=self.retryable)
+
+    def health(self) -> bool:
+        return False
+
+
+class RecordingLLM(LLMProvider):
+    name = "secondary"
+    models = {"large": "secondary-large", "small": "secondary-small"}
+
+    def __init__(self) -> None:
+        self.models_seen: list[str | None] = []
+
+    def complete(self, messages, **kwargs) -> LLMResponse:
+        self.models_seen.append(kwargs.get("model"))
+        return LLMResponse(text='{"name": "Skipper"}', model=kwargs.get("model") or "secondary-large")
+
+    def health(self) -> bool:
+        return True
+
+
+def test_fallback_switches_to_the_next_provider_and_stays_there():
+    primary = FailingLLM()
+    secondary = RecordingLLM()
+    chain = FallbackLLMProvider([primary, secondary])
+
+    first, _ = chain.complete_json(MESSAGES, SCHEMA)
+    second, _ = chain.complete_json(MESSAGES, SCHEMA)
+
+    assert first == second == {"name": "Skipper"}
+    assert primary.calls == 1
+    assert chain.name == "secondary"
+    assert chain.switches == 1
+
+
+def test_fallback_translates_the_model_tier_for_the_next_provider():
+    chain = FallbackLLMProvider([FailingLLM(), RecordingLLM()])
+    chain.complete(MESSAGES, model="primary-large")
+    assert chain.providers[1].models_seen == ["secondary-large"]
+
+
+def test_fallback_does_not_move_on_an_auth_error():
+    chain = FallbackLLMProvider([FailingLLM(status=401, retryable=False), RecordingLLM()])
+    with pytest.raises(LLMProviderError):
+        chain.complete(MESSAGES)
+
+
+def test_registry_chains_the_other_keyed_provider_in_auto_mode(settings):
+    settings.llm_provider = "groq"
+    settings.groq_api_key = "groq-key"
+    settings.nvidia_api_key = "nvidia-key"
+    settings.llm_fallbacks = "auto"
+
+    provider = build_llm_provider(settings)
+
+    assert isinstance(provider, FallbackLLMProvider)
+    assert [inner.name for inner in provider.providers] == ["groq", "nvidia"]
+
+
+def test_registry_never_chains_network_providers_around_fake(settings):
+    settings.llm_provider = "fake"
+    settings.groq_api_key = "groq-key"
+    settings.nvidia_api_key = "nvidia-key"
+    settings.llm_fallbacks = "auto"
+
+    provider = build_llm_provider(settings)
+
+    assert provider.name == "fake"
+    assert not isinstance(provider, FallbackLLMProvider)
+
+
+def test_nvidia_swaps_a_retired_model_for_the_next_free_endpoint():
+    import json
+
+    seen: list[dict] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        payload = json.loads(request.content)
+        seen.append(payload)
+        if payload["model"] == "deepseek-ai/deepseek-v4-flash":
+            return httpx.Response(
+                410,
+                json={
+                    "title": "Gone",
+                    "status": 410,
+                    "detail": "The model 'deepseek-ai/deepseek-v4-flash' has reached its end of life.",
+                },
+            )
+        return _nvidia_response(model=payload["model"])
+
+    provider = _nvidia(
+        handler,
+        models={"large": "moonshotai/kimi-k3.1-pro", "small": "deepseek-ai/deepseek-v4-flash"},
+        model_fallbacks=(
+            "nvidia/nemotron-3.5-lightning-30b-a3b",
+            "moonshotai/kimi-k3.1-pro",
+        ),
+    )
+
+    response = provider.complete(MESSAGES, model="deepseek-ai/deepseek-v4-flash")
+
+    assert [payload["model"] for payload in seen] == [
+        "deepseek-ai/deepseek-v4-flash",
+        "nvidia/nemotron-3.5-lightning-30b-a3b",
+    ]
+    assert response.model == "nvidia/nemotron-3.5-lightning-30b-a3b"
+    assert provider.model_for("small") == "nvidia/nemotron-3.5-lightning-30b-a3b"
+
+    # The dead id is remembered: later steps skip straight to the replacement.
+    provider.complete(MESSAGES, model="deepseek-ai/deepseek-v4-flash")
+    assert seen[-1]["model"] == "nvidia/nemotron-3.5-lightning-30b-a3b"
+
+
+def test_nvidia_treats_404_as_a_retired_model_too():
+    import json
+
+    seen: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        model = json.loads(request.content)["model"]
+        seen.append(model)
+        if model == "gone-model":
+            return httpx.Response(404, text="model not found")
+        return _nvidia_response(model=model)
+
+    provider = _nvidia(
+        handler,
+        models={"large": "gone-model", "small": "gone-model"},
+        model_fallbacks=("moonshotai/kimi-k3.1-pro",),
+    )
+    provider.complete(MESSAGES, model="gone-model")
+
+    assert seen == ["gone-model", "moonshotai/kimi-k3.1-pro"]
+    assert provider.model_for("large") == "moonshotai/kimi-k3.1-pro"
+
+
+def test_nvidia_explains_an_exhausted_fallback_chain():
+    provider = _nvidia(
+        lambda request: httpx.Response(410, text="gone"),
+        model_fallbacks=(),
+    )
+    with pytest.raises(LLMProviderError) as excinfo:
+        provider.complete(MESSAGES)
+    assert "retired" in str(excinfo.value)
+    assert "build.nvidia.com" in str(excinfo.value)
+
+
+def test_nvidia_drops_reasoning_effort_when_the_endpoint_rejects_it():
+    import json
+
+    seen: list[dict] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        payload = json.loads(request.content)
+        seen.append(payload)
+        if len(seen) == 1:
+            return httpx.Response(400, text="unsupported parameter: reasoning_effort")
+        return _nvidia_response()
+
+    provider = _nvidia(handler)
+    provider.complete(MESSAGES, response_format="json")
+
+    assert seen[0]["reasoning_effort"] == "none"
+    assert "reasoning_effort" not in seen[1]
+    assert "response_format" in seen[1]

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import shutil
 from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Request
@@ -189,6 +190,103 @@ def regenerate(
         },
         status_code=202,
     )
+
+
+@router.post("/api/jobs/{job_id}/backfill", status_code=202)
+@router.post("/api/jobs/{job_id}/fill-missing", status_code=202, include_in_schema=False)
+def fill_missing(
+    job_id: int,
+    request: Request,
+    background: BackgroundTasks,
+    db: Session = Depends(get_db),
+) -> JSONResponse:
+    """Generate every artifact that this job does not have yet.
+
+    Older jobs were prepared before later pipeline steps existed, so their pack
+    is complete in their own run but missing the newer artifacts. This queues
+    just those missing skills in one run.
+    """
+    session_data = require_api_user(request, db)
+    require_csrf(request, session_data)
+    job = db.get(Job, job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="not_found")
+    if not job.extract_json:
+        return _error(409, "conflict", "Finish the first run before filling the pack.")
+
+    current_kinds = set(
+        db.scalars(
+            select(Artifact.kind).where(
+                Artifact.job_id == job.id, Artifact.is_current.is_(True)
+            )
+        )
+    )
+    missing: list[str] = []
+    for name in PIPELINE_ORDER:
+        if name == "job_extraction":
+            continue
+        kind = get_skill(name).output_kind
+        if kind == "internal":
+            continue
+        if not any(kind == seen or seen.startswith(f"{kind}_") for seen in current_kinds):
+            missing.append(name)
+    if not missing:
+        return _error(409, "conflict", "This job already has every artifact.", job_id=job.id)
+
+    try:
+        run = create_run(db, job, skills=tuple(missing), kind="regenerate")
+    except RunError as exc:
+        return _error(409, "conflict", str(exc), job_id=job.id)
+    db.commit()
+    _schedule(request, background, run.id)
+    return JSONResponse(
+        {
+            "job_id": job.id,
+            "run_id": run.id,
+            "poll_url": f"/api/runs/{run.id}",
+            "skills": missing,
+        },
+        status_code=202,
+    )
+
+
+@router.delete("/api/jobs/{job_id}")
+def delete_job(
+    job_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+) -> JSONResponse:
+    """Delete a job, its runs and artifacts, and the files they own."""
+    session_data = require_api_user(request, db)
+    require_csrf(request, session_data)
+    job = db.get(Job, job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="not_found")
+
+    in_flight = db.scalar(
+        select(Run.id)
+        .where(Run.job_id == job.id, Run.status.in_(("queued", "running")))
+        .limit(1)
+    )
+    if in_flight:
+        return _error(
+            409,
+            "conflict",
+            "A run is still working on this job. Cancel it, then delete.",
+            job_id=job.id,
+            run_id=in_flight,
+        )
+
+    settings = get_settings()
+    for directory in (
+        settings.artifacts_dir / f"job-{job.id}",
+        settings.audio_dir / f"job-{job.id}",
+    ):
+        shutil.rmtree(directory, ignore_errors=True)
+
+    db.delete(job)
+    db.commit()
+    return JSONResponse({"deleted": True, "job_id": job_id})
 
 
 @router.post("/api/jobs/{job_id}/resume", status_code=202)

@@ -42,9 +42,33 @@
         return post(`/api/jobs/${jobId}/regenerate`, { skill });
     }
 
+    function fillMissing(jobId) {
+        return post(`/api/jobs/${jobId}/backfill`);
+    }
+
+    async function deleteJob(jobId) {
+        try {
+            const response = await fetch(`/api/jobs/${jobId}`, {
+                method: "DELETE",
+                headers: { "X-CSRF-Token": csrfToken() },
+            });
+            const body = await response.json().catch(() => ({}));
+            return {
+                ok: response.ok,
+                status: response.status,
+                message: body?.error?.message || "",
+                body,
+            };
+        } catch (error) {
+            return { ok: false, status: 0, message: "", body: {} };
+        }
+    }
+
     window.Skipper = Object.assign(window.Skipper || {}, {
         resumeJob,
         runJob,
         regenerateArtifact,
+        fillMissing,
+        deleteJob,
     });
 })();

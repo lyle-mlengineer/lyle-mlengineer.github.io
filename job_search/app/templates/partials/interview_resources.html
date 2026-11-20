@@ -1,0 +1,106 @@
+{% macro source_card(source) -%}
+<article class="source-card" data-source-id="{{ source.id }}">
+    <header class="source-card__head">
+        <div class="source-card__id">
+            <span class="pill source-card__kind">{{ source.kind }}</span>
+            <h3 class="source-card__title">{{ source.title }}</h3>
+        </div>
+        <button class="practice-card__remove" type="button" data-source-delete
+                title="Delete this source" aria-label="Delete this source">
+            <i class="uil uil-trash-alt"></i>
+        </button>
+    </header>
+    <p class="source-card__meta">
+        {{ '{:,}'.format(source.chars) }} characters · {{ source.chunks }} chunk{{ '' if source.chunks == 1 else 's' }}
+        {% if source.questions %} · {{ source.questions }} question{{ '' if source.questions == 1 else 's' }} generated{% endif %}
+        {% if source.filename %} · {{ source.filename }}{% endif %}
+    </p>
+    {% if source.source_url %}
+    <p class="source-card__meta">
+        <a href="{{ source.source_url }}" target="_blank" rel="noopener noreferrer">{{ source.source_url }}</a>
+    </p>
+    {% endif %}
+    <details class="source-card__preview">
+        <summary>Preview the extracted text</summary>
+        <p>{{ source.excerpt }}</p>
+    </details>
+    <div class="source-card__actions">
+        <button class="button button--small button--ghost" type="button" data-source-questions>
+            <i class="uil uil-question-circle button__icon button__icon--lead"></i>
+            Generate questions
+        </button>
+    </div>
+</article>
+{%- endmacro %}
+
+<div class="resources" data-resources data-job="{{ job.id }}">
+    <div class="resources__intro">
+        <div>
+            <h3 class="resources__title">Interview sources</h3>
+            <p class="resources__hint">
+                Upload the material you study from — interview notes, a PDF of system-design prompts,
+                an article, or plain text. Skipper chunks it, cites it in practice questions, and can
+                find answers inside it. Sources are shared across every job.
+            </p>
+        </div>
+        <span class="pill" data-source-count>{{ interview_sources|length }} source{{ '' if interview_sources|length == 1 else 's' }}</span>
+    </div>
+
+    <form class="resource-form" data-source-form enctype="multipart/form-data">
+        <div class="resource-form__grid">
+            <label class="resource-form__field">
+                <span>Title <em>optional</em></span>
+                <input class="input input--compact" type="text" maxlength="240" data-source-title
+                       placeholder="e.g. System design notes">
+            </label>
+            <label class="resource-form__field">
+                <span>File</span>
+                <span class="file-field">
+                    <input class="file-field__input" id="source-file" type="file" data-source-file
+                           accept=".pdf,.docx,.md,.markdown,.txt,.html,.htm,.csv">
+                    <label class="button button--small button--ghost" for="source-file">
+                        <i class="uil uil-folder-open button__icon button__icon--lead"></i>
+                        Choose file
+                    </label>
+                    <span class="file-field__name" data-source-file-name>PDF, DOCX, MD or text</span>
+                </span>
+            </label>
+            <label class="resource-form__field resource-form__field--wide">
+                <span>Paste text</span>
+                <textarea class="input resource-form__text" rows="6" data-source-text
+                          placeholder="Paste interview notes, a question bank, or an article body."></textarea>
+            </label>
+            <label class="resource-form__field resource-form__field--wide">
+                <span>Article link</span>
+                <input class="input input--compact" type="url" data-source-url
+                       placeholder="https://example.com/system-design-interview-guide">
+            </label>
+        </div>
+        <p class="resource-form__note">
+            Use one of the three. The file wins over pasted text, and pasted text wins over a link.
+        </p>
+        <div class="resource-form__actions">
+            <button class="button button--small" type="submit" data-source-submit>
+                <i class="uil uil-upload button__icon button__icon--lead"></i>
+                Add source
+            </button>
+            <button class="button button--small button--ghost" type="reset">
+                Clear
+            </button>
+        </div>
+    </form>
+
+    <p class="resources__status" data-source-status role="status" aria-live="polite"></p>
+
+    <div class="source-list" data-source-list>
+        {% for source in interview_sources %}
+        {{ source_card(source) }}
+        {% else %}
+        <div class="empty" data-source-empty>
+            <span class="empty__icon"><i class="uil uil-folder-open"></i></span>
+            <h3 class="empty__title">No sources yet</h3>
+            <p class="empty__copy">Add a PDF, a DOCX, an article link or pasted text, then generate questions from it.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>

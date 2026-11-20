@@ -9,7 +9,10 @@ Skipper is a private job-search agent. Give it one input — a link to a company
 - the application email
 - prepared answers for *tell me about yourself*, *work history* and *projects you are proud of*
 - a likely technical interview with written answers
+- a likely system-design and **low-level design** brief with components, data structures and trade-offs
 - a likely behavioural interview with STAR answers
+- an **interview study workspace** at `/study`, independent of any job: upload PDFs, DOCX files, articles or pasted text, choose a job category and level, generate practice questions with answers and play them as audio
+- an **audio tab** that reads the pack out loud: an interviewer voice asks each question, an interviewee voice answers, delivery follows the notes the LLM wrote, and your own reference recording can voice the answers
 
 Jobs, companies and application status live on a password-gated dashboard. The public landing page is a rebuilt version of the existing portfolio, in the same visual language, with the dashboard entry point.
 
@@ -41,8 +44,9 @@ The dashboard is deliberately honest about this: it shows what exists and names 
 - **Web:** FastAPI, Jinja2 templates, vanilla CSS/JS (no build step)
 - **Data:** SQLAlchemy 2.0 ORM over SQLite in WAL mode, FTS5 for retrieval
 - **Jobs:** FastAPI `BackgroundTasks` writing a run ledger to the database; the UI polls. A stopped run (failed, cancelled or interrupted) resumes from its first unfinished step and reuses every output that already succeeded.
-- **LLM:** provider interface with Groq (`openai/gpt-oss-120b` large, `openai/gpt-oss-20b` small), NVIDIA NIM for the hosted DeepSeek V4 models (`deepseek-ai/deepseek-v4-pro` / `-flash`), and a fake provider for tests. A call ledger records every model call and web search with its tokens and cost.
-- **Search:** provider interface with Serper (primary) and DuckDuckGo (no-key fallback)
+- **LLM:** provider interface with Groq (`openai/gpt-oss-120b` large, `openai/gpt-oss-20b` small), NVIDIA NIM for the current free endpoints (`moonshotai/kimi-k3.1-pro` large, `nvidia/nemotron-3.5-lightning-30b-a3b` small), and a fake provider for tests. When the active provider returns 429/5xx the chain switches to the other keyed provider for the rest of the run; when NVIDIA retires a model with 404/410 the provider swaps that tier onto the next free endpoint in `SKIPPER_NVIDIA_MODEL_FALLBACKS`. A call ledger records every model call and web search with its tokens and cost.
+- **Search:** provider interface with Serper (Google), Exa (semantic) and DuckDuckGo (no-key fallback)
+- **Speech:** provider interface with ElevenLabs (catalogue + cloning), Breeze Blue (catalogue + tags + cloning), Orpheus on Groq (tags, no cloning) and an offline fake provider. The audio tab plans interviewer/interviewee turns, can scope a take to one pack section, and joins each provider's WAV output without a transcode.
 - **Documents:** `python-docx` for DOCX, LibreOffice headless for PDF with a `reportlab` fallback
 
 ---
@@ -51,7 +55,7 @@ The dashboard is deliberately honest about this: it shows what exists and names 
 
 - Python **3.11+** (developed on 3.15)
 - Optional: **LibreOffice** (`soffice`) for DOCX → PDF. Without it, the reportlab renderer is used.
-- Optional: a **Groq** API key and a **Serper** key for real generation and research.
+- Optional: a **Groq** or **NVIDIA NIM** API key for real generation, and a **Serper** or **Exa** key for research.
 
 ---
 
@@ -127,13 +131,28 @@ Every setting is read from the environment with the `SKIPPER_` prefix; `.env` is
 | `SKIPPER_NVIDIA_BASE_URL` | NVIDIA NIM | `https://integrate.api.nvidia.com/v1` |
 | `SKIPPER_NVIDIA_TPM` | `40000` | NVIDIA rate-limit bucket |
 | `SKIPPER_NVIDIA_REASONING_EFFORT` | `none` | `none`\|`high`\|`max` — DeepSeek thinking mode |
-| `SKIPPER_LLM_MODEL_LARGE` | provider default | Override the "large" tier model (e.g. `deepseek-ai/deepseek-v4-pro`) |
+| `SKIPPER_NVIDIA_MODEL_LARGE` | `moonshotai/kimi-k3.1-pro` | NVIDIA large-tier model (a current free endpoint) |
+| `SKIPPER_NVIDIA_MODEL_SMALL` | `nvidia/nemotron-3.5-lightning-30b-a3b` | NVIDIA small-tier model |
+| `SKIPPER_NVIDIA_MODEL_FALLBACKS` | built-in chain | Model ids tried in order when a pinned id answers 404/410 |
+| `SKIPPER_LLM_MODEL_LARGE` | provider default | Override the "large" tier model (e.g. `moonshotai/kimi-k3.1-pro`) |
 | `SKIPPER_LLM_MODEL_SMALL` | provider default | Override the "small" tier model |
-| `SKIPPER_SEARCH_PROVIDER` | `auto` | `serper`, `duckduckgo` or `auto` |
+| `SKIPPER_LLM_FALLBACKS` | `auto` | Providers tried after a 429/5xx: `auto` (every other keyed provider), a comma list, or `none` |
+| `SKIPPER_SEARCH_PROVIDER` | `auto` | `serper`, `exa`, `duckduckgo` or `auto` |
 | `SKIPPER_SERPER_API_KEY` | — | Enables Serper; DDG works without a key |
+| `SKIPPER_EXA_API_KEY` | — | Enables Exa semantic search; used by `auto` when keyed |
+| `SKIPPER_RESEARCH_TTL_DAYS` | `30` | Reuse a company brief across jobs while it is this fresh; `0` always researches |
+| `SKIPPER_TTS_PROVIDER` | `auto` | `auto`, `fake`, `orpheus`, `elevenlabs` or `breeze` |
+| `SKIPPER_ELEVENLABS_API_KEY` | — | Enables ElevenLabs voices and cloning |
+| `SKIPPER_BREEZE_API_KEY` | — | Enables Breeze Blue voices and cloning |
+| `SKIPPER_TTS_MAX_TURNS` | `30` | Cap on spoken turns in one take |
+| `SKIPPER_INTERVIEW_MAX_UPLOAD_BYTES` | `8000000` | Largest interview source upload |
+| `SKIPPER_INTERVIEW_MAX_SOURCE_CHARS` | `400000` | Text kept per uploaded source |
+| `SKIPPER_INTERVIEW_PRACTICE_QUESTIONS` | `8` | Default practice-set size |
 | `SKIPPER_SOFFICE_PATH` | `soffice` | LibreOffice binary for PDF |
 
 Each provider ships its own default model pair, so `SKIPPER_LLM_MODEL_LARGE`/`SMALL` are only needed to override them (empty means "the selected provider's default"). If you switch providers, clear those two variables.
+
+NVIDIA retires free endpoints with a `410 Gone` body (the DeepSeek V4 pair went on 2026-08-07, and `-flash-0731` followed in September). The provider treats 404/410 as "this model is gone", swaps the tier onto the next id in `SKIPPER_NVIDIA_MODEL_FALLBACKS` and remembers the swap for the rest of the process. The built-in chain is Kimi K3.1 Pro, Nemotron 3.5 Lightning, MiniMax M3.1 Flash, DeepSeek V4.1 Flash, GLM-5.3 Flash and Mistral Large 4. Copy live ids from <https://build.nvidia.com/models>.
 
 ---
 
@@ -162,6 +181,7 @@ job_search/
     security.py        # argon2id, sessions, CSRF, login throttle
     deps.py            # request dependencies
     routes/            # pages + JSON API
+    interview/         # uploaded sources, FTS search, practice generation
     templates/         # Jinja2: landing, login, app shell, dashboard, ...
     static/            # css/js/img — portfolio tokens reused
   data/portfolio/      # Markdown corpus: profile, experience, projects, skills, voice

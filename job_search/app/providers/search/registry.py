@@ -1,4 +1,4 @@
-"""Search composition: auto fallback, per-run budget and a 24-hour cache."""
+"""Search composition: Serper/Exa/DuckDuckGo auto fallback, budget and cache."""
 
 from __future__ import annotations
 
@@ -18,18 +18,26 @@ from .base import (
     query_hash,
 )
 from .duckduckgo import DuckDuckGoProvider
+from .exa import ExaProvider
 from .ledger import LedgerSearchProvider
 from .serper import SerperProvider
 
 
 class AutoSearchProvider(SearchProvider):
-    """Prefer Serper, fall back to DuckDuckGo on error or zero results."""
+    """Try keyed providers in order, then DuckDuckGo, on error or zero results."""
 
     name = "auto"
 
-    def __init__(self, primary: SearchProvider, fallback: SearchProvider) -> None:
+    def __init__(
+        self,
+        primary: SearchProvider,
+        fallback: SearchProvider | None = None,
+        *,
+        extra: tuple[SearchProvider, ...] = (),
+    ) -> None:
+        self.providers = (primary, *( (fallback,) if fallback is not None else ()), *extra)
         self.primary = primary
-        self.fallback = fallback
+        self.fallback = fallback or primary
 
     def search(
         self,
@@ -39,7 +47,7 @@ class AutoSearchProvider(SearchProvider):
         recency_days: int | None = None,
     ) -> list[SearchResult]:
         errors: list[str] = []
-        for provider in (self.primary, self.fallback):
+        for provider in self.providers:
             try:
                 results = provider.search(query, limit=limit, recency_days=recency_days)
             except SearchProviderError as exc:
@@ -52,7 +60,7 @@ class AutoSearchProvider(SearchProvider):
         return []
 
     def health(self) -> bool:
-        return self.primary.health() or self.fallback.health()
+        return any(provider.health() for provider in self.providers)
 
 
 class CachedSearchProvider(SearchProvider):
@@ -147,16 +155,36 @@ def build_search_provider(
             timeout_s=settings.search_timeout_s,
             client=client,
         )
+    elif settings.search_provider == "exa":
+        provider = ExaProvider(
+            settings.exa_api_key,
+            timeout_s=settings.search_timeout_s,
+            client=client,
+        )
     else:  # auto
+        chain: list[SearchProvider] = []
         if settings.serper_api_key:
-            serper = SerperProvider(
-                settings.serper_api_key,
-                timeout_s=settings.search_timeout_s,
-                client=client,
+            chain.append(
+                SerperProvider(
+                    settings.serper_api_key,
+                    timeout_s=settings.search_timeout_s,
+                    client=client,
+                )
             )
-            provider = AutoSearchProvider(serper, duck)
-        else:
-            provider = duck
+        if settings.exa_api_key:
+            chain.append(
+                ExaProvider(
+                    settings.exa_api_key,
+                    timeout_s=settings.search_timeout_s,
+                    client=client,
+                )
+            )
+        chain.append(duck)
+        provider = (
+            chain[0]
+            if len(chain) == 1
+            else AutoSearchProvider(chain[0], chain[1], extra=tuple(chain[2:]))
+        )
 
     if budget is not None:
         provider = BudgetedSearchProvider(provider, budget)

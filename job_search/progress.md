@@ -2,10 +2,10 @@
 
 The build follows [`docs/steps.md`](docs/steps.md). Each phase ends with a working app, a passing test run and (when the repo is committed) a commit.
 
-**Current phase:** 5 complete — tailored CV as DOCX and PDF
-**Next phase:** 6 — the remaining eight skills and the full application pack
-**Last updated:** 2026-11-19
-**Suite:** 181 tests passing offline (`python -m pytest -q`)
+**Current phase:** 6 complete — full application pack, interview study and audio
+**Next phase:** 7 — tracking, status controls and company pages
+**Last updated:** 2026-11-20
+**Suite:** 233 tests passing offline (`python -m pytest -q`)
 
 ---
 
@@ -147,6 +147,22 @@ Docs:
 - Landing refresh verified with Playwright: all ten project images load after lazy-scroll (`naturalWidth > 0`), ten work cards, four skill groups with 16 bars and 49 chips, six CV entries, dropdown fits and stays inside the viewport at 320/375/414/480/768/1440 px, `Escape` closes it, and every CV link is `target="_blank"` pointing at a served PDF.
 - Docs updated for the SQLAlchemy 2.0 switch and the completed provider seams; design §12/§13/§19 and the README status table match the code.
 
+### Step 6.2 — Interview study, low-level design, and provider failover
+
+- **Low-level design in the pack.** `low_level_design` is a full pipeline skill (schema, prompt, postprocess, Markdown render) with components, key data structures, trade-offs, follow-ups and portfolio evidence. It is registered in `SKILLS`, labelled in `ARTIFACT_LABELS`, included in `PIPELINE_ORDER`, and has a fake fixture; `tests/test_pack.py` asserts the artifact and the "Low-level design" section on the job page.
+- **Interview resources.** `app/interview/sources.py` extracts PDF, DOCX, Markdown, HTML and plain text or an article URL, normalises control characters, chunks heading-aware and indexes the chunks in `interview_source_fts`. The Resources tab uploads a file, pastes text or takes a link, previews the extraction, shows character/chunk counts and can generate questions from one source.
+- **Random practice drills.** `app/interview/study.py::generate_questions` samples source chunks with a seeded RNG and a random angle, mixes or fixes difficulty, and writes questions with revealable answers, follow-ups and citations. `answer_question` retrieves matching chunks (BM25) and answers with citations. Both persist to `interview_questions` and are served by `app/routes/interview.py`; the Practice tab drives them with `interview_study.js`.
+- **Retired NVIDIA models.** DeepSeek V4 pro/flash went 410 Gone on 2026-08-07 and `-flash-0731` followed in September, so the NVIDIA defaults are now `moonshotai/kimi-k3.1-pro` (large) and `nvidia/nemotron-3.5-lightning-30b-a3b` (small). `NvidiaProvider.complete` treats a `404`/`410` as permanent: it moves that tier to the next free endpoint in `SKIPPER_NVIDIA_MODEL_FALLBACKS` (built-in chain: Kimi K3.1 Pro, Nemotron Lightning, MiniMax M3.1 Flash, DeepSeek V4.1 Flash, GLM-5.3 Flash, Mistral Large 4), remembers the dead id for the process, and names the env vars to edit if the whole chain is gone. A 400/422 still gets one relaxed retry that drops `response_format` and/or `reasoning_effort`. `.env` and `.env.example` carry the same live ids and the chain.
+- **Overlong strings are normalised, not fatal.** `validation.py::clamp_lengths` cuts any string past its `max_len` at a word boundary before validation, and the cover-letter schema/postprocessor now own their own clip (120 characters at a word boundary). The reported `$.closing: longer than 120 characters` failure can no longer waste a run; `tests/test_pack.py` reproduces the exact case end to end.
+- **Provider failover.** `FallbackLLMProvider` chains the primary and every other keyed hosted provider (`SKIPPER_LLM_FALLBACKS=auto` by default). A retryable failure (429, 402, 5xx, exhausted retries) switches for the call and stays switched for the process, translating the model tier to the next vendor's ids. `fake` never joins a real chain, and the tests pin `none`. Cache and ledger read the active name per call so switched calls are attributed correctly.
+- Tests added: `clamp_lengths` recursion/word boundary, an overlong `closing` through `complete_json`, the cover-letter regression through the whole pipeline, fallback switching/stickiness/model translation/auth pass-through, and registry chaining rules.
+
+### Verification performed
+
+- `python -m pytest -q` → **229 passed**, no network access.
+- `ruff check app tests` → clean.
+- `.env` chain check: `SKIPPER_LLM_PROVIDER=groq` builds `['groq', 'nvidia']` with `nvidia` as the fallback.
+
 ---
 
 ## Deliberately not built yet
@@ -159,6 +175,17 @@ Docs:
 | Alembic | `create_all` is acceptable pre-release; no deployed schema yet | Before first deploy |
 
 The UI does not pretend: empty states name the next real action, `/settings` lists what is still pending, and a failed run keeps its artifacts and offers a retry instead of showing a success.
+
+### Step 6.1 — Interview audio tab
+
+- `app/providers/tts/` — the speech seam: `base.py` (voices with description/gender/ethnicity/sample, chunking, delivery tags), `elevenlabs.py` (catalogue + instant cloning), `breeze.py` (catalogue + tags + two-step cloning), `orpheus.py` (Groq's OpenAI-shaped endpoint, tags per chunk, no cloning), `fake.py` (offline tones, same contract), `audio.py` (PCM→WAV and joining) and `pricing.py`.
+- `app/jobs/dialogue.py` — turns the pack into interviewer/interviewee turns, maps the LLM's delivery notes onto direction words, and can scope a plan to one pack section.
+- `app/audio_takes.py` — creates a take row, speaks it turn by turn in a background task, persists partial progress, serves the WAVs, and stores/clones the reference recording. Per-section takes are found by the `kind` stored on each turn, so no schema migration was needed.
+- `app/routes/audio.py` — `/api/tts/voices` (search + gender/ethnicity filters), cached voice samples, `/api/jobs/{id}/audio` (GET newest take, optionally `?kind=`; POST generate whole pack or one section), per-turn WAVs and `/api/voices/reference`.
+- Job page: the interview pack is now a **Script** / **Audio** tab pair. The Script tab has a “Hear this section” button in every section; the Audio tab shows a compact interviewer/interviewee summary with a **Change voices** button that opens a searchable, filterable voice modal (descriptions, samples, fixed footer). A styled reference-recording chooser and one Generate button stay in the studio. Audio controls are scoped to the panel so the jobs-page underline tabs keep their own styling. Script and turn text span the full panel width.
+- Long interviewee answers are split at sentence boundaries into short paragraphs at render time (`markdown_to_html(..., paragraph_chars=340)`), and the Audio tab’s turn cards use the same splitter (`split_paragraphs`) so both the script and the spoken output are scannable without changing stored artifacts. Turn cards use speaker badges, delivery chips and a custom site-styled player (round play/pause button, seekable progress track, elapsed/total time) instead of the browser default.
+- Tests: `tests/test_tts.py` (providers, chunking, WAV joining, pricing, filters), `tests/test_audio.py` (turn planning, section scoping, page markup, catalogue, samples, take generation/playback, reference cloning, in-flight guard) and `tests/test_email.py` (email parsing into greeting, paragraphs, sign-off, signature and attachments). 212 passing offline.
+- The application email now renders as a mail-client card: From/To/Subject header, greeting, body paragraphs (split at sentence boundaries when the model writes one run-on block), sign-off and signature, plus attachment chips. `app/documents/email.py` does the parsing without rewriting the stored text.
 
 ---
 
@@ -262,7 +289,16 @@ Database file: `var/skipper.db` (gitignored). Deleting it recreates everything a
 ## Command log (latest first)
 
 ```text
-2026-11-19  python -m pytest                                       → 181 passed
+2026-11-20  python -m pytest                                       → 233 passed
+2026-11-20  NVIDIA 410 retired-model swap                         → flash → nemotron, dead id remembered
+2026-11-20  ruff check app tests                                   → clean
+2026-11-20  python -m pytest                                       → 229 passed
+2026-11-20  ruff check app tests                                   → clean
+2026-11-20  overlong cover-letter closing end to end               → clipped at 120, step succeeded
+2026-11-20  provider chain from .env                               → groq → nvidia
+2026-11-19  python -m pytest                                       → 212 passed
+2026-11-19  ruff check app tests                                   → clean
+2026-11-19  playwright audio/script tabs at 1440 / 375              → 0 overflow, 0 console errors, scoped take generated
 2026-11-19  ruff check app tests                                   → clean
 2026-11-19  python -m pytest                                       → 176 passed
 2026-11-19  python -m pytest                                       → 146 passed

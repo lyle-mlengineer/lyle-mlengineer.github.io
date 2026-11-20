@@ -53,6 +53,24 @@ FAKE_CV: dict = {
             ],
         },
     ],
+    "tech_groups": [
+        {
+            "name": "Languages",
+            "items": ["Python", "C++", "JavaScript/TypeScript", "SQL"],
+        },
+        {
+            "name": "Speech & ML",
+            "items": ["PyTorch 2.x", "Hugging Face Transformers", "PEFT", "XTTS-v2", "pyannote.audio"],
+        },
+        {
+            "name": "Serving & Infra",
+            "items": ["FastAPI", "Triton Inference Server", "ONNX Runtime", "Docker", "Kubernetes"],
+        },
+        {
+            "name": "Data & MLOps",
+            "items": ["Apache Spark", "Airflow", "dbt", "DVC", "Weights & Biases"],
+        },
+    ],
     "experience": [
         {
             "title": "Freelance AI Engineer",
@@ -117,6 +135,7 @@ FAKE_CV: dict = {
                 "Breeze and Fish Audio adapters.",
                 "Credit ledger with idempotent M-Pesa and Stripe settlement and a FastAPI + Jinja2 monolith.",
             ],
+            "links": ["https://github.com/lyle-mlengineer/vocalis", "https://vocalis-rvcw.onrender.com"],
         },
         {
             "name": "EchoID — Speaker-Aware Transcription Studio",
@@ -486,4 +505,650 @@ FAKE_BEHAVIORAL = {
             "answer": "An aggregate WER looked good while one language had regressed. I added per-language slices to the report and showed the regression rather than hiding behind the average. The release was held and fixed. A metric that hides the users who are failing is worse than no metric.",
         },
     ]
+}
+FAKE_SYSTEM_DESIGN = {
+    "questions": [
+        {
+            "topic": "ASR serving",
+            "difficulty": "core",
+            "question": "Design a multilingual ASR service for six languages with per-tenant isolation.",
+            "answer": (
+                "I would start with the contract: upload or stream, language hint, partial transcripts, and a "
+                "hard upload cap. The path is an API front door, a queue for long audio, and GPU workers with "
+                "continuous batching. Each language has its own model entry in a registry, and a tenant maps "
+                "to quotas, storage prefixes and a model version. I would stream partials over WebSocket and "
+                "keep the batch path for files. At SautiFlow the streaming service ran at 310 ms median "
+                "first-audio latency, so I know the front door and the model both count. The bottleneck is "
+                "usually the queue when one language gets a burst, so isolation and autoscaling are explicit. "
+                "I would log per-language WER on a sample, latency, and which model version answered."
+            ),
+            "trade_offs": [
+                "Shared GPU pool is cheaper; per-language pools isolate noisy neighbours.",
+                "Streaming gives faster feedback but makes partial accuracy harder to evaluate.",
+                "A single model registry is simpler; regional deployments reduce data residency risk.",
+            ],
+            "requirements": {
+                "functional": [
+                    "Accept file uploads and live audio with a language hint.",
+                    "Return partial transcripts for streams and a final transcript for files.",
+                    "Keep tenants isolated by quota, storage prefix and model version.",
+                ],
+                "non_functional": [
+                    "310 ms median first-audio latency, 780 ms p95.",
+                    "A burst in one language must not starve the other five.",
+                    "Per-language WER and model version are observable per request.",
+                ],
+            },
+            "core_entities": [
+                {
+                    "name": "Tenant",
+                    "fields": ["tenant_id", "quota_minutes", "storage_prefix", "model_version"],
+                    "notes": "Owns isolation and billing.",
+                },
+                {"name": "TranscriptionJob", "fields": ["job_id", "tenant_id", "language", "status"]},
+                {"name": "TranscriptSegment", "fields": ["job_id", "start_ms", "end_ms", "text", "confidence"]},
+            ],
+            "api_design": [
+                {"method": "POST", "path": "/v1/transcriptions", "purpose": "Create a file or stream job."},
+                {"method": "GET", "path": "/v1/transcriptions/{id}", "purpose": "Poll status and fetch the transcript."},
+                {"method": "WS", "path": "/v1/stream", "purpose": "Send audio frames and receive partials."},
+            ],
+            "data_flow": [
+                "The front door authenticates the tenant and writes the job row.",
+                "Long audio goes to a queue; streams stay on a WebSocket session.",
+                "A GPU worker pulls the job, batches by language and writes segments.",
+                "The result store serves partials and the final transcript with the model version.",
+            ],
+            "high_level": [
+                "API front door with auth, quotas and idempotency keys.",
+                "Queue plus autoscaled GPU worker pool per language group.",
+                "Model registry and object store for audio and transcripts.",
+                "Metrics pipeline for latency, WER samples and per-tenant usage.",
+            ],
+            "deep_dives": [
+                {
+                    "title": "Burst isolation",
+                    "detail": "Separate queues per language group and reserve a minimum worker count, so one tenant cannot consume the shared pool.",
+                },
+                {
+                    "title": "Model rollout",
+                    "detail": "Pin each job to a model version and shadow a candidate on sampled traffic before moving a tenant.",
+                },
+            ],
+            "diagram": "client -> API front door -> queue -> GPU workers\n                          |                    |\n                          v                    v\n                     job store          model registry\n                          |\n                          v\n                    transcript store",
+            "interviewer_questions": [
+                "What happens when the queue backs up for one language?",
+                "How do you roll back a model version for a single tenant?",
+                "Where would you put a cache, and what would you key it on?",
+            ],
+            "questions_to_ask": [
+                "How do you currently isolate a noisy tenant from the shared GPU pool?",
+                "What is the release process for a new ASR model, and who signs off on a language-level regression?",
+                "Which latency number does the team treat as the product SLO?",
+            ],
+            "follow_ups": [
+                "How do you isolate a bad model version for one language?",
+                "Where would you cache repeated uploads or transcripts?",
+            ],
+            "grounded_in": "Portfolio: SautiFlow multilingual ASR and streaming service",
+        },
+        {
+            "topic": "Evaluation",
+            "difficulty": "deep",
+            "question": "Design the evaluation pipeline behind a speech model release gate.",
+            "answer": (
+                "The pipeline needs a locked, speaker-disjoint test set with a content hash, a runner that "
+                "produces WER, CER and MOS, and a gate that compares a candidate with the current baseline. "
+                "I would version the dataset and the metric code together, report every language and accent "
+                "slice instead of one average, and fail the build when a slice regresses beyond its budget. "
+                "At SautiFlow I built one harness across five ASR models and wired it into CI; in two quarters "
+                "it blocked nine regressions from release. The key design choice is that the gate returns a "
+                "release decision, not a dashboard. A human reviews only the slices that moved."
+            ),
+            "trade_offs": [
+                "A locked test set prevents leakage but needs a separate refresh process.",
+                "More slices catch real regressions but increase runtime and review noise.",
+                "Human MOS is trustworthy but slow; automated proxies are cheap but can drift.",
+            ],
+            "follow_ups": [
+                "How do you detect that the test set has aged?",
+                "What would you do when only one low-resource language regresses?",
+            ],
+            "grounded_in": "Portfolio: SautiFlow evaluation harness and CI gate",
+        },
+        {
+            "topic": "Streaming",
+            "difficulty": "core",
+            "question": "Design a speech-to-speech translation path with sub-second first audio.",
+            "answer": (
+                "I would split the path into streaming ASR, translation and streaming TTS, with small chunks "
+                "and a shared session id. The ASR worker keeps the encoder warm, the translator consumes "
+                "partials with a short lookahead, and TTS starts on the first stable phrase rather than the "
+                "whole sentence. KV caching and avoiding a synchronous hop between services matter more than "
+                "a bigger model. At SautiFlow this approach shipped at 310 ms median first-audio latency and "
+                "780 ms p95, down from a 1.4 second batch baseline. I would measure p50 and p95 per hop and "
+                "keep a batch fallback for long recordings."
+            ),
+            "trade_offs": [
+                "Shorter chunks lower latency but can reduce translation quality.",
+                "Keeping sessions warm costs GPU memory; cold starts hurt p95.",
+                "A batch fallback protects quality but needs a separate code path.",
+            ],
+            "follow_ups": [
+                "Where does p95 usually blow up in this design?",
+                "How would you handle code-switching mid-sentence?",
+            ],
+            "grounded_in": "Portfolio: SautiFlow streaming translation",
+        },
+        {
+            "topic": "TTS platform",
+            "difficulty": "core",
+            "question": "Design a TTS studio that can switch providers without a rewrite.",
+            "answer": (
+                "The studio should depend on one typed provider contract: list voices, synthesise, clone, and "
+                "report cost. Each provider adapter translates its own errors and returns the same audio "
+                "format, so the queue and player never learn provider-specific details. A registry chooses "
+                "the provider from configuration, and a fallback policy handles an outage. At Vocalis I built "
+                "Breeze and Fish Audio adapters behind one contract, which meant a provider change did not "
+                "become a product rewrite. I would add per-tenant quotas, idempotent take ids, and store the "
+                "provider and voice on every generated take for reproducibility."
+            ),
+            "trade_offs": [
+                "Normalising audio server-side costs CPU but removes player differences.",
+                "A fallback provider improves uptime but voices will not match exactly.",
+                "Cloning gives a personal voice but raises consent and deletion requirements.",
+            ],
+            "follow_ups": [
+                "How do you test a provider adapter without calling the vendor?",
+                "What happens to an in-flight take when a provider fails?",
+            ],
+            "grounded_in": "Portfolio: Vocalis provider adapters",
+        },
+    ]
+}
+
+FAKE_LOW_LEVEL_DESIGN = {
+    "questions": [
+        {
+            "topic": "Provider seam",
+            "difficulty": "core",
+            "question": (
+                "Design the low-level interface for a speech provider registry that can swap ASR, TTS and "
+                "translation vendors without callers changing."
+            ),
+            "answer": (
+                "Start with the smallest contract the callers actually need: an id, a capability list, and "
+                "one method per capability that takes a typed request and returns a typed result. Keep vendor "
+                "errors out of the contract by translating them into a small error hierarchy at the adapter "
+                "boundary. The registry owns construction and configuration, caches one adapter per name, "
+                "and exposes a health check so the UI can disable a tab instead of failing at call time. "
+                "Every result should carry the provider and model that produced it. In my portfolio the "
+                "same shape let Breeze and Fish Audio sit behind one TTS adapter without touching the audio "
+                "pipeline."
+            ),
+            "components": [
+                "Provider protocol with typed request and result objects",
+                "Adapter per vendor that translates errors and payloads",
+                "Registry built from settings plus a health check",
+            ],
+            "requirements": {
+                "functional": [
+                    "Callers ask for a capability, not a vendor.",
+                    "Adapters can be swapped from configuration at start-up.",
+                ],
+                "non_functional": [
+                    "A vendor failure must not leak vendor-specific exceptions.",
+                    "Health checks must not block the audio request path.",
+                ],
+            },
+            "core_entities": [
+                {"name": "SpeechRequest", "fields": ["text", "voice", "format", "timeout_s"], "notes": "Immutable."},
+                {"name": "SpeechResult", "fields": ["audio", "mime_type", "provider", "model", "cost_usd"]},
+                {"name": "Provider", "fields": ["name", "capabilities", "synthesise()", "health()"]},
+            ],
+            "class_design": [
+                {
+                    "name": "Provider",
+                    "responsibility": "Protocol every vendor adapter implements; the only type callers depend on.",
+                    "interfaces": ["synthesise(request) -> SpeechResult", "health() -> bool"],
+                    "collaborators": ["SpeechRequest", "SpeechResult"],
+                },
+                {
+                    "name": "Registry",
+                    "responsibility": "Constructs adapters from settings and returns a cached instance by name.",
+                    "interfaces": ["get(name) -> Provider", "available() -> list[str]"],
+                    "collaborators": ["Provider", "Settings"],
+                },
+                {
+                    "name": "ProviderError",
+                    "responsibility": "One error hierarchy with a retryable flag; vendor payloads stay inside adapters.",
+                    "interfaces": ["retryable: bool", "provider: str"],
+                    "collaborators": [],
+                },
+            ],
+            "implementation": [
+                {
+                    "title": "Request boundary",
+                    "detail": "The caller builds an immutable SpeechRequest. The adapter validates fields and translates to the vendor payload; callers never see vendor JSON.",
+                },
+                {
+                    "title": "Error translation",
+                    "detail": "Each adapter catches vendor exceptions and raises ProviderError with retryable set. Retry and fallback policy lives above the registry, not inside every adapter.",
+                },
+                {
+                    "title": "Caching",
+                    "detail": "The registry builds each adapter once and caches it by name. Health checks are cheap and non-blocking so the UI can disable a provider without a request timeout.",
+                },
+                {
+                    "title": "Tests",
+                    "detail": "A shared contract test runs every adapter against the same request/result fixtures, plus one test per vendor error mapping.",
+                },
+            ],
+            "extensibility": [
+                "Add a new capability as a separate protocol so existing adapters and callers do not change.",
+                "Add a vendor by implementing Provider and registering a factory; no pipeline edits.",
+                "A streaming variant can return an iterator through a StreamingProvider protocol rather than widening Provider.",
+            ],
+            "api_design": [
+                {"path": "Provider.synthesise(request) -> SpeechResult", "purpose": "One typed call per capability."},
+                {"path": "Registry.get(name) -> Provider", "purpose": "Return a cached adapter or raise Unavailable."},
+                {"path": "Provider.health() -> bool", "purpose": "Cheap check used by the UI and routing."},
+            ],
+            "data_flow": [
+                "The caller builds an immutable request and asks the registry for a provider.",
+                "The adapter validates fields and translates the request to the vendor payload.",
+                "Vendor errors become ProviderError with retryable set at the boundary.",
+                "The adapter returns a result carrying the provider and model that answered.",
+            ],
+            "high_level": [
+                "A protocol at the seam and one adapter class per vendor.",
+                "A registry that constructs adapters from settings and caches them.",
+                "A small error hierarchy so retries and fallbacks live above the adapters.",
+            ],
+            "deep_dives": [
+                {
+                    "title": "Protocol evolution",
+                    "detail": "Add a new optional capability as a separate protocol so existing adapters keep compiling and no caller checks feature flags.",
+                },
+                {
+                    "title": "Retry ownership",
+                    "detail": "Classify errors in the adapter and retry in one caller-level policy, so every vendor gets the same backoff and budget.",
+                },
+            ],
+            "diagram": "Caller -> Registry.get() -> Provider protocol\n                                  |\n                     +------------+------------+\n                     v            v            v\n                  Breeze      Fish Audio   Fake",
+            "interviewer_questions": [
+                "How do you add a vendor with streaming without changing existing callers?",
+                "Where should timeouts be enforced, in the adapter or the registry?",
+                "How would you test the contract across every adapter?",
+            ],
+            "questions_to_ask": [
+                "How many speech providers does the team support today, and what breaks when one changes its API?",
+                "Who owns the retry budget when a vendor is slow but not failing?",
+                "How does the team test a provider contract without calling the live vendor in CI?",
+            ],
+            "data_structures": [
+                "Immutable request dataclass (text, voice, format, timeout)",
+                "Result dataclass carrying bytes, mime type, provider, model and cost",
+            ],
+            "trade_offs": [
+                "A narrow contract is easy to implement but may hide vendor-specific controls.",
+                "A capability list avoids runtime surprises but needs a default when a provider lacks one.",
+            ],
+            "follow_ups": [
+                "How would you evolve the protocol without breaking existing adapters?",
+                "Where would you put retries so every adapter gets the same policy?",
+            ],
+            "grounded_in": "Portfolio: Vocalis provider adapters",
+        },
+        {
+            "topic": "Evaluation harness",
+            "difficulty": "deep",
+            "question": (
+                "Design the classes and data flow for an evaluation harness that can compare five ASR "
+                "models on the same locked test set and return a release decision."
+            ),
+            "answer": (
+                "Model the test set as an immutable manifest: audio ids, references, language and accent "
+                "slices, and a content hash. A loader validates the hash and returns typed samples, so a "
+                "silent dataset edit fails before any GPU time is spent. Each model adapter exposes "
+                "transcribe(sample) and returns a hypothesis with the model version. A metric object owns "
+                "normalisation and scoring per slice; the runner only orchestrates. The gate compares the "
+                "candidate with a stored baseline and returns a decision plus the slices that regressed. "
+                "Results are append-only rows keyed by run id, model version and dataset hash, which makes "
+                "a release reproducible."
+            ),
+            "components": [
+                "Dataset manifest and loader with hash validation",
+                "Model adapters implementing transcribe(sample)",
+                "Metric objects for WER, CER and per-slice aggregation",
+                "Gate that compares a candidate with a baseline",
+            ],
+            "data_structures": [
+                "Manifest records keyed by audio id with slice metadata",
+                "Hypothesis record: audio id, text, model version, latency",
+                "Score table keyed by (run, model, slice) for cheap comparison",
+            ],
+            "trade_offs": [
+                "Scoring every slice is slower but stops an average from hiding a regression.",
+                "An immutable manifest costs storage but makes a release decision defensible.",
+                "Running models in parallel shortens the loop but complicates GPU scheduling.",
+            ],
+            "follow_ups": [
+                "How would you make the gate deterministic when decoding is stochastic?",
+                "What would you cache between runs, and how would you invalidate it?",
+            ],
+            "grounded_in": "Portfolio: SautiFlow evaluation harness and release gate",
+        },
+        {
+            "topic": "Streaming session",
+            "difficulty": "core",
+            "question": (
+                "Design the low-level state machine for one streaming ASR WebSocket session, including "
+                "backpressure and cancellation."
+            ),
+            "answer": (
+                "Use an explicit state enum: connecting, authenticating, streaming, draining, closed, failed. "
+                "Each state accepts only a small set of events and rejects the rest with a typed error. "
+                "Audio frames enter a bounded queue; when it is full the session applies backpressure instead "
+                "of growing memory. A writer task owns the model call and emits partial transcripts with a "
+                "monotonic sequence number, so the client can drop stale partials. Cancellation closes the "
+                "queue, waits for the writer to acknowledge, and records why the session ended. Timeouts live "
+                "in one place, not in each handler."
+            ),
+            "components": [
+                "Session object holding state, queue and sequence counter",
+                "Reader task for frames and writer task for partial transcripts",
+                "Bounded queue with an explicit overflow policy",
+            ],
+            "data_structures": [
+                "Enum for session state and a small event union",
+                "Bounded FIFO of audio frames",
+                "Sequence-numbered partial transcript record",
+            ],
+            "trade_offs": [
+                "Dropping frames keeps latency bounded but loses audio; blocking preserves accuracy.",
+                "One writer task serialises model calls but can become the bottleneck per session.",
+            ],
+            "follow_ups": [
+                "How would you recover a session after a transient model failure?",
+                "Where would you measure first-audio latency?",
+            ],
+            "grounded_in": "Portfolio: SautiFlow streaming ASR",
+        },
+    ]
+}
+
+FAKE_CODING = {
+    "problems": [
+        {
+            "topic": "Intervals",
+            "difficulty": "warm-up",
+            "question": "Merge overlapping audio segments so a batch job never transcribes the same audio twice.",
+            "answer": (
+                "Sort by start time, then walk the list once. If the next segment starts before the current "
+                "end, extend the end; otherwise close the current segment and start a new one. Sorting "
+                "dominates at O(n log n), and the merge pass is O(n) space for the output."
+            ),
+            "approach": "Sort by start, merge in one pass, and keep half-open intervals so touching segments do not overlap.",
+            "slow_approach": "Merge every pair by rescanning the output list for an overlap, then restart. It is the obvious first pass and is quadratic in the number of segments.",
+            "slow_code": (
+                "def merge_segments(segments):\n"
+                "    merged = []\n"
+                "    for start, end in segments:\n"
+                "        for current in merged:\n"
+                "            if start <= current[1] and end >= current[0]:\n"
+                "                current[0] = min(current[0], start)\n"
+                "                current[1] = max(current[1], end)\n"
+                "                break\n"
+                "        else:\n"
+                "            merged.append([start, end])\n"
+                "    return merged\n"
+            ),
+            "slow_time_complexity": "O(n²)",
+            "slow_space_complexity": "O(n)",
+            "requirements": {
+                "functional": [
+                    "Merge overlapping half-open intervals.",
+                    "Keep touching intervals separate.",
+                ],
+                "non_functional": [
+                    "O(n log n) time and O(n) output space.",
+                    "One pass after sorting, with no mutation of the input.",
+                ],
+            },
+            "core_entities": [
+                {"name": "Interval", "fields": ["start_ms", "end_ms"], "notes": "Half-open: start <= t < end."},
+            ],
+            "api_design": [
+                {"path": "merge_segments(segments: list[tuple[int, int]]) -> list[list[int]]", "purpose": "Merge and return new intervals."},
+            ],
+            "data_flow": [
+                "Sort intervals by start time.",
+                "Walk once, extending the last merged interval when it overlaps.",
+                "Otherwise append the interval and continue.",
+            ],
+            "high_level": [
+                "Sorting makes overlap a local decision between the current interval and the last output.",
+                "The output list is the only state, so the algorithm is easy to test.",
+            ],
+            "deep_dives": [
+                {
+                    "title": "Half-open intervals",
+                    "detail": "Treating end as exclusive means [0, 10) and [10, 20) stay separate, which matches audio segment boundaries.",
+                },
+                {
+                    "title": "Streaming variant",
+                    "detail": "Keep only the last open interval and emit it once a later start passes its end; memory becomes O(1).",
+                },
+            ],
+            "diagram": "[(0,10), (5,12), (20,30)]\n        |\n        v\n sort -> [(0,10), (5,12), (20,30)]\n        |\n        v\n merge -> [[0,12], [20,30]]",
+            "interviewer_questions": [
+                "What changes if intervals are closed?",
+                "How would you merge a stream that does not fit in memory?",
+                "How would you prove the output is minimal?",
+            ],
+            "questions_to_ask": [
+                "How do you detect overlapping audio segments before they reach the transcription queue?",
+                "When a batch window is full, does the scheduler reject work or spill to a second GPU?",
+                "How do you test this merge against real production segment patterns?",
+            ],
+            "code": (
+                "def merge_segments(segments):\n"
+                "    ordered = sorted(segments, key=lambda item: item[0])\n"
+                "    merged = []\n"
+                "    for start, end in ordered:\n"
+                "        if start >= end:\n"
+                "            continue\n"
+                "        if merged and start < merged[-1][1]:\n"
+                "            merged[-1][1] = max(merged[-1][1], end)\n"
+                "        else:\n"
+                "            merged.append([start, end])\n"
+                "    return merged\n"
+            ),
+            "language": "Python",
+            "complexity": "O(n log n) time · O(n) space",
+            "time_complexity": "O(n log n)",
+            "space_complexity": "O(n)",
+            "edge_cases": ["Empty input", "Zero-length segment", "Segments already sorted", "One segment contains another"],
+            "follow_ups": ["How would you stream this without storing every segment?", "What changes for closed intervals?"],
+        },
+        {
+            "topic": "Evaluation",
+            "difficulty": "core",
+            "question": "Compute word error rate for a reference and hypothesis transcript.",
+            "answer": (
+                "WER is the edit distance over words divided by the reference length. Build a DP table where "
+                "each cell is the cheapest substitution, insertion or deletion, then backtrack or keep the "
+                "final cell. The table is O(mn) time and O(mn) space, or O(n) space if only the score is "
+                "needed. Empty references and normalisation need an explicit policy."
+            ),
+            "approach": "Tokenise and normalise both strings, run Levenshtein over tokens, divide by the reference length.",
+            "code": (
+                "def word_error_rate(reference, hypothesis):\n"
+                "    ref = reference.lower().split()\n"
+                "    hyp = hypothesis.lower().split()\n"
+                "    if not ref:\n"
+                "        return 0.0 if not hyp else 1.0\n"
+                "    previous = list(range(len(hyp) + 1))\n"
+                "    for i, ref_word in enumerate(ref, start=1):\n"
+                "        current = [i]\n"
+                "        for j, hyp_word in enumerate(hyp, start=1):\n"
+                "            cost = 0 if ref_word == hyp_word else 1\n"
+                "            current.append(min(\n"
+                "                previous[j] + 1,\n"
+                "                current[j - 1] + 1,\n"
+                "                previous[j - 1] + cost,\n"
+                "            ))\n"
+                "        previous = current\n"
+                "    return previous[-1] / len(ref)\n"
+            ),
+            "language": "Python",
+            "complexity": "O(mn) time · O(n) space",
+            "edge_cases": ["Empty reference", "Empty hypothesis", "Punctuation differences", "Repeated words"],
+            "follow_ups": ["How would you report per-language WER?", "When would you use CER instead?"],
+        },
+        {
+            "topic": "Scheduling",
+            "difficulty": "core",
+            "question": "Batch audio jobs into fixed-size GPU windows while minimising the number of windows.",
+            "answer": (
+                "This is bin packing: sort durations descending, then place each job in the first window with "
+                "enough room, opening a new one only when none fits. First-fit decreasing is not optimal but "
+                "is fast and predictable. For exact minimum windows, use backtracking or an integer solver, "
+                "which is rarely worth it for a queue."
+            ),
+            "approach": "First-fit decreasing keeps the common case fast; track remaining capacity per window.",
+            "code": (
+                "def pack_batches(durations, window):\n"
+                "    if window <= 0:\n"
+                "        raise ValueError('window must be positive')\n"
+                "    batches = []\n"
+                "    for duration in sorted(durations, reverse=True):\n"
+                "        if duration > window:\n"
+                "            raise ValueError('job exceeds window')\n"
+                "        for batch in batches:\n"
+                "            if batch['used'] + duration <= window:\n"
+                "                batch['jobs'].append(duration)\n"
+                "                batch['used'] += duration\n"
+                "                break\n"
+                "        else:\n"
+                "            batches.append({'jobs': [duration], 'used': duration})\n"
+                "    return batches\n"
+            ),
+            "language": "Python",
+            "complexity": "O(n²) worst case · O(n) space",
+            "edge_cases": ["Job longer than the window", "Zero-length jobs", "All jobs identical", "Empty queue"],
+            "follow_ups": ["How would you preserve tenant fairness?", "What if jobs can be split?"],
+        },
+        {
+            "topic": "Rate limiting",
+            "difficulty": "core",
+            "question": "Implement a per-tenant sliding-window rate limiter for a TTS API.",
+            "answer": (
+                "Keep a deque of timestamps per tenant. On each request, drop timestamps older than the "
+                "window, reject if the deque is full, otherwise append now. Each decision is amortised O(1) "
+                "and memory is bounded by the limit per tenant. A monotonic clock avoids wall-clock jumps, "
+                "and shared storage is needed once there is more than one API instance."
+            ),
+            "approach": "One deque per tenant, prune expired entries before checking the limit.",
+            "code": (
+                "from collections import defaultdict, deque\n"
+                "import time\n"
+                "\n"
+                "class SlidingWindowLimiter:\n"
+                "    def __init__(self, limit, window_seconds, clock=time.monotonic):\n"
+                "        self.limit = limit\n"
+                "        self.window = window_seconds\n"
+                "        self.clock = clock\n"
+                "        self.hits = defaultdict(deque)\n"
+                "\n"
+                "    def allow(self, tenant):\n"
+                "        now = self.clock()\n"
+                "        hits = self.hits[tenant]\n"
+                "        while hits and hits[0] <= now - self.window:\n"
+                "            hits.popleft()\n"
+                "        if len(hits) >= self.limit:\n"
+                "            return False\n"
+                "        hits.append(now)\n"
+                "        return True\n"
+            ),
+            "language": "Python",
+            "complexity": "O(1) amortised per request · O(limit) space per tenant",
+            "edge_cases": ["Limit of zero", "Burst exactly at the boundary", "Many idle tenants", "Multiple API instances"],
+            "follow_ups": ["How would you make this distributed?", "What would you return to a throttled client?"],
+        },
+    ]
+}
+
+
+# Practice questions are not tied to a pack artifact: they are short drills
+# generated from uploaded sources, the posting and the portfolio.
+FAKE_PRACTICE = {
+    "questions": [
+        {
+            "topic": "Low-level design",
+            "difficulty": "core",
+            "question": "Why would you put a bounded queue between an audio reader and a model writer?",
+            "answer": (
+                "A bounded queue turns an unbounded memory risk into an explicit policy. The reader can slow "
+                "down, drop frames or close the session, and the writer owns the expensive model call without "
+                "the reader blocking on it. The bound is also a latency budget: if the queue is full, the "
+                "system is already too far behind to answer in real time. I would expose the depth and the "
+                "overflow count as metrics, and choose drop-oldest for streaming and block for batch."
+            ),
+            "follow_ups": [
+                "What would you alert on?",
+                "How does the policy change for batch transcription?",
+            ],
+            "source": "Interview sources",
+        },
+        {
+            "topic": "Evaluation",
+            "difficulty": "deep",
+            "question": "How do you stop a locked evaluation set from leaking into training?",
+            "answer": (
+                "Treat the manifest as the source of truth: store a content hash, keep the test audio outside "
+                "the training bucket, and make the training loader reject any id that appears in the test "
+                "manifest. The gate should record the dataset hash with every result so a score can be tied "
+                "to exactly one dataset. I would also rotate a small, never-published audit slice to catch "
+                "overfitting that a fixed set cannot show."
+            ),
+            "follow_ups": [
+                "Where would the check live so every training job runs it?",
+                "How would you handle near-duplicate recordings?",
+            ],
+            "source": "Interview sources",
+        },
+        {
+            "topic": "Python",
+            "difficulty": "warm-up",
+            "question": "When is a dataclass the wrong choice for a request object?",
+            "answer": (
+                "A dataclass is a poor fit when the object must be cheap to create in a very hot loop, when "
+                "mutation is part of the contract, or when the object needs behaviour that belongs to a "
+                "service. It is also wrong if the fields are not known until runtime. For a request crossing "
+                "a process boundary I would rather use a validated model with an explicit schema."
+            ),
+            "follow_ups": [
+                "How would you validate a dataclass at the boundary?",
+                "When would you choose a NamedTuple instead?",
+            ],
+            "source": "Interview sources",
+        },
+    ]
+}
+
+FAKE_ANSWER = {
+    "answer": (
+        "A provider seam should expose the smallest contract the callers need, translate vendor errors at "
+        "the adapter boundary, and carry the provider and model on every result. The registry builds the "
+        "adapter from configuration and exposes a health check, so a missing key disables the tab instead "
+        "of failing mid-request. I would keep retries in one shared wrapper and make each adapter's "
+        "capabilities explicit rather than guessing from the provider name."
+    ),
+    "follow_ups": [
+        "How would you add a provider without changing the callers?",
+        "Where would you put the cost calculation?",
+    ],
+    "confidence": "high",
 }

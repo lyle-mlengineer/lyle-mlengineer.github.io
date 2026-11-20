@@ -10,8 +10,9 @@ from __future__ import annotations
 # USD per query.
 SEARCH_PRICES: dict[str, float] = {
     "serper": 0.001,
+    "exa": 0.01,
     "duckduckgo": 0.0,
-    "auto": 0.001,
+    "auto": 0.01,
     "fake": 0.0,
 }
 

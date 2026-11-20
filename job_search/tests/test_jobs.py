@@ -94,6 +94,9 @@ def test_text_ingestion_runs_extraction_and_summary(authed, settings):
         "work_history",
         "proud_project",
         "technical_interview",
+        "system_design",
+        "low_level_design",
+        "coding",
         "behavioral_interview",
     ]
     assert all(step["status"] == "succeeded" for step in run["steps"])
@@ -279,6 +282,40 @@ def test_markdown_renderer_labels_sections_for_styling():
     html = markdown_to_html("## Delivery\n\n- Pause after the second sentence")
     assert '<h3 class="prose-h prose-h--delivery">Delivery</h3>' in html
     assert "<h3 class=\"prose-h prose-h--\">" not in html
+
+
+def test_markdown_renderer_renders_fenced_code_escaped():
+    html = markdown_to_html(
+        "**Before**\n\n```python\nprint('<x>')\n```\n\nAfter"
+    )
+    assert '<pre class="prose-code"><code class="language-python">print(&#x27;&lt;x&gt;&#x27;)</code></pre>' in html
+    assert "<strong>Before</strong>" in html
+    assert "<p>After</p>" in html
+    assert "<x>" not in html
+
+
+def test_markdown_renderer_closes_an_unterminated_code_block():
+    html = markdown_to_html("```\nx = 1")
+    assert '<pre class="prose-code"><code>x = 1</code></pre>' in html
+
+
+def test_markdown_renderer_wraps_design_sections_in_details():
+    html = markdown_to_html(
+        "## Q\n\n### Requirements\n\n- one\n\n### Deep dives\n\n**A** — detail",
+        collapsible_sections=True,
+    )
+    assert html.count('<details class="design-section">') == 2
+    assert '<summary class="design-section__title">Requirements</summary>' in html
+    assert '<summary class="design-section__title">Deep dives</summary>' in html
+    assert "<h4" not in html
+    assert html.count("</div></details>") == 2
+    assert '<h3 class="prose-h prose-h--q">Q</h3>' in html
+
+
+def test_markdown_renderer_keeps_sections_flat_by_default():
+    html = markdown_to_html("## Q\n\n### Requirements\n\n- one")
+    assert "<details" not in html
+    assert '<h4 class="prose-h prose-h--requirements">Requirements</h4>' in html
 
 
 def test_markdown_renderer_links_only_http_urls():

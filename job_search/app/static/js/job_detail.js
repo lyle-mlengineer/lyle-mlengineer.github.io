@@ -18,6 +18,8 @@
     const retry = document.getElementById("run-retry");
     const resume = document.getElementById("run-resume");
     const regenerateButtons = document.querySelectorAll("[data-regenerate]");
+    const fillButton = document.querySelector("[data-fill-missing]");
+    const deleteButton = document.querySelector("[data-delete-job]");
 
     function update(data) {
         if (bar) bar.style.width = `${data.progress_pct || 0}%`;
@@ -109,4 +111,24 @@
         () => window.Skipper.resumeJob(jobId),
         { busy: "Resuming…", fallback: "The run could not be resumed." },
     ));
+
+    fillButton?.addEventListener("click", () => queueRun(
+        fillButton,
+        () => window.Skipper.fillMissing(jobId),
+        { busy: "Queuing…", fallback: "The missing artifacts could not be queued." },
+    ));
+
+    deleteButton?.addEventListener("click", async () => {
+        if (!window.confirm("Delete this job and everything generated for it? This cannot be undone.")) {
+            return;
+        }
+        deleteButton.disabled = true;
+        const result = await window.Skipper.deleteJob(jobId);
+        if (result.ok) {
+            window.location.href = "/jobs";
+            return;
+        }
+        deleteButton.disabled = false;
+        showError(result.message, "That job could not be deleted.");
+    });
 })();

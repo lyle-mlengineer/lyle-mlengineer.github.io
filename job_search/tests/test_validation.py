@@ -71,3 +71,37 @@ def valid() -> dict:
         "remote": True,
         "seniority": "senior",
     }
+
+
+# ---------------------------------------------------------------- length repair
+
+
+def test_clamp_lengths_trims_at_a_word_boundary_and_validates():
+    from app.validation import clamp_lengths
+
+    schema = {
+        "type": "object",
+        "properties": {
+            "closing": {"type": "string", "max_len": 20},
+            "items": {"type": "array", "items": {"type": "string", "max_len": 10}},
+        },
+    }
+    payload = clamp_lengths(
+        {"closing": "I look forward to speaking with your team soon.", "items": ["one two three"]},
+        schema,
+    )
+    assert len(payload["closing"]) <= 20
+    assert not payload["closing"].endswith((" ", ",", ";", ":"))
+    assert payload["items"] == ["one two"]
+    validate(payload, schema)
+
+
+def test_clamp_lengths_leaves_short_values_and_other_types_alone():
+    from app.validation import clamp_lengths
+
+    schema = {
+        "type": "object",
+        "properties": {"closing": {"type": "string", "max_len": 20}, "score": {"type": "number"}},
+    }
+    payload = {"closing": "Thanks", "score": 8.5}
+    assert clamp_lengths(payload, schema) == payload

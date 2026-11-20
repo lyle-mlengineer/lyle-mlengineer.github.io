@@ -72,6 +72,12 @@ RUN_STATUS_LABELS: dict[str, str] = {
 
 STEP_STATUSES: tuple[str, ...] = ("pending", "running", "succeeded", "failed", "skipped")
 
+#: Uploaded interview sources and the questions generated from them.
+INTERVIEW_SOURCE_KINDS: tuple[str, ...] = ("pdf", "docx", "markdown", "text", "article")
+INTERVIEW_QUESTION_ORIGINS: tuple[str, ...] = ("practice", "resource", "answer")
+INTERVIEW_DIFFICULTIES: tuple[str, ...] = ("warm-up", "core", "deep")
+
+
 ARTIFACT_KINDS: tuple[str, ...] = (
     "job_summary",
     "company_research",
@@ -84,6 +90,9 @@ ARTIFACT_KINDS: tuple[str, ...] = (
     "work_history",
     "proud_project",
     "technical_interview",
+    "system_design",
+    "low_level_design",
+    "coding",
     "behavioral_interview",
 )
 
@@ -99,6 +108,9 @@ ARTIFACT_LABELS: dict[str, str] = {
     "work_history": "Work history",
     "proud_project": "Projects I'm proud of",
     "technical_interview": "Technical interview",
+    "system_design": "System design",
+    "low_level_design": "Low-level design",
+    "coding": "Coding interview",
     "behavioral_interview": "Behavioural interview",
 }
 
@@ -115,6 +127,9 @@ SKILLS: tuple[dict, ...] = (
     {"name": "work_history", "weight": 1.0, "optional": True, "requires": ("job_extraction",)},
     {"name": "proud_project", "weight": 1.0, "optional": True, "requires": ("job_extraction",)},
     {"name": "technical_interview", "weight": 3.0, "optional": True, "requires": ("job_extraction",)},
+    {"name": "system_design", "weight": 3.0, "optional": True, "requires": ("job_extraction",)},
+    {"name": "low_level_design", "weight": 3.0, "optional": True, "requires": ("job_extraction",)},
+    {"name": "coding", "weight": 3.0, "optional": True, "requires": ("job_extraction",)},
     {"name": "behavioral_interview", "weight": 3.0, "optional": True, "requires": ("job_extraction",)},
 )
 
@@ -129,6 +144,9 @@ SKILL_LABELS: dict[str, str] = {
     "work_history": "Telling your work history",
     "proud_project": "Choosing your proudest projects",
     "technical_interview": "Prepping technical questions",
+    "system_design": "Prepping system design",
+    "low_level_design": "Prepping low-level design",
+    "coding": "Prepping coding problems",
     "behavioral_interview": "Prepping behavioural questions",
 }
 

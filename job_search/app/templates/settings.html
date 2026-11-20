@@ -32,6 +32,7 @@
         <div class="kv__row"><dt>Artifacts</dt><dd><code>{{ settings.artifacts_dir }}</code></dd></div>
         <div class="kv__row"><dt>Portfolio corpus</dt><dd><code>{{ settings.portfolio_dir }}</code></dd></div>
         <div class="kv__row"><dt>LLM provider</dt><dd><code>{{ settings.llm_provider }}</code></dd></div>
+        <div class="kv__row"><dt>LLM fallbacks</dt><dd><code>{{ settings.fallback_providers|join(', ') or 'none' }}</code></dd></div>
         <div class="kv__row"><dt>Large model</dt><dd><code>{{ llm_models.large }}</code></dd></div>
         <div class="kv__row"><dt>Small model</dt><dd><code>{{ llm_models.small }}</code></dd></div>
         <div class="kv__row"><dt>Search provider</dt><dd><code>{{ settings.search_provider }}</code></dd></div>

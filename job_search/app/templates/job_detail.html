@@ -6,6 +6,10 @@
 {% block eyebrow %}{{ job.company.name if job.company else 'Company pending' }}{% if job.location %} · {{ job.location }}{% endif %}{% endblock %}
 
 {% block topbar_actions %}
+<button type="button" class="button button--small button--ghost" data-delete-job="{{ job.id }}">
+    <i class="uil uil-trash-alt button__icon button__icon--lead"></i>
+    Delete job
+</button>
 <a href="/jobs" class="button button--small button--link">
     <i class="uil uil-arrow-left button__icon button__icon--lead"></i>
     All jobs
@@ -36,7 +40,7 @@
     {% endif %}
 </div>
 
-<section class="panel" id="run-panel" data-run-id="{{ run.id if run else '' }}" data-run-status="{{ run.status if run else 'none' }}">
+<section class="panel" id="run-panel" data-collapsible data-run-id="{{ run.id if run else '' }}" data-run-status="{{ run.status if run else 'none' }}">
     <div class="panel__head">
         <div>
             <p class="panel__kicker">Pipeline</p>
@@ -108,7 +112,7 @@
     <p class="run-error" id="run-error" role="alert" {% if not (run and run.error) %}hidden{% endif %}>{{ run.error if run else '' }}</p>
 </section>
 
-<section class="panel" id="calls-panel">
+<section class="panel" id="calls-panel" data-collapsible>
     <div class="panel__head">
         <div>
             <p class="panel__kicker">Resources</p>
@@ -212,7 +216,7 @@
     {% endif %}
 </section>
 
-<section class="panel cv-panel" id="cv-panel"{% if cv_pdf %} data-cv-version="{{ cv_pdf.version }}"{% endif %}>
+<section class="panel cv-panel" id="cv-panel" data-collapsible{% if cv_pdf %} data-cv-version="{{ cv_pdf.version }}"{% endif %}>
     <div class="panel__head">
         <div>
             <p class="panel__kicker">Artifact</p>
@@ -269,7 +273,7 @@
     {% endif %}
 </section>
 
-<section class="panel cv-panel" id="cover-panel"{% if cover_pdf %} data-cv-version="{{ cover_pdf.version }}"{% endif %}>
+<section class="panel cv-panel" id="cover-panel" data-collapsible{% if cover_pdf %} data-cv-version="{{ cover_pdf.version }}"{% endif %}>
     <div class="panel__head">
         <div>
             <p class="panel__kicker">Artifact</p>
@@ -321,7 +325,7 @@
     {% endif %}
 </section>
 
-<section class="panel" id="email-panel">
+<section class="panel" id="email-panel" data-collapsible>
     <div class="panel__head">
         <div>
             <p class="panel__kicker">Artifact</p>
@@ -349,8 +353,44 @@
     </div>
 
     {% if email_artifact %}
-    <p class="email-subject"><span>Subject</span>{{ email_subject or 'Application' }}</p>
+    {% if email_view %}
+    <article class="email-card">
+        <header class="email-card__head">
+            <div class="email-card__row">
+                <span class="email-card__label">From</span>
+                <span class="email-card__value">Lyle Okoth</span>
+            </div>
+            <div class="email-card__row">
+                <span class="email-card__label">To</span>
+                <span class="email-card__value">{{ email_view.to_label }}</span>
+            </div>
+            <div class="email-card__row email-card__row--subject">
+                <span class="email-card__label">Subject</span>
+                <span class="email-card__value">{{ email_subject or 'Application' }}</span>
+            </div>
+        </header>
+        <div class="email-card__body" id="email-body">
+            <p class="email-card__greeting">{{ email_view.greeting }}</p>
+            {% for paragraph in email_view.paragraphs %}
+            <p>{{ paragraph }}</p>
+            {% endfor %}
+            <div class="email-card__signoff">
+                <p>{{ email_view.sign_off }}</p>
+                <p class="email-card__signature">{{ email_view.signature }}</p>
+            </div>
+        </div>
+        {% if email_view.attachments %}
+        <footer class="email-card__attachments">
+            <span class="email-card__label">Attached</span>
+            {% for name in email_view.attachments %}
+            <span class="email-attachment"><i class="uil uil-paperclip"></i>{{ name }}</span>
+            {% endfor %}
+        </footer>
+        {% endif %}
+    </article>
+    {% else %}
     <div class="email-preview" id="email-body">{{ email_body }}</div>
+    {% endif %}
     {% else %}
     <div class="empty">
         <span class="empty__icon"><i class="uil uil-message"></i></span>
@@ -361,7 +401,7 @@
 </section>
 
 {% if extras.company_research %}
-<section class="panel panel--dossier" id="research-panel">
+<section class="panel panel--dossier" id="research-panel" data-collapsible>
     <div class="panel__head">
         <div>
             <p class="panel__kicker">Research</p>
@@ -382,20 +422,50 @@
     ('work_history', 'Work history'),
     ('proud_project', 'A project I am proud of'),
     ('technical_interview', 'Technical interview'),
+    ('system_design', 'System design'),
+    ('low_level_design', 'Low-level design'),
+    ('coding', 'Coding interview'),
     ('behavioral_interview', 'Behavioural interview'),
 ] %}
-<section class="panel" id="interview-panel">
+<section class="panel" id="interview-panel" data-tabs>
     <div class="panel__head">
         <div>
             <p class="panel__kicker">Interview pack</p>
             <h2 class="panel__title">What to say out loud</h2>
             <p class="panel__hint">Spoken answers and interview briefs, all grounded in the portfolio.</p>
         </div>
-        <button type="button" class="button button--small button--ghost" data-regenerate data-skill="technical_interview">
-            <i class="uil uil-redo button__icon button__icon--lead"></i>
-            Regenerate technical
+        <div class="panel__actions">
+            <button type="button" class="button button--small button--ghost" data-fill-missing>
+                <i class="uil uil-layer-group button__icon button__icon--lead"></i>
+                Fill missing
+            </button>
+            <button type="button" class="button button--small button--ghost" data-regenerate data-skill="technical_interview">
+                <i class="uil uil-redo button__icon button__icon--lead"></i>
+                Regenerate technical
+            </button>
+        </div>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Interview pack">
+        <button class="tabs__tab is-active" type="button" role="tab" id="tab-script"
+                aria-controls="panel-script" aria-selected="true" data-tab="script">
+            <i class="uil uil-file-alt"></i> Script
+        </button>
+        <button class="tabs__tab" type="button" role="tab" id="tab-audio"
+                aria-controls="panel-audio" aria-selected="false" data-tab="audio" tabindex="-1">
+            <i class="uil uil-headphones"></i> Audio
+        </button>
+        <button class="tabs__tab" type="button" role="tab" id="tab-practice"
+                aria-controls="panel-practice" aria-selected="false" data-tab="practice" tabindex="-1">
+            <i class="uil uil-bolt"></i> Practice
+        </button>
+        <button class="tabs__tab" type="button" role="tab" id="tab-resources"
+                aria-controls="panel-resources" aria-selected="false" data-tab="resources" tabindex="-1">
+            <i class="uil uil-folder-open"></i> Sources
         </button>
     </div>
+
+    <div class="tabs__panel" id="panel-script" role="tabpanel" aria-labelledby="tab-script" data-panel="script">
     <div class="interview-pack">
         {% for kind, title in spoken_docs %}
         {% if extras.get(kind) %}
@@ -405,11 +475,39 @@
             </summary>
             <div class="interview-doc__body">
                 <div class="prose prose--spoken">{{ extras[kind]|safe }}</div>
+                <div class="interview-doc__audio">
+                    <button class="button button--small button--ghost" type="button"
+                            data-hear-section="{{ kind }}"{% if not tts_label %} disabled{% endif %}>
+                        <i class="uil uil-headphones button__icon button__icon--lead"></i>
+                        Hear this section
+                    </button>
+                    <span class="interview-doc__audio-note">
+                        {% if tts_label %}Uses the voices picked in the Audio tab.{% else %}Speech is switched off.{% endif %}
+                    </span>
+                </div>
+            </div>
+        </details>
+        {% else %}
+        <details class="interview-doc">
+            <summary>
+                <span class="interview-doc__title">{{ title }}</span>
+                <span class="chip">Not generated yet</span>
+            </summary>
+            <div class="interview-doc__body">
+                <p class="field__hint">
+                    This section was added after this job was prepared, so it has no content yet.
+                    Generate it without re-running the rest of the pack.
+                </p>
+                <button class="button button--small button--ghost" type="button"
+                        data-regenerate data-skill="{{ kind }}">
+                    <i class="uil uil-redo button__icon button__icon--lead"></i>
+                    Generate {{ title|lower }}
+                </button>
             </div>
         </details>
         {% endif %}
         {% endfor %}
-        {% if not extras.get('tell_me_about_yourself') and not extras.get('technical_interview') %}
+        {% if not extras.get('tell_me_about_yourself') and not extras.get('technical_interview') and not extras.get('system_design') and not extras.get('low_level_design') and not extras.get('coding') %}
         <div class="empty">
             <span class="empty__icon"><i class="uil uil-comments-alt"></i></span>
             <h3 class="empty__title">The interview pack is still being written</h3>
@@ -417,11 +515,24 @@
         </div>
         {% endif %}
     </div>
+    </div>
+
+    <div class="tabs__panel" id="panel-audio" role="tabpanel" aria-labelledby="tab-audio" data-panel="audio" hidden>
+        {% include "partials/interview_audio.html" %}
+    </div>
+
+    <div class="tabs__panel" id="panel-practice" role="tabpanel" aria-labelledby="tab-practice" data-panel="practice" hidden>
+        {% include "partials/interview_practice.html" %}
+    </div>
+
+    <div class="tabs__panel" id="panel-resources" role="tabpanel" aria-labelledby="tab-resources" data-panel="resources" hidden>
+        {% include "partials/interview_resources.html" %}
+    </div>
 </section>
 
 <div class="dash-grid">
     <div class="dash-grid__main">
-        <section class="panel panel--brief" id="brief-panel" aria-labelledby="brief-title">
+        <section class="panel panel--brief" id="brief-panel" data-collapsible aria-labelledby="brief-title">
             <div class="panel__head">
                 <div>
                     <p class="panel__kicker">Brief</p>
@@ -443,7 +554,7 @@
         </section>
 
         {% if job.extract_json %}
-        <section class="panel" aria-labelledby="extract-title">
+        <section class="panel" id="extract-panel" data-collapsible aria-labelledby="extract-title">
             <div class="panel__head">
                 <div>
                     <p class="panel__kicker">Structured</p>
@@ -484,7 +595,7 @@
     </div>
 
     <aside class="dash-grid__side">
-        <section class="panel panel--quiet" aria-labelledby="timeline-title">
+        <section class="panel panel--quiet" id="timeline-panel" data-collapsible aria-labelledby="timeline-title">
             <div class="panel__head">
                 <div>
                     <p class="panel__kicker">History</p>
@@ -521,7 +632,7 @@
             </ol>
         </section>
 
-        <section class="panel panel--quiet" aria-labelledby="run-stats-title">
+        <section class="panel panel--quiet" id="run-stats-panel" data-collapsible aria-labelledby="run-stats-title">
             <div class="panel__head">
                 <div>
                     <p class="panel__kicker">Cost</p>
@@ -544,5 +655,8 @@
 {% block scripts %}
 <script src="/static/js/run_actions.js" defer></script>
 <script src="/static/js/poll.js" defer></script>
+<script src="/static/js/interview_audio.js" defer></script>
+<script src="/static/js/interview_study.js" defer></script>
 <script src="/static/js/job_detail.js" defer></script>
+<script src="/static/js/collapsible.js" defer></script>
 {% endblock %}

@@ -23,7 +23,12 @@ def app_env(tmp_path, monkeypatch):
     monkeypatch.setenv("SKIPPER_ADMIN_USER", "lyle")
     monkeypatch.setenv("SKIPPER_ADMIN_PASSWORD", "test-password-123")
     monkeypatch.setenv("SKIPPER_LLM_PROVIDER", "fake")
+    # The test suite must never dial a hosted provider, even when a developer's
+    # .env has real keys and auto fallbacks enabled.
+    monkeypatch.setenv("SKIPPER_LLM_FALLBACKS", "none")
     monkeypatch.setenv("SKIPPER_SEARCH_PROVIDER", "duckduckgo")
+    # The audio tab must never reach a hosted speech API during tests.
+    monkeypatch.setenv("SKIPPER_TTS_PROVIDER", "fake")
     monkeypatch.setenv("SKIPPER_SOFFICE_PATH", "skipper-no-libreoffice-installed")
     monkeypatch.setenv("SKIPPER_SECRET_KEY", "test-secret-key-not-for-production")
 

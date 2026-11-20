@@ -15,10 +15,11 @@ from typing import Any
 from ..providers.llm.base import ChatMessage
 from ..rag.grounding import check_numbers
 from .base import GROUND_RULES, Skill, SkillContext, job_block
+from .cv_templates import template_prompt
 
 logger = logging.getLogger("skipper.skills.cv")
 
-CORPUS_FILES = ("profile.md", "experience.md", "skills.md", "projects.md")
+CORPUS_FILES = ("profile.md", "experience.md", "skills.md", "projects.md", "writing.md")
 MAX_BULLET_CHARS = 260
 MAX_BULLETS = 5
 
@@ -29,7 +30,7 @@ class CVWritingSkill(Skill):
     output_kind = "cv"
     requires = ("job_extraction",)
     weight = 3.0
-    max_tokens = 5_000
+    max_tokens = 5_500
 
     def schema(self) -> dict[str, Any]:
         bullet = {"type": "string", "min_len": 20, "max_len": MAX_BULLET_CHARS}
@@ -47,6 +48,17 @@ class CVWritingSkill(Skill):
                         "properties": {
                             "name": {"type": "string", "max_len": 60},
                             "items": {"type": "array", "items": {"type": "string", "max_len": 100}},
+                        },
+                    },
+                },
+                "tech_groups": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": ["name", "items"],
+                        "properties": {
+                            "name": {"type": "string", "max_len": 60},
+                            "items": {"type": "array", "items": {"type": "string", "max_len": 120}},
                         },
                     },
                 },
@@ -73,6 +85,7 @@ class CVWritingSkill(Skill):
                             "name": {"type": "string", "max_len": 120},
                             "meta": {"type": "string", "max_len": 160},
                             "bullets": {"type": "array", "items": bullet},
+                            "links": {"type": "array", "items": {"type": "string", "max_len": 220}},
                         },
                     },
                 },
@@ -96,19 +109,40 @@ class CVWritingSkill(Skill):
         extraction = ctx.prior.get("job_extraction", {})
         role = ctx.job.title
         company = ctx.company.name if ctx.company else "the company"
+        template = template_prompt(ctx.settings.portfolio_dir, role)
+        template_block = (
+            "\n\n<cv_template>\n"
+            + "This is Lyle's own portfolio CV for the closest role. Reproduce its structure,\n"
+            + "section names, competency naming, tone and metric-bearing bullets; tailor the\n"
+            + "content to the posting by selecting, reordering and rewriting. Prefer its wording\n"
+            + "and numbers where they are supported by <portfolio>. Never copy a claim that is\n"
+            + "not in <portfolio>, and never add a skill or metric the portfolio cannot defend.\n"
+            + template
+            + "\n</cv_template>"
+        )
         return [
             ChatMessage(
                 "system",
                 GROUND_RULES
                 + "\nSKILL: cv_writing\n"
                 + "Write Lyle's resume for this exact job. Tailor emphasis, never facts.\n"
+                + "This is a competitive application, not a biography: every line must answer a line in the posting.\n"
                 + "- ATS-safe order: headline, summary, skills, experience, projects, education, certifications.\n"
-                + "- Summary: three sentences, 70-110 words, mirroring the role's language.\n"
-                + "- 3-5 bullets for the current and most relevant roles, 2-3 for older ones. One line each,\n"
-                + "  starting with an action verb and carrying the outcome.\n"
+                + "- Headline: the target role plus the two strongest matching domains (for example\n"
+                + "  'Machine Learning Engineer — Speech, Multilingual ASR').\n"
+                + "- Summary: 3 sentences, 80-110 words. Sentence one names the role and years/domain.\n"
+                + "  Sentence two is the strongest quantified proof. Sentence three names the constraints\n"
+                + "  Lyle has shipped under. Mirror the posting's nouns exactly; no adjectives doing the work.\n"
+                + "- Keep roles in reverse-chronological order and never change dates. Use 3-4 bullets for\n"
+                + "  relevant roles, 2 for older ones. Every bullet is one line, starts with a strong\n"
+                + "  past-tense verb, and has the form: action -> mechanism -> outcome.\n"
+                + "- Put the bullet that answers the posting's first must-have first in each role.\n"
+                + "- Skills: at most four groups, six items each, ordered by what the posting asks for. Use the\n"
+                + "  posting's exact keywords where they are truthful (ATS matching), not synonyms.\n"
+                + "- Projects: at most three, only ones that prove a requirement. Name the constraint and the\n"
+                + "  evaluation method, not just the stack.\n"
                 + "- Keep quantified claims exactly as they appear in <portfolio>. Drop a number you cannot support.\n"
-                + "- At most four skill groups and three projects; choose what this posting asks for.\n"
-                + "- No brackets, no placeholders, no referees, no photo.\n",
+                + "- No brackets, no placeholders, no referees, no photo, no adjective stacks.\n",
             ),
             ChatMessage(
                 "user",
@@ -118,6 +152,10 @@ class CVWritingSkill(Skill):
                 + "\n</extraction>\n\n<portfolio>\n"
                 + _corpus(ctx.settings.portfolio_dir)[:16_000]
                 + "\n</portfolio>\n\n"
+                + template_block
+                + "\n\n<must_have>\n"
+                + "\n".join(f"- {item}" for item in (extraction.get("must_have") or [])[:12])
+                + "\n</must_have>\n\n"
                 + f"Target: {role} at {company}. Return the resume JSON.",
             ),
         ]
@@ -125,9 +163,10 @@ class CVWritingSkill(Skill):
     def postprocess(self, payload: dict[str, Any], ctx: SkillContext) -> dict[str, Any]:
         corpus = _corpus(ctx.settings.portfolio_dir)
         resume = {
-            "headline": _text(payload.get("headline"), 120),
+            "headline": _text(payload.get("headline"), 120).upper(),
             "summary": _scrub(_text(payload.get("summary"), 900), corpus),
             "skill_groups": _skill_groups(payload.get("skill_groups")),
+            "tech_groups": _skill_groups(payload.get("tech_groups")),
             "experience": _experience(payload.get("experience"), corpus),
             "projects": _projects(payload.get("projects"), corpus),
             "education": _education(payload.get("education")),
@@ -210,8 +249,26 @@ def _projects(value: Any, corpus: str) -> list[dict[str, Any]]:
         name = _text(row.get("name"), 120)
         bullets = [_scrub(text, corpus) for text in _list(row.get("bullets"), 3, item_limit=MAX_BULLET_CHARS)]
         if name and bullets:
-            projects.append({"name": name, "meta": _text(row.get("meta"), 160), "bullets": bullets})
+            projects.append(
+                {
+                    "name": name,
+                    "meta": _text(row.get("meta"), 160),
+                    "bullets": bullets,
+                    "links": _links(row.get("links")),
+                }
+            )
     return projects[:3]
+
+
+def _links(value: Any) -> list[str]:
+    links: list[str] = []
+    if not isinstance(value, list):
+        return links
+    for item in value:
+        url = _text(item, 220)
+        if url.startswith(("https://", "http://")) and url not in links:
+            links.append(url)
+    return links[:2]
 
 
 def _education(value: Any) -> list[dict[str, Any]]:

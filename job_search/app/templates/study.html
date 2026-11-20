@@ -1,0 +1,187 @@
+{% extends "app_shell.html" %}
+
+{% block title %}Study — Skipper{% endblock %}
+{% block page_title %}Study workspace{% endblock %}
+{% block eyebrow %}Documents, questions and audio — no job required{% endblock %}
+
+{% block topbar_actions %}
+<a href="/jobs" class="button button--small button--link">
+    <i class="uil uil-briefcase-alt button__icon button__icon--lead"></i>
+    Jobs
+</a>
+{% endblock %}
+
+{% block app_content %}
+<div class="dash-grid">
+    <div class="dash-grid__main">
+        <section class="panel" id="study-generate" data-study-generate>
+            <div class="panel__head">
+                <div>
+                    <p class="panel__kicker">Practice</p>
+                    <h2 class="panel__title">Generate questions</h2>
+                    <p class="panel__hint">
+                        Answers come from your saved documents and the portfolio. Give the role and level you are
+                        preparing for — no job has to be open.
+                    </p>
+                </div>
+            </div>
+
+            <form class="form" data-study-form novalidate>
+                <div class="form__row">
+                    <label class="field">
+                        <span class="field__label">Job category</span>
+                        <input class="input" type="text" name="role" list="study-categories"
+                               placeholder="Machine learning engineer" autocomplete="off">
+                        <datalist id="study-categories">
+                            <option value="Machine learning engineer"></option>
+                            <option value="AI engineer"></option>
+                            <option value="Data engineer"></option>
+                            <option value="Data scientist"></option>
+                            <option value="Backend engineer"></option>
+                            <option value="Software engineer"></option>
+                            <option value="ML platform engineer"></option>
+                        </datalist>
+                    </label>
+                    <label class="field">
+                        <span class="field__label">Level</span>
+                        <select class="input" name="level">
+                            <option value="Junior">Junior</option>
+                            <option value="Mid">Mid</option>
+                            <option value="Senior" selected>Senior</option>
+                            <option value="Staff">Staff</option>
+                            <option value="Lead">Lead</option>
+                        </select>
+                    </label>
+                    <label class="field">
+                        <span class="field__label">Questions</span>
+                        <input class="input" type="number" name="count" min="1" max="12"
+                               value="{{ defaults.count }}">
+                    </label>
+                    <label class="field">
+                        <span class="field__label">Difficulty</span>
+                        <select class="input" name="difficulty">
+                            <option value="mixed" selected>Mixed</option>
+                            <option value="warm-up">Warm-up</option>
+                            <option value="core">Core</option>
+                            <option value="deep">Deep</option>
+                        </select>
+                    </label>
+                </div>
+                <label class="field">
+                    <span class="field__label">Angle <span class="field__optional">optional</span></span>
+                    <input class="input" type="text" name="focus" maxlength="120"
+                           placeholder="e.g. production debugging, evaluation, trade-offs">
+                </label>
+
+                <fieldset class="field">
+                    <legend class="field__label">Documents to use</legend>
+                    <p class="field__hint">
+                        Leave every box clear to draw on all saved documents. Select one or more to focus the set.
+                    </p>
+                    <div class="source-picks" data-study-source-picks>
+                        <p class="field__hint">Loading documents…</p>
+                    </div>
+                </fieldset>
+
+                <div class="form__foot">
+                    <button type="submit" class="button button--small" data-study-generate-button>
+                        <i class="uil uil-bolt button__icon button__icon--lead"></i>
+                        Generate questions
+                    </button>
+                    <span class="form__status" data-study-status role="status"></span>
+                </div>
+            </form>
+        </section>
+
+        <section class="panel" id="study-questions">
+            <div class="panel__head">
+                <div>
+                    <p class="panel__kicker">Saved set</p>
+                    <h2 class="panel__title">Questions and answers</h2>
+                    <p class="panel__hint">Every generated set is kept here, with audio for the question and the answer.</p>
+                </div>
+                <span class="pill" data-study-question-count></span>
+            </div>
+            <div class="practice" data-study-list aria-live="polite">
+                <p class="field__hint" data-study-empty>No questions yet. Generate a set above.</p>
+            </div>
+        </section>
+    </div>
+
+    <div class="dash-grid__side">
+        <section class="panel" id="study-sources" data-study-sources>
+            <div class="panel__head">
+                <div>
+                    <p class="panel__kicker">Library</p>
+                    <h2 class="panel__title">Documents</h2>
+                    <p class="panel__hint">Upload a PDF, DOCX, article link or plain text. It is saved and indexed for reuse.</p>
+                </div>
+            </div>
+
+            <form class="form" data-study-upload enctype="multipart/form-data" novalidate>
+                <label class="field">
+                    <span class="field__label">Title <span class="field__optional">optional</span></span>
+                    <input class="input" type="text" name="title" maxlength="200" placeholder="System design notes">
+                </label>
+                <label class="field">
+                    <span class="field__label">File</span>
+                    <input class="input" type="file" name="file"
+                           accept=".pdf,.docx,.md,.txt,.html,.htm,.rtf">
+                </label>
+                <p class="field__hint">Or paste text, or give a public article URL.</p>
+                <label class="field">
+                    <span class="field__label">Text</span>
+                    <textarea class="input input--area" name="text" rows="5"
+                              placeholder="Paste an article or your own notes…"></textarea>
+                </label>
+                <label class="field">
+                    <span class="field__label">Article URL</span>
+                    <input class="input" type="url" name="url" placeholder="https://example.com/article">
+                </label>
+                <div class="form__foot">
+                    <button type="submit" class="button button--small" data-study-upload-button>
+                        <i class="uil uil-upload button__icon button__icon--lead"></i>
+                        Save document
+                    </button>
+                    <span class="form__status" data-study-upload-status role="status"></span>
+                </div>
+            </form>
+
+            <div class="source-list" data-study-source-list>
+                <p class="field__hint" data-study-sources-empty hidden>No documents yet. Upload one above.</p>
+            </div>
+        </section>
+
+        <section class="panel" id="study-audio">
+            <div class="panel__head">
+                <div>
+                    <p class="panel__kicker">Audio</p>
+                    <h2 class="panel__title">Voices</h2>
+                    <p class="panel__hint">
+                        {% if tts_label %}Spoken with {{ tts_label }}.{% else %}Speech is switched off.{% endif %}
+                    </p>
+                </div>
+            </div>
+            <audio class="study-player" data-study-player controls preload="none"
+                   aria-label="Question and answer audio"></audio>
+            <label class="field">
+                <span class="field__label">Interviewer voice</span>
+                <select class="input" data-voice-interviewer>
+                    <option value="">Provider default</option>
+                </select>
+            </label>
+            <label class="field">
+                <span class="field__label">Answer voice</span>
+                <select class="input" data-voice-interviewee>
+                    <option value="">Provider default</option>
+                </select>
+            </label>
+            <p class="field__hint" data-study-audio-status role="status"></p>
+        </section>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/study.js" defer></script>
+{% endblock %}

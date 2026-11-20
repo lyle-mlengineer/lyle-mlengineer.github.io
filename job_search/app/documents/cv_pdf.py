@@ -161,6 +161,17 @@ def _reportlab_pdf(resume: dict[str, Any]) -> bytes:
                 )
             )
 
+    tech_groups = resume.get("tech_groups") or []
+    if tech_groups:
+        _section(story, "Technical Skills", styles)
+        for group in tech_groups:
+            story.append(
+                Paragraph(
+                    f"<b>{_safe(str(group['name']))}:</b> {_safe(', '.join(group['items']))}",
+                    styles["body"],
+                )
+            )
+
     jobs = resume.get("experience") or []
     if jobs:
         _section(story, "Professional Experience", styles)
@@ -173,12 +184,17 @@ def _reportlab_pdf(resume: dict[str, Any]) -> bytes:
     if projects:
         _section(story, "Selected Projects", styles)
         for project in projects:
-            label = _safe(str(project["name"]))
-            if project.get("meta"):
-                label += f" <font size=8.5>— {_safe(str(project['meta']))}</font>"
-            story.append(Paragraph(label, styles["project"]))
-            for text in project["bullets"]:
-                story.append(Paragraph(_safe(str(text)), styles["bullet"], bulletText="•"))
+            description = " ".join(
+                str(text).strip() for text in (project.get("bullets") or [])[:3] if str(text).strip()
+            )
+            label = f"<b>{_safe(str(project['name']))} — </b>{_safe(description[:900])}"
+            story.append(Paragraph(label, styles["body"]))
+            links = [str(link) for link in (project.get("links") or [])[:2]]
+            if links:
+                label = "  ·  ".join(
+                    f'<link href="{_safe(link)}">{_safe(_link_label(link))}</link>' for link in links
+                )
+                story.append(Paragraph(label, styles["project_links"]))
 
     education = resume.get("education") or []
     if education:
@@ -197,6 +213,7 @@ def _reportlab_pdf(resume: dict[str, Any]) -> bytes:
         _section(story, "Certifications", styles)
         story.append(Paragraph(_safe(str(resume["certifications"])), styles["body"]))
 
+    story.append(Paragraph("References available on request.", styles["references"]))
     doc.build(story)
     return buffer.getvalue()
 
@@ -241,6 +258,14 @@ def _styles() -> dict[str, ParagraphStyle]:
             "CvProject", parent=base["Normal"], fontName="Helvetica-Bold", fontSize=9.2, leading=11.4,
             spaceBefore=2, spaceAfter=0.5,
         ),
+        "references": ParagraphStyle(
+            "CvReferences", parent=base["Normal"], fontSize=8.2, leading=10.2,
+            fontName="Helvetica-Oblique", spaceBefore=5,
+        ),
+        "project_links": ParagraphStyle(
+            "CvProjectLinks", parent=base["Normal"], fontSize=8.2, leading=10.2,
+            textColor=colors.HexColor("#1F6FB2"), spaceAfter=2,
+        ),
     }
 
 
@@ -273,6 +298,11 @@ def _role_table(title: str, company: str, dates: str, styles: dict[str, Paragrap
         )
     )
     return table
+
+
+def _link_label(url: str) -> str:
+    label = url.removeprefix("https://").removeprefix("http://").removeprefix("www.")
+    return label.rstrip("/")
 
 
 def _safe(value: str) -> str:

@@ -196,6 +196,9 @@ class OpenAICompatibleProvider(LLMProvider):
             if response.status_code in {400, 422}:
                 relaxed = self._relax(payload, response.text)
                 if relaxed is not None:
+                    last_error = f"HTTP {response.status_code}: {body}"
+                    if attempt == attempts - 1:
+                        break
                     payload = relaxed
                     continue
 

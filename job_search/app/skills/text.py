@@ -27,6 +27,21 @@ def prose_text(value: Any, limit: int = 20_000) -> str:
     return cleaned[:limit]
 
 
+def clip_chars(value: Any, limit: int) -> str:
+    """Collapse whitespace, then cut at a word boundary near ``limit``.
+
+    Unlike a plain slice this never leaves half a word (or a dangling comma) at
+    the end of a greeting or closing.
+    """
+    cleaned = text(value, limit + 1)
+    if len(cleaned) <= limit:
+        return cleaned
+    cut = cleaned[:limit]
+    if " " in cut:
+        cut = cut[: cut.rfind(" ")]
+    return cut.rstrip(" ,;:-")
+
+
 def items(value: Any, limit: int, *, item_limit: int = 400) -> list[str]:
     if not isinstance(value, list):
         return []

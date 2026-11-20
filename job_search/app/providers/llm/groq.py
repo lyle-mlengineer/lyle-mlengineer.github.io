@@ -67,5 +67,32 @@ class GroqProvider(OpenAICompatibleProvider):
         return "low" if model.startswith("openai/gpt-oss") else None
 
     def _relax(self, payload: dict[str, Any], body: str) -> dict[str, Any] | None:
-        # Groq has always accepted json_object; keep the wire format unchanged.
-        return None
+        """Give a truncated JSON answer more room before failing the step.
+
+        Groq rejects an incomplete JSON object with HTTP 400
+        ``json_validate_failed``. The usual cause is a budget that covers the
+        answers but not the model's reasoning tokens, so the completion stops
+        mid-string. Retrying with a larger completion budget is cheaper and
+        safer than switching providers mid-pack.
+        """
+        if "json_validate_failed" not in body and "Failed to generate JSON" not in body:
+            return None
+        field = self.max_tokens_field
+        current = int(payload.get(field) or 0)
+        if current >= 32_768:
+            return None
+        relaxed = dict(payload)
+        relaxed[field] = min(32_768, max(current + 4_096, int(current * 1.6)))
+        messages = list(payload.get("messages") or [])
+        messages.append(
+            {
+                "role": "system",
+                "content": (
+                    "The previous attempt stopped before the closing brace. Return one complete "
+                    "JSON object, keep every string within the schema limits, and prefer shorter "
+                    "answers over a truncated response."
+                ),
+            }
+        )
+        relaxed["messages"] = messages
+        return relaxed

@@ -2,7 +2,7 @@
 
 ## SautiFlow — voice and podcast studio
 
-FastAPI podcast and voice-over studio with voice libraries and credit-pack checkout. Turns a written script into dozens of voiced, mixed audio skits in a single session. Serves 2,100 monthly creators at 61% week-four retention.
+Voice platform for local Kenyan languages: voice design with persona bibles and pronunciation lexicons, text-to-speech, voice cloning from consented reference audio, speech-to-text with diarisation, and AI-agent podcast production — research, script, casting, render, master and show notes behind human approval gates. FastAPI studio, account and voice libraries, credit-pack checkout and reproducible renders. Serves 2,100 monthly creators at 61% week-four retention.
 Stack: FastAPI, PostgreSQL, PyTorch TTS, Docker, Render.
 Link: https://www.sautiflow.co.ke/
 
@@ -15,15 +15,15 @@ Link: https://github.com/lyle-mlengineer/suraya
 
 ## Vocalis — AI voice design studio
 
-Design, refine and synthesize narration with rate, style and volume controls. Provider-agnostic voice adapters with a credit ledger and idempotent settlement.
+Brief-to-voice studio: describe a voice, design and audition it, refine the brief, organize albums and synthesize narration with rate, volume and style controls. Provider-agnostic Breeze and Fish Audio adapters, a credit ledger and idempotent M-Pesa / Stripe settlement.
 Stack: FastAPI, provider adapters, M-Pesa / Stripe, vanilla JS.
-Link: https://lyle-mlengineer.github.io/portfolio-frontend/vocalis/
+Links: https://github.com/lyle-mlengineer/vocalis · https://vocalis-rvcw.onrender.com
 
 ## EchoID — speaker-labelled transcription
 
-Speaker-labelled transcription studio with search, review and export. Provider-agnostic transcription adapters, evaluation before release.
+Upload, diarise, review and export speaker-labelled transcripts with timestamps, reusable speaker profiles, search and filters. A pluggable transcription provider behind one JSON contract, credit billing with M-Pesa and Stripe.
 Stack: FastAPI, ASR adapters, pyannote.audio, PostgreSQL.
-Link: https://lyle-mlengineer.github.io/portfolio-frontend/echoid/
+Links: https://github.com/lyle-mlengineer/echoid · https://echoid.onrender.com
 
 ## LabelSet — audio data sourcing and labelling
 
@@ -45,14 +45,20 @@ Link: https://pigamagic.onrender.com
 
 ## coAgent — private coding agent
 
-A private coding agent for Google Colab's free T4: local inference, test-driven edits and git checkpoints. 0.2.1 on PyPI.
-Stack: Python, local inference, git integration.
-Link: https://coagent-web.onrender.com/
+Private coding agent for Google Colab's free T4: Qwen2.5-Coder-7B runs locally at NF4, plans inside the repository, edits with a tree-sitter map and BM25 retrieval, verifies with Ruff and pytest, and commits every checkpoint to an isolated git branch. Published on PyPI as co-agent-coder 0.2.1 with no API keys or per-token cost.
+Stack: Python, local inference, tree-sitter, BM25, git integration.
+Links: https://github.com/lyle-mlengineer/coagent · https://pypi.org/project/co-agent-coder/
+
+## Docent — AI product guide
+
+Explore a site, build an evidence-backed model of its workflows, narrate a walkthrough and guide users live. Shipped the public front door: FastAPI, PostgreSQL and Jinja2 with a durable waitlist, contact inbox, protected admin, CSV export, rate limits and a strict CSP.
+Stack: FastAPI, PostgreSQL, Jinja2, strict CSP.
+Links: https://docent-9a62.onrender.com/ · https://github.com/lyle-mlengineer/docent
 
 ## SnapToSpot — website → campaign kit
 
-Turns a website into a five-platform campaign kit built only from facts the site can support.
-Stack: FastAPI, SQLite, deterministic renderer, LLM extraction.
+Turns a website into a five-platform campaign kit — stills, video, poster and copy deck — built only from facts the site can support. The model writes the words and structure, a deterministic renderer sets the type, and every number traces to a source span. In active development.
+Stack: FastAPI, PostgreSQL/pgvector, Alembic, OAuth2, deterministic renderer.
 Link: https://github.com/lyle-mlengineer/Snap2Spot
 
 ## Skipper — the job-search agent

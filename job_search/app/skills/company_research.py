@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import logging
+from datetime import UTC, datetime, timedelta
 from typing import Any
 from urllib.parse import urlparse
 
 from ..jobs.prompts import research_block, system_prompt, untrusted
-from ..providers.llm.base import ChatMessage
+from ..models import utcnow
+from ..providers.llm.base import ChatMessage, LLMResponse
 from ..providers.search.base import BudgetExceeded, SearchProviderError
-from .base import Skill, SkillContext, job_block
+from .base import Skill, SkillContext, SkillResult, job_block
 from .text import items, text
 
 logger = logging.getLogger("skipper.skills.research")
@@ -23,6 +25,50 @@ class CompanyResearchSkill(Skill):
     weight = 3.0
     optional = True
     max_tokens = 4_000
+    reference = "company-research-cache"
+
+    def execute(self, ctx: SkillContext) -> SkillResult:
+        """Reuse a fresh company brief instead of paying for the same research again."""
+        cached = self._fresh_payload(ctx)
+        if cached is None:
+            return super().execute(ctx)
+        logger.info("reusing company research for %s", ctx.company.name if ctx.company else "unknown")
+        return SkillResult(
+            payload=cached,
+            response=LLMResponse(text="", model=self.reference),
+            markdown=self.render(cached, ctx),
+        )
+
+    def _fresh_payload(self, ctx: SkillContext) -> dict[str, Any] | None:
+        company = ctx.company
+        if company is None or not isinstance(company.research_json, dict):
+            return None
+        ttl_days = int(ctx.settings.research_ttl_days or 0)
+        if ttl_days <= 0 or not company.researched_at:
+            return None
+        try:
+            stamp = datetime.fromisoformat(company.researched_at.replace("Z", "+00:00"))
+        except ValueError:
+            return None
+        if stamp.tzinfo is None:
+            stamp = stamp.replace(tzinfo=UTC)
+        if datetime.now(UTC) - stamp > timedelta(days=ttl_days):
+            return None
+        payload = dict(company.research_json)
+        payload["cached"] = True
+        return payload
+
+    def _remember(self, ctx: SkillContext, payload: dict[str, Any]) -> None:
+        company = ctx.company
+        if company is None:
+            return
+        company.research_json = payload
+        company.researched_at = utcnow()
+        company.summary = payload["summary"] or company.summary
+        company.industry = payload["industry"] or company.industry
+        company.headcount = payload["size"] or company.headcount
+        company.hq = payload["hq"] or company.hq
+        company.founded = payload["founded"] or company.founded
 
     def schema(self) -> dict[str, Any]:
         return {
@@ -117,7 +163,7 @@ class CompanyResearchSkill(Skill):
             news.append(
                 {"headline": text(row.get("headline"), 220), "date": text(row.get("date"), 40), "url": url}
             )
-        return {
+        result = {
             "summary": text(payload.get("summary"), 900),
             "industry": text(payload.get("industry"), 120),
             "size": text(payload.get("size"), 60),
@@ -133,6 +179,8 @@ class CompanyResearchSkill(Skill):
             "sources": sources,
             "queries": allowed.get("queries", []),
         }
+        self._remember(ctx, result)
+        return result
 
     def render(self, payload: dict[str, Any], ctx: SkillContext) -> str:
         company = ctx.company.name if ctx.company else "the company"

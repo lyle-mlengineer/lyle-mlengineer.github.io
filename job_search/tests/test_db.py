@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from app import domain
 from app.db import (
+    get_engine,
     get_setting,
     init_db,
     session_scope,
@@ -95,8 +96,20 @@ def test_status_transitions_are_forward_only():
 
 def test_skill_manifest_is_ordered_and_well_formed():
     names = [skill["name"] for skill in domain.SKILLS]
-    assert len(names) == len(set(names)) == 11
+    assert len(names) == len(set(names)) == 14
     for skill in domain.SKILLS:
         for required in skill["requires"]:
             assert required in names
         assert skill["weight"] > 0
+
+
+def test_fts_tables_rebuild_when_their_columns_change(settings):
+    init_db(settings)
+    engine = get_engine(settings)
+    with engine.begin() as conn:
+        conn.exec_driver_sql("DROP TABLE portfolio_fts")
+        conn.exec_driver_sql("CREATE VIRTUAL TABLE portfolio_fts USING fts5(text, heading)")
+    init_db(settings)
+    with engine.begin() as conn:
+        columns = tuple(str(row[1]) for row in conn.exec_driver_sql("PRAGMA table_info(portfolio_fts)"))
+    assert columns == ("text", "heading", "doc_title")

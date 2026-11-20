@@ -16,7 +16,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-from ...validation import ValidationError, validate
+from ...validation import ValidationError, clamp_lengths, validate
 
 Role = Literal["system", "user", "assistant"]
 
@@ -136,30 +136,37 @@ class LLMProvider(ABC):
         last_raw = ""
         last_errors: list[str] = []
         last_validation = "the response was not parseable JSON"
+        budget = max_tokens
 
         for attempt in range(max(1, attempts)):
             response = self.complete(
                 convo,
                 model=model,
                 temperature=temperature,
-                max_tokens=max_tokens,
+                max_tokens=budget,
                 response_format="json",
                 timeout_s=timeout_s,
                 reasoning_effort=reasoning_effort,
             )
             last_raw = response.text
+            truncated = response.finish_reason == "length"
             try:
-                payload = json.loads(_strip_json_wrapper(response.text))
+                payload = clamp_lengths(json.loads(_strip_json_wrapper(response.text)), schema)
                 validate(payload, schema)
                 return payload, response
             except json.JSONDecodeError as exc:
                 last_errors = [f"$: invalid JSON ({exc.msg} at line {exc.lineno})"]
                 last_validation = "the response was not parseable JSON"
+                # An unterminated object means the completion was cut off, not
+                # that the model wrote nonsense. Re-ask with more room.
+                truncated = truncated or exc.pos >= max(0, len(response.text) - 1)
             except ValidationError as exc:
                 last_errors = exc.errors
                 last_validation = "the JSON did not match the schema"
 
             if attempt < attempts - 1:
+                if truncated:
+                    budget = min(32_768, max(budget + 2_048, int(budget * 1.5)))
                 convo = [
                     *convo,
                     ChatMessage("assistant", response.text[:6000]),

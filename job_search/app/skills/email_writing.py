@@ -12,12 +12,12 @@ from .text import clip_words, drop_placeholders, items, strip_cliches, text, wor
 
 class EmailWritingSkill(Skill):
     name = "email_writing"
-    tier = "small"
+    tier = "large"
     output_kind = "email"
     requires = ("cover_letter",)
     weight = 1.0
     optional = True
-    max_tokens = 1_200
+    max_tokens = 1_400
 
     def schema(self) -> dict[str, Any]:
         return {
@@ -36,10 +36,14 @@ class EmailWritingSkill(Skill):
                 "system",
                 system_prompt(
                     "email_writing",
-                    "Write the email Lyle sends with this application. Maximum 160 words in the body. "
-                    "Name the role in the subject. Mention the CV and cover letter as attachments, thank "
-                    "the reader, and give one concrete reason to talk. No signature block longer than "
-                    "'Lyle Okoth'.",
+                    "Write the email Lyle sends with this application. 110-150 words in the body.\n"
+                    "Subject: the role plus one specific proof point, under 90 characters. Never\n"
+                    "'Application for' or 'Applying for'.\n"
+                    "Body: first sentence names the role and one concrete hook from the company or the\n"
+                    "posting. Second and third sentences carry the strongest portfolio evidence with an\n"
+                    "exact number from <portfolio>. Close with one clear ask and state that the CV and\n"
+                    "cover letter are attached. No 'I hope this email finds you well', no 'I am excited\n"
+                    "to apply', no signature block longer than 'Lyle Okoth'.",
                 ),
             ),
             ChatMessage(
@@ -57,10 +61,11 @@ class EmailWritingSkill(Skill):
         role = ctx.job.title
         company = ctx.company.name if ctx.company else "the company"
         subject = strip_cliches(text(payload.get("subject"), 120)) or f"Application — {role}"
+        subject = subject.strip(" .-")[:100]
         if role.lower() not in subject.lower():
-            subject = f"{subject[:90]} — {role}"[:120]
+            subject = f"{subject[:80]} — {role}"[:100]
         body = ground_text(strip_cliches(text(payload.get("body"), 1600)), ctx)
-        body = clip_words(body, 180)
+        body = clip_words(body, 165)
         attachments = drop_placeholders(items(payload.get("attachment_names"), 6, item_limit=160))
         if not attachments:
             attachments = ["CV", "Cover letter"]
