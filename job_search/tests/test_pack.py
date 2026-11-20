@@ -118,6 +118,8 @@ def test_full_pack_creates_cover_email_and_interview_artifacts(client, settings)
     assert "Runtime:" in page.text
     assert "Storage:" in page.text
     assert "Diagram" in page.text
+    assert 'data-interview-kind="system_design"' in page.text
+    assert "/static/js/system_design.js" in page.text
     assert page.text.count('<details class="design-section">') >= 6
     assert '<summary class="design-section__title">Requirements</summary>' in page.text
     assert 'class="prose-code"' in page.text
@@ -189,3 +191,115 @@ def test_overlong_cover_letter_closing_is_clipped_not_failed(client, settings):
         )
         assert artifact is not None
         assert len(artifact.meta_json["letter"]["closing"]) <= 120
+
+
+def test_system_design_is_written_one_section_at_a_time(client, settings):
+    """The outline call is small, and each subcomponent is a separate request."""
+    import json
+
+    from app.jobs.render import markdown_to_html
+    from app.skills.base import SkillContext
+    from app.skills.interviews import SystemDesignInterviewSkill
+    from app.skills.system_design_parts import apply_section, normalize_question
+
+    job_id = _run(client)
+    factory = get_session_factory(settings)
+    with factory() as db:
+        job = db.get(Job, job_id)
+        ctx = SkillContext(
+            job=job,
+            company=None,
+            settings=settings,
+            llm=FakeLLMProvider(),
+        )
+        question = normalize_question(
+            {
+                "topic": "ASR serving",
+                "difficulty": "core",
+                "question": "Design a multilingual ASR service.",
+            },
+            ctx,
+        )
+        assert question["loaded_sections"] == []
+        outline = SystemDesignInterviewSkill().render({"questions": [question]}, ctx)
+        assert ":::load-design 1" in outline
+        assert "Requirements" not in outline
+        assert "data-design-load" in markdown_to_html(outline)
+
+        question = apply_section(
+            question,
+            "requirements",
+            {
+                "requirements": {
+                    "functional": ["Transcribe audio within one request."],
+                    "non_functional": ["Keep first-audio latency predictable."],
+                }
+            },
+            ctx,
+        )
+        assert "requirements" in question["loaded_sections"]
+        partial = SystemDesignInterviewSkill().render({"questions": [question]}, ctx)
+        assert "### Requirements" in partial
+        assert ":::load-design 1" in partial
+        assert ":::load-followups 1" in partial
+
+        question = apply_section(
+            question, "follow_ups", {"follow_ups": ["What happens on a language miss?"]}, ctx
+        )
+        assert question["follow_ups_loaded"] is True
+        full = SystemDesignInterviewSkill().render({"questions": [question]}, ctx)
+        assert "### Follow-ups" in full
+        assert ":::load-followups 1" not in full
+        assert "follow-up" in markdown_to_html(":::load-followups 2")
+
+        artifact = db.scalar(
+            select(Artifact).where(
+                Artifact.job_id == job_id,
+                Artifact.kind == "system_design",
+                Artifact.is_current.is_(True),
+            )
+        )
+        payload = artifact.meta_json["payload"]
+        payload["questions"][0] = {
+            "topic": "ASR serving",
+            "difficulty": "core",
+            "question": "Design a multilingual ASR service.",
+            "loaded_sections": [],
+        }
+        artifact.meta_json = {**artifact.meta_json, "payload": payload}
+        from sqlalchemy.orm.attributes import flag_modified
+
+        flag_modified(artifact, "meta_json")
+        db.commit()
+
+    client.app.state.llm = FakeLLMProvider(
+        {
+            "system_design_expand": json.dumps(
+                {
+                    "requirements": {
+                        "functional": ["Transcribe audio."],
+                        "non_functional": ["Keep latency predictable."],
+                    }
+                }
+            )
+        }
+    )
+    response = client.post(
+        f"/api/jobs/{job_id}/system-design/1/section",
+        json={"section": "requirements"},
+        headers=headers(client),
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert "Requirements" in data["html"]
+    assert data["loaded_sections"][0] == ["requirements"]
+    with factory() as db:
+        artifact = db.scalar(
+            select(Artifact).where(
+                Artifact.job_id == job_id,
+                Artifact.kind == "system_design",
+                Artifact.is_current.is_(True),
+            )
+        )
+        assert artifact.meta_json["payload"]["questions"][0]["loaded_sections"] == ["requirements"]
+        assert "Transcribe audio." in artifact.content_md

@@ -51,7 +51,19 @@ class TellMeAboutYourselfSkill(_SpokenSkill):
 
     def build_messages(self, ctx: SkillContext) -> list[ChatMessage]:
         return [
-            ChatMessage("system", self._common_system("Answer 'Tell me about yourself' for this role.")),
+            ChatMessage(
+                "system",
+                self._common_system(
+                    "Tell the story of how Lyle got here and why this role is the next step. "
+                    "It must be a narration, not a fact list or a resume summary: start in the "
+                    "present, turn to the choice or moment that led him into speech and ML, "
+                    "prove it with one or two concrete scenes, then land on why this team. "
+                    "Use ordinary spoken sentences and connect the beats with cause and effect. "
+                    "Do not enumerate roles, metrics or skills, and do not open with "
+                    "'I am a ... engineer'. A number can appear inside a story, never as a "
+                    "standalone credential."
+                ),
+            ),
             ChatMessage(
                 "user",
                 job_block(ctx, limit=7000) + "\n\n" + research_block(ctx, limit=2500) + "\n\n"

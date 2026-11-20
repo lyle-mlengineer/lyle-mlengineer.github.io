@@ -469,7 +469,7 @@
     <div class="interview-pack">
         {% for kind, title in spoken_docs %}
         {% if extras.get(kind) %}
-        <details class="interview-doc"{% if loop.first %} open{% endif %}>
+        <details class="interview-doc" data-interview-kind="{{ kind }}"{% if loop.first %} open{% endif %}>
             <summary>
                 <span class="interview-doc__title">{{ title }}</span>
             </summary>
@@ -658,5 +658,6 @@
 <script src="/static/js/interview_audio.js" defer></script>
 <script src="/static/js/interview_study.js" defer></script>
 <script src="/static/js/job_detail.js" defer></script>
+<script src="/static/js/system_design.js" defer></script>
 <script src="/static/js/collapsible.js" defer></script>
 {% endblock %}

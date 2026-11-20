@@ -15,6 +15,7 @@ _BOLD = re.compile(r"\*\*(.+?)\*\*")
 _HEADING = re.compile(r"^(#{1,4})\s+(.+)$")
 _BULLET = re.compile(r"^[-*]\s+(.+)$")
 _LINK = re.compile(r"\[([^\]]+)\]\(([^)\s]+)\)")
+_DIRECTIVE = re.compile(r"^:::([a-z-]+)\s+(\d+)$")
 # A sentence boundary that only fires before a new sentence's capital or digit.
 _SENTENCE = re.compile(r"(?<=[.!?])[\"')\]]*\s+(?=[A-Z0-9\u201c\"'(])")
 
@@ -91,6 +92,12 @@ def markdown_to_html(
             flush_paragraph()
             bullets.append(bullet.group(1))
             continue
+        directive = _DIRECTIVE.match(line)
+        if directive:
+            flush_paragraph()
+            flush_bullets()
+            blocks.append(_directive(directive.group(1), int(directive.group(2))))
+            continue
         flush_bullets()
         paragraph.append(line)
 
@@ -159,6 +166,21 @@ def _heading_class(text: str) -> str:
     """A slug class per heading so CSS can style known sections (Delivery, Anchors)."""
     slug = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:40]
     return f' class="prose-h prose-h--{slug}"' if slug else ""
+
+
+def _directive(kind: str, index: int) -> str:
+    """A server-rendered control for loading one design part at a time."""
+    if kind == "load-design":
+        return (
+            f'<button type="button" class="design-load" data-design-load="{index}">'
+            "Load full design</button>"
+        )
+    if kind == "load-followups":
+        return (
+            f'<details class="design-lazy" data-design-followups="{index}">'
+            "<summary>Follow-ups</summary><p>Open to write follow-up questions.</p></details>"
+        )
+    return ""
 
 
 def _code_block(lines: list[str], language: str) -> str:

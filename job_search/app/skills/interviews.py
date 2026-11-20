@@ -7,6 +7,7 @@ from typing import Any
 from ..jobs.prompts import ground_text, portfolio_block, research_block, system_prompt
 from ..providers.llm.base import ChatMessage
 from .base import Skill, SkillContext, job_block
+from .system_design_parts import SYSTEM_DESIGN_SECTIONS, loaded_sections, normalize_question
 from .text import clip_words, items, strip_cliches, text
 
 
@@ -437,7 +438,7 @@ class SystemDesignInterviewSkill(Skill):
     requires = ("job_extraction",)
     weight = 3.0
     optional = True
-    max_tokens = 12_000
+    max_tokens = 3_000
 
     def schema(self) -> dict[str, Any]:
         return {
@@ -448,78 +449,11 @@ class SystemDesignInterviewSkill(Skill):
                     "type": "array",
                     "items": {
                         "type": "object",
-                        "required": ["topic", "difficulty", "question", "answer"],
+                        "required": ["topic", "difficulty", "question"],
                         "properties": {
                             "topic": {"type": "string", "max_len": 80},
                             "difficulty": {"type": "string", "enum": ["warm-up", "core", "deep"]},
                             "question": {"type": "string", "max_len": 400},
-                            "answer": {"type": "string", "max_len": 2500},
-                            "requirements": {
-                                "type": "object",
-                                "required": ["functional", "non_functional"],
-                                "properties": {
-                                    "functional": {
-                                        "type": "array",
-                                        "items": {"type": "string", "max_len": 300},
-                                    },
-                                    "non_functional": {
-                                        "type": "array",
-                                        "items": {"type": "string", "max_len": 300},
-                                    },
-                                },
-                            },
-                            "core_entities": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "required": ["name"],
-                                    "properties": {
-                                        "name": {"type": "string", "max_len": 120},
-                                        "fields": {
-                                            "type": "array",
-                                            "items": {"type": "string", "max_len": 120},
-                                        },
-                                        "notes": {"type": "string", "max_len": 300},
-                                    },
-                                },
-                            },
-                            "api_design": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "required": ["method", "path", "purpose"],
-                                    "properties": {
-                                        "method": {"type": "string", "max_len": 12},
-                                        "path": {"type": "string", "max_len": 180},
-                                        "purpose": {"type": "string", "max_len": 300},
-                                    },
-                                },
-                            },
-                            "data_flow": {"type": "array", "items": {"type": "string", "max_len": 400}},
-                            "high_level": {"type": "array", "items": {"type": "string", "max_len": 400}},
-                            "deep_dives": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "required": ["title", "detail"],
-                                    "properties": {
-                                        "title": {"type": "string", "max_len": 120},
-                                        "detail": {"type": "string", "max_len": 900},
-                                    },
-                                },
-                            },
-                            "diagram": {"type": "string", "max_len": 4000},
-                            "trade_offs": {"type": "array", "items": {"type": "string", "max_len": 220}},
-                            "follow_ups": {"type": "array", "items": {"type": "string", "max_len": 300}},
-                            "interviewer_questions": {
-                                "type": "array",
-                                "items": {"type": "string", "max_len": 300},
-                            },
-                            "questions_to_ask": {
-                                "type": "array",
-                                "items": {"type": "string", "max_len": 300},
-                            },
-                            "grounded_in": {"type": "string", "max_len": 160},
                         },
                     },
                 }
@@ -533,61 +467,34 @@ class SystemDesignInterviewSkill(Skill):
                 "system",
                 system_prompt(
                     "system_design",
-                    "Prepare 6–8 system design interview questions likely for this posting. Cover the "
+                    "Choose 6-8 system design interview questions likely for this posting. Cover the "
                     f"posted stack ({must or 'the role requirements'}) and the scale implied by the product. "
-                    "Work each design through the full interview flow, in this order: requirements "
-                    "(functional and non-functional), core entities, API design, data flow, high-level "
-                    "design, then two or three deep dives. Name the bottleneck and the trade-offs. For ML "
-                    "and data systems, say what is trained or ingested, how the offline pipeline differs "
-                    "from the online path, and where quality is measured. Include a compact ASCII diagram "
-                    "using only boxes, arrows and labels. The answer field is a 120–180 word spoken "
-                    "walkthrough, not a repeat of the sections. Include questions the interviewer is "
-                    "likely to ask, three or four targeted questions the candidate should ask the "
-                    "interviewer about this design and this company, and two or three follow-ups. Use "
-                    "portfolio projects as evidence where they fit. Do not invent traffic, latency or cost "
-                    "numbers.",
+                    "Write only the question, its topic and its level. Do not answer the questions in this "
+                    "call: requirements, entities, API, data flow, high-level design, deep dives and "
+                    "follow-ups are written separately when the candidate opens each question. "
+                    "Prefer questions that can be drawn on a whiteboard and that fit at least one "
+                    "portfolio project. Do not invent traffic, latency or cost numbers.",
                 ),
             ),
             ChatMessage(
                 "user",
-                job_block(ctx, limit=8000) + "\n\n" + research_block(ctx, limit=2500) + "\n\n"
-                + portfolio_block(ctx, limit=7000) + "\n\nWrite the system design interview JSON.",
+                job_block(ctx, limit=6000)
+                + "\n\n"
+                + research_block(ctx, limit=1800)
+                + "\n\n"
+                + portfolio_block(ctx, limit=3500)
+                + "\n\nWrite the system design question list JSON.",
             ),
         ]
 
     def postprocess(self, payload: dict[str, Any], ctx: SkillContext) -> dict[str, Any]:
         questions = []
         for row in payload.get("questions") or []:
-            if not isinstance(row, dict):
+            if not isinstance(row, dict) or not text(row.get("question"), 400):
                 continue
-            question = text(row.get("question"), 400)
-            answer = ground_text(strip_cliches(text(row.get("answer"), 2500)), ctx)
-            if not question or not answer:
-                continue
-            questions.append(
-                {
-                    "topic": text(row.get("topic"), 80) or "System design",
-                    "difficulty": row.get("difficulty")
-                    if row.get("difficulty") in {"warm-up", "core", "deep"}
-                    else "core",
-                    "question": question,
-                    "answer": clip_words(answer, 200),
-                    "requirements": _requirements(row.get("requirements")),
-                    "core_entities": _entities(row.get("core_entities")),
-                    "api_design": _api_design(row.get("api_design")),
-                    "data_flow": _strings(row.get("data_flow"), 8, item_limit=400),
-                    "high_level": _strings(row.get("high_level"), 8, item_limit=400),
-                    "deep_dives": _deep_dives(row.get("deep_dives")),
-                    "diagram": _diagram(row.get("diagram")),
-                    "trade_offs": items(row.get("trade_offs"), 4, item_limit=220),
-                    "follow_ups": items(row.get("follow_ups"), 3, item_limit=300),
-                    "interviewer_questions": _strings(
-                        row.get("interviewer_questions"), 5, item_limit=300
-                    ),
-                    "questions_to_ask": _strings(row.get("questions_to_ask"), 4, item_limit=300),
-                    "grounded_in": text(row.get("grounded_in"), 160),
-                }
-            )
+            question = normalize_question(row, ctx)
+            if question["question"]:
+                questions.append(question)
         return {"questions": questions[:8]}
 
     def render(self, payload: dict[str, Any], ctx: SkillContext) -> str:
@@ -598,16 +505,33 @@ class SystemDesignInterviewSkill(Skill):
                 f"## {index}. {row['question']}",
                 f"**Topic:** {row['topic']} · **Level:** {row['difficulty']}",
                 "",
-                row["answer"],
             ]
-            lines += _design_lines(row)
-            if row["trade_offs"]:
-                lines += ["", "### Trade-offs", *[f"- {item}" for item in row["trade_offs"]]]
-            lines += _interviewer_lines(row)
-            lines += _ask_lines(row)
-            if row["follow_ups"]:
-                lines += ["", "### Follow-ups", *[f"- {item}" for item in row["follow_ups"]]]
-            if row["grounded_in"]:
+            if row.get("answer"):
+                lines += [row["answer"], ""]
+            loaded = set(row.get("loaded_sections") or loaded_sections(row))
+            if not loaded:
+                lines += [
+                    "Outline only. Load the design to work through requirements, entities, API, "
+                    "data flow, high-level design and deep dives one part at a time.",
+                    "",
+                    f":::load-design {index}",
+                    "",
+                ]
+            else:
+                lines += _design_lines(row)
+                if row.get("trade_offs"):
+                    lines += ["", "### Trade-offs", *[f"- {item}" for item in row["trade_offs"]]]
+                lines += _interviewer_lines(row)
+                lines += _ask_lines(row)
+                missing = [section for section in SYSTEM_DESIGN_SECTIONS if section not in loaded]
+                if missing:
+                    lines += ["", f":::load-design {index}", ""]
+            if row.get("follow_ups_loaded") or row.get("follow_ups"):
+                if row.get("follow_ups"):
+                    lines += ["", "### Follow-ups", *[f"- {item}" for item in row["follow_ups"]]]
+            else:
+                lines += ["", f":::load-followups {index}"]
+            if row.get("grounded_in"):
                 lines += ["", f"_Evidence: {row['grounded_in']}_"]
             lines.append("")
         return "\n".join(lines).strip() + "\n"

@@ -236,39 +236,17 @@ FAKE_COVER = {
 }
 
 FAKE_EMAIL = {
-    "subject": "Application — Senior Machine Learning Engineer",
-    "body": (
-        "Hello Acme Speech team,\n\nI have applied for the Senior Machine Learning Engineer role and "
-        "attached my CV and cover letter. I have spent four years on multilingual speech systems, "
-        "including a Whisper fine-tune that cut Swahili and Sheng word error rate from 23.4% to 11.8%, "
-        "and the evaluation harness that kept regressions out of release.\n\nYour focus on recognition "
-        "quality and streaming latency is exactly the work I want to do next. I would be glad to talk "
-        "through how I would approach evaluation across your languages.\n\nThank you for your time.\n\n"
-        "Lyle Okoth"
-    ),
+    "subject": "Six languages, one evaluation bar — Lyle Okoth",
+    "body": "Hi Acme Speech team,\n\nYour posting talks about holding recognition quality across six languages, and that is the sentence that made me open the draft. At SautiFlow Labs the hardest problem was not adding another language; it was knowing whether the new one had made the others worse. I built the WER, CER and MOS harness that answered that question, then used it to take Swahili and Sheng word error rate from 23.4% to 11.8%.\n\nWhat I would want to work on with you is that same bar at a larger language set: evaluation that ships with the product, not after it. My CV and cover letter are attached. If that is useful, I would be glad to walk through the harness and where it broke.\n\nLyle",
     "attachment_names": ["CV", "Cover letter"],
 }
 
 FAKE_TELL = {
-    "answer": (
-        "I am a machine learning engineer based in Nairobi, focused on multilingual speech and audio. "
-        "I started in software and data engineering, which is why I tend to own the whole path from raw "
-        "audio to a model in production rather than only the training notebook.\n\n"
-        "At SautiFlow Labs I cut "
-        "Swahili and Sheng ASR word error rate from 23.4% to 11.8% by fine-tuning Whisper-large-v3 on "
-        "1,240 hours of in-house audio. I also shipped streaming speech-to-speech translation at 310 ms "
-        "median first-audio latency and compressed a TTS checkpoint to 480 MB, reaching 42 concurrent "
-        "voices per GPU.\n\n"
-        "The part I care most about is evaluation: I built the WER, CER and MOS harness "
-        "and CI gates that blocked nine regressions from release. Outside work I build small products "
-        "like Suraya, a diffusion model for Kenyan faces, and Vocalis, a voice design studio. I am "
-        "looking for a role where speech quality and serving economics both matter, which is why this "
-        "position stood out."
-    ),
+    "answer": "Most of my work starts with a microphone and a language that speech models treat as an afterthought. I came into machine learning through data engineering, so when I joined SautiFlow Labs I already knew how messy the audio pipeline was before a model ever saw it. That turned out to be the useful part. We had Swahili and Sheng recordings that nobody had measured properly, and I kept asking which errors actually reached a user.\n\nOne release made the answer obvious. The model sounded fine in a demo and failed on real callers, so I built the WER, CER and MOS harness and put it in CI. That harness took Swahili and Sheng word error rate from 23.4% to 11.8% and blocked nine regressions before they shipped. The same instinct carried into streaming: we got speech-to-speech translation to 310 ms median first-audio latency because we treated latency as a product constraint, not a benchmark.\n\nWhat I want next is a team where speech quality and serving economics are argued together. That is why this role stood out: the work is not just a better model, it is a better bar that the product can hold.",
     "delivery_notes": [
-        "Lead with the current role, then the two metrics that fit the posting.",
-        "Pause after the evaluation sentence; it is the bridge to their must-haves.",
-        "Keep the side projects to one sentence unless asked.",
+        "Start with the microphone line, then let the data-engineering detour explain how you work.",
+        "Slow down on the evaluation story; it is the bridge to their quality bar.",
+        "Land on the last sentence and stop. Do not add a list of skills.",
     ],
     "anchor_points": [
         "Whisper fine-tuning: 23.4% to 11.8% WER on 1,240 hours.",

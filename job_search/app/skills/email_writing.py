@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from ..jobs.prompts import ground_text, portfolio_block, review_block, system_prompt
+from ..jobs.prompts import ground_text, portfolio_block, research_block, review_block, system_prompt
 from ..providers.llm.base import ChatMessage
 from .base import Skill, SkillContext, job_block
 from .text import clip_words, drop_placeholders, items, strip_cliches, text, word_count
@@ -36,19 +36,25 @@ class EmailWritingSkill(Skill):
                 "system",
                 system_prompt(
                     "email_writing",
-                    "Write the email Lyle sends with this application. 110-150 words in the body.\n"
-                    "Subject: the role plus one specific proof point, under 90 characters. Never\n"
-                    "'Application for' or 'Applying for'.\n"
-                    "Body: first sentence names the role and one concrete hook from the company or the\n"
-                    "posting. Second and third sentences carry the strongest portfolio evidence with an\n"
-                    "exact number from <portfolio>. Close with one clear ask and state that the CV and\n"
-                    "cover letter are attached. No 'I hope this email finds you well', no 'I am excited\n"
-                    "to apply', no signature block longer than 'Lyle Okoth'.",
+                    "Write the email a real person sends with this application, not a shortened cover\n"
+                    "letter. 100-145 words in the body.\n"
+                    "Subject: one specific hook from the company or the posting plus the role, under 90\n"
+                    "characters. Never 'Application for' or 'Applying for'.\n"
+                    "Open with the concrete thing that caught Lyle's attention from <research> or the\n"
+                    "posting and why it connects to his work. Do not open with 'I am applying', 'I am\n"
+                    "writing to apply' or a summary of his career. Tell one short story or moment from\n"
+                    "the portfolio with one exact number, then say what he would want to work on with\n"
+                    "this team. Close with one plain ask and mention the CV and cover letter in the same\n"
+                    "sentence. Use contractions and ordinary spoken rhythm. No 'I hope this email finds\n"
+                    "you well', no 'I am excited to apply', no stacked adjectives, no signature block\n"
+                    "longer than 'Lyle'.",
                 ),
             ),
             ChatMessage(
                 "user",
                 job_block(ctx, limit=6000)
+                + "\n\n"
+                + research_block(ctx, limit=2000)
                 + "\n\n"
                 + review_block(ctx, names=("cover_letter",), limit=3000)
                 + "\n\n"
@@ -62,10 +68,8 @@ class EmailWritingSkill(Skill):
         company = ctx.company.name if ctx.company else "the company"
         subject = strip_cliches(text(payload.get("subject"), 120)) or f"Application — {role}"
         subject = subject.strip(" .-")[:100]
-        if role.lower() not in subject.lower():
-            subject = f"{subject[:80]} — {role}"[:100]
         body = ground_text(strip_cliches(text(payload.get("body"), 1600)), ctx)
-        body = clip_words(body, 165)
+        body = clip_words(body, 150)
         attachments = drop_placeholders(items(payload.get("attachment_names"), 6, item_limit=160))
         if not attachments:
             attachments = ["CV", "Cover letter"]

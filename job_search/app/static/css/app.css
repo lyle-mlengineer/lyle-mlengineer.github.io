@@ -3649,3 +3649,48 @@ body.dark-theme .resources__status.is-error {
 .design-section__body > :last-child {
     margin-bottom: 0;
 }
+
+.design-load {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    margin: .7rem 0 .2rem;
+    padding: .5rem .8rem;
+    border: 1px solid var(--accent-text);
+    border-radius: var(--radius-sm);
+    background-color: transparent;
+    color: var(--accent-text);
+    font: inherit;
+    font-size: .88rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.design-load:hover {
+    background-color: hsla(var(--hue-color), 69%, 61%, .1);
+}
+
+.design-load:disabled {
+    cursor: progress;
+    opacity: .7;
+}
+
+.design-lazy {
+    margin: .7rem 0 .2rem;
+    border: 1px dashed var(--line);
+    border-radius: var(--radius-sm);
+    padding: .55rem .8rem;
+}
+
+.design-lazy summary {
+    cursor: pointer;
+    color: var(--accent-text);
+    font-size: .9rem;
+    font-weight: 600;
+}
+
+.design-lazy p {
+    margin: .45rem 0 0;
+    color: var(--text-color-light);
+    font-size: .88rem;
+}

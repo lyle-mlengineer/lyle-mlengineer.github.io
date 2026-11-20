@@ -14,6 +14,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm.attributes import flag_modified
 
 from ..config import get_settings
 from ..deps import get_db, require_api_user, require_csrf
@@ -26,10 +27,19 @@ from ..interview.sources import (
     source_payload,
 )
 from ..interview.study import StudyError, answer_follow_ups, answer_question, generate_questions
-from ..models import Company, InterviewQuestion, InterviewSource, Job
+from ..jobs.render import markdown_to_html
+from ..models import Artifact, Company, InterviewQuestion, InterviewSource, Job
 from ..providers.fetch.http import FetchError
+from ..providers.llm.base import LLMProviderError, SkillValidationError
 from ..providers.tts import registry as tts_registry
 from ..providers.tts.base import TTSProvider, TTSProviderError
+from ..skills.base import SkillContext
+from ..skills.interviews import SystemDesignInterviewSkill
+from ..skills.system_design_parts import (
+    SECTION_LABELS,
+    SYSTEM_DESIGN_SECTIONS,
+    expand_question,
+)
 
 router = APIRouter(tags=["interview"])
 
@@ -559,4 +569,115 @@ def study_audio(
         content=speech.audio,
         media_type="audio/wav",
         headers={"Cache-Control": "no-store"},
+    )
+
+
+@router.post("/api/jobs/{job_id}/system-design/{index}/section")
+def system_design_section(
+    request: Request,
+    job_id: int,
+    index: int,
+    body: dict[str, Any] | None = Body(default=None),
+    db: Session = Depends(get_db),
+) -> JSONResponse:
+    """Write one system design subcomponent and re-render the brief.
+
+    The browser calls this once per section so each LLM request stays small and
+    partial progress survives a refresh. Calling it again for a loaded section
+    is a no-op.
+    """
+    session_data = require_api_user(request, db)
+    require_csrf(request, session_data)
+    body = body or {}
+    section = str(body.get("section") or "").strip()
+    if section not in {*SYSTEM_DESIGN_SECTIONS, "follow_ups"}:
+        return _error(422, "validation_error", "Unknown system design section.")
+
+    job = _job(db, job_id)
+    artifact = db.scalar(
+        select(Artifact).where(
+            Artifact.job_id == job.id,
+            Artifact.kind == "system_design",
+            Artifact.is_current.is_(True),
+        )
+    )
+    if artifact is None or not isinstance(artifact.meta_json, dict):
+        return _error(404, "not_found", "Generate the system design brief first.")
+    payload = artifact.meta_json.get("payload")
+    questions = payload.get("questions") if isinstance(payload, dict) else None
+    if not isinstance(questions, list) or not 1 <= index <= len(questions):
+        return _error(404, "not_found", "That system design question does not exist.")
+    question = questions[index - 1]
+    if not isinstance(question, dict):
+        return _error(409, "invalid_artifact", "That question is not readable.")
+
+    loaded = question.get("loaded_sections") if isinstance(question.get("loaded_sections"), list) else []
+    if (section == "follow_ups" and question.get("follow_ups_loaded")) or (
+        section in loaded and section in SYSTEM_DESIGN_SECTIONS
+    ):
+        return _render_system_design(artifact, payload, job, db)
+
+    company = db.get(Company, job.company_id) if job.company_id else None
+    settings = get_settings()
+    ctx = SkillContext(
+        job=job,
+        company=company,
+        settings=settings,
+        llm=_llm(request),
+        portfolio_text="\n\n".join(
+            path.read_text(encoding="utf-8", errors="ignore")
+            for path in sorted(settings.portfolio_dir.glob("*.md"))
+        ),
+    )
+    label = SECTION_LABELS.get(section, section.replace("_", " "))
+    try:
+        questions[index - 1] = expand_question(ctx, question, section)
+    except (LLMProviderError, SkillValidationError) as exc:
+        return _error(
+            502,
+            "system_design_failed",
+            f"Writing the {label} failed: {exc}",
+            section=section,
+            index=index,
+        )
+    artifact.meta_json = {**artifact.meta_json, "payload": payload}
+    flag_modified(artifact, "meta_json")
+    return _render_system_design(artifact, payload, job, db, ctx=ctx)
+
+
+def _render_system_design(
+    artifact: Artifact,
+    payload: dict[str, Any],
+    job: Job,
+    db: Session,
+    *,
+    ctx: SkillContext | None = None,
+) -> JSONResponse:
+    settings = get_settings()
+    company = db.get(Company, job.company_id) if job.company_id else None
+    ctx = ctx or SkillContext(
+        job=job,
+        company=company,
+        settings=settings,
+        llm=None,  # type: ignore[arg-type]
+    )
+    skill = SystemDesignInterviewSkill()
+    markdown = skill.render(payload, ctx)
+    artifact.content_md = markdown
+    db.commit()
+    questions = payload.get("questions") or []
+    return JSONResponse(
+        {
+            "html": markdown_to_html(markdown, paragraph_chars=340, collapsible_sections=True),
+            "loaded_sections": [
+                question.get("loaded_sections") or []
+                for question in questions
+                if isinstance(question, dict)
+            ],
+            "follow_ups_loaded": [
+                bool(question.get("follow_ups_loaded"))
+                for question in questions
+                if isinstance(question, dict)
+            ],
+        }
     )
