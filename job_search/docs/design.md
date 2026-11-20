@@ -466,6 +466,7 @@ payload = {
 - `openai/gpt-oss-20b` is the small tier: summary, email, spoken answers, cover letter first draft.
 - Groq's limits are honoured by reading `retry-after` and the `x-ratelimit-remaining-requests` headers; tokens-per-minute risk is handled by a per-process token bucket (30k TPM default, configurable with `SKIPPER_GROQ_TPM`).
 - Retries: 3 attempts on `429`, `5xx`, `httpx.TimeoutException`, `httpx.ConnectError` with exponential backoff (1, 4, 12 s + jitter). No retry on `400`/`401`.
+- `413 Request too large` is adaptively retried: the error names the account TPM limit and the requested total, so the provider lowers `max_completion_tokens` to fit and retries. If even a 512-token completion cannot fit, the error is marked retryable so `FallbackLLMProvider` can switch vendors; truncation retries are capped at the same ceiling so they cannot immediately trip the limit again.
 - `groq` is `openai`-compatible, so `OpenAICompatibleProvider` is the base class: swap base URL + key for OpenAI/OpenRouter/Ollama/vLLM without new code. Only Groq is wired in v1.
 
 ### 12.3 Routing, caching and cost

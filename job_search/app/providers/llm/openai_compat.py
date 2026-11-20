@@ -12,6 +12,7 @@ original Groq implementation: the job runner depends on those semantics.
 from __future__ import annotations
 
 import random
+import re
 import time
 from email.utils import parsedate_to_datetime
 from typing import Any, Literal
@@ -19,6 +20,9 @@ from typing import Any, Literal
 import httpx
 
 from .base import ChatMessage, LLMProvider, LLMProviderError, LLMResponse, estimate_tokens
+
+_LIMIT = re.compile(r"Limit\s+(\d+)", re.IGNORECASE)
+_REQUESTED = re.compile(r"Requested\s+(\d+)", re.IGNORECASE)
 
 
 class TokenBucket:
@@ -118,6 +122,8 @@ class OpenAICompatibleProvider(LLMProvider):
         self._owns_client = client is None
         self._client = client or httpx.Client(timeout=timeout_s)
         self._bucket = TokenBucket(tpm, clock=clock, sleep=sleep)
+        # Set after a 413 so a truncation retry cannot grow past the TPM ceiling.
+        self._completion_ceiling: int | None = None
 
     # ------------------------------------------------------------ vendor hooks
 
@@ -171,8 +177,40 @@ class OpenAICompatibleProvider(LLMProvider):
         latency_ms = int((self._clock() - started) * 1000)
         return self._parse(response, model=model, latency_ms=latency_ms)
 
+    def _shrink_to_limit(self, payload: dict[str, Any], body: str) -> dict[str, Any] | None:
+        """Lower the completion budget when a vendor rejects the request as too large.
+
+        Groq reports the account's token-per-minute limit and the requested total
+        in the 413 body. The total includes ``max_completion_tokens``, so a step
+        that is only a few hundred tokens over can retry by lowering its
+        completion budget instead of failing the whole run.
+        """
+        limit_match = _LIMIT.search(body)
+        if limit_match is None:
+            return None
+        limit = int(limit_match.group(1))
+        field = self.max_tokens_field
+        current = int(payload.get(field) or 0)
+        requested_match = _REQUESTED.search(body)
+        if requested_match is not None:
+            excess = int(requested_match.group(1)) - limit + 64
+        else:
+            prompt = chr(10).join(
+                str(message.get("content") or "") for message in payload.get("messages") or []
+            )
+            excess = current - max(0, limit - estimate_tokens(prompt) - 64)
+        target = current - max(0, excess)
+        if target >= current or target < 512:
+            return None
+        relaxed = dict(payload)
+        relaxed[field] = target
+        self._completion_ceiling = target
+        return relaxed
+
     def _post(self, payload: dict[str, Any], timeout_s: float) -> httpx.Response:
         last_error: str = "no attempt made"
+        last_status: int | None = None
+        self._completion_ceiling = None
         attempts = self.max_retries + 1
         for attempt in range(attempts):
             try:
@@ -193,14 +231,37 @@ class OpenAICompatibleProvider(LLMProvider):
                 return response
 
             body = response.text[:300].replace("\n", " ")
-            if response.status_code in {400, 422}:
-                relaxed = self._relax(payload, response.text)
+            if response.status_code == 413:
+                last_error = f"HTTP 413: {body}"
+                last_status = 413
+                relaxed = self._shrink_to_limit(payload, response.text)
                 if relaxed is not None:
-                    last_error = f"HTTP {response.status_code}: {body}"
                     if attempt == attempts - 1:
                         break
                     payload = relaxed
                     continue
+                raise LLMProviderError(
+                    f"{self.vendor} rejected the request as larger than its token limit. "
+                    "Shorten the prompt or enable a fallback provider.",
+                    status=413,
+                    retryable=True,
+                )
+            if response.status_code in {400, 422}:
+                relaxed = self._relax(payload, response.text)
+                if relaxed is not None:
+                    last_error = f"HTTP {response.status_code}: {body}"
+                    last_status = response.status_code
+                    if attempt == attempts - 1:
+                        break
+                    payload = relaxed
+                    continue
+                if self._completion_ceiling is not None:
+                    raise LLMProviderError(
+                        f"{self.vendor} rejected the request as larger than its token limit. "
+                        "Shorten the prompt or enable a fallback provider.",
+                        status=413,
+                        retryable=True,
+                    )
 
             if response.status_code == 429 or response.status_code >= 500:
                 last_error = f"HTTP {response.status_code}: {body}"
@@ -218,7 +279,7 @@ class OpenAICompatibleProvider(LLMProvider):
 
         raise LLMProviderError(
             f"{self.vendor} failed after {attempts} attempts ({last_error}).",
-            status=429,
+            status=last_status or 429,
             retryable=True,
         )
 

@@ -82,7 +82,12 @@ class GroqProvider(OpenAICompatibleProvider):
         if current >= 32_768:
             return None
         relaxed = dict(payload)
-        relaxed[field] = min(32_768, max(current + 4_096, int(current * 1.6)))
+        target = min(32_768, max(current + 4_096, int(current * 1.6)))
+        if self._completion_ceiling is not None:
+            target = min(target, self._completion_ceiling)
+        if target <= current:
+            return None
+        relaxed[field] = target
         messages = list(payload.get("messages") or [])
         messages.append(
             {

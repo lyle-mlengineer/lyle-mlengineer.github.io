@@ -207,6 +207,45 @@ def test_groq_retries_a_truncated_json_answer_with_a_larger_budget():
     assert "closing brace" in seen[1]["messages"][-1]["content"]
 
 
+def test_groq_shrinks_a_413_request_to_the_stated_limit():
+    seen: list[dict] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(json.loads(request.content))
+        if len(seen) == 1:
+            return httpx.Response(
+                413,
+                text=(
+                    '{"error":{"message":"Request too large for model `openai/gpt-oss-120b` '
+                    'on tokens per minute (TPM): Limit 8000, Requested 8402"}}'
+                ),
+            )
+        return _groq_response()
+
+    response = _groq(handler).complete(MESSAGES, response_format="json", max_tokens=5_500)
+
+    assert response.text.startswith("{")
+    assert len(seen) == 2
+    assert seen[0]["max_completion_tokens"] == 5_500
+    assert seen[1]["max_completion_tokens"] == 5_034
+
+
+def test_groq_marks_a_413_that_cannot_fit_as_retryable_for_fallback():
+    provider = _groq(
+        lambda request: httpx.Response(
+            413,
+            text='{"error":{"message":"Limit 1000, Requested 9000"}}',
+        ),
+        max_retries=1,
+    )
+    with pytest.raises(LLMProviderError) as excinfo:
+        provider.complete(MESSAGES, max_tokens=800)
+
+    assert excinfo.value.retryable is True
+    assert excinfo.value.status == 413
+    assert "fallback" in str(excinfo.value)
+
+
 def test_groq_marks_an_exhausted_json_retry_as_retryable():
     provider = _groq(
         lambda request: httpx.Response(400, text='{"code": "json_validate_failed"}'),
