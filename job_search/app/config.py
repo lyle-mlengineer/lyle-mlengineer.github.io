@@ -27,6 +27,10 @@ DEFAULT_LLM_MODELS: dict[str, dict[str, str]] = {
         "large": "moonshotai/kimi-k3.1-pro",
         "small": "nvidia/nemotron-3.5-lightning-30b-a3b",
     },
+    "openrouter": {
+        "large": "openrouter/free",
+        "small": "openrouter/free",
+    },
     "fake": {"large": "fake-large", "small": "fake-small"},
 }
 
@@ -67,6 +71,13 @@ class Settings(BaseSettings):
     nvidia_base_url: str = "https://integrate.api.nvidia.com/v1"
     nvidia_tpm: int = 40_000
     nvidia_reasoning_effort: str = "none"
+    openrouter_api_key: str = ""
+    openrouter_base_url: str = "https://openrouter.ai/api/v1"
+    openrouter_tpm: int = 20_000
+    openrouter_model_large: str = ""
+    openrouter_model_small: str = ""
+    openrouter_referer: str = ""
+    openrouter_title: str = "Skipper"
     # DeepSeek/Kimi/Nemotron model ids on NVIDIA NIM. Empty means DEFAULT_LLM_MODELS["nvidia"].
     nvidia_model_large: str = ""
     nvidia_model_small: str = ""
@@ -130,8 +141,10 @@ class Settings(BaseSettings):
     @classmethod
     def _valid_llm(cls, value: str) -> str:
         value = value.lower().strip()
-        if value not in {"groq", "nvidia", "fake"}:
-            raise ValueError("SKIPPER_LLM_PROVIDER must be 'groq', 'nvidia' or 'fake'")
+        if value not in {"groq", "nvidia", "openrouter", "fake"}:
+            raise ValueError(
+                "SKIPPER_LLM_PROVIDER must be 'groq', 'nvidia', 'openrouter' or 'fake'"
+            )
         return value
 
     @field_validator("nvidia_reasoning_effort")
@@ -183,12 +196,18 @@ class Settings(BaseSettings):
 
     @property
     def llm_api_key(self) -> str:
-        return {"groq": self.groq_api_key, "nvidia": self.nvidia_api_key}.get(
-            self.llm_provider, ""
-        )
+        return {
+            "groq": self.groq_api_key,
+            "nvidia": self.nvidia_api_key,
+            "openrouter": self.openrouter_api_key,
+        }.get(self.llm_provider, "")
 
     def api_key_for(self, provider: str) -> str:
-        return {"groq": self.groq_api_key, "nvidia": self.nvidia_api_key}.get(provider, "")
+        return {
+            "groq": self.groq_api_key,
+            "nvidia": self.nvidia_api_key,
+            "openrouter": self.openrouter_api_key,
+        }.get(provider, "")
 
     @property
     def fallback_providers(self) -> tuple[str, ...]:
@@ -202,12 +221,12 @@ class Settings(BaseSettings):
         if self.llm_provider == "fake" or raw in {"", "none", "off", "false"}:
             return ()
         if raw in {"auto", "all", "true"}:
-            candidates = ("nvidia", "groq")
+            candidates = ("nvidia", "groq", "openrouter")
         else:
             candidates = tuple(part.strip() for part in raw.split(",") if part.strip())
         chosen: list[str] = []
         for name in candidates:
-            if name in {"groq", "nvidia"} and name != self.llm_provider and name not in chosen:
+            if name in {"groq", "nvidia", "openrouter"} and name != self.llm_provider and name not in chosen:
                 if self.api_key_for(name):
                     chosen.append(name)
         return tuple(chosen)
@@ -232,6 +251,9 @@ class Settings(BaseSettings):
         if provider == "nvidia":
             large = self.nvidia_model_large or defaults["large"]
             small = self.nvidia_model_small or defaults["small"]
+        elif provider == "openrouter":
+            large = self.openrouter_model_large or defaults["large"]
+            small = self.openrouter_model_small or defaults["small"]
         else:
             large, small = defaults["large"], defaults["small"]
         if generic:

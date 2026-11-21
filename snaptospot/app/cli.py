@@ -215,6 +215,60 @@ def _copy(run_id: str, platforms: list[str], use_llm: bool) -> int:
     return 0
 
 
+def _qa(
+    run_id: str,
+    platforms: list[str] | None,
+    cards: list[str] | None,
+    use_ocr: bool,
+) -> int:
+    from sqlalchemy import select
+
+    from app.config import get_settings
+    from app.db import SessionLocal
+    from app.models import Run
+    from app.qa.service import QaError, run_qa
+    from app.schemas.qa import QaIn
+
+    with SessionLocal() as db:
+        run = db.scalar(select(Run).where(Run.id == run_id))
+        if run is None:
+            print(f"run not found: {run_id}", file=sys.stderr)
+            return 1
+        body = QaIn(use_ocr=use_ocr)
+        if platforms:
+            body = body.model_copy(update={"platforms": platforms})
+        if cards:
+            body = body.model_copy(update={"cards": cards})  # type: ignore[arg-type]
+        try:
+            report = run_qa(db, run, body)
+        except QaError as exc:
+            print(f"qa failed: {exc}", file=sys.stderr)
+            return 1
+        db.commit()
+
+    for asset in report.assets:
+        print(f"{asset.asset}: {asset.status} ({len(asset.gates)} gates)")
+        for gate in asset.gates:
+            if gate.status == "fail":
+                reason = gate.failures[0].detail if gate.failures else gate.detail
+                print(f"  FAIL {gate.name}: {reason}")
+            elif gate.status == "skip":
+                print(f"  skip {gate.name}: {gate.detail}")
+        if asset.retry is not None:
+            print(f"  retry {asset.retry.action}: {asset.retry.detail}")
+    for gate in report.kit_gates:
+        print(f"kit/{gate.name}: {gate.status}")
+        for failure in gate.failures:
+            print(f"  FAIL {failure.slot or '-'}: {failure.detail}")
+    summary = report.summary
+    print(
+        f"qa.json -> {Path(get_settings().media_root) / report.path} "
+        f"({summary.passed} passed, {summary.failed} failed, "
+        f"{summary.skipped} skipped)"
+    )
+    return 1 if summary.failed or any(g.status == "fail" for g in report.kit_gates) else 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="snaptospot", description="SnapToSpot tools")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -301,6 +355,29 @@ def main(argv: list[str] | None = None) -> int:
         help="use only the deterministic builder",
     )
 
+    qa = sub.add_parser("qa", help="run the quality gates and write qa.json")
+    qa.add_argument("--run", required=True, help="run id")
+    qa.add_argument(
+        "--platform",
+        dest="platforms",
+        action="append",
+        default=None,
+        help="platform name or id; repeatable (default every composed platform)",
+    )
+    qa.add_argument(
+        "--card",
+        dest="cards",
+        action="append",
+        default=None,
+        help="card id; repeatable (default all)",
+    )
+    qa.add_argument(
+        "--no-ocr",
+        dest="use_ocr",
+        action="store_false",
+        help="skip the OCR cross-check",
+    )
+
     args = parser.parse_args(argv)
     if args.command == "ingest":
         return _ingest(args.url, args.out, args.max_pages)
@@ -328,6 +405,8 @@ def main(argv: list[str] | None = None) -> int:
             args.platforms or ["linkedin", "x", "instagram", "whatsapp"],
             args.use_llm,
         )
+    if args.command == "qa":
+        return _qa(args.run, args.platforms, args.cards, args.use_ocr)
     return 2
 
 

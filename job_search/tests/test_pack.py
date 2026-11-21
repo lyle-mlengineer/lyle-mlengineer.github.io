@@ -9,6 +9,7 @@ from app.db import get_session_factory
 from app.documents.letters import build_letter_docx, render_letter_pdf
 from app.documents.resume import letter_filename
 from app.models import Artifact, Job
+from app.providers.llm.base import ChatMessage, LLMProvider, LLMResponse
 from app.providers.llm.fake import FakeLLMProvider
 from app.skills.fixtures import FAKE_COVER
 from app.skills.registry import FAKE_RESPONSES
@@ -120,8 +121,8 @@ def test_full_pack_creates_cover_email_and_interview_artifacts(client, settings)
     assert "Diagram" in page.text
     assert 'data-interview-kind="system_design"' in page.text
     assert "/static/js/system_design.js" in page.text
-    assert page.text.count('<details class="design-section">') >= 6
-    assert '<summary class="design-section__title">Requirements</summary>' in page.text
+    assert page.text.count('class="design-section design-section--') >= 6
+    assert '<span class="design-section__label">Requirements</span>' in page.text
     assert 'class="prose-code"' in page.text
 
     assert client.get(f"/api/artifacts/{cover_id}/download").status_code == 200
@@ -200,7 +201,7 @@ def test_system_design_is_written_one_section_at_a_time(client, settings):
     from app.jobs.render import markdown_to_html
     from app.skills.base import SkillContext
     from app.skills.interviews import SystemDesignInterviewSkill
-    from app.skills.system_design_parts import apply_section, normalize_question
+    from app.skills.system_design_parts import apply_section, expand_question, normalize_question
 
     job_id = _run(client)
     factory = get_session_factory(settings)
@@ -222,9 +223,11 @@ def test_system_design_is_written_one_section_at_a_time(client, settings):
         )
         assert question["loaded_sections"] == []
         outline = SystemDesignInterviewSkill().render({"questions": [question]}, ctx)
-        assert ":::load-design 1" in outline
+        assert ":::load-design 1 requirements" in outline
         assert "Requirements" not in outline
-        assert "data-design-load" in markdown_to_html(outline)
+        outline_html = markdown_to_html(outline)
+        assert "data-design-load" in outline_html
+        assert "Load requirements" in outline_html
 
         question = apply_section(
             question,
@@ -240,8 +243,22 @@ def test_system_design_is_written_one_section_at_a_time(client, settings):
         assert "requirements" in question["loaded_sections"]
         partial = SystemDesignInterviewSkill().render({"questions": [question]}, ctx)
         assert "### Requirements" in partial
-        assert ":::load-design 1" in partial
+        assert ":::load-design 1 entities" in partial
+        assert "Load core entities" in markdown_to_html(partial)
         assert ":::load-followups 1" in partial
+
+        section_llm = FakeLLMProvider(
+            {
+                "system_design_expand": json.dumps(
+                    {"core_entities": [{"name": "Tenant", "fields": ["id"]}]}
+                )
+            }
+        )
+        section_ctx = SkillContext(job=job, company=None, settings=settings, llm=section_llm)
+        expanded = expand_question(section_ctx, question, "entities")
+        assert expanded["core_entities"][0]["name"] == "Tenant"
+        assert section_llm.calls[0]["model"] == "fake-small"
+        assert section_llm.calls[0]["max_tokens"] == 1000
 
         question = apply_section(
             question, "follow_ups", {"follow_ups": ["What happens on a language miss?"]}, ctx
@@ -303,3 +320,100 @@ def test_system_design_is_written_one_section_at_a_time(client, settings):
         )
         assert artifact.meta_json["payload"]["questions"][0]["loaded_sections"] == ["requirements"]
         assert "Transcribe audio." in artifact.content_md
+
+
+class _ScriptedLLM(LLMProvider):
+    """Returns each text in order, so a repair pass is observable."""
+
+    name = "scripted"
+    models = {"small": "scripted-small", "large": "scripted-large"}
+
+    def __init__(self, texts: list[str]) -> None:
+        self._texts = list(texts)
+        self.calls: list[list[ChatMessage]] = []
+
+    def complete(self, messages, **kwargs) -> LLMResponse:
+        self.calls.append(list(messages))
+        text = self._texts.pop(0) if self._texts else ""
+        return LLMResponse(text=text, model="scripted-small")
+
+    def health(self) -> bool:
+        return True
+
+
+def _unsaved_job() -> Job:
+    return Job(
+        title="Audio ML Engineer",
+        slug="acme-audio-ml",
+        source_type="text",
+        raw_text="Build a multi-agent podcast production pipeline.",
+        fingerprint="requirements-repair-fixture",
+        source_url="https://acme.test/jobs/audio-ml",
+    )
+
+
+def test_requirements_section_repairs_a_missing_non_functional_list(settings):
+    """Regression: the small tier folded every item into `functional` and dropped the key."""
+    import json
+
+    from app.skills.base import SkillContext
+    from app.skills.system_design_parts import expand_question
+
+    llm = _ScriptedLLM(
+        [
+            json.dumps(
+                {
+                    "requirements": {
+                        "functional": [
+                            "Research an episode topic from curated sources.",
+                            "Persist episode state so a re-run is idempotent.",
+                        ]
+                    }
+                }
+            ),
+            json.dumps(
+                {
+                    "requirements": {
+                        "functional": ["Research an episode topic from curated sources."],
+                        "non_functional": [
+                            "Keep episode production idempotent per script version."
+                        ],
+                    }
+                }
+            ),
+        ]
+    )
+    ctx = SkillContext(job=_unsaved_job(), company=None, settings=settings, llm=llm)
+    expanded = expand_question(
+        ctx,
+        {"topic": "Podcast pipeline", "difficulty": "core", "question": "Design a podcast pipeline."},
+        "requirements",
+    )
+
+    assert len(llm.calls) == 2
+    repair_turn = llm.calls[1][-1].content
+    assert "$.requirements.non_functional: required" in repair_turn
+    assert expanded["requirements"]["non_functional"] == [
+        "Keep episode production idempotent per script version."
+    ]
+    assert expanded["loaded_sections"] == ["requirements"]
+
+
+def test_every_requirements_prompt_names_both_keys(settings):
+    from app.skills.base import SkillContext
+    from app.skills.interviews import CodingInterviewSkill, LowLevelDesignInterviewSkill
+    from app.skills.system_design_parts import REQUIREMENTS_SHAPE, SECTION_INSTRUCTIONS
+
+    assert "non_functional" in SECTION_INSTRUCTIONS["requirements"]
+    assert "never put a non-functional item in the functional list" in REQUIREMENTS_SHAPE
+
+    ctx = SkillContext(
+        job=_unsaved_job(),
+        company=None,
+        settings=settings,
+        llm=FakeLLMProvider(),
+    )
+    low_level = LowLevelDesignInterviewSkill().build_messages(ctx)[0].content
+    coding = CodingInterviewSkill().build_messages(ctx)[0].content
+    assert REQUIREMENTS_SHAPE in low_level
+    assert "exactly two keys" in coding and "non_functional" in coding

@@ -18,6 +18,7 @@ from app.providers.llm.fake import FakeLLMProvider
 from app.providers.llm.fallback import FallbackLLMProvider
 from app.providers.llm.groq import GroqProvider
 from app.providers.llm.nvidia import NvidiaProvider
+from app.providers.llm.openrouter import OpenRouterProvider
 from app.providers.llm.pricing import estimate_cost
 from app.providers.llm.registry import build_llm_provider
 
@@ -509,6 +510,111 @@ def test_resolved_models_follow_the_provider_and_allow_overrides(settings):
 def test_nvidia_pricing_is_listed_for_the_ui():
     assert estimate_cost("deepseek-ai/deepseek-v4-flash", 1_000_000, 0) == 0.14
     assert estimate_cost("deepseek-ai/deepseek-v4-pro", 0, 1_000_000) == 3.96
+
+
+# ---------------------------------------------------------------- openrouter
+
+
+def _openrouter_response(
+    content: str = '{"name": "Skipper"}',
+    model: str = "nvidia/nemotron-3.5-lightning:free",
+):
+    return httpx.Response(
+        200,
+        json={
+            "id": "gen-or1",
+            "model": model,
+            "choices": [
+                {"message": {"role": "assistant", "content": content}, "finish_reason": "stop"}
+            ],
+            "usage": {"prompt_tokens": 300, "completion_tokens": 80},
+        },
+    )
+
+
+def _openrouter(handler, sleeps=None, **kwargs) -> OpenRouterProvider:
+    return OpenRouterProvider(
+        "test-openrouter-key",
+        client=httpx.Client(transport=httpx.MockTransport(handler)),
+        sleep=(sleeps.append if sleeps is not None else (lambda _s: None)),
+        jitter=lambda: 0.0,
+        tpm=1_000_000,
+        **kwargs,
+    )
+
+
+def test_openrouter_uses_the_free_router_and_attribution_headers():
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return _openrouter_response()
+
+    response = _openrouter(handler, referer="https://lyle-mlengineer.github.io").complete(
+        MESSAGES, response_format="json"
+    )
+
+    payload = json.loads(seen[0].content)
+    assert seen[0].url.host == "openrouter.ai"
+    assert seen[0].url.path == "/api/v1/chat/completions"
+    assert seen[0].headers["authorization"] == "Bearer test-openrouter-key"
+    assert seen[0].headers["http-referer"] == "https://lyle-mlengineer.github.io"
+    assert seen[0].headers["x-title"] == "Skipper"
+    assert payload["model"] == "openrouter/free"
+    assert payload["max_tokens"] == 4096
+    assert "max_completion_tokens" not in payload
+    assert payload["response_format"] == {"type": "json_object"}
+    assert response.tokens_in == 300
+    assert response.tokens_out == 80
+    # The router reports the concrete free model that answered.
+    assert response.model == "nvidia/nemotron-3.5-lightning:free"
+
+
+def test_openrouter_retries_without_json_mode_when_a_free_model_rejects_it():
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        if len(seen) == 1:
+            return httpx.Response(400, text="response_format is not supported by this model")
+        return _openrouter_response()
+
+    response = _openrouter(handler).complete(MESSAGES, response_format="json")
+
+    assert response.text.startswith("{")
+    assert "response_format" in json.loads(seen[0].content)
+    assert "response_format" not in json.loads(seen[1].content)
+
+
+def test_openrouter_requires_a_key():
+    with pytest.raises(LLMProviderError):
+        OpenRouterProvider("")
+
+
+def test_registry_builds_openrouter_with_the_free_models(settings):
+    settings.llm_provider = "openrouter"
+    settings.openrouter_api_key = "or-key"
+    settings.llm_model_large = ""
+    settings.llm_model_small = ""
+
+    provider = build_llm_provider(settings)
+
+    assert provider.name == "openrouter"
+    assert provider.model_for("large") == "openrouter/free"
+    assert provider.model_for("small") == "openrouter/free"
+
+
+def test_openrouter_can_be_the_automatic_fallback(settings):
+    settings.llm_provider = "groq"
+    settings.groq_api_key = "groq-key"
+    settings.nvidia_api_key = ""
+    settings.openrouter_api_key = "or-key"
+    settings.llm_fallbacks = "auto"
+
+    provider = build_llm_provider(settings)
+
+    assert isinstance(provider, FallbackLLMProvider)
+    assert [inner.name for inner in provider.providers] == ["groq", "openrouter"]
 
 
 # ---------------------------------------------------------------- oversized strings

@@ -6,10 +6,11 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.compose.ast import alt_text, asset_name, build_context
+from app.compose.ast import asset_name, build_context
 from app.compose.fitting import fit_card, make_measurer
 from app.compose.layouts import max_headline_lines, plan_for
 from app.compose.templates import render_card, standalone
+from app.copy.alt import build_alt_text
 from app.design.platforms import nominal_headline, specs_for
 from app.design.tokens import build_design_system, design_system_hash
 from app.models import AuditLog, Run, Site
@@ -188,9 +189,18 @@ def compose_run(
                         height=spec.size[1],
                         slots=slots,
                         measured=_measured(fit),
-                        alt_text=alt_text(card, slots, design, profile),
+                        # The alt text is generated from the finished layout so
+                        # every visible string is described by construction.
+                        alt_text="",
                         warnings=layout_warnings,
                     )
+                )
+                layouts[-1] = layouts[-1].model_copy(
+                    update={
+                        "alt_text": build_alt_text(
+                            layouts[-1], profile=profile
+                        ).text
+                    }
                 )
     finally:
         measurer.close()  # type: ignore[attr-defined]

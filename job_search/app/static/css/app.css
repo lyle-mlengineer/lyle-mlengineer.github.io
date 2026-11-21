@@ -3616,17 +3616,28 @@ body.dark-theme .resources__status.is-error {
 
 /* Each step of a design brief is its own disclosure inside the open document. */
 .design-section {
-    margin: .55rem 0;
+    --section-hue: var(--hue-color);
+    position: relative;
+    margin: .6rem 0;
     border: 1px solid var(--line);
-    border-radius: var(--radius-sm);
+    border-left: 3px solid hsla(var(--section-hue), 68%, 56%, .55);
+    border-radius: 10px;
     background-color: var(--container-color);
+    overflow: hidden;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.design-section[open] {
+    border-left-color: hsla(var(--section-hue), 68%, 52%, .9);
+    box-shadow: 0 12px 26px -24px hsla(var(--section-hue), 50%, 20%, .55);
 }
 
 .design-section summary {
     display: flex;
     align-items: center;
-    gap: .5rem;
-    padding: .6rem .8rem;
+    gap: .65rem;
+    padding: .68rem .85rem;
+    background: linear-gradient(90deg, hsla(var(--section-hue), 70%, 58%, .11), transparent 68%);
     cursor: pointer;
     color: var(--title-color);
     font-size: .92rem;
@@ -3639,42 +3650,117 @@ body.dark-theme .resources__status.is-error {
 }
 
 .design-section summary:focus-visible {
-    outline: 2px solid var(--accent-text);
-    outline-offset: 2px;
-    border-radius: 4px;
+    outline: 2px solid hsla(var(--section-hue), 68%, 55%, .8);
+    outline-offset: -3px;
+    border-radius: 9px;
 }
 
 .design-section summary::before {
-    content: "+";
+    content: attr(data-step);
     display: grid;
     place-items: center;
     flex: none;
-    width: 1.05rem;
-    height: 1.05rem;
-    border-radius: 50%;
-    background-color: hsla(var(--hue-color), 69%, 61%, .16);
-    color: var(--accent-text);
-    font-size: .8rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: .45rem;
+    background-color: hsla(var(--section-hue), 70%, 58%, .16);
+    color: hsl(var(--section-hue), 58%, 38%);
+    font-size: .72rem;
+    font-variant-numeric: tabular-nums;
     font-weight: 700;
     line-height: 1;
 }
 
-.design-section[open] summary::before {
+.design-section summary::after {
+    content: "+";
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-left: auto;
+    border-radius: 50%;
+    background-color: hsla(var(--section-hue), 50%, 50%, .1);
+    color: hsl(var(--section-hue), 45%, 42%);
+    font-size: .84rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.design-section[open] summary::after {
     content: "−";
 }
 
+.design-section__label {
+    min-width: 0;
+}
+
 .design-section__body {
-    padding: 0 .8rem .65rem;
-    border-top: 1px dashed var(--line);
+    padding: 0 .95rem .85rem;
+    border-top: 1px solid hsla(var(--section-hue), 45%, 55%, .18);
+    color: var(--text-color);
+    font-size: .94rem;
+    line-height: 1.65;
 }
 
 .design-section__body > :first-child {
-    margin-top: .65rem;
+    margin-top: .7rem;
 }
 
 .design-section__body > :last-child {
     margin-bottom: 0;
 }
+
+.design-section__body p {
+    margin: .55rem 0;
+}
+
+.design-section__body ul,
+.design-section__body ol {
+    margin: .5rem 0;
+    padding-left: 1.2rem;
+}
+
+.design-section__body li + li {
+    margin-top: .28rem;
+}
+
+.design-section__body code {
+    padding: .08rem .3rem;
+    border-radius: 4px;
+    background-color: hsla(var(--section-hue), 40%, 50%, .1);
+    font-size: .88em;
+}
+
+.design-section__body pre {
+    margin: .65rem 0 .2rem;
+}
+
+body.dark-theme .design-section summary::before {
+    color: hsl(var(--section-hue), 70%, 78%);
+}
+
+body.dark-theme .design-section summary::after {
+    color: hsl(var(--section-hue), 62%, 76%);
+}
+
+/* The accent carries the meaning of the step, not decoration. */
+.design-section--requirements { --section-hue: 212; }
+.design-section--entities { --section-hue: 266; }
+.design-section--api { --section-hue: 172; }
+.design-section--data-flow { --section-hue: 26; }
+.design-section--high-level { --section-hue: 145; }
+.design-section--diagram { --section-hue: 220; }
+.design-section--deep-dives { --section-hue: 348; }
+.design-section--trade-offs { --section-hue: 38; }
+.design-section--interviewer-questions { --section-hue: 204; }
+.design-section--questions-to-ask { --section-hue: 188; }
+.design-section--follow-ups { --section-hue: 282; }
+.design-section--class-design { --section-hue: 266; }
+.design-section--implementation { --section-hue: 212; }
+.design-section--extensibility { --section-hue: 145; }
+.design-section--slow-solution { --section-hue: 14; }
+.design-section--optimised-solution { --section-hue: 162; }
 
 .design-load {
     display: inline-flex;

@@ -25,6 +25,15 @@ SYSTEM_DESIGN_SECTIONS = (
     "questions",
 )
 
+# The one shape every requirements prompt uses. Models otherwise fold the
+# non-functional items into the functional list and drop the second key.
+REQUIREMENTS_SHAPE = (
+    "Requirements are one object with exactly two keys: functional (a list of strings) and "
+    "non_functional (a list of strings). Functional items say what the system does for its user. "
+    "Non-functional items say which quality or bound the design must hold (latency, availability, "
+    "scale, consistency, security, cost); never put a non-functional item in the functional list."
+)
+
 SECTION_LABELS = {
     "requirements": "requirements",
     "entities": "core entities",
@@ -38,9 +47,10 @@ SECTION_LABELS = {
 
 SECTION_INSTRUCTIONS = {
     "requirements": (
-        "List 4-6 functional requirements and 3-5 non-functional requirements. Each non-functional "
-        "requirement should name the quality and the bound the design must hold, but do not invent "
-        "traffic, latency or cost numbers."
+        REQUIREMENTS_SHAPE
+        + " Write 4-6 functional requirements and 3-5 non-functional requirements. Each "
+        "non-functional requirement should name the quality and the bound the design must hold, but "
+        "do not invent traffic, latency or cost numbers."
     ),
     "entities": (
         "Name 4-7 core entities. For each, give the fields that matter to the design and one note "
@@ -310,12 +320,18 @@ def expand_question(
             + " JSON.",
         ),
     ]
+    # A section is a focused JSON fill, not a full design. The small tier answers
+    # it faster and still gets the earlier sections as context; the UI can retry
+    # a single section without re-running the whole brief.
     payload, _response = ctx.llm.complete_json(
         messages,
         section_schema(section),
-        model=ctx.llm.model_for("large"),
+        model=ctx.llm.model_for("small"),
         temperature=0.2,
         max_tokens=1800 if section in {"high_level", "deep_dives"} else 1000,
+        timeout_s=60.0,
+        # A near-miss (a missing key, an item in the wrong list) is cheap to
+        # repair; failing the section outright makes the candidate click again.
         attempts=2,
     )
     return apply_section(question, section, payload, ctx)

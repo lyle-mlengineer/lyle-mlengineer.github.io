@@ -203,6 +203,8 @@ job_search/
       llm/
         base.py          # LLMProvider ABC, ChatMessage, LLMResponse
         groq.py          # GroqProvider (OpenAI-compatible)
+        nvidia.py        # NvidiaProvider (retired-model fallback)
+        openrouter.py    # OpenRouterProvider (free-model router)
         fake.py          # FakeLLMProvider for tests
         cache.py         # exact-match response cache
         pricing.py       # token price table for cost display
@@ -288,9 +290,12 @@ All settings come from environment with the `SKIPPER_` prefix (`.env` supported 
 | `SKIPPER_DB_PATH` | `var/skipper.db` | SQLite file |
 | `SKIPPER_ARTIFACTS_DIR` | `var/artifacts` | Generated files |
 | `SKIPPER_PORTFOLIO_DIR` | `data/portfolio` | RAG corpus |
-| `SKIPPER_LLM_PROVIDER` | `groq` | `groq` \| `nvidia` \| `fake` |
+| `SKIPPER_LLM_PROVIDER` | `groq` | `groq` \| `nvidia` \| `openrouter` \| `fake` |
 | `SKIPPER_GROQ_API_KEY` | — | Required when provider is groq |
 | `SKIPPER_NVIDIA_API_KEY` | — | Required when provider is nvidia |
+| `SKIPPER_OPENROUTER_API_KEY` | — | Required when provider is openrouter |
+| `SKIPPER_OPENROUTER_MODEL_LARGE` | `openrouter/free` | Free large tier, or a pinned `:free` id |
+| `SKIPPER_OPENROUTER_MODEL_SMALL` | `openrouter/free` | Free small tier, or a pinned `:free` id |
 | `SKIPPER_NVIDIA_MODEL_LARGE` | `moonshotai/kimi-k3.1-pro` | NVIDIA large tier |
 | `SKIPPER_NVIDIA_MODEL_SMALL` | `nvidia/nemotron-3.5-lightning-30b-a3b` | NVIDIA small tier |
 | `SKIPPER_NVIDIA_MODEL_FALLBACKS` | built-in chain | Ids tried, in order, after a 404/410 retirement |
@@ -467,9 +472,29 @@ payload = {
 - Groq's limits are honoured by reading `retry-after` and the `x-ratelimit-remaining-requests` headers; tokens-per-minute risk is handled by a per-process token bucket (30k TPM default, configurable with `SKIPPER_GROQ_TPM`).
 - Retries: 3 attempts on `429`, `5xx`, `httpx.TimeoutException`, `httpx.ConnectError` with exponential backoff (1, 4, 12 s + jitter). No retry on `400`/`401`.
 - `413 Request too large` is adaptively retried: the error names the account TPM limit and the requested total, so the provider lowers `max_completion_tokens` to fit and retries. If even a 512-token completion cannot fit, the error is marked retryable so `FallbackLLMProvider` can switch vendors; truncation retries are capped at the same ceiling so they cannot immediately trip the limit again.
-- `groq` is `openai`-compatible, so `OpenAICompatibleProvider` is the base class: swap base URL + key for OpenAI/OpenRouter/Ollama/vLLM without new code. Only Groq is wired in v1.
+- `groq` is `openai`-compatible, so `OpenAICompatibleProvider` is the base class: swap base URL + key for OpenAI/OpenRouter/Ollama/vLLM without new code.
 
-### 12.3 Routing, caching and cost
+### 12.3 OpenRouter implementation
+
+`OpenRouterProvider` posts to `https://openrouter.ai/api/v1/chat/completions` with `Authorization: Bearer $SKIPPER_OPENROUTER_API_KEY` plus optional `HTTP-Referer` and `X-Title` attribution headers.
+
+```python
+payload = {
+  "model": self.models[tier],          # openrouter/free, or a pinned ":free" id
+  "messages": [...],
+  "temperature": temperature,
+  "max_tokens": max_tokens,
+  "response_format": {"type": "json_object"} | omitted,
+}
+```
+
+- Both tiers default to `openrouter/free`, a router that picks a zero-priced model supporting the request's features (JSON output is part of the filter). This survives free-model churn; pin `SKIPPER_OPENROUTER_MODEL_LARGE`/`SMALL` to a `:free` id when a run must be reproducible.
+- Free ids currently worth pinning: `nvidia/nemotron-3-ultra-550b-a55b:free`, `nvidia/nemotron-3.5-lightning:free`, `minimax/minimax-m3.1-flash:free`, `google/gemma-4-31b-it:free`, `google/gemma-4-26b-a4b-it:free`, `thinkingmachines/inkling-small:free`.
+- OpenRouter's free tier is request-capped (50/day, or 1000/day after a one-off 10-credit purchase), not token-capped. The local bucket only spaces calls; a 429 is marked retryable so `FallbackLLMProvider` can move to Groq or NVIDIA.
+- If a specific free model rejects `response_format`, `_relax()` retries once without it; the JSON instruction already in the prompt still applies.
+- The response's `model` is the concrete free model the router selected, so the ledger and resources dashboard show what actually answered (priced at zero because `pricing.py` has no paid entry for it).
+
+### 12.4 Routing, caching and cost
 
 - Skills declare `tier: large | small`; `registry.py` maps tier → configured model.
 - Cache key: `sha256(provider|model|temperature|response_format|messages)`; hits return the cached response and record `tokens_in=0`. Entries are exact-match and never expire automatically; they make retries after a crash free and keep development from paying twice for an identical prompt.
@@ -478,7 +503,7 @@ payload = {
 - **Failover:** `registry.py` wraps the primary provider and every other hosted provider with a key in a `FallbackLLMProvider` (`SKIPPER_LLM_FALLBACKS=auto` by default; `none` disables). A retryable failure (`429`, `402`, `5xx`, exhausted retries) moves to the next provider for that call and stays there for the rest of the process, so a run does not pay the retry window on every step. The wrapper translates the requested tier back to the next vendor's model id. `fake` never joins a real chain, and the tests pin `none` so the suite stays offline. The ledger and cache read the active provider name on every call, so switched calls are attributed to the provider that answered.
 - **Retired model swap:** NVIDIA free endpoints die with a `410 Gone` (future-timestamped detail) or a `404`. `NvidiaProvider.complete` treats both as permanent, moves the tier to the next id in `SKIPPER_NVIDIA_MODEL_FALLBACKS`, updates `models[tier]` and remembers the dead id so every later step skips it. If the chain is exhausted the error names the env vars to edit instead of repeating the provider's opaque body. `400`/`422` responses still get one relaxed retry that drops `response_format` and/or `reasoning_effort`, because not every hosted model accepts both.
 
-### 12.4 Prompt-injection and grounding
+### 12.5 Prompt-injection and grounding
 
 Scraped pages and search snippets are **untrusted**. Every skill prompt:
 
@@ -586,7 +611,7 @@ CV writing also receives the closest of the six portfolio CV templates (`data/cv
 | 13 | `low_level_design` | large | extraction, research, portfolio | `{questions[{topic, difficulty, question, answer, requirements{functional[],non_functional[]}, core_entities[{name,fields[],notes}], class_design[{name,responsibility,interfaces[],collaborators[]}], implementation[{title,detail}], extensibility[], diagram, data_structures[], trade_offs[], interviewer_questions[], questions_to_ask[], follow_ups[]}]}` — requirements → entities → class design → implementation → extensibility (5–7) → md |
 | 14 | `coding` | large | extraction, research, portfolio | `{problems[{..., requirements, core_entities, api_design (signature), data_flow, high_level (solution outline), deep_dives, diagram, slow_approach, slow_code, slow_time_complexity, slow_space_complexity, approach, code, time_complexity, space_complexity, language, edge_cases, interviewer_questions[], questions_to_ask[], follow_ups[]}]}` (6–8) → md |
 
-`system_design`, `low_level_design` and `coding` share one interview flow: requirements (functional and non-functional), core entities, API design, data flow, high-level or component design, then two or three deep dives. Each answer opens with a short spoken walkthrough (120–180 words) and the structured sections carry the detail, so the brief works both as a script and as a whiteboard plan. System design is staged further: the pipeline writes only the question outline, and the page writes each subcomponent in its own small request as the candidate opens it. Partial progress is saved on the artifact, so a refresh resumes at the next missing section; follow-ups are written only when the candidate opens the follow-up disclosure. ML and data designs add what is trained or ingested, how the offline path differs from online, and where quality is measured. Diagrams are plain ASCII in a `text` code fence because the Markdown renderer supports headings, lists, emphasis and fenced code; it does not run Mermaid. Every design ends with trade-offs, the questions the interviewer is likely to ask, targeted questions the candidate can ask the interviewer, and follow-ups. Coding briefs show the obvious slow solution first with its own code and complexity, then the optimised solution with runtime and storage stated separately.
+`system_design`, `low_level_design` and `coding` share one interview flow: requirements (functional and non-functional), core entities, API design, data flow, high-level or component design, then two or three deep dives. Each answer opens with a short spoken walkthrough (120–180 words) and the structured sections carry the detail, so the brief works both as a script and as a whiteboard plan. System design is staged further: the pipeline writes only the question outline, and the first click on "Load requirements" writes every remaining subcomponent in sequence, revealing each section as it lands. Section calls use the small tier with a 60-second timeout and a single attempt, because they fill a focused JSON object from the earlier sections; if one section fails, the button retries from that step without re-running the brief. Partial progress is saved on the artifact, so a refresh resumes at the next missing section; follow-ups are written only when the candidate opens the follow-up disclosure. ML and data designs add what is trained or ingested, how the offline path differs from online, and where quality is measured. Diagrams are plain ASCII in a `text` code fence because the Markdown renderer supports headings, lists, emphasis and fenced code; it does not run Mermaid. Every design ends with trade-offs, the questions the interviewer is likely to ask, targeted questions the candidate can ask the interviewer, and follow-ups. Coding briefs show the obvious slow solution first with its own code and complexity, then the optimised solution with runtime and storage stated separately.
 
 Shared rules baked into every system prompt (`jobs/prompts.py`):
 

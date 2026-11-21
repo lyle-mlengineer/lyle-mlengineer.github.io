@@ -36,6 +36,10 @@ dev = [
 ocr = [
   "pytesseract>=0.3",
 ]
+qa = [
+  "paddleocr>=2.8",
+  "pytesseract>=0.3",
+]
 
 [build-system]
 requires = ["setuptools>=68"]

@@ -199,6 +199,50 @@ class ChromeWorker:
             except Exception:  # noqa: BLE001 - teardown is best effort
                 pass
 
+    def evaluate_document(
+        self,
+        html: str,
+        width: int,
+        height: int,
+        script: str,
+        *,
+        scale: int = 1,
+    ) -> object:
+        """Load a document at a given device scale and evaluate ``script``.
+
+        QA uses this to read ``scrollHeight``/``clientHeight`` at 1x and 2x
+        without taking a screenshot. The page is closed either way, so one asset
+        cannot leak state into the next.
+        """
+        if self.closed:
+            raise ChromeRenderError("Renderer is closed")
+        page = self._context.new_page()
+        try:
+            session = self._context.new_cdp_session(page)
+            session.send(
+                "Emulation.setDeviceMetricsOverride",
+                {
+                    "width": width,
+                    "height": height,
+                    "screenWidth": width,
+                    "screenHeight": height,
+                    "deviceScaleFactor": int(scale),
+                    "mobile": False,
+                },
+            )
+            page.set_content(html, wait_until="domcontentloaded")
+            page.evaluate(_READY_JS)
+            return page.evaluate(script)
+        except ChromeRenderError:
+            raise
+        except Exception as exc:  # noqa: BLE001 - surface one clear error
+            raise ChromeRenderError(f"Evaluation failed: {exc}") from exc
+        finally:
+            try:
+                page.close()
+            except Exception:  # noqa: BLE001 - teardown is best effort
+                pass
+
     def capture_frames(
         self,
         html: str,

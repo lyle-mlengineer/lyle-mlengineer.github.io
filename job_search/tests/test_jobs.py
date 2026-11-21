@@ -304,13 +304,23 @@ def test_markdown_renderer_wraps_design_sections_in_details():
         "## Q\n\n### Requirements\n\n- one\n\n### Deep dives\n\n**A** — detail",
         collapsible_sections=True,
     )
-    assert html.count('<details class="design-section">') == 2
-    assert '<summary class="design-section__title">Requirements</summary>' in html
-    assert '<summary class="design-section__title">Deep dives</summary>' in html
+    assert html.count('class="design-section design-section--') == 2
+    assert '<span class="design-section__label">Requirements</span>' in html
+    assert '<span class="design-section__label">Deep dives</span>' in html
     assert "<h4" not in html
     assert html.count("</div></details>") == 2
     assert '<h3 class="prose-h prose-h--q">Q</h3>' in html
 
+
+def test_design_load_controls_are_not_trapped_inside_the_current_section():
+    md = "\n".join(["## Q", "", "### Requirements", "", "- one", "", ":::load-design 1 entities"])
+    html = markdown_to_html(md, collapsible_sections=True)
+    assert html.index("</div></details>") < html.index("<button")
+    assert "Load core entities" in html
+
+    md = "\n".join(["## Q", "", "### Requirements", "", "- one", "", ":::load-followups 1"])
+    html = markdown_to_html(md, collapsible_sections=True)
+    assert html.index("</div></details>") < html.index('<details class="design-lazy"')
 
 def test_markdown_renderer_keeps_sections_flat_by_default():
     html = markdown_to_html("## Q\n\n### Requirements\n\n- one")

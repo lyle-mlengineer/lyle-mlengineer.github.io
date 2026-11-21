@@ -68,7 +68,11 @@
   .sts-card.ratio-1-1 { width: 1200px; height: 1200px; }
   .sts-card.ratio-4-5 { width: 1080px; height: 1350px; padding: 68px; }
   .sts-card.ratio-16-9 { width: 1600px; height: 900px; padding: 56px 64px; }
-  .sts-card.ratio-9-16 { width: 1080px; height: 1920px; padding: 96px 64px 140px; }
+  .sts-card.ratio-9-16 {
+    width: 1080px; height: 1920px;
+    padding: max(96px, var(--safe-top, 0px)) max(64px, var(--safe-right, 0px))
+             max(140px, var(--safe-bottom, 0px)) max(64px, var(--safe-left, 0px));
+  }
   .sts-glow {
     position: absolute; inset: 0; z-index: 0; pointer-events: none;
     background: radial-gradient(circle at 78% 18%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 58%);
@@ -161,6 +165,8 @@
     --paper: {{ t.paper }}; --muted: {{ t.muted }}; --muted-2: {{ t.muted_2 }};
     --accent: {{ t.accent }}; --accent-soft: {{ t.accent_soft }}; --on-accent: {{ t.text_on_accent }};
     --line: {{ t.line }}; --radius: {{ t.radius }}px; --rule: {{ t.rule }};
+    --safe-top: {{ ctx.safe.top|default(0) }}px; --safe-bottom: {{ ctx.safe.bottom|default(0) }}px;
+    --safe-left: {{ ctx.safe.left|default(0) }}px; --safe-right: {{ ctx.safe.right|default(0) }}px;
     --font-display: '{{ t.font_display }}'; --font-body: '{{ t.font_body }}'; --font-mono: '{{ t.font_mono }}';
     --tracking: {{ t.display_tracking }}; --transform: {{ t.display_transform }};
     --shadow: {{ ctx.media_treatment.shadow }};

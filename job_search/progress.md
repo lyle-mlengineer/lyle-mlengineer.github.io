@@ -5,17 +5,19 @@ The build follows [`docs/steps.md`](docs/steps.md). Each phase ends with a worki
 **Current phase:** 6 complete — full application pack, interview study and audio
 **Next phase:** 7 — tracking, status controls and company pages
 **Last updated:** 2026-11-20
-**Suite:** 258 tests passing offline (`python -m pytest -q`)
+**Suite:** 264 tests passing offline (`python -m pytest -q`)
 
 ---
 
 ## Latest verification
 
 ```text
-2026-11-20  system design staged per subcomponent         → outline + 7 section calls, each section revealed as it lands
+2026-11-20  OpenRouter provider                             → free router by default + pinned :free ids, JSON-mode relax, auto fallback
+2026-11-20  python -m pytest                              → 264 passed
+2026-11-20  system design staged per subcomponent         → one click writes every step in sequence, revealing each card
 2026-11-20  tell-me-about-yourself narration prompt        → story arc, not a fact list
 2026-11-20  email prompt                                    → specific hook, one story, 127-word fixture
-2026-11-20  python -m pytest                              → 258 passed
+2026-11-20  python -m pytest                              → 259 passed
 2026-11-20  ruff check app tests                          → clean
 2026-11-20  node --check static/js/system_design.js       → clean
 ```

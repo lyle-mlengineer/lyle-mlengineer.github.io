@@ -47,6 +47,19 @@ class Settings(BaseSettings):
     ]
     copy_max_em_dashes: int = 3
 
+    # Quality gates (design §12). OCR and citation checks are optional; when the
+    # engine or the network is unavailable the gate is reported as "skip".
+    qa_ocr_enabled: bool = True
+    qa_ocr_token_match: float = 0.98
+    qa_thumbnail_width: int = 320
+    qa_check_citations: bool = False
+    qa_citation_timeout_seconds: int = 10
+    qa_duplicate_similarity: float = 0.9
+    qa_brand_drift_max: float = 2.0
+    qa_contrast_body: float = 4.5
+    qa_contrast_display: float = 3.0
+    qa_safe_tolerance: float = 0.5
+
     # LLM enrichment (any OpenAI-compatible endpoint)
     llm_api_key: str | None = None
     llm_base_url: str = "https://api.openai.com/v1"

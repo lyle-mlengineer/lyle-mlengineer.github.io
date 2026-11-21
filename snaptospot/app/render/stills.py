@@ -21,7 +21,7 @@ from typing import Any
 from app.compose.ast import grid_shape
 from app.compose.layouts import CARD_ASSETS
 from app.compose.templates import render_card, standalone
-from app.design.platforms import ratio_class
+from app.design.platforms import ratio_class, spec_for
 from app.render.assets import AssetStore, prepare_document
 from app.render.chrome import ChromeWorker, get_worker
 from app.schemas.design import DesignSystem, LayoutAST
@@ -109,6 +109,7 @@ def layout_context(layout: LayoutAST, design: DesignSystem) -> dict[str, object]
         "slots": layout.slots.model_dump(mode="json"),
         "cols": columns,
         "rows": rows,
+        "safe": spec_for(layout.spec).safe,
     }
 
 

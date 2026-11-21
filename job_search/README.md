@@ -44,7 +44,7 @@ The dashboard is deliberately honest about this: it shows what exists and names 
 - **Web:** FastAPI, Jinja2 templates, vanilla CSS/JS (no build step)
 - **Data:** SQLAlchemy 2.0 ORM over SQLite in WAL mode, FTS5 for retrieval
 - **Jobs:** FastAPI `BackgroundTasks` writing a run ledger to the database; the UI polls. A stopped run (failed, cancelled or interrupted) resumes from its first unfinished step and reuses every output that already succeeded.
-- **LLM:** provider interface with Groq (`openai/gpt-oss-120b` large, `openai/gpt-oss-20b` small), NVIDIA NIM for the current free endpoints (`moonshotai/kimi-k3.1-pro` large, `nvidia/nemotron-3.5-lightning-30b-a3b` small), and a fake provider for tests. When the active provider returns 429/5xx the chain switches to the other keyed provider for the rest of the run; when NVIDIA retires a model with 404/410 the provider swaps that tier onto the next free endpoint in `SKIPPER_NVIDIA_MODEL_FALLBACKS`. A call ledger records every model call and web search with its tokens and cost.
+- **LLM:** provider interface with Groq (`openai/gpt-oss-120b` large, `openai/gpt-oss-20b` small), NVIDIA NIM for the current free endpoints (`moonshotai/kimi-k3.1-pro` large, `nvidia/nemotron-3.5-lightning-30b-a3b` small), OpenRouter (`openrouter/free`, a zero-cost router across its free models), and a fake provider for tests. When the active provider returns 429/5xx the chain switches to another keyed provider for the rest of the run; when NVIDIA retires a model with 404/410 the provider swaps that tier onto the next free endpoint in `SKIPPER_NVIDIA_MODEL_FALLBACKS`. A call ledger records every model call and web search with its tokens and cost.
 - **Search:** provider interface with Serper (Google), Exa (semantic) and DuckDuckGo (no-key fallback)
 - **Speech:** provider interface with ElevenLabs (catalogue + cloning), Breeze Blue (catalogue + tags + cloning), Orpheus on Groq (tags, no cloning) and an offline fake provider. The audio tab plans interviewer/interviewee turns, can scope a take to one pack section, and joins each provider's WAV output without a transcode.
 - **Documents:** `python-docx` for DOCX, LibreOffice headless for PDF with a `reportlab` fallback
@@ -55,7 +55,7 @@ The dashboard is deliberately honest about this: it shows what exists and names 
 
 - Python **3.11+** (developed on 3.15)
 - Optional: **LibreOffice** (`soffice`) for DOCX → PDF. Without it, the reportlab renderer is used.
-- Optional: a **Groq** or **NVIDIA NIM** API key for real generation, and a **Serper** or **Exa** key for research.
+- Optional: a **Groq**, **NVIDIA NIM** or **OpenRouter** API key for real generation, and a **Serper** or **Exa** key for research.
 
 ---
 
@@ -73,6 +73,7 @@ pip install -e ".[dev]"
 cp .env.example .env
 # edit .env: set SKIPPER_ADMIN_PASSWORD, then optionally
 # SKIPPER_LLM_PROVIDER=groq and SKIPPER_GROQ_API_KEY=...
+# or SKIPPER_LLM_PROVIDER=openrouter and SKIPPER_OPENROUTER_API_KEY=...
 ```
 
 Start the server:
@@ -123,7 +124,7 @@ Every setting is read from the environment with the `SKIPPER_` prefix; `.env` is
 | `SKIPPER_DB_PATH` | `var/skipper.db` | SQLite file |
 | `SKIPPER_ARTIFACTS_DIR` | `var/artifacts` | Generated CVs, letters and briefs |
 | `SKIPPER_PORTFOLIO_DIR` | `data/portfolio` | RAG corpus (source of truth) |
-| `SKIPPER_LLM_PROVIDER` | `fake` | `fake`, `groq` or `nvidia` |
+| `SKIPPER_LLM_PROVIDER` | `fake` | `fake`, `groq`, `nvidia` or `openrouter` |
 | `SKIPPER_GROQ_API_KEY` | — | Required for `groq` |
 | `SKIPPER_GROQ_BASE_URL` | Groq API | `https://api.groq.com/openai/v1` |
 | `SKIPPER_GROQ_TPM` | `30000` | Groq rate-limit bucket (tokens/min) |
@@ -134,6 +135,13 @@ Every setting is read from the environment with the `SKIPPER_` prefix; `.env` is
 | `SKIPPER_NVIDIA_MODEL_LARGE` | `moonshotai/kimi-k3.1-pro` | NVIDIA large-tier model (a current free endpoint) |
 | `SKIPPER_NVIDIA_MODEL_SMALL` | `nvidia/nemotron-3.5-lightning-30b-a3b` | NVIDIA small-tier model |
 | `SKIPPER_NVIDIA_MODEL_FALLBACKS` | built-in chain | Model ids tried in order when a pinned id answers 404/410 |
+| `SKIPPER_OPENROUTER_API_KEY` | — | Required for `openrouter` (free key at openrouter.ai/keys) |
+| `SKIPPER_OPENROUTER_BASE_URL` | OpenRouter API | `https://openrouter.ai/api/v1` |
+| `SKIPPER_OPENROUTER_TPM` | `20000` | Local request-spacing bucket |
+| `SKIPPER_OPENROUTER_MODEL_LARGE` | `openrouter/free` | Free large-tier model or router |
+| `SKIPPER_OPENROUTER_MODEL_SMALL` | `openrouter/free` | Free small-tier model or router |
+| `SKIPPER_OPENROUTER_REFERER` | — | Optional `HTTP-Referer` attribution header |
+| `SKIPPER_OPENROUTER_TITLE` | `Skipper` | Optional `X-Title` attribution header |
 | `SKIPPER_LLM_MODEL_LARGE` | provider default | Override the "large" tier model (e.g. `moonshotai/kimi-k3.1-pro`) |
 | `SKIPPER_LLM_MODEL_SMALL` | provider default | Override the "small" tier model |
 | `SKIPPER_LLM_FALLBACKS` | `auto` | Providers tried after a 429/5xx: `auto` (every other keyed provider), a comma list, or `none` |
@@ -153,6 +161,8 @@ Every setting is read from the environment with the `SKIPPER_` prefix; `.env` is
 Each provider ships its own default model pair, so `SKIPPER_LLM_MODEL_LARGE`/`SMALL` are only needed to override them (empty means "the selected provider's default"). If you switch providers, clear those two variables.
 
 NVIDIA retires free endpoints with a `410 Gone` body (the DeepSeek V4 pair went on 2026-08-07, and `-flash-0731` followed in September). The provider treats 404/410 as "this model is gone", swaps the tier onto the next id in `SKIPPER_NVIDIA_MODEL_FALLBACKS` and remembers the swap for the rest of the process. The built-in chain is Kimi K3.1 Pro, Nemotron 3.5 Lightning, MiniMax M3.1 Flash, DeepSeek V4.1 Flash, GLM-5.3 Flash and Mistral Large 4. Copy live ids from <https://build.nvidia.com/models>.
+
+OpenRouter also rotates its free catalogue. Both tiers default to `openrouter/free`, which selects a zero-priced model that supports the request (including JSON output), so a retired free id does not break the app. To pin one, set `SKIPPER_OPENROUTER_MODEL_LARGE`/`SMALL` to an id ending in `:free` — the current useful ones include `nvidia/nemotron-3-ultra-550b-a55b:free`, `nvidia/nemotron-3.5-lightning:free`, `minimax/minimax-m3.1-flash:free`, `google/gemma-4-31b-it:free` and `thinkingmachines/inkling-small:free`. OpenRouter's free tier is capped per day (50 requests, or 1000 after a one-off credit purchase), so `auto` fallbacks to Groq/NVIDIA matter here more than elsewhere. The provider retries once without JSON mode when an individual free model rejects `response_format`.
 
 ---
 

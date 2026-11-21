@@ -15,9 +15,39 @@ _BOLD = re.compile(r"\*\*(.+?)\*\*")
 _HEADING = re.compile(r"^(#{1,4})\s+(.+)$")
 _BULLET = re.compile(r"^[-*]\s+(.+)$")
 _LINK = re.compile(r"\[([^\]]+)\]\(([^)\s]+)\)")
-_DIRECTIVE = re.compile(r"^:::([a-z-]+)\s+(\d+)$")
+_DIRECTIVE = re.compile(r"^:::([a-z-]+)\s+(\d+)(?:\s+([a-z0-9_-]+))?$")
 # A sentence boundary that only fires before a new sentence's capital or digit.
 _SENTENCE = re.compile(r"(?<=[.!?])[\"')\]]*\s+(?=[A-Z0-9\u201c\"'(])")
+
+_DESIGN_STEP_LABELS = {
+    "requirements": "requirements",
+    "entities": "core entities",
+    "api": "API design",
+    "data_flow": "data flow",
+    "high_level": "high-level design",
+    "deep_dives": "deep dives",
+    "questions": "interviewer questions",
+    "follow_ups": "follow-ups",
+}
+
+_DESIGN_SLUGS = {
+    "requirements": "requirements",
+    "core entities": "entities",
+    "api design": "api",
+    "data flow": "data-flow",
+    "high-level design": "high-level",
+    "diagram": "diagram",
+    "deep dives": "deep-dives",
+    "trade-offs": "trade-offs",
+    "questions the interviewer may ask": "interviewer-questions",
+    "questions to ask the interviewer": "questions-to-ask",
+    "follow-ups": "follow-ups",
+    "class design": "class-design",
+    "implementation": "implementation",
+    "extensibility": "extensibility",
+    "obvious solution": "slow-solution",
+    "optimised solution": "optimised-solution",
+}
 
 
 def markdown_to_html(
@@ -96,7 +126,9 @@ def markdown_to_html(
         if directive:
             flush_paragraph()
             flush_bullets()
-            blocks.append(_directive(directive.group(1), int(directive.group(2))))
+            blocks.append(
+                _directive(directive.group(1), int(directive.group(2)), directive.group(3) or "")
+            )
             continue
         flush_bullets()
         paragraph.append(line)
@@ -119,18 +151,34 @@ def _collapse_sections(blocks: list[str]) -> list[str]:
     """
     out: list[str] = []
     open_section = False
+    step = 0
     for block in blocks:
+        if block.startswith("<h3"):
+            step = 0
         if block.startswith("<h4"):
             if open_section:
                 out.append("</div></details>")
             match = re.match(r"<h4[^>]*>(.*?)</h4>", block)
             title = match.group(1) if match else ""
+            step += 1
+            slug = _section_slug(title)
             out.append(
-                '<details class="design-section">'
-                f'<summary class="design-section__title">{title}</summary>'
+                f'<details class="design-section design-section--{slug}" data-step="{step}">'
+                f'<summary class="design-section__title" data-step="{step}">'
+                f'<span class="design-section__label">{title}</span>'
+                "</summary>"
                 '<div class="design-section__body">'
             )
             open_section = True
+            continue
+        if block.startswith('<button type="button" class="design-load"') or block.startswith('<details class="design-lazy"'):
+            # Loading controls belong to the question, not inside the section
+            # they are about to replace. Close the current section first so the
+            # next step is visible even when that section is collapsed.
+            if open_section:
+                out.append("</div></details>")
+                open_section = False
+            out.append(block)
             continue
         if block.startswith(("<h1", "<h2", "<h3")):
             if open_section:
@@ -162,18 +210,25 @@ def split_paragraphs(text: str, limit: int) -> list[str]:
     return pieces
 
 
+def _section_slug(title: str) -> str:
+    """A stable class per design step, so CSS can give each part its own accent."""
+    plain = re.sub(r"<[^>]+>", "", title).strip().lower()
+    return _DESIGN_SLUGS.get(plain, re.sub(r"[^a-z0-9]+", "-", plain).strip("-")[:32] or "section")
+
+
 def _heading_class(text: str) -> str:
     """A slug class per heading so CSS can style known sections (Delivery, Anchors)."""
     slug = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:40]
     return f' class="prose-h prose-h--{slug}"' if slug else ""
 
 
-def _directive(kind: str, index: int) -> str:
+def _directive(kind: str, index: int, section: str = "") -> str:
     """A server-rendered control for loading one design part at a time."""
     if kind == "load-design":
+        label = _DESIGN_STEP_LABELS.get(section, section.replace("_", " ") or "next step")
         return (
-            f'<button type="button" class="design-load" data-design-load="{index}">'
-            "Load full design</button>"
+            f'<button type="button" class="design-load" data-design-load="{index}" '
+            f'data-design-section="{section}">Load {label}</button>'
         )
     if kind == "load-followups":
         return (

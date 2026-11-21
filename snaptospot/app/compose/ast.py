@@ -299,6 +299,7 @@ def build_context(
         "slots": slots.model_dump(mode="json"),
         "cols": columns,
         "rows": rows,
+        "safe": spec.safe,
     }
 
 

@@ -243,7 +243,7 @@ class LayoutAST(BaseModel):
     slots: LayoutSlots
     measured: Measured
     alt_text: str
-    template_version: str = "cards@1"
+    template_version: str = "cards@2"
     warnings: list[str] = Field(default_factory=list)
 
 

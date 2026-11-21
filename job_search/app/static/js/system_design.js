@@ -100,19 +100,21 @@
         return data;
     }
 
-    async function loadDesign(index, button) {
+    async function loadDesign(index, startSection, button) {
         if (active.has(index)) return;
         active.add(index);
         button.disabled = true;
+        const first = Math.max(0, sections.indexOf(startSection));
         try {
-            for (const section of sections) {
-                button.textContent = `Writing ${labels[section]}…`;
+            for (let position = first; position < sections.length; position += 1) {
+                const section = sections[position];
+                button.textContent = `Writing ${labels[section] || section}…`;
                 const data = await writeSection(index, section);
                 rememberOpen(index);
                 prose.innerHTML = data.html;
                 reveal(index, section);
                 button = prose.querySelector(`[data-design-load="${index}"]`);
-                if (!button) return;
+                if (!button) break;
             }
         } catch (error) {
             button.textContent = `Try again — ${error.message}`;
@@ -125,7 +127,11 @@
     prose.addEventListener("click", (event) => {
         const button = event.target.closest("[data-design-load]");
         if (!button) return;
-        loadDesign(Number(button.dataset.designLoad), button);
+        loadDesign(
+            Number(button.dataset.designLoad),
+            button.dataset.designSection || sections[0],
+            button
+        );
     });
 
     prose.addEventListener(

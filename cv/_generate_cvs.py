@@ -228,10 +228,11 @@ PROJECT_LABELSET = (
 )
 
 PROJECT_SAUTIFLOW = (
-    "SautiFlow — Voice & Podcast Studio",
-    "FastAPI podcast and voice-over studio: guest project creation, account and voice libraries, a responsive "
-    "browser studio and credit-pack checkout, with project settings persisted to SQLite or PostgreSQL. The product "
-    "surface that carries the speech stack.",
+    "SautiFlow — Kenyan-Language Voice & Podcast Studio",
+    "Voice platform for local Kenyan languages: voice design with persona bibles and pronunciation lexicons, "
+    "text-to-speech, voice cloning from consented reference audio, speech-to-text with diarisation, and AI-agent "
+    "podcast production — research, script, casting, render, master and show notes behind human approval gates. "
+    "FastAPI studio, account and voice libraries, credit-pack checkout and reproducible renders.",
     [("sautiflow.co.ke", "https://www.sautiflow.co.ke/")],
 )
 
@@ -256,18 +257,22 @@ PROJECT_PLUSONE = (
 
 ML_ENGINEER = {
     "file": "LYLE-OKOTH-MACHINE-LEARNING-ENGINEER.docx",
-    "headline": "MACHINE LEARNING ENGINEER | SPEECH & VOICE AI",
+    "headline": "MACHINE LEARNING ENGINEER | KENYAN-LANGUAGE SPEECH & VOICE AI",
     "summary": (
-        "Machine Learning Engineer with four years of experience designing, training and productionising multilingual "
-        "speech and vision systems — ASR, speech-to-speech translation, TTS and diffusion image models — for East "
-        "African languages. Owns the full model lifecycle from data and evaluation to deployment: cut Swahili and "
-        "Sheng ASR error rate from 23.4% to 11.8%, shipped streaming translation at 310 ms median first-audio "
-        "latency, and raised TTS capacity to 42 concurrent voices per GPU. Builds the evaluation gates that keep "
-        "regressions out of release."
+        "Machine Learning Engineer at SautiFlow Labs with four years of experience building Kenyan-language voice "
+        "technology end to end — voice design, text-to-speech, voice cloning, speech-to-text and AI-agent podcast "
+        "production. Owns the full model lifecycle from data and evaluation to deployment: cut Swahili and Sheng ASR "
+        "error rate from 23.4% to 11.8%, designed and shipped 12 voice personas at 4.1/5 MOS, and raised TTS capacity "
+        "to 42 concurrent voices per GPU. Builds the evaluation gates that keep regressions out of release."
     ),
     "competencies": [
-        ("Speech & Voice AI", "ASR (Whisper, wav2vec 2.0, NeMo), TTS and voice design (VITS, XTTS-v2, Fish Audio, "
-                              "Breeze), speech-to-speech translation (SeamlessM4T, NLLB-200), diarisation and VAD"),
+        ("Speech & Voice AI", "ASR and speech-to-text (Whisper, wav2vec 2.0, NeMo), voice design and persona "
+                              "direction (prosody, pronunciation lexicons, SSML), TTS and voice cloning (VITS, "
+                              "XTTS-v2, Fish Audio, Breeze), real-time synthesis and streaming voice services "
+                              "(WebSocket / gRPC), diarisation and VAD"),
+        ("AI Podcast Production", "Multi-agent orchestration (research → outline → script → casting → render → "
+                                   "master → show notes), retrieval with source-span provenance, human approval "
+                                   "gates, loudness mastering and publish packs"),
         ("Vision & Generative Models", "Latent diffusion and flow matching, Stable Diffusion / SDXL, LoRA and "
                                        "DreamBooth, NVIDIA Flux, face detection and alignment, content provenance"),
         ("Modelling & Evaluation", "PyTorch training and distributed runs, LoRA / QLoRA fine-tuning, WER / CER / MOS "
@@ -279,7 +284,7 @@ ML_ENGINEER = {
     "tech": [
         ("Languages", "Python, C++, JavaScript/TypeScript, SQL"),
         ("Speech & ML", "PyTorch 2.x, Hugging Face Transformers, PEFT, Accelerate, Diffusers, ESPnet, Coqui TTS, "
-                        "pyannote.audio, scikit-learn, Optuna"),
+                        "XTTS-v2, Fish Audio, Breeze, LangGraph, pyannote.audio, scikit-learn, Optuna"),
         ("Serving & Infra", "FastAPI, Triton Inference Server, ONNX Runtime, TensorRT, vLLM, gRPC / WebSocket "
                             "streaming, Redis, Celery, Docker, Kubernetes"),
         ("Data & MLOps", "Apache Spark, Kafka, Airflow, dbt, DVC, Great Expectations, Weights & Biases, MLflow, "
@@ -306,10 +311,14 @@ ML_ENGINEER = {
             "bullets": [
                 ("Cut Swahili and Sheng ASR word error rate from 23.4% to 11.8% by LoRA fine-tuning Whisper-large-v3 "
                  "on 1,240 hours of in-house audio."),
-                ("Shipped streaming speech-to-speech translation at 310 ms median / 780 ms p95 first-audio latency "
-                 "across six language pairs (English and Swahili, Luo and Kikuyu), down from a 1.4 s batch baseline."),
+                ("Shipped streaming speech synthesis for voice agents at 310 ms median / 780 ms p95 first-audio "
+                 "latency across Swahili, Sheng, Luo and Kikuyu, down from a 1.4 s batch baseline."),
                 ("Compressed a 1.6 GB TTS checkpoint to 480 MB with int8 quantisation and KV caching: 42 concurrent "
                  "voices per GPU, 3.1x throughput and 58% lower inference cost."),
+                ("Designed and shipped 12 Kenyan-language voice personas across Swahili, Sheng, Luo and Kikuyu — "
+                 "persona bibles, pronunciation lexicons and MOS panels with native listeners — scoring 4.1/5."),
+                ("Built the agentic podcast pipeline — research, scripting, casting, render, mastering and show-notes "
+                 "agents — with a source ledger and human approval gates before publish."),
                 ("Built the evaluation harness — WER, CER, MOS and CI regression gates — which blocked 9 model "
                  "regressions from release in two quarters."),
             ],
@@ -351,7 +360,8 @@ DATA_ENGINEER = {
     "headline": "DATA ENGINEER | AUDIO & MULTIMODAL ML DATA",
     "summary": (
         "Data Engineer with four years of experience building the ingestion, alignment, labelling and versioning path "
-        "that turns raw audio and images into training-ready datasets. Designed LabelSet, an audio-first sourcing and "
+        "that turns raw audio and images into training-ready datasets — including the consented voice and podcast "
+        "corpora behind SautiFlow's Kenyan-language models. Designed LabelSet, an audio-first sourcing and "
         "labelling platform with 11 speech task types and KES billing; built pipelines processing 6 TB / 38,000 hours "
         "of raw audio a year; and cut manual labelling time 68%. Owns data quality, consent, retention and PII "
         "redaction, with the software background (APIs at 1.2M requests a day) to keep pipelines operable in "
@@ -365,8 +375,8 @@ DATA_ENGINEER = {
                                       "and lineage from raw file to training shard, speaker consent, retention and "
                                       "PII-redaction flows"),
         ("ML Data Support", "Transcription alignment, diarisation pre-labelling, forced alignment, human + AI "
-                            "collaborative annotation, synthetic data generation, dataset tuning for ASR, TTS and "
-                            "translation training"),
+                            "collaborative annotation, voice-design reference sets and podcast corpora, synthetic data "
+                            "generation, dataset tuning for ASR, TTS and voice-design training"),
         ("Platform & Reliability", "PostgreSQL, S3-compatible object storage, Redis, Terraform, Docker, Kubernetes, "
                                    "FFmpeg pipelines, on-call observability: monthly restores replaced by daily "
                                    "automated checks"),
@@ -404,6 +414,8 @@ DATA_ENGINEER = {
                  "training — 1,240 curated hours drove a Whisper ASR fine-tune that cut WER from 23.4% to 11.8%."),
                 ("Built the audio collection, editing and annotation platform with AI-assisted pre-labelling, and "
                  "published 3 open datasets to Hugging Face (18,000+ downloads)."),
+                ("Built the consented reference-audio and podcast corpora behind 12 voice personas and the agentic "
+                 "podcast pipeline, with provenance from raw recording to training or retrieval shard."),
                 ("Run one evaluation harness across 5 ASR models, processing an hour of four-speaker audio in 4 minutes "
                  "on a single GPU and 40,000 hours indexed for production tenants."),
             ],
@@ -414,7 +426,7 @@ DATA_ENGINEER = {
             "dates": "2023 – 2024",
             "bullets": [
                 ("Designed batch and streaming pipelines with Apache Spark, Airflow and Kafka processing 6 TB / 38,000 "
-                 "hours of raw audio a year into training-ready datasets for ASR, translation and TTS models."),
+                 "hours of raw audio a year into training-ready datasets for ASR, TTS and voice-design models."),
                 ("Automated transcription alignment and diarisation pre-labelling, cutting human labelling time from 11 "
                  "to 3.5 minutes per hour of audio — a 68% saving adopted as the platform's default workflow."),
                 ("Introduced dataset versioning with DVC and content hashing so every model release traces to an exact "
@@ -435,7 +447,7 @@ DATA_ENGINEER = {
             ],
         },
     ],
-    "projects": [PROJECT_LABELSET, PROJECT_SNAP, PROJECT_SURAYA],
+    "projects": [PROJECT_LABELSET, PROJECT_SAUTIFLOW, PROJECT_SURAYA],
     "education": EDUCATION,
     "certs": CERTS,
     "extra": None,
@@ -450,7 +462,8 @@ SOFTWARE_ENGINEER = {
         "requirement framing, UI/UX, backend APIs, deployment and iteration. Built IVR and WhatsApp assistants "
         "serving 40,000+ monthly users, REST and WebSocket APIs handling 1.2M requests a day at p95 latency under "
         "140 ms, and Docker + GitHub Actions CI/CD that moved releases from monthly to weekly. Now builds multi-tenant "
-        "FastAPI products with credit ledgers, M-Pesa / Stripe billing and LLM and agent features."
+        "FastAPI products with credit ledgers, M-Pesa / Stripe billing, LLM and agent features, and the voice design "
+        "and AI-agent podcast studio used by SautiFlow's Kenyan-language creators."
     ),
     "competencies": [
         ("Backend", "REST and WebSocket APIs, FastAPI / Django / Flask / Node.js, OAuth2 and PKCE, payment webhooks, "
@@ -459,8 +472,9 @@ SOFTWARE_ENGINEER = {
                                "responsive studios and dashboards, documentation that speeds up onboarding"),
         ("Platform & Reliability", "Docker, GitHub Actions CI/CD, Kubernetes, Render deployments, Postgres and Redis, "
                                    "logging, tracing and cost monitoring, CSP and rate-limiting defaults"),
-        ("AI Integration", "Model services behind FastAPI, provider-agnostic model adapters, credit ledgers, LLM and "
-                           "agent workflows, retrieval, evaluation hooks and human approval"),
+        ("AI Integration", "Model services behind FastAPI, provider-agnostic voice and transcription adapters, credit "
+                           "ledgers, LLM and agent workflows, agentic podcast pipelines, retrieval, evaluation hooks "
+                           "and human approval"),
     ],
     "tech": [
         ("Languages", "Python, JavaScript/TypeScript, C++, SQL"),
@@ -490,8 +504,9 @@ SOFTWARE_ENGINEER = {
             "company": "SautiFlow Labs, Nairobi",
             "dates": "2024 – Present",
             "bullets": [
-                ("Worked with software engineers to design and ship web interfaces for real-time streaming translation, "
-                 "transcription and synthesis; SautiFlow now serves 2,100 monthly creators at 61% week-four retention."),
+                ("Designed and shipped the studio surfaces for voice design, TTS, cloning, speech-to-text and agentic "
+                 "podcast production — persona bibles, auditioning, casting sheets and approval gates; SautiFlow now "
+                 "serves 2,100 monthly creators at 61% week-four retention."),
                 ("Deployed model services (FastAPI, Triton, Kubernetes) serving streaming speech at 310 ms median "
                  "first-audio latency; instrumented logging and tracing to monitor token usage and detect model drift."),
                 ("Built authentication and authorisation controls that blocked bot API misuse without adding friction "
@@ -537,14 +552,18 @@ AI_ENGINEER = {
     "headline": "AI ENGINEER | APPLIED AI, AGENTS & SPEECH",
     "summary": (
         "AI Engineer with four years of experience taking applied AI products from prototype to production — LLM "
-        "agents, retrieval, speech and vision systems, and the backend, evaluation and deployment work around them. "
+        "agents, retrieval, speech and voice systems, and the backend, evaluation and deployment work around them. "
         "Built and shipped coAgent (a private coding agent for Colab), Docent (an AI product guide), Suraya (a "
-        "diffusion model for Kenyan faces) and Vocalis (a voice-design studio)."
+        "diffusion model for Kenyan faces) and Vocalis (a voice-design studio). At SautiFlow Labs builds the agent "
+        "layer behind AI podcast production, plus voice design, TTS, cloning and speech-to-text for Kenyan languages."
     ),
     "competencies": [
         ("Applied AI & Agents", "LLM agents, tool use and function calling, planning / verification loops, retrieval "
                                 "augmented generation (BM25 + vector search), prompt design, evaluation harnesses, "
                                 "guardrails, human approval, secret redaction"),
+        ("Voice & Podcast Agents", "Agent orchestration for podcast production (research → script → casting → render "
+                                    "→ master → show notes), source-span provenance, voice persona design, "
+                                    "pronunciation lexicons, loudness mastering and publish packs"),
         ("Speech & Multimodal", "ASR, speaker diarisation and embeddings, TTS and voice design, diffusion image "
                                 "generation (Stable Diffusion, SDXL, NVIDIA Flux), face detection and alignment, "
                                 "quality gates and content provenance"),
@@ -589,10 +608,13 @@ AI_ENGINEER = {
             "bullets": [
                 ("Cut Swahili and Sheng ASR word error rate from 23.4% to 11.8% by LoRA fine-tuning Whisper-large-v3 "
                  "on 1,240 hours of in-house audio."),
-                ("Shipped streaming speech-to-speech translation at 310 ms median / 780 ms p95 first-audio latency "
-                 "across six language pairs (English and Swahili, Luo and Kikuyu), down from a 1.4 s batch baseline."),
+                ("Shipped streaming speech synthesis for voice agents at 310 ms median / 780 ms p95 first-audio "
+                 "latency across Swahili, Sheng, Luo and Kikuyu, down from a 1.4 s batch baseline."),
                 ("Compressed a 1.6 GB TTS checkpoint to 480 MB with int8 quantisation and KV caching: 42 concurrent "
                  "voices per GPU, 3.1x throughput and 58% lower inference cost."),
+                ("Designed 12 Kenyan-language voice personas and built the agentic podcast pipeline — research, "
+                 "scripting, casting, render, mastering and show-notes agents — behind a source ledger and human "
+                 "approval gates."),
                 ("Built the evaluation harness — WER, CER, MOS and CI regression gates — which blocked 9 model "
                  "regressions from release in two quarters."),
             ],
@@ -635,13 +657,16 @@ AI_ML_ENGINEER = {
         "AI/ML Engineer with four years of experience shipping LLM agents and AI products end to end. Built coAgent, "
         "a private coding agent with a five-phase tool loop, repository retrieval and test-driven verification, "
         "published on PyPI; SnapToSpot, a multi-tenant pipeline that grounds every generated claim in a retrieved "
-        "source; and PlusOne, an agent pipeline with budget guards and partial-run recovery. Strong Python, FastAPI "
-        "and PostgreSQL, with hands-on RAG, evaluation and deployment on AWS, GCP and Render."
+        "source; and PlusOne, an agent pipeline with budget guards and partial-run recovery. At SautiFlow Labs built "
+        "the agentic podcast pipeline and the voice design, TTS, cloning and speech-to-text services behind local "
+        "Kenyan languages. Strong Python, FastAPI and PostgreSQL, with hands-on RAG, evaluation and deployment on "
+        "AWS, GCP and Render."
     ),
     "competencies": [
         ("LLM Agents & Orchestration", "Planning and verification loops, tool and function calling, structured "
                                         "outputs, RAG with BM25 and vector search, agent state machines, human "
-                                        "approval and guardrails; LangChain / LangGraph / LlamaIndex patterns"),
+                                        "approval and guardrails; podcast production agents (research → script → "
+                                        "casting → render → master → show notes)"),
         ("Python Backend & APIs", "FastAPI, Django and Flask services, REST and WebSocket APIs, OAuth2 / JWT and "
                                    "Pydantic contracts, SQLAlchemy and Alembic, multi-tenant isolation, background "
                                    "jobs, idempotent webhooks and payment settlement"),
@@ -688,10 +713,13 @@ AI_ML_ENGINEER = {
                 ("Built the evaluation harness — WER, CER, MOS and CI regression gates — which blocked 9 model "
                  "regressions from release in two quarters and set the experiment-tracking standard across 60+ runs "
                  "a month."),
-                ("Shipped streaming speech-to-speech translation at 310 ms median / 780 ms p95 first-audio latency "
-                 "across six language pairs, deploying model services on FastAPI, Triton and Kubernetes."),
+                ("Shipped streaming speech synthesis at 310 ms median / 780 ms p95 first-audio latency across "
+                 "Swahili, Sheng, Luo and Kikuyu, deploying model services on FastAPI, Triton and Kubernetes."),
                 ("Compressed a 1.6 GB TTS checkpoint to 480 MB with int8 quantisation and KV caching: 42 concurrent "
                  "voices per GPU, 3.1x throughput and 58% lower inference cost."),
+                ("Built the agentic podcast pipeline — research, script, casting, render, mastering and show-notes "
+                 "agents — with source-span provenance and human approval gates, alongside 12 Kenyan-language voice "
+                 "personas and cloning from 3 – 5 minutes of consented audio."),
             ],
         },
         {
@@ -735,17 +763,19 @@ ML_RESEARCHER = {
         "faces — a compact 66M UNet against an SDXL LoRA baseline, with KID-led evaluation and a VAE quality gate — "
         "and built the 1,240-hour Swahili and Sheng corpus behind a Whisper-large-v3 fine-tune that cut WER from "
         "23.4% to 11.8%. Established the team's evaluation harness and published 3 datasets and 2 fine-tuned models "
-        "on Hugging Face."
+        "on Hugging Face. Extended that discipline to voice design and agentic podcast production: MOS panels with "
+        "native listeners for 12 Kenyan-language personas, and scripts whose factual claims must trace to a "
+        "retrieved source."
     ),
     "competencies": [
-        ("Research Areas", "Multilingual and low-resource ASR, speech synthesis and voice design, speech translation, "
-                           "speaker diarisation, latent diffusion and flow matching, evaluation methodology and "
-                           "efficient inference"),
+        ("Research Areas", "Multilingual and low-resource ASR, speech synthesis and voice design, podcast production "
+                           "agents, streaming synthesis, speaker diarisation, latent diffusion and flow matching, "
+                           "evaluation methodology and efficient inference"),
         ("Experimental Method", "Controlled ablations against strong baselines, held-out and noisy out-of-domain test "
                                 "sets, WER / CER / MOS and KID / FID comparison, error analysis, reproducibility "
                                 "checklists and dataset documentation"),
         ("Modelling", "PyTorch, Hugging Face Transformers and Diffusers, LoRA / QLoRA and DreamBooth, Whisper, "
-                      "wav2vec 2.0, NVIDIA NeMo, VITS, XTTS-v2, SeamlessM4T, pyannote.audio, scikit-learn"),
+                      "wav2vec 2.0, NVIDIA NeMo, VITS, XTTS-v2, Fish Audio, pyannote.audio, scikit-learn"),
         ("Compute & Tooling", "Distributed training (DDP / FSDP), mixed precision (FP16 / BF16), Colab T4 and cloud "
                               "GPUs, ONNX Runtime, TensorRT, Triton, vLLM, Weights & Biases, MLflow, Optuna, DVC, "
                               "technical writing"),
@@ -784,10 +814,12 @@ ML_RESEARCHER = {
                  "on 1,240 curated hours, comparing held-out and noisy field sets before promoting a checkpoint."),
                 ("Designed the evaluation protocol the team now uses — WER, CER, MOS and CI regression gates across 5 "
                  "ASR models — which blocked 9 model regressions from release in two quarters."),
-                ("Benchmarked streaming speech-to-speech translation to 310 ms median / 780 ms p95 first-audio latency "
-                 "across six language pairs on a single T4, against a 1.4 s batch baseline."),
+                ("Benchmarked streaming speech synthesis to 310 ms median / 780 ms p95 first-audio latency across "
+                 "Swahili, Sheng, Luo and Kikuyu on a single T4, against a 1.4 s batch baseline."),
                 ("Studied compression trade-offs for TTS: int8 quantisation and KV caching took a 1.6 GB checkpoint to "
                  "480 MB at 42 concurrent voices per GPU and 3.1x throughput, checked against the float baseline."),
+                ("Designed the MOS protocol and native-listener panels behind 12 Kenyan-language voice personas, and "
+                 "defined the provenance checks the agentic podcast pipeline uses to block unsourced claims."),
             ],
         },
         {
@@ -796,7 +828,7 @@ ML_RESEARCHER = {
             "dates": "2023 – 2024",
             "bullets": [
                 ("Built the corpus behind the research programme: Spark, Airflow and Kafka pipelines turning 6 TB / "
-                 "38,000 hours of raw audio a year into training-ready ASR, translation and TTS datasets, versioned "
+                 "38,000 hours of raw audio a year into training-ready ASR, TTS and voice-design datasets, versioned "
                  "with DVC content hashing."),
                 ("Ran the pre-labelling study behind a 68% labelling reduction — alignment and diarisation models took "
                  "human effort from 11 to 3.5 minutes per audio hour — and shipped it as the platform default."),

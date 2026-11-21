@@ -21,6 +21,7 @@ from .fallback import FallbackLLMProvider
 from .groq import GroqProvider
 from .ledger import LedgerLLMProvider
 from .nvidia import NvidiaProvider
+from .openrouter import OpenRouterProvider
 
 
 def _vendor_provider(
@@ -66,6 +67,22 @@ def _vendor_provider(
             tpm=settings.nvidia_tpm,
             reasoning_effort=settings.nvidia_reasoning_effort,
             model_fallbacks=settings.nvidia_model_fallback_list,
+            **kwargs,
+        )
+    if name == "openrouter":
+        if not settings.openrouter_api_key:
+            raise LLMProviderError(
+                "SKIPPER_LLM_PROVIDER=openrouter requires SKIPPER_OPENROUTER_API_KEY to be set."
+            )
+        return OpenRouterProvider(
+            settings.openrouter_api_key,
+            models=models,
+            base_url=settings.openrouter_base_url,
+            timeout_s=settings.llm_timeout_s,
+            max_retries=settings.llm_max_retries,
+            tpm=settings.openrouter_tpm,
+            referer=settings.openrouter_referer,
+            title=settings.openrouter_title,
             **kwargs,
         )
     if name == "fake":

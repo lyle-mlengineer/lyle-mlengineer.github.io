@@ -13,6 +13,7 @@ from app.api.routes import (
     copy,
     documents,
     health,
+    qa,
     render,
     runs,
     search,
@@ -74,6 +75,7 @@ def create_app() -> FastAPI:
     app.include_router(render.router)
     app.include_router(video.router)
     app.include_router(copy.router)
+    app.include_router(qa.router)
 
     @app.get("/", tags=["meta"])
     def root() -> dict[str, str]:

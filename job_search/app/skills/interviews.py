@@ -7,7 +7,12 @@ from typing import Any
 from ..jobs.prompts import ground_text, portfolio_block, research_block, system_prompt
 from ..providers.llm.base import ChatMessage
 from .base import Skill, SkillContext, job_block
-from .system_design_parts import SYSTEM_DESIGN_SECTIONS, loaded_sections, normalize_question
+from .system_design_parts import (
+    REQUIREMENTS_SHAPE,
+    SYSTEM_DESIGN_SECTIONS,
+    loaded_sections,
+    normalize_question,
+)
 from .text import clip_words, items, strip_cliches, text
 
 
@@ -511,10 +516,10 @@ class SystemDesignInterviewSkill(Skill):
             loaded = set(row.get("loaded_sections") or loaded_sections(row))
             if not loaded:
                 lines += [
-                    "Outline only. Load the design to work through requirements, entities, API, "
-                    "data flow, high-level design and deep dives one part at a time.",
+                    "Outline only. Work through requirements, entities, API, data flow, high-level "
+                    "design and deep dives one step at a time.",
                     "",
-                    f":::load-design {index}",
+                    f":::load-design {index} {SYSTEM_DESIGN_SECTIONS[0]}",
                     "",
                 ]
             else:
@@ -525,7 +530,7 @@ class SystemDesignInterviewSkill(Skill):
                 lines += _ask_lines(row)
                 missing = [section for section in SYSTEM_DESIGN_SECTIONS if section not in loaded]
                 if missing:
-                    lines += ["", f":::load-design {index}", ""]
+                    lines += ["", f":::load-design {index} {missing[0]}", ""]
             if row.get("follow_ups_loaded") or row.get("follow_ups"):
                 if row.get("follow_ups"):
                     lines += ["", "### Follow-ups", *[f"- {item}" for item in row["follow_ups"]]]
@@ -682,10 +687,15 @@ class LowLevelDesignInterviewSkill(Skill):
                     "class-and-function level, not the whiteboard architecture level: interfaces, data "
                     "structures, state machines, concurrency, error handling, tests and extension points. "
                     f"Cover the posted stack ({must or 'the role requirements'}) and the kind of code the team "
-                    "actually ships. Follow this exact structure: requirements (functional and "
-                    "non-functional), entities, class design (each class, its responsibility, interfaces and "
-                    "collaborators), implementation (state, concurrency, error handling and tests), then "
-                    "extensibility (extension points and what would break). Include a compact ASCII class or "
+                    "actually ships. Follow this exact structure: requirements, entities, class design "
+                    "(each class, its responsibility, interfaces and collaborators), implementation "
+                    "(state, concurrency, error handling and tests), then extensibility (extension points "
+                    "and what would break). "
+                    + REQUIREMENTS_SHAPE
+                    + " Write 5-7 functional and 3-5 non-functional requirements for the class-level "
+                    "design; the non-functional ones are interface stability, concurrency safety, "
+                    "failure isolation and testability, not classes or methods. "
+                    "Include a compact ASCII class or "
                     "sequence diagram using only boxes, arrows and labels. The answer field is a 120–180 word "
                     "spoken walkthrough, not a repeat of the sections. Name the key data structures and the "
                     "trade-offs explicitly. Include questions the interviewer is likely to "
@@ -877,8 +887,10 @@ class CodingInterviewSkill(Skill):
                     "coding",
                     "Prepare 6–8 coding interview problems likely for this posting. Cover its must-haves "
                     f"({must or 'the posted stack'}) and the kind of code the team actually ships. Work each "
-                    "problem through the design flow: requirements (functional and non-functional, meaning "
-                    "input/output contract and complexity budget), core entities (the data structures), API "
+                    "problem through the design flow: requirements (one object with exactly two keys: "
+                    "functional, 2-4 strings stating the input/output contract, and non_functional, 1-3 "
+                    "strings stating the time and space budget and input limits; never put a complexity "
+                    "budget in the functional list), core entities (the data structures), API "
                     "design (the exact function signature), data flow (the algorithm step by step), a "
                     "high-level solution outline, then two or three deep dives on the tricky parts. Include a "
                     "compact ASCII diagram of the algorithm or data structure using only boxes, arrows and "
