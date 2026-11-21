@@ -1,0 +1,48 @@
+{% macro ask_card(q) -%}
+<article class="practice-card" data-question-id="{{ q.id }}" data-origin="answer">
+    <header class="practice-card__head">
+        <span class="chip">{{ q.topic }}</span>
+        {% if q.role %}<span class="pill pill--neutral">{{ q.role }}</span>{% endif %}
+        {% if q.level %}<span class="chip">{{ q.level }}</span>{% endif %}
+        {% if q.created_at %}<span class="practice-card__source">{{ q.created_at[:10] }}</span>{% endif %}
+        <button class="practice-card__remove" type="button" data-question-delete
+                title="Delete this answer" aria-label="Delete this answer">
+            <i class="uil uil-times"></i>
+        </button>
+    </header>
+    <p class="practice-card__question">{{ q.question }}</p>
+    <details class="practice-card__answer">
+        <summary>Show answer</summary>
+        <div class="practice-card__body">
+            <p>{{ q.answer }}</p>
+            {% if q.follow_ups %}
+            <p class="practice-card__label">Follow-ups</p>
+            <ul class="practice-card__list">
+                {% for item in q.follow_ups %}<li>{{ item }}</li>{% endfor %}
+            </ul>
+            <details class="followup-answers" data-followup-answers{% if q.follow_up_answers %} data-loaded="true"{% endif %}>
+                <summary>Suggested answers</summary>
+                <div class="followup-answers__body" data-followup-body>
+                    {% if q.follow_up_answers %}
+                    {% for item in q.follow_up_answers %}
+                    <div class="followup-answer">
+                        <p class="followup-answer__question">{{ item.question }}</p>
+                        <p class="followup-answer__text">{{ item.answer }}</p>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="followup-answers__hint">Open to write one answer for each follow-up.</p>
+                    {% endif %}
+                </div>
+            </details>
+            {% endif %}
+            {% if q.citations %}
+            <p class="practice-card__label">Grounded in</p>
+            <ul class="practice-card__list practice-card__list--cite">
+                {% for item in q.citations %}<li>{{ item }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+    </details>
+</article>
+{%- endmacro %}

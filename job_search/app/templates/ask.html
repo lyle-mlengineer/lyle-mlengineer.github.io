@@ -1,0 +1,174 @@
+{% extends "app_shell.html" %}
+{% from "partials/ask_card.html" import ask_card %}
+
+{% block title %}Ask — Skipper{% endblock %}
+{% block page_title %}Ask workspace{% endblock %}
+{% block eyebrow %}Interview answers — no job required{% endblock %}
+
+{% block topbar_actions %}
+<a href="/study" class="button button--small button--link">
+    <i class="uil uil-book-open button__icon button__icon--lead"></i>
+    Study
+</a>
+{% endblock %}
+
+{% block app_content %}
+<div class="dash-grid">
+    <div class="dash-grid__main">
+        <section class="panel" id="ask-form-panel" data-ask>
+            <div class="panel__head">
+                <div>
+                    <p class="panel__kicker">Ask</p>
+                    <h2 class="panel__title">Ask a question</h2>
+                    <p class="panel__hint">
+                        One question at a time, answered the way you would say it out loud. Answers are
+                        grounded in your saved documents and the portfolio — no job has to be open.
+                    </p>
+                </div>
+            </div>
+
+            <form class="form" data-ask-form novalidate>
+                <div class="form__row">
+                    <label class="field">
+                        <span class="field__label">Subject</span>
+                        <select class="input" name="topic" data-ask-topic>
+                            {% for key, label in topics.items() %}
+                            <option value="{{ key }}" data-hint="{{ guidance.get(key, '') }}"
+                                    {% if key == 'technical' %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label class="field">
+                        <span class="field__label">Target role <span class="field__optional">optional</span></span>
+                        <input class="input" type="text" name="role" maxlength="120"
+                               value="{{ defaults.role }}" autocomplete="off">
+                    </label>
+                    <label class="field">
+                        <span class="field__label">Level <span class="field__optional">optional</span></span>
+                        <select class="input" name="level">
+                            <option value="">Any</option>
+                            <option value="Junior">Junior</option>
+                            <option value="Mid">Mid</option>
+                            <option value="Senior" selected>Senior</option>
+                            <option value="Staff">Staff</option>
+                            <option value="Lead">Lead</option>
+                        </select>
+                    </label>
+                </div>
+
+                <label class="field">
+                    <span class="field__label">Question</span>
+                    <textarea class="input input--area" name="question" rows="3" maxlength="600"
+                              data-ask-question
+                              placeholder="e.g. Walk me through how you cut word error rate by half."></textarea>
+                    <span class="field__hint" data-ask-topic-hint>{{ guidance.get('technical', '') }}</span>
+                </label>
+
+                <div class="form__foot">
+                    <button type="submit" class="button button--small" data-ask-submit>
+                        <i class="uil uil-comment-question button__icon button__icon--lead"></i>
+                        Ask
+                    </button>
+                    <span class="form__status" data-ask-status role="status" aria-live="polite"></span>
+                </div>
+            </form>
+        </section>
+
+        <section class="panel" id="ask-answer">
+            <div class="panel__head">
+                <div>
+                    <p class="panel__kicker">Answer</p>
+                    <h2 class="panel__title">Latest answer</h2>
+                    <p class="panel__hint">Read it out loud before you reveal the rest, then follow the follow-ups.</p>
+                </div>
+                <span class="pill pill--neutral" data-ask-answer-topic hidden></span>
+            </div>
+
+            <div class="empty" data-ask-empty>
+                <span class="empty__icon"><i class="uil uil-comment-question"></i></span>
+                <h3 class="empty__title">Nothing asked yet</h3>
+                <p class="empty__copy">Pick a subject above and type the question you expect in the room.</p>
+            </div>
+
+            <article class="answer-card" data-ask-result hidden>
+                <p class="answer-card__question" data-ask-question-text></p>
+                <p class="answer-card__body" data-ask-body></p>
+                <p class="practice-card__label" data-ask-followups-label hidden>Follow-ups</p>
+                <ul class="practice-card__list" data-ask-followups hidden></ul>
+                <p class="practice-card__label" data-ask-cites-label hidden>Grounded in</p>
+                <ul class="practice-card__list practice-card__list--cite" data-ask-cites hidden></ul>
+                <div class="answer-card__actions">
+                    <button class="button button--small button--ghost" type="button" data-ask-copy>
+                        <i class="uil uil-copy button__icon button__icon--lead"></i>
+                        Copy answer
+                    </button>
+                </div>
+            </article>
+        </section>
+
+        <section class="panel" id="ask-history">
+            <div class="panel__head">
+                <div>
+                    <p class="panel__kicker">Saved</p>
+                    <h2 class="panel__title">Earlier questions</h2>
+                    <p class="panel__hint">Every answer you ask for is kept here, newest first.</p>
+                </div>
+                <span class="pill" data-ask-count>{{ history|length }} answered</span>
+            </div>
+            <div class="practice" data-ask-list aria-live="polite">
+                {% for q in history %}
+                {{ ask_card(q) }}
+                {% else %}
+                <p class="field__hint" data-ask-list-empty>No answers yet. Ask a question above.</p>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+
+    <div class="dash-grid__side">
+        <section class="panel" id="ask-subjects">
+            <div class="panel__head">
+                <div>
+                    <p class="panel__kicker">Subjects</p>
+                    <h2 class="panel__title">Seven ways to answer</h2>
+                    <p class="panel__hint">The subject sets the shape of the answer, not its facts.</p>
+                </div>
+            </div>
+            <dl class="ask-topics">
+                {% for key, label in topics.items() %}
+                <dt class="ask-topics__term">{{ label }}</dt>
+                <dd class="ask-topics__copy">{{ guidance.get(key, '') }}</dd>
+                {% endfor %}
+            </dl>
+        </section>
+
+        <section class="panel" id="ask-grounding">
+            <div class="panel__head">
+                <div>
+                    <p class="panel__kicker">Grounding</p>
+                    <h2 class="panel__title">What answers use</h2>
+                    <p class="panel__hint">
+                        {% if source_count %}
+                        {{ source_count }} saved document{{ '' if source_count == 1 else 's' }} plus the portfolio corpus.
+                        {% else %}
+                        The portfolio corpus only — nothing else is uploaded yet.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <p class="field__hint">
+                Technical facts come from the matching parts of your documents. Claims about your own work
+                come from the portfolio, so the answer will not invent a metric or an employer.
+            </p>
+            <a href="/study" class="button button--small button--link">
+                <i class="uil uil-folder-open button__icon button__icon--lead"></i>
+                Manage documents
+            </a>
+        </section>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/ask.js" defer></script>
+{% endblock %}

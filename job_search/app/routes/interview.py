@@ -24,11 +24,20 @@ from ..interview.sources import (
     add_source,
     delete_source,
     question_payload,
+    save_questions,
     source_payload,
 )
-from ..interview.study import StudyError, answer_follow_ups, answer_question, generate_questions
+from ..interview.study import (
+    ASK_TOPICS,
+    StudyError,
+    answer_follow_ups,
+    answer_question,
+    ask_topic,
+    generate_questions,
+)
 from ..jobs.render import markdown_to_html
 from ..models import Artifact, Company, InterviewQuestion, InterviewSource, Job
+from ..providers.call_context import call_context
 from ..providers.fetch.http import FetchError
 from ..providers.llm.base import LLMProviderError, SkillValidationError
 from ..providers.tts import registry as tts_registry
@@ -448,7 +457,10 @@ def list_study_questions(
     rows = db.scalars(
         select(InterviewQuestion)
         .options(selectinload(InterviewQuestion.source))
-        .where(InterviewQuestion.job_id.is_(None))
+        .where(
+            InterviewQuestion.job_id.is_(None),
+            InterviewQuestion.origin != "answer",
+        )
         .order_by(InterviewQuestion.created_at.desc())
         .limit(60)
     ).all()
@@ -496,6 +508,107 @@ def generate_study_questions(
 
     return JSONResponse(
         {"role": role, "level": level, "questions": [question_payload(q) for q in questions]},
+        status_code=201,
+    )
+
+
+@router.get("/api/ask/questions")
+def list_asks(request: Request, db: Session = Depends(get_db)) -> JSONResponse:
+    """Earlier answers from the Ask workspace, newest first.
+
+    These rows carry ``origin='answer'``, which keeps them out of the Study
+    workspace: a study set is a drill, an ask is a question you typed once.
+    """
+    require_api_user(request, db)
+    rows = db.scalars(
+        select(InterviewQuestion)
+        .where(
+            InterviewQuestion.job_id.is_(None),
+            InterviewQuestion.origin == "answer",
+        )
+        .order_by(InterviewQuestion.created_at.desc())
+        .limit(60)
+    ).all()
+    return JSONResponse(
+        {
+            "count": len(rows),
+            "topics": ASK_TOPICS,
+            "questions": [question_payload(row) for row in rows],
+        }
+    )
+
+
+@router.post("/api/ask", status_code=201)
+def ask(
+    request: Request,
+    body: dict[str, Any] | None = Body(default=None),
+    db: Session = Depends(get_db),
+) -> JSONResponse:
+    """Answer one typed interview question with no job attached.
+
+    Same retrieval and grounding as the job page's answer finder, but the shape of
+    the answer follows the chosen subject (technical, system, coding, behavioural,
+    work history, about yourself, low-level design). The answer is saved so it can
+    be reread, spoken or deleted afterwards.
+    """
+    session_data = require_api_user(request, db)
+    require_csrf(request, session_data)
+    payload = body or {}
+
+    question = str(payload.get("question") or "").strip()[:600]
+    if len(question) < 5:
+        return _error(422, "validation_error", "Type a question first.")
+
+    topic = ask_topic(str(payload.get("topic") or ""))
+    role = str(payload.get("role") or "").strip()[:120]
+    level = str(payload.get("level") or "").strip()[:40]
+
+    try:
+        result = answer_question(
+            db,
+            get_settings(),
+            _llm(request),
+            job=None,
+            company=None,
+            question=question,
+            source_ids=_source_ids(payload.get("source_ids")),
+            topic=topic,
+            role=role,
+            level=level,
+        )
+    except StudyError as exc:
+        return _error(422, "answer_failed", str(exc))
+
+    rows = save_questions(
+        db,
+        [
+            {
+                "topic": ASK_TOPICS[topic],
+                "difficulty": "core",
+                "question": result["question"],
+                "answer": result["answer"],
+                "follow_ups": result.get("follow_ups") or [],
+                "citations": result.get("citations") or [],
+            }
+        ],
+        job_id=None,
+        source_id=None,
+        origin="answer",
+        model=result.get("model"),
+        role=role or None,
+        level=level or None,
+    )
+    if not rows:
+        db.rollback()
+        return _error(422, "answer_failed", "The model returned an empty answer. Try again.")
+    db.commit()
+
+    return JSONResponse(
+        {
+            **question_payload(rows[0]),
+            "topic_key": topic,
+            "confidence": result.get("confidence") or "medium",
+        },
         status_code=201,
     )
 
@@ -631,7 +744,8 @@ def system_design_section(
     )
     label = SECTION_LABELS.get(section, section.replace("_", " "))
     try:
-        questions[index - 1] = expand_question(ctx, question, section)
+        with call_context(job_id=job.id, skill="system_design_expand"):
+            questions[index - 1] = expand_question(ctx, question, section)
     except (LLMProviderError, SkillValidationError) as exc:
         return _error(
             502,
@@ -639,6 +753,9 @@ def system_design_section(
             f"Writing the {label} failed: {exc}",
             section=section,
             index=index,
+            # Name the failing paths so a schema miss is diagnosable from the
+            # network tab, not just "validation failed".
+            errors=getattr(exc, "errors", None) or None,
         )
     artifact.meta_json = {**artifact.meta_json, "payload": payload}
     flag_modified(artifact, "meta_json")

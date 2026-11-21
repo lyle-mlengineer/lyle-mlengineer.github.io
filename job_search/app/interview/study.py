@@ -95,6 +95,60 @@ ANSWER_SCHEMA: dict[str, Any] = {
 }
 
 
+#: The seven interview subjects the Ask workspace offers, keyed by the value the
+#: browser posts and labelled the way the page and the saved rows show them.
+ASK_TOPICS: dict[str, str] = {
+    "technical": "Technical",
+    "system": "System design",
+    "low_level": "Low-level design",
+    "coding": "Coding",
+    "behavioural": "Behavioural",
+    "work_history": "Work history",
+    "about": "About yourself",
+}
+
+#: One shape per subject, so two questions on different subjects do not come back
+#: as the same generic paragraph. Everything below stays inside the untrusted
+#: rules: the guidance is instruction, the facts still come from <portfolio>.
+ASK_GUIDANCE: dict[str, str] = {
+    "technical": (
+        "Shape it as a technical interview answer: define the mechanism precisely, explain how it "
+        "works underneath, say where you have used it in production, and name one trade-off."
+    ),
+    "system": (
+        "Shape it as a system design answer: state the requirements and the scale you assume, sketch "
+        "the components and the request/data flow, then cover the bottlenecks, failure modes and the "
+        "trade-offs you chose."
+    ),
+    "low_level": (
+        "Shape it as a low-level design answer: name the classes, interfaces and data structures, who "
+        "owns the state, how concurrency and errors are handled, and how it is tested."
+    ),
+    "coding": (
+        "Shape it as a coding interview answer: state the approach and its complexity first, then the "
+        "steps in order, the edge cases, and the code-level detail that shows you have written it."
+    ),
+    "behavioural": (
+        "Shape it as a behavioural answer in STAR order — situation, task, action, result — drawn only "
+        "from <portfolio>, and finish with what you took from it."
+    ),
+    "work_history": (
+        "Shape it as a walk through of your work history for the role or period asked about, using only "
+        "<portfolio>: the scope, the team, what you personally owned and the measured outcome."
+    ),
+    "about": (
+        "Shape it as a ninety-second 'tell me about yourself': where you started, the through-line, the "
+        "strongest current proof, and why this role — using only <portfolio>."
+    ),
+}
+
+
+def ask_topic(value: str | None) -> str:
+    """Normalise a posted subject to a known key (``technical`` when unknown)."""
+    key = (value or "").strip().lower().replace("-", "_").replace(" ", "_")
+    return key if key in ASK_TOPICS else "technical"
+
+
 class StudyError(RuntimeError):
     """The practice call could not produce something worth showing."""
 
@@ -360,8 +414,16 @@ def answer_question(
     company: str | None,
     question: str,
     source_ids: list[int] | None = None,
+    topic: str = "",
+    role: str = "",
+    level: str = "",
 ) -> dict[str, Any]:
-    """Find one answer, grounded in the matching source chunks."""
+    """Find one answer, grounded in the matching source chunks.
+
+    With no job the answer is written for the topic and target role instead, which
+    is what the Ask workspace uses: the same retrieval and the same fields, only the
+    shape of the answer changes.
+    """
     question = (question or "").strip()
     if len(question) < 5:
         raise StudyError("Type a question first.")
@@ -381,6 +443,7 @@ def answer_question(
         source="portfolio corpus",
         limit=6_000,
     )
+    guidance = ASK_GUIDANCE.get(topic, "")
     messages = [
         ChatMessage(
             "system",
@@ -390,12 +453,13 @@ def answer_question(
                 "Use <sources> for technical explanation and <portfolio> for Lyle's own experience. If the "
                 "material does not cover the question, say so plainly and give the structure of a good "
                 "answer instead of inventing facts, numbers or employers. Keep it under 260 words. Return "
-                "one JSON object with answer, follow_ups and confidence.",
+                "one JSON object with answer, follow_ups and confidence."
+                + (f"\n{guidance}" if guidance else ""),
             ),
         ),
         ChatMessage(
             "user",
-            _job_block(job, company)
+            _job_block(job, company, role=role, level=level)
             + "\n\n"
             + source_block
             + "\n\n"
@@ -432,6 +496,6 @@ def answer_question(
         "confidence": payload.get("confidence")
         if payload.get("confidence") in {"high", "medium", "low"}
         else "medium",
-        "citations": [chunk.citation for chunk in chunks[:5]],
+        "citations": list(dict.fromkeys(chunk.citation for chunk in chunks[:5])),
         "model": response.model,
     }

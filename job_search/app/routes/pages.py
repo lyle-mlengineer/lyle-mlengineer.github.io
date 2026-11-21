@@ -18,6 +18,7 @@ from ..deps import current_session, get_db
 from ..documents.email import format_email
 from ..domain import ACTIVE_JOB_STATUSES, JOB_STATUS_LABELS, JOB_STATUSES
 from ..interview.sources import question_payload, source_payload
+from ..interview.study import ASK_GUIDANCE, ASK_TOPICS
 from ..jobs.pipeline import run_remaining_skills
 from ..jobs.render import markdown_to_html
 from ..models import (
@@ -455,7 +456,10 @@ def study_page(request: Request, db: Session = Depends(get_db)) -> Response:
     questions = db.scalars(
         select(InterviewQuestion)
         .options(selectinload(InterviewQuestion.source))
-        .where(InterviewQuestion.job_id.is_(None))
+        .where(
+            InterviewQuestion.job_id.is_(None),
+            InterviewQuestion.origin != "answer",
+        )
         .order_by(InterviewQuestion.created_at.desc())
         .limit(60)
     ).all()
@@ -479,6 +483,49 @@ def study_page(request: Request, db: Session = Depends(get_db)) -> Response:
                 "count": settings.interview_practice_questions,
                 "interviewer": settings.tts_voice_interviewer,
                 "interviewee": settings.tts_voice_interviewee,
+            },
+        },
+    )
+
+
+@router.get("/ask", response_class=HTMLResponse)
+def ask_page(request: Request, db: Session = Depends(get_db)) -> Response:
+    """Ask workspace: one typed interview question, answered with no job open.
+
+    The answer is written for one of seven subjects and grounded in the uploaded
+    documents plus the portfolio, so nothing here needs a posting. Earlier answers
+    are kept (``origin='answer'``) and shown beneath the form.
+    """
+    session = current_session(request, db)
+    if session is None:
+        return RedirectResponse("/login?next=/ask", status_code=303)
+
+    history = db.scalars(
+        select(InterviewQuestion)
+        .where(
+            InterviewQuestion.job_id.is_(None),
+            InterviewQuestion.origin == "answer",
+        )
+        .order_by(InterviewQuestion.created_at.desc())
+        .limit(40)
+    ).all()
+    source_count = db.execute(select(func.count(InterviewSource.id))).scalar_one()
+    settings = get_settings()
+    return _templates(request).TemplateResponse(
+        request,
+        "ask.html",
+        {
+            "page": "ask",
+            "session": session,
+            "csrf_token": session["csrf_token"],
+            "topics": ASK_TOPICS,
+            "guidance": ASK_GUIDANCE,
+            "history": [question_payload(row) for row in history],
+            "source_count": source_count,
+            "defaults": {
+                "role": "Machine learning engineer",
+                "level": "Senior",
+                "count": settings.interview_practice_questions,
             },
         },
     )

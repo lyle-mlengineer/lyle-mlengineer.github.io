@@ -3393,6 +3393,32 @@ body.dark-theme .bars__fill--alt {
     margin-top: .75rem;
 }
 
+/* ---------------- ask workspace ---------------- */
+
+.ask-topics {
+    display: grid;
+    gap: .15rem;
+    margin: 0;
+}
+
+.ask-topics__term {
+    margin-top: .55rem;
+    color: var(--title-color);
+    font-size: var(--small-font-size);
+    font-weight: var(--font-semi-bold);
+}
+
+.ask-topics__term:first-of-type {
+    margin-top: 0;
+}
+
+.ask-topics__copy {
+    margin: 0;
+    color: var(--text-color-light);
+    font-size: var(--smaller-font-size);
+    line-height: 1.6;
+}
+
 body.dark-theme .practice__status.is-error,
 body.dark-theme .resources__status.is-error {
     color: hsl(0, 75%, 78%);
